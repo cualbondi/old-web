@@ -1,0 +1,50 @@
+<div class="navbar navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+        <a class="brand" href="#">CualBondi</a>
+        <ul class="nav">
+          <li class="active"><a href="/"><i class="icon-home icon-white"></i> Inicio</a></li>
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="">
+              <i class="icon-picture icon-white"></i> Ciudad
+              <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+            {% for ciudad in ciudades %}
+                {% if ciudad == ciudad_actual %}
+                    <li><a href=""><i class="icon-chevron-right"></i> {{ciudad.nombre}}</a></li>
+                {% else %}
+                    <li><a href="{% if es_vista_mapa %}/mapa{% endif %}/{{ciudad.slug}}"><i class="icon-minus"></i> {{ciudad.nombre}}</a></li>
+                {% endif %}
+            {% endfor %}
+            </ul>
+          </li>
+        {% if ciudad_actual %}
+            {% if es_vista_mapa %}
+              <li><a href="/{{ciudad_actual.slug}}"><i class="icon-file icon-white"></i> Ir al contenido</a></li>
+            {% else %}
+              <li><a href="/mapa/{{ciudad_actual.slug}}"><i class="icon-map-marker icon-white"></i> Ir al mapa</a></li>
+            {% endif %}
+        {% endif %}
+        </ul>
+        {% if user.is_authenticated %}
+        <ul class="nav pull-right">
+            <li><a><i class="icon-user icon-white"></i> {{ user.username }}</a></li>
+            <li class="divider-vertical"></li>
+            <li><a href=""><i class="icon-list icon-white"></i> Perfil</a></li>
+            <li><a href="/usuarios/logout/"><i class="icon-share-alt icon-white"></i> Salir</a></li>
+        </ul>
+        {% else %}
+        <ul class="nav pull-right">
+            <li><a href="#"><i class="icon-user icon-white"></i> Iniciar sesion</a></li>
+            <form id="login_form" class="navbar-search" action="/usuarios/login/" method="POST"">
+                {% csrf_token %}
+                <input id="username_input" type="text" name="username" class="search-query span2" placeholder="Usuario">
+                <input id="password_input" type="password" name="password" class="search-query span2" placeholder="Contraseña">
+            </form>
+            <ul class="nav"><li><a id="submit_button">Ingresar &raquo;</a></li></ul>
+        </ul>
+        {% endif %}
+    </div>
+  </div>
+</div>

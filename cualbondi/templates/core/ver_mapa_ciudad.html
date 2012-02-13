@@ -1,0 +1,16 @@
+{% extends "maquetado.html" %}
+
+{% block bloque_izquierda %}
+    <h1>Vista del mapa de {{ciudad_actual.nombre}}!</h1>
+{% endblock %}
+
+{% block custom_scripts %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('.dropdown-toggle').dropdown();
+            $('#submit_button').click(function(){
+                $('#login_form').submit();
+            })
+        })
+    </script>
+{% endblock %}

@@ -1,0 +1,137 @@
+# This is an auto-generated Django model module.
+# You'll have to do the following manually to clean this up:
+#     * Rearrange models' order
+#     * Make sure each model has one field with primary_key=True
+# Feel free to rename the models, but don't rename db_table values or field names.
+#
+# Also note: You'll have to insert the output of 'django-admin.py sqlcustom [appname]'
+# into your database.
+
+from django.contrib.gis.db import models
+#from reversion.admin import VersionAdmin
+#from moderation.admin import ModerationAdmin
+
+from django.contrib import admin
+
+
+class Linea(models.Model):
+    nombre = models.CharField(max_length=20)
+    descripcion = models.TextField()
+    foto = models.CharField(max_length=20)
+    info_empresa = models.TextField()
+    info_terminal = models.TextField()
+    semirrapido = models.BooleanField()
+    localidad = models.CharField(max_length=40)
+    cp = models.IntegerField()
+    telefono = models.CharField(max_length=80)
+    class Meta:
+        db_table = u'linea'
+
+class Ramal(models.Model):
+    nombre = models.CharField(max_length=25)
+    descripcion = models.TextField()
+    id_linea = models.ForeignKey(Linea, db_column='id_linea')
+    class Meta:
+        db_table = u'ramal'
+
+#class RecorridoAdmin(ModerationAdmin):
+#    """Admin settings go here."""
+
+class Recorrido(models.Model):
+    nombre = models.CharField(max_length=20)
+    zona_inicio = models.CharField(max_length=40)
+    zona_fin = models.CharField(max_length=40)
+    descripcion = models.TextField()
+    id_ramal = models.ForeignKey(Ramal, db_column='id_ramal')
+    color_polilinea = models.CharField(max_length=15)
+    horarios = models.TextField()
+    camino = models.LineStringField()
+    edicion_fuente_nombre = models.CharField(max_length=50)
+    edicion_fuente_contacto = models.CharField(max_length=50)
+    edicion_id_usuario = models.IntegerField()
+    save_timestamp = models.DateTimeField()
+    edicion_datatimestamp = models.DateTimeField()
+    objects = models.GeoManager()
+    class Meta:
+        db_table = u'recorrido'
+    def __unicode__(self):
+        return self.nombre
+
+class Ciudad(models.Model):
+    box = models.TextField() # This field type is a guess.
+    zoom = models.IntegerField()
+    centro = models.PointField()
+    zona = models.GeometryField(srid=4326, geography=True)
+    centrog = models.GeometryField(srid=4326, geography=True)
+    lineas = models.ManyToManyField(Linea)
+    objects = models.GeoManager()
+    class Meta:
+        db_table = u'ciudad'
+
+class Zona(models.Model):
+    geo = models.GeometryField(srid=4326, geography=True)
+    name = models.CharField(max_length=25)
+    objects = models.GeoManager()
+    class Meta:
+        db_table = u'zona'
+
+class Calles(models.Model):
+    way = models.GeometryField(srid=4326, geography=True)
+    nom_normal = models.TextField()
+    nom = models.TextField()
+    objects = models.GeoManager()
+    class Meta:
+        db_table = u'calles'
+
+class Comercio(models.Model):
+    link = models.CharField(max_length=255)
+    paga = models.IntegerField()
+    dirok = models.IntegerField()
+    descripcion = models.TextField()
+    nombre = models.CharField(max_length=100)
+    latlng = models.PointField()
+    numero = models.CharField(max_length=20)
+    entre1 = models.CharField(max_length=20)
+    entre2 = models.CharField(max_length=20)
+    calle = models.CharField(max_length=30)
+    objects = models.GeoManager()
+    class Meta:
+        db_table = u'comercio'
+
+class LogBusqueda(models.Model):
+    a = models.CharField(max_length=200)
+    b = models.CharField(max_length=200)
+    ip = models.IPAddressField()
+    tipo_res = models.IntegerField()
+    cant_res = models.IntegerField()
+    fecha = models.DateTimeField()
+    cant_a = models.IntegerField()
+    cant_b = models.IntegerField()
+    ciudad = models.CharField(max_length=25)
+    res_a = models.TextField()
+    res_b = models.TextField()
+    res = models.TextField()
+    rad_a = models.IntegerField()
+    rad_b = models.IntegerField()
+    tipo = models.TextField()
+    tiempo_total = models.CharField(max_length=30)
+    class Meta:
+        db_table = u'log_busqueda'
+
+class Lugar(models.Model):
+    latlng = models.PointField()
+    nom = models.TextField()
+    nom_normal = models.TextField()
+    objects = models.GeoManager()
+    class Meta:
+        db_table = u'lugar'
+
+class Poi(models.Model):
+    nom_normal = models.TextField()
+    nom = models.TextField()
+    latlng = models.GeometryField(srid=4326, geography=True)
+    objects = models.GeoManager()
+    class Meta:
+        db_table = u'poi'
+
+#admin.site.register(Recorrido, RecorridoAdmin)

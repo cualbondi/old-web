@@ -1,0 +1,42 @@
+[
+    {
+        "pk": 4, 
+        "model": "core.linea", 
+        "fields": {
+            "descripcion": "Linea TALP", 
+            "nombre": "TALP", 
+            "foto": "foto TALP", 
+            "slug": "linea-talp"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "core.linea", 
+        "fields": {
+            "descripcion": "Linea Sur", 
+            "nombre": "Sur", 
+            "foto": "foto de la linea sur", 
+            "slug": "linea-sur"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "core.linea", 
+        "fields": {
+            "descripcion": "Esta es la linea Norte", 
+            "nombre": "Norte", 
+            "foto": "foto", 
+            "slug": "linea-norte"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "core.linea", 
+        "fields": {
+            "descripcion": "Linea Oeste", 
+            "nombre": "Oeste", 
+            "foto": "path a la foto", 
+            "slug": "linea-oeste"
+        }
+    }
+]

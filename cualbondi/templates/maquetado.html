@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block navbar %}
+    {% include "navbar.html"%}
+{% endblock %}
+
+{% block content %}
+        <div class="row">
+            <div id="bloque_izquierda"class="span9">
+                {% block bloque_izquierda %}{% endblock %}
+            </div>
+            <div id="bloque_derecha" class="span3">
+                {% block bloque_derecha %}{% endblock %}
+            </div>
+        </div>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html"%}
+{% endblock %}

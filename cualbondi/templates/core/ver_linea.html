@@ -1,0 +1,26 @@
+{% extends "maquetado.html" %}
+
+{% block bloque_izquierda %}
+    <ul class="breadcrumb">
+        <li><a href="/">Inicio</a> <span class="divider">></span></li>
+        <li><a href="/{{ciudad_actual.slug}}">{{ciudad_actual.nombre}}</a> <span class="divider">></span></li>
+        <li class="active">{{linea_actual.nombre}}</li>
+    </ul>
+
+    <h1>{{linea_actual.nombre}} ({{ciudad_actual.nombre}})</h1>
+
+    <table class="table table-striped table-bordered table-condensed">
+        <thead>
+            <tr>
+            <th>Nombre del recorrido</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for recorrido in recorridos %}
+            <tr>
+                <td><a href="{{recorrido.slug}}">{{recorrido.nombre}}</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
