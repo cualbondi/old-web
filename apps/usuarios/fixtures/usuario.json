@@ -1,0 +1,95 @@
+[
+    {
+        "pk": 1, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "admin", 
+            "first_name": "", 
+            "last_name": "", 
+            "is_active": true, 
+            "is_superuser": true, 
+            "is_staff": true, 
+            "last_login": "2012-02-21 14:23:09", 
+            "groups": [], 
+            "user_permissions": [], 
+            "password": "sha1$ca291$b4ae5b46adf6963e57e63312372b6114d3a0dca6", 
+            "email": "admin@cb.com", 
+            "date_joined": "2012-02-21 14:21:37"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "julian", 
+            "first_name": "Julian", 
+            "last_name": "Perelli", 
+            "is_active": true, 
+            "is_superuser": false, 
+            "is_staff": false, 
+            "last_login": "2012-02-21 14:23:23", 
+            "groups": [], 
+            "user_permissions": [
+                25, 
+                26, 
+                31, 
+                32
+            ], 
+            "password": "sha1$71762$dc511a7a049a1e02a32f5befd4e5b6e7203e9c88", 
+            "email": "jperelli@gmail.com", 
+            "date_joined": "2012-02-21 14:23:23"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "martin", 
+            "first_name": "Martin", 
+            "last_name": "Zugnoni", 
+            "is_active": true, 
+            "is_superuser": false, 
+            "is_staff": true, 
+            "last_login": "2012-02-21 14:24:00", 
+            "groups": [], 
+            "user_permissions": [
+                37, 
+                38, 
+                39, 
+                40, 
+                41, 
+                42, 
+                46, 
+                47, 
+                48, 
+                55, 
+                56, 
+                57, 
+                25, 
+                26, 
+                27, 
+                52, 
+                53, 
+                54, 
+                43, 
+                44, 
+                45, 
+                34, 
+                35, 
+                36, 
+                31, 
+                32, 
+                33, 
+                49, 
+                50, 
+                51, 
+                28, 
+                29, 
+                30
+            ], 
+            "password": "sha1$3ec7c$9f14f48836cb21612fac6b4131fb5018931bfb44", 
+            "email": "martin.zugnoni@gmail.com", 
+            "date_joined": "2012-02-21 14:24:00"
+        }
+    }
+]

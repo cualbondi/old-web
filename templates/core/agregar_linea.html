@@ -1,0 +1,41 @@
+{% extends "maquetado.html" %}
+
+{% block bloque_izquierda %}
+    <form action="" method="POST" class="form-horizontal">
+    {% csrf_token %}
+        <div class="control-group {% if form.nombre.errors %}error{% endif %}">
+            <label class="control-label">Nombre{% if form.nombre.field.required %} <span class="required">*</span>{%endif%}</label>
+            <div class="controls">
+                {{ form.nombre }}
+                {% for error in form.nombre.errors %}
+                    <p class="help-block">{{ error }}</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="control-group {% if form.descripcion.errors %}error{% endif %}">
+            <label class="control-label">Descripción{% if form.descripcion.field.required %} <span class="required">*</span>{%endif%}</label>
+            <div class="controls">
+                {{ form.descripcion }}
+                {% for error in form.descripcion.errors %}
+                    <p class="help-block">{{ error }}</p>
+                {% endfor %}
+            </div>
+        </div>
+
+<!--        <div class="control-group {% if form.foto.errors %}error{% endif %}">-->
+<!--            <label class="control-label">Foto{% if form.foto.field.required %} <span class="required">*</span>{%endif%}</label>-->
+<!--            <div class="controls">-->
+<!--                {{ form.foto }}-->
+<!--                {% for error in form.foto.errors %}-->
+<!--                    <p class="help-block">{{ error }}</p>-->
+<!--                {% endfor %}-->
+<!--            </div>-->
+<!--        </div>-->
+
+        <div align="center">
+            <button type="submit" class="btn btn-success">Guardar cambios</button>
+            <button class="btn">Cancelar</button>
+        </div>
+    </form>
+{% endblock %}
