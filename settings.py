@@ -103,7 +103,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
-ROOT_URLCONF = 'cualbondi.urls'
+ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -124,11 +124,12 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'django.contrib.gis',
-    'cualbondi.apps.core',
-#    'moderation',
+    'apps.core',
+#    'apps.moderacion',
+    'moderation',
 #    'moderacion',
 #    'editor',
-    'django_extensions',
+#    'django_extensions',
 )
 
 # A sample logging configuration. The only tangible logging

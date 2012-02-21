@@ -8,4 +8,5 @@ body {
 }
 .escrachado { background-color: red; }
 #submit_button { cursor: pointer; }
+.required { color: #B94A48; }
 

@@ -2,6 +2,9 @@ from apps.core.models import Ciudad, Poi, Linea, Recorrido
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.template import RequestContext, Context
 from django.template.defaultfilters import slugify
+from apps.core.forms import LineaForm
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 
 def index(request):
@@ -89,3 +92,35 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
                                'linea_actual': linea_actual,
                                'recorrido_actual': recorrido_actual},
                               context_instance=RequestContext(request))
+
+@login_required(login_url="/usuarios/login/")
+def agregar_linea(request, nombre_ciudad):
+    slug_ciudad = slugify(nombre_ciudad)
+    ciudades = Ciudad.objects.filter(activa=True)
+    ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
+
+    if request.method == 'POST':
+        form = LineaForm(request.POST)
+        if form.is_valid():
+            linea = form.save(commit=True)
+            msg = 'La linea {0} se ha agregado correctamente'
+            messages.add_message(request,
+                            messages.SUCCESS,
+                            msg.format(linea))
+        else:
+            msg = 'La operacion no pudo realizarse con exito'
+            messages.add_message(request,
+                            messages.ERROR,
+                            msg)
+        return render_to_response('core/agregar_linea.html',
+                                 {'form': form,
+                                  'ciudad_actual': ciudad_actual,
+                                  'ciudades': ciudades},
+                              context_instance=RequestContext(request))
+    elif request.method == 'GET':
+        linea_form = LineaForm()
+        return render_to_response('core/agregar_linea.html',
+                                  {'form': linea_form,
+                                   'ciudad_actual': ciudad_actual,
+                                   'ciudades': ciudades},
+                                  context_instance=RequestContext(request))

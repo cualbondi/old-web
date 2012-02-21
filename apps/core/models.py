@@ -7,7 +7,7 @@ class Linea(models.Model):
     nombre = models.CharField(max_length=100)
     slug = models.SlugField(max_length=120, blank=True, null=False)
     descripcion = models.TextField()
-    foto = models.CharField(max_length=20)
+    foto = models.CharField(max_length=20, blank=True, null=True)
 
     def __unicode__(self):
         return self.nombre

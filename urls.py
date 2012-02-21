@@ -1,11 +1,12 @@
 from django.conf.urls.defaults import patterns, include, url
 from django.contrib.gis import admin
 import settings
-#from moderation.helpers import auto_discover
-#auto_discover()
 
 # Uncomment the next two lines to enable the admin:
 admin.autodiscover()
+
+from moderation.helpers import auto_discover
+auto_discover()
 
 urlpatterns = patterns('',
     (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
@@ -15,6 +16,7 @@ urlpatterns = patterns('',
 
     url(r'^$', 'apps.core.views.index', name='index'),
     url(r'^seleccionar-ciudad/$', 'apps.core.views.seleccionar_ciudad', name='seleccionar_ciudad'),
+    url(r'^(?P<nombre_ciudad>[\w-]+)/linea/agregar/$', 'apps.core.views.agregar_linea', name='agregar_linea'),
 
     # Ciudades
     url(r'^(?P<nombre_ciudad>[\w-]+)/$', 'apps.core.views.ver_ciudad', name='ver_ciudad'),
