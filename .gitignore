@@ -1,0 +1,49 @@
+# Uploaded files #
+##################
+media
+
+# Archivos migracion south #
+##########################
+migrations
+
+# Archivos configuracion #
+##########################
+settings_local.py
+
+# Archivos compilados #
+###################
+*.pyc
+*.class
+*.o
+*.so
+
+# Archivos temporales #
+###################
+*.swp
+*.tmp
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases #
+######################
+*.log
+#*.sql
+*.sqlite
+
+# OS generated files #
+######################
+.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
