@@ -4,7 +4,7 @@ from apps.core.models import (Terminal, Linea, Recorrido, Provincia,
         Ciudad, Comercio, Poi, CustomPoi, RecorridoFavorito,
         Parada, Horario)
 
-class CustomAdmin(ModerationAdmin, admin.GeoModelAdmin):
+class CustomAdmin(ModerationAdmin, admin.OSMGeoAdmin):
     exclude = ()
 
 admin.site.register(Linea, CustomAdmin)
