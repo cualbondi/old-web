@@ -1,10 +1,12 @@
 from apps.core.models import Ciudad, Poi, Linea, Recorrido
 from django.shortcuts import get_object_or_404, render_to_response, redirect
+from django.http import HttpResponse
 from django.template import RequestContext, Context
 from django.template.defaultfilters import slugify
 from apps.core.forms import LineaForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core import serializers
 
 
 def index(request):
@@ -92,6 +94,10 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
                                'linea_actual': linea_actual,
                                'recorrido_actual': recorrido_actual},
                               context_instance=RequestContext(request))
+
+def get_recorridos(request):
+    recorridos = serializers.serialize("json", Linea.objects.all(), fields=('nombre'))
+    return HttpResponse(recorridos, mimetype='application/json')
 
 @login_required(login_url="/usuarios/login/")
 def agregar_linea(request, nombre_ciudad):
