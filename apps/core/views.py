@@ -17,10 +17,8 @@ def index(request):
     return redirect("/seleccionar-ciudad")
 
 def seleccionar_ciudad(request):
-    ciudades = Ciudad.objects.filter(activa=True)
     return render_to_response('core/seleccionar_ciudad.html',
-                              {'ciudad_actual': None,
-                               'ciudades': ciudades},
+                              {'ciudad_actual': None},
                               context_instance=RequestContext(request))
 
 
@@ -28,12 +26,10 @@ def ver_ciudad(request, nombre_ciudad):
     slug_ciudad = slugify(nombre_ciudad)
     ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
 
-    ciudades = Ciudad.objects.filter(activa=True)
     lineas = ciudad_actual.lineas.all()
 
     return render_to_response('core/ver_ciudad.html',
                               {'ciudad_actual': ciudad_actual,
-                               'ciudades': ciudades,
                                'lineas': lineas},
                               context_instance=RequestContext(request))
 
@@ -42,14 +38,12 @@ def ver_mapa_ciudad(request, nombre_ciudad):
     slug_ciudad = slugify(nombre_ciudad)
     ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
 
-    ciudades = Ciudad.objects.filter(activa=True)
 #    pois = Poi.objects.filter(ciudad=ciudad_actual)
 #    comercios = Comercio.objects.filter(ciudad=ciudad_actual)
 
     return render_to_response('core/ver_mapa_ciudad.html',
                               {'es_vista_mapa': True,
-                               'ciudad_actual': ciudad_actual,
-                               'ciudades': ciudades},
+                               'ciudad_actual': ciudad_actual},
                               context_instance=RequestContext(request))
 
 
@@ -57,7 +51,6 @@ def ver_linea(request, nombre_ciudad, nombre_linea):
     slug_ciudad = slugify(nombre_ciudad)
     slug_linea = slugify(nombre_linea)
 
-    ciudades = Ciudad.objects.filter(activa=True)
     ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
     """ TODO: Buscar solo lineas activas """
     linea_actual = get_object_or_404(Linea,
@@ -66,7 +59,6 @@ def ver_linea(request, nombre_ciudad, nombre_linea):
     recorridos = Recorrido.objects.filter(linea=linea_actual)
     return render_to_response('core/ver_linea.html',
                               {'ciudad_actual': ciudad_actual,
-                               'ciudades': ciudades,
                                'linea_actual': linea_actual,
                                'recorridos': recorridos},
                               context_instance=RequestContext(request))
@@ -77,7 +69,6 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
     slug_linea = slugify(nombre_linea)
     slug_recorrido = slugify(nombre_recorrido)
 
-    ciudades = Ciudad.objects.filter(activa=True)
     ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
     """ TODO: Buscar solo lineas activas """
     linea_actual = get_object_or_404(Linea,
@@ -90,19 +81,14 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
 
     return render_to_response('core/ver_recorrido.html',
                               {'ciudad_actual': ciudad_actual,
-                               'ciudades': ciudades,
                                'linea_actual': linea_actual,
                                'recorrido_actual': recorrido_actual},
                               context_instance=RequestContext(request))
 
-def get_recorridos(request):
-    recorridos = serializers.serialize("json", Linea.objects.all(), fields=('nombre'))
-    return HttpResponse(recorridos, mimetype='application/json')
 
 @login_required(login_url="/usuarios/login/")
 def agregar_linea(request, nombre_ciudad):
     slug_ciudad = slugify(nombre_ciudad)
-    ciudades = Ciudad.objects.filter(activa=True)
     ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
 
     if request.method == 'POST':
@@ -120,13 +106,11 @@ def agregar_linea(request, nombre_ciudad):
                             msg)
         return render_to_response('core/agregar_linea.html',
                                  {'form': form,
-                                  'ciudad_actual': ciudad_actual,
-                                  'ciudades': ciudades},
+                                  'ciudad_actual': ciudad_actual},
                               context_instance=RequestContext(request))
     elif request.method == 'GET':
         linea_form = LineaForm()
         return render_to_response('core/agregar_linea.html',
                                   {'form': linea_form,
-                                   'ciudad_actual': ciudad_actual,
-                                   'ciudades': ciudades},
+                                   'ciudad_actual': ciudad_actual},
                                   context_instance=RequestContext(request))

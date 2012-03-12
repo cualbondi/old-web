@@ -9,7 +9,6 @@ from moderation.helpers import auto_discover
 auto_discover()
 
 urlpatterns = patterns('',
-    url(r'^get-recorridos/$', 'apps.core.views.get_recorridos', name='get_recorridos'),
     (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
 
     url(r'^api/', include('apps.api.urls')),
