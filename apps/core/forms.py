@@ -31,7 +31,7 @@ class BaseGMapWidget(forms.gis.BaseGeometryWidget):
             'http://maps.google.com/maps/api/js?sensor=false',
         )
 
-class CustomLineStringWidget(forms.gis.BaseGMapWidget, forms.gis.LineStringWidget):
+class CustomLineStringWidget(BaseGMapWidget, forms.gis.LineStringWidget):
     map_width = 700
     map_height = 400
     display_wkt = False
