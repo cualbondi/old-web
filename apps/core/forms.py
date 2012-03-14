@@ -1,4 +1,5 @@
-from django import forms
+#from django import forms
+import floppyforms as forms
 from moderation.forms import BaseModeratedObjectForm
 from apps.core.models import Linea, Recorrido
 
@@ -17,3 +18,18 @@ class LineaForm(BaseModeratedObjectForm):
     class Meta:
         model = Linea
         exclude = ('slug')
+
+
+class CustomLineStringWidget(forms.gis.BaseGMapWidget, forms.gis.LineStringWidget):
+    map_width = 700
+    map_height = 400
+    display_wkt = False
+
+
+class RecorridoForm(forms.Form):
+    ruta = forms.gis.LineStringField(widget=CustomLineStringWidget)
+    class Meta:
+        model = Recorrido
+
+
+

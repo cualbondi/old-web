@@ -17,7 +17,9 @@ urlpatterns = patterns('',
 
     url(r'^$', 'apps.core.views.index', name='index'),
     url(r'^seleccionar-ciudad/$', 'apps.core.views.seleccionar_ciudad', name='seleccionar_ciudad'),
-    url(r'^(?P<nombre_ciudad>[\w-]+)/linea/agregar/$', 'apps.core.views.agregar_linea', name='agregar_linea'),
+
+    url(r'^(?P<nombre_ciudad>[\w-]+)/lineas/agregar/$', 'apps.core.views.agregar_linea', name='agregar_linea'),
+    url(r'^(?P<nombre_ciudad>[\w-]+)/recorridos/agregar/$', 'apps.core.views.agregar_recorrido', name='agregar_recorrido'),
 
     # Ciudades
     url(r'^(?P<nombre_ciudad>[\w-]+)/$', 'apps.core.views.ver_ciudad', name='ver_ciudad'),

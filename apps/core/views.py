@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.http import HttpResponse
 from django.template import RequestContext, Context
 from django.template.defaultfilters import slugify
-from apps.core.forms import LineaForm
+from apps.core.forms import LineaForm, RecorridoForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
@@ -114,3 +114,18 @@ def agregar_linea(request, nombre_ciudad):
                                   {'form': linea_form,
                                    'ciudad_actual': ciudad_actual},
                                   context_instance=RequestContext(request))
+
+
+@login_required(login_url="/usuarios/login/")
+def agregar_recorrido(request, nombre_ciudad):
+    slug_ciudad = slugify(nombre_ciudad)
+    ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
+
+    if request.method == 'POST':
+        pass
+    elif request.method == 'GET':
+        recorrido_form = RecorridoForm()
+        return render_to_response('core/agregar_recorrido.html',
+                                  {'form': recorrido_form,
+                                   'ciudad_actual': ciudad_actual},
+                                    context_instance=RequestContext(request))

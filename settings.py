@@ -134,6 +134,7 @@ INSTALLED_APPS = (
     'apps.core',
 #    'apps.moderacion',
     'moderation',
+    'floppyforms',
 #    'moderacion',
 #    'editor',
 #    'django_extensions',

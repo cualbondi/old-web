@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
     <head>
-	    <meta charset="utf-8">		
+	    <meta charset="utf-8">
     	<title>{% block title %}Cualbondi.com.ar{% endblock %}</title>
 		<link href="/media/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 		<link href="/media/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css" />
 		<link href="/media/css/estilo.css" rel="stylesheet" type="text/css" />
 		{% block custom_styles %}{% endblock %}
+
+		{% block custom_top_scripts %}{% endblock %}
 	</head>
 	<body>
 	    {% block navbar %}{% endblock %}
@@ -38,7 +40,7 @@
                 $(".alert-message").alert()
 
                 {% block custom_ready_function %}{% endblock %}
-            })	
+            })
         </script>
 
 		{% block custom_scripts %}{% endblock %}
