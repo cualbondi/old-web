@@ -1,6 +1,6 @@
 # Uploaded files #
 ##################
-media
+# media
 
 # Archivos migracion south #
 ##########################
@@ -9,6 +9,7 @@ migrations
 # Archivos configuracion #
 ##########################
 settings_local.py
+settings.py
 
 # Archivos compilados #
 ###################
