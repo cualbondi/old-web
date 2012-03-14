@@ -19,6 +19,17 @@ class LineaForm(BaseModeratedObjectForm):
         model = Linea
         exclude = ('slug')
 
+class BaseGMapWidget(forms.gis.BaseGeometryWidget):
+    """A Google Maps base widget"""
+    map_srid = 900913
+    template_name = 'floppyforms/gis/google.html'
+
+    class Media:
+        js = (
+            'http://openlayers.org/dev/OpenLayers.js',
+            '/media/js/floppyforms/MapWidget.js',
+            'http://maps.google.com/maps/api/js?sensor=false',
+        )
 
 class CustomLineStringWidget(forms.gis.BaseGMapWidget, forms.gis.LineStringWidget):
     map_width = 700
