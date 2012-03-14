@@ -1,0 +1,18 @@
+{% extends "maquetado.html" %}
+
+{% block custom_top_scripts %}
+    {{ form.media }}
+{% endblock %}
+
+{% block bloque_izquierda %}
+    <form method="post" action="/some-url/">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <p><input type="submit" value="Submit"></p>
+    </form>
+{% endblock %}
+
+{% block custom_ready_function %}
+    map_ruta.map.options.default_lat = -34.56
+    map_ruta.map.options.default_lon = -56.94
+{% endblock %}
