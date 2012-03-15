@@ -61,6 +61,7 @@ ESTRUCTURA DE LAS URLs
             destino (40.737102,-73.990318)  /
             radio_origen (200)  \   Tolerancia a caminar, tanto al subir como al bajar
             radio_destino (350) /
+            combinar (True) => Si es True buscar con transbordo
             query (Oeste 10 desde Olmos hasta centro)   =>  Busqueda de recorridos por nombre o lugares por dnd pasa
             pagina (4)  =>  Dada una busqueda, los resultados se paginan y se devuelve la pagina "pagina"
 [DONE].com/api/recorridos/<id-recorrido>/

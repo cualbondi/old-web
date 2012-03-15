@@ -23,6 +23,12 @@ DATABASES = {
     }
 }
 
+# Variables personalizadas
+RADIO_ORIGEN_DEFAULT = 200
+RADIO_DESTINO_DEFAULT = 200
+LONGITUD_PAGINA = 10
+
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
