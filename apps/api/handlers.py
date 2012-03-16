@@ -2,8 +2,10 @@ from apps.core.models import Ciudad, Linea, Recorrido
 from piston.handler import BaseHandler
 from piston.utils import rc
 from django.core.exceptions import ObjectDoesNotExist
-from settings import RADIO_ORIGEN_DEFAULT, RADIO_DESTINO_DEFAULT
+from settings import RADIO_ORIGEN_DEFAULT, RADIO_DESTINO_DEFAULT, CACHE_TIMEOUT, LONGITUD_PAGINA
 from django.contrib.gis.geos import Point
+from django.core.cache import cache
+from hashlib import sha1
 
 
 class CiudadHandler(BaseHandler):
@@ -85,8 +87,24 @@ class RecorridoHandler(BaseHandler):
     model = Recorrido
     exclude = ()
 
-    def _get_response_from_cache(self, origen, destino, radio_origen, radio_destino, combinar, pagina):
-        return None
+    def _get_response_from_cache(self, origen, destino, radio_origen, radio_destino, combinar):
+        concat = str(origen) + str(destino) + str(radio_origen) + str(radio_destino) + str(combinar)
+        key = sha1(concat).hexdigest()
+        response = cache.get(key)
+        if not response:
+            # No se encontro la response en la cache
+            return None
+        return response
+
+    def _save_in_cache(self, origen, destino, radio_origen, radio_destino, combinar, recorridos):
+        concat = str(origen) + str(destino) + str(radio_origen) + str(radio_destino) + str(combinar)
+        key = sha1(concat).hexdigest()
+        cache.set(key, recorridos, CACHE_TIMEOUT)
+
+    def _paginar(self, recorridos, pagina):
+        desde = (pagina-1)*LONGITUD_PAGINA
+        hasta = desde+LONGITUD_PAGINA
+        return recorridos[desde:hasta]
 
     def read(self, request, id_recorrido=None):
         if id_recorrido is None:
@@ -96,36 +114,61 @@ class RecorridoHandler(BaseHandler):
             radio_destino = request.GET.get('radio_destino', RADIO_DESTINO_DEFAULT)
             query = request.GET.get('query', None)
 
-            combinar = request.GET.get('combinar', False)
-            pagina = request.GET.get('pagina', 1)
+            combinar = request.GET.get('combinar', 'false')
+            if combinar == 'true': combinar = True
+            elif combinar == 'false': combinar = False
+            else: return rc.BAD_REQUEST
+
+            pagina = request.GET.get('pagina', None)
+            if pagina is not None:
+                try:
+                    pagina = int(pagina)
+                except ValueError:
+                    return rc.BAD_REQUEST
 
             if query is not None:
                 # Buscar recorridos por nombre
                 rc.NOT_IMPLEMENTED
             elif origen is not None and destino is not None:
                 # Buscar geograficamente en base a origen y destino
-                """ TODO: Checkear que venga un float y no cualquier otra cosa! """
                 origen = str(origen).split(",")
-                origen = Point(float(origen[1]), float(origen[0]))
+                try:
+                    latitud_origen = float(origen[1])
+                    longitud_origen = float(origen[0])
+                except ValueError:
+                    return rc.BAD_REQUEST
+                origen = Point(latitud_origen, longitud_origen)
 
                 destino = str(destino).split(",")
-                destino = Point(float(destino[1]), float(destino[0]))
+                try:
+                    latitud_destino = float(destino[1])
+                    longitud_destino = float(destino[0])
+                except ValueError:
+                    return rc.BAD_REQUEST
+                destino = Point(latitud_destino, longitud_destino)
 
                 recorridos = self._get_response_from_cache(origen, destino,
-                                radio_origen, radio_destino, combinar, pagina)
+                                radio_origen, radio_destino, combinar)
                 if recorridos is None:
                     # No se encontro en la cache, hay que buscarlo en la DB.
                     if not combinar:
                         # Buscar SIN transbordo
-                        return Recorrido.objects.get_recorridos(origen, destino, radio_origen, radio_destino)
+                        recorridos = Recorrido.objects.get_recorridos(origen, destino, radio_origen, radio_destino)
                     else:
                         # Buscar CON transbordo
                         recorridos = Recorrido.objects.get_recorridos_combinados(origen, destino, radio_origen, radio_destino)
-                        rc.NOT_IMPLEMENTED
+                        return rc.NOT_IMPLEMENTED
+                    # Guardar los resultados calculados en memcached
+                    self._save_in_cache(origen, destino, radio_origen, radio_destino, combinar, recorridos)
+                if pagina is not None:
+                    # Filtrar todos los recorridos y devolver solo la pagina pedida
+                    recorridos = self._paginar(recorridos, pagina)
+                return recorridos
             else:
                 # Sin parametros GET, devolver todos los recorridos
                 return Recorrido.objects.all()
         else:
+            # Me mandaron "id_recorrido", tengo que devolver ese solo recorrido.
             try:
                 return Recorrido.objects.get(id=id_recorrido)
             except ObjectDoesNotExist:

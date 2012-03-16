@@ -16,7 +16,7 @@ class RecorridoManager(models.GeoManager):
             raise DatabaseError("get_recorridos: distanciaB Expected integer as parameter, %s given" % type(distanciaB))
         puntoA.set_srid(4326)
         puntoB.set_srid(4326)
-
+        print puntoA.ewkt
         params = {'puntoA':puntoA.ewkt, 'puntoB':puntoB.ewkt, 'rad1':distanciaA, 'rad2':distanciaB}
         query = """
     SELECT
@@ -50,7 +50,7 @@ class RecorridoManager(models.GeoManager):
 			      ST_Line_Locate_Point(ST_Line_Substring(ruta, 0, 0.5), %(puntoA)s) <
 			      ST_Line_Locate_Point(ST_Line_Substring(ruta, 0, 0.5), %(puntoB)s)
     		) as primera_inner
-    	) 
+    	)
     UNION
       (
   		  SELECT
@@ -111,10 +111,7 @@ class RecorridoManager(models.GeoManager):
 	;"""
 
         query = "Select * from core_recorrido;"
-        query_set = self.raw(query)
+        query_set = self.raw(query, params)
+        return list(query_set)
 
-        result = []
-        for row in query_set:
-            result.append(row)
-        return result
 

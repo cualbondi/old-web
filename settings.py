@@ -23,10 +23,18 @@ DATABASES = {
     }
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
+CACHE_TIMEOUT = 60*60
+
 # Variables personalizadas
 RADIO_ORIGEN_DEFAULT = 200
 RADIO_DESTINO_DEFAULT = 200
-LONGITUD_PAGINA = 10
+LONGITUD_PAGINA = 2
 
 
 # Local time zone for this installation. Choices can be found here:
