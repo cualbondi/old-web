@@ -2,7 +2,7 @@ from apps.core.models import Ciudad, Linea, Recorrido
 from piston.handler import BaseHandler
 from piston.utils import rc
 from django.core.exceptions import ObjectDoesNotExist
-from settings import RADIO_ORIGEN_DEFAULT, RADIO_DESTINO_DEFAULT, CACHE_TIMEOUT, LONGITUD_PAGINA
+from settings import RADIO_ORIGEN_DEFAULT, RADIO_DESTINO_DEFAULT, CACHE_TIMEOUT, LONGITUD_PAGINA, USE_CACHE
 from django.contrib.gis.geos import Point
 from django.core.cache import cache
 from hashlib import sha1
@@ -137,7 +137,7 @@ class RecorridoHandler(BaseHandler):
                     longitud_origen = float(origen[0])
                 except ValueError:
                     return rc.BAD_REQUEST
-                origen = Point(latitud_origen, longitud_origen)
+                origen = Point(longitud_origen, latitud_origen)
 
                 destino = str(destino).split(",")
                 try:
@@ -145,10 +145,13 @@ class RecorridoHandler(BaseHandler):
                     longitud_destino = float(destino[0])
                 except ValueError:
                     return rc.BAD_REQUEST
-                destino = Point(latitud_destino, longitud_destino)
+                destino = Point(longitud_destino, latitud_destino)
 
-                recorridos = self._get_response_from_cache(origen, destino,
-                                radio_origen, radio_destino, combinar)
+                if USE_CACHE:
+                    recorridos = self._get_response_from_cache(origen, destino,
+                                    radio_origen, radio_destino, combinar)
+                else: recorridos = None
+
                 if recorridos is None:
                     # No se encontro en la cache, hay que buscarlo en la DB.
                     if not combinar:
@@ -159,7 +162,8 @@ class RecorridoHandler(BaseHandler):
                         recorridos = Recorrido.objects.get_recorridos_combinados(origen, destino, radio_origen, radio_destino)
                         return rc.NOT_IMPLEMENTED
                     # Guardar los resultados calculados en memcached
-                    self._save_in_cache(origen, destino, radio_origen, radio_destino, combinar, recorridos)
+                    if USE_CACHE:
+                        self._save_in_cache(origen, destino, radio_origen, radio_destino, combinar, recorridos)
                 if pagina is not None:
                     # Filtrar todos los recorridos y devolver solo la pagina pedida
                     recorridos = self._paginar(recorridos, pagina)
