@@ -44,9 +44,19 @@ class Recorrido(models.Model):
         return str(self.linea) + " " + self.nombre
 
     def save(self, *args, **kwargs):
+        # Generar el SLUG a partir del origen y destino del recorrido
         self.slug = slugify("recorrido " + self.nombre + " desde " +\
                                    self.inicio + " hasta " + self.fin)
+
+        # Ejecutar el SAVE original
         super(Recorrido, self).save(*args, **kwargs)
+
+        # Ver que ciudades intersecta
+        ciudades = Ciudad.objects.all()
+        for ciudad in ciudades:
+            if ciudad.zona.intersects(self.ruta):
+                ciudad.recorridos.add(self)
+                ciudad.lineas.add(self.linea)
 
 
 class Provincia(models.Model):
