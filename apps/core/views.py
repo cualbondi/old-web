@@ -14,12 +14,28 @@ def index(request):
         cookie con la ciudad predeterminada.
         Si no la tiene redirect a "seleccionar_ciudad"
     """
-    return redirect("/seleccionar-ciudad")
+    id_ciudad = request.COOKIES.get('default_city', None)
+    if id_ciudad:
+        ciudad = get_object_or_404(Ciudad, id=id_ciudad)
+        url = '/{0}/'.format(ciudad.slug)
+    else:
+        url = '/seleccionar-ciudad/'
+    return redirect(url)
 
 def seleccionar_ciudad(request):
-    return render_to_response('core/seleccionar_ciudad.html',
-                              {'ciudad_actual': None},
-                              context_instance=RequestContext(request))
+    if request.method == 'GET':
+        return render_to_response('core/seleccionar_ciudad.html',
+                                  {'ciudad_actual': None},
+                                  context_instance=RequestContext(request))
+    elif request.method == 'POST':
+        id_ciudad = request.POST.get('ciudad', None)
+        predeterminada = request.POST.get('predeterminada', False)
+
+        ciudad = get_object_or_404(Ciudad, id=id_ciudad)
+        response = redirect('/{0}/'.format(ciudad.slug))
+        if predeterminada:
+            response.set_cookie('default_city', ciudad.id)
+        return response
 
 
 def ver_ciudad(request, nombre_ciudad):
@@ -29,8 +45,7 @@ def ver_ciudad(request, nombre_ciudad):
     lineas = ciudad_actual.lineas.all()
 
     return render_to_response('core/ver_ciudad.html',
-                              {'ciudad_actual': ciudad_actual,
-                               'lineas': lineas},
+                              {'lineas': lineas},
                               context_instance=RequestContext(request))
 
 

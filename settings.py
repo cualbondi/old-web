@@ -123,7 +123,8 @@ TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
 "django.core.context_processors.i18n",
 "django.core.context_processors.media",
 "django.contrib.messages.context_processors.messages",
-'apps.core.context_processors.lista_ciudades')
+"apps.core.context_processors.lista_ciudades",
+"apps.core.context_processors.get_ciudad_actual")
 
 ROOT_URLCONF = 'urls'
 
@@ -152,7 +153,7 @@ INSTALLED_APPS = (
     'floppyforms',
 #    'moderacion',
 #    'editor',
-#    'django_extensions',
+    'django_extensions',
 )
 
 # A sample logging configuration. The only tangible logging

@@ -12,20 +12,24 @@
                 <div class="span3">
                     <h2>Selecioná tu ciudad</h2>
                     <p>... y comenzá a realizar tus búsquedas</p>
-                    <form>
-                    <select class="span2">
+                    <form method="POST" action="/seleccionar-ciudad/">
+                    {% csrf_token %}
+
+                    <select name="ciudad" class="span2">
                     {% for ciudad in ciudades %}
-                        <option>{{ciudad.nombre}}</option>
+                        <option value="{{ciudad.id}}">{{ciudad.nombre}}</option>
                     {% endfor %}
                     </select>
+
                     <label class="checkbox">
-                        <input type="checkbox" name="" value="" />
+                        <input type="checkbox" name="predeterminada" value="true" />
                         Hacerla mi ciudad predeterminada
                     </label>
                     <p>
                         <a class="btn btn-success btn-large" href="#">Ir al mapa &raquo;</a>
                         <a class="btn btn-primary btn-large" href="#">Ir al contenido &raquo;</a>
                     </p>
+                    <input type="submit" value="Seleccionar">
                     </form>
                 </div>
             </div>

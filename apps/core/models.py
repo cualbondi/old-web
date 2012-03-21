@@ -30,12 +30,13 @@ class Terminal(models.Model):
 
 class Recorrido(models.Model):
     nombre = models.CharField(max_length=100)
-    ruta = models.LineStringField()
-    slug = models.SlugField(max_length=200, blank=True, null=False)
-    inicio = models.CharField(max_length=100)
-    fin = models.CharField(max_length=100)
     linea = models.ForeignKey(Linea)
-    semirrapido = models.BooleanField()
+    ruta = models.LineStringField()
+
+    slug = models.SlugField(max_length=200, blank=True, null=False)
+    inicio = models.CharField(max_length=100, blank=True, null=False)
+    fin = models.CharField(max_length=100, blank=True, null=False)
+    semirrapido = models.BooleanField(default=False)
 
     objects = RecorridoManager()
 

@@ -1,5 +1,5 @@
-#from django import forms
-import floppyforms as forms
+from django import forms
+import floppyforms as floppyforms
 from moderation.forms import BaseModeratedObjectForm
 from apps.core.models import Linea, Recorrido
 
@@ -19,7 +19,7 @@ class LineaForm(BaseModeratedObjectForm):
         model = Linea
         exclude = ('slug')
 
-class BaseGMapWidget(forms.gis.BaseGeometryWidget):
+class BaseGMapWidget(floppyforms.gis.BaseGeometryWidget):
     """A Google Maps base widget"""
     map_srid = 900913
     template_name = 'floppyforms/gis/google.html'
@@ -31,16 +31,16 @@ class BaseGMapWidget(forms.gis.BaseGeometryWidget):
             'http://maps.google.com/maps/api/js?sensor=false',
         )
 
-class CustomLineStringWidget(BaseGMapWidget, forms.gis.LineStringWidget):
+class CustomLineStringWidget(BaseGMapWidget, floppyforms.gis.LineStringWidget):
     map_width = 700
     map_height = 400
     display_wkt = False
 
 
-class RecorridoForm(forms.Form):
-    ruta = forms.gis.LineStringField(widget=CustomLineStringWidget)
-    class Meta:
-        model = Recorrido
+class RecorridoForm(floppyforms.Form):
+    nombre = forms.CharField()
+    linea = forms.ModelChoiceField(queryset=Linea.objects.all())
+    ruta = floppyforms.gis.LineStringField(widget=CustomLineStringWidget)
 
 
 
