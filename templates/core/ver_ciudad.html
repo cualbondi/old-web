@@ -27,29 +27,29 @@
     <h3>Comentarios:</h3>
     {% render_comment_list for ciudad_actual %}
 
-	{% if user.is_authenticated %}
-    	{% get_comment_form for ciudad_actual as form %}
-    	<div class='row'>
-    		<div id='nuevo-comentario' class='span8'>
-    			<h3>Dejanos un comentario:</h3>
-                <div id="mensajes-comments"></div>
-		    	<form id="comment-form" action="/comments/post/" method="POST" class="well">
-		    		{% csrf_token %}
-		    		{{ form.content_type }} 
-					{{ form.object_pk }}
-					{{ form.timestamp }}
-					{{ form.security_hash }}
-		    		<textarea class="span7" name='comment' id="comment-textarea" rows="3" placeholder="Tu Comentario..."></textarea>
-		    		<input type="hidden" name="next" value="{% url ver_ciudad ciudad_actual.slug %}" />
-					<input type="hidden" name="honeypot" id="id_honeypot" />
-					<br />
-					<button type="submit" class="btn"><i class="icon-comment"></i> Enviar comentario</button>
-				</form>
-			</div>
+	{% get_comment_form for ciudad_actual as form %}
+	<div class='row'>
+		<div id='nuevo-comentario' class='span8'>
+			<h3>Dejanos un comentario:</h3>
+            <div id="mensajes-comments"></div>
+	    	<form id="comment-form" action="/comments/post/" method="POST" class="well">
+	    		{% csrf_token %}
+	    		{{ form.content_type }} 
+				{{ form.object_pk }}
+				{{ form.timestamp }}
+				{{ form.security_hash }}
+            	{% if not user.is_authenticated %}
+                    <input id="comment-name" name="name" type="text" placeholder="Tu nombre...">
+                    <input id="comment-email" name="email" type="text" placeholder="Tu email...">
+                {% endif %}
+	    		<textarea class="span7" name='comment' id="comment-textarea" rows="3" placeholder="Tu Comentario..."></textarea>
+	    		<input type="hidden" name="next" value="{% url ver_ciudad ciudad_actual.slug %}" />
+				<input type="hidden" name="honeypot" id="id_honeypot" />
+				<br />
+				<button type="submit" class="btn"><i class="icon-comment"></i> Enviar comentario</button>
+			</form>
 		</div>
-	{% else %}
-		<h4>Para dejar un comentario debes <a href="/account/login/">loguearte</a></h4>
-	{% endif %}
+	</div>
 
 {% endblock %}
 
@@ -64,6 +64,8 @@
                         alert_html += '<a class="close" data-dismiss="alert" href="#">×</a>Comentario agregado correctamente!</div>'
                         dibujar_comentario(data['comentario'], data['usuario'], data['fecha']);
                         $("#comment-textarea").val('')
+                        $("#comment-name").val('')
+                        $("#comment-email").val('')
                     }else{
                         alert_html = '<div style="width: 780px;" class="alert alert-error fade in" align="center">'
                         alert_html += '<a class="close" data-dismiss="alert" href="#">×</a>Algo anduvo mal...</div>'
