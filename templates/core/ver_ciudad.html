@@ -39,7 +39,7 @@
 					{{ form.object_pk }}
 					{{ form.timestamp }}
 					{{ form.security_hash }}
-		    		<textarea class="span7" name='comment' id="textarea" rows="3" placeholder="Tu Comentario..."></textarea>
+		    		<textarea class="span7" name='comment' id="comment-textarea" rows="3" placeholder="Tu Comentario..."></textarea>
 		    		<input type="hidden" name="next" value="{% url ver_ciudad ciudad_actual.slug %}" />
 					<input type="hidden" name="honeypot" id="id_honeypot" />
 					<br />
@@ -63,6 +63,7 @@
                         alert_html = '<div style="width: 780px;" class="alert alert-success fade in" align="center">'
                         alert_html += '<a class="close" data-dismiss="alert" href="#">×</a>Comentario agregado correctamente!</div>'
                         dibujar_comentario(data['comentario'], data['usuario'], data['fecha']);
+                        $("#comment-textarea").val('')
                     }else{
                         alert_html = '<div style="width: 780px;" class="alert alert-error fade in" align="center">'
                         alert_html += '<a class="close" data-dismiss="alert" href="#">×</a>Algo anduvo mal...</div>'
