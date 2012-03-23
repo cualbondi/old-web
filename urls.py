@@ -11,6 +11,9 @@ auto_discover()
 urlpatterns = patterns('',
     (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
 
+    url(r'^comments/post/$', 'apps.core.views.dejar_comentario', name='dejar_comentario'),
+    (r'^comments/', include('django.contrib.comments.urls')),
+
     url(r'^api/', include('apps.api.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^usuarios/', include('apps.usuarios.urls')),
@@ -18,8 +21,8 @@ urlpatterns = patterns('',
     url(r'^$', 'apps.core.views.index', name='index'),
     url(r'^seleccionar-ciudad/$', 'apps.core.views.seleccionar_ciudad', name='seleccionar_ciudad'),
 
-    url(r'^(?P<nombre_ciudad>[\w-]+)/lineas/agregar/$', 'apps.core.views.agregar_linea', name='agregar_linea'),
-    url(r'^(?P<nombre_ciudad>[\w-]+)/recorridos/agregar/$', 'apps.core.views.agregar_recorrido', name='agregar_recorrido'),
+    url(r'^lineas/agregar/$', 'apps.core.views.agregar_linea', name='agregar_linea'),
+    url(r'^recorridos/agregar/$', 'apps.core.views.agregar_recorrido', name='agregar_recorrido'),
 
     # Ciudades
     url(r'^(?P<nombre_ciudad>[\w-]+)/$', 'apps.core.views.ver_ciudad', name='ver_ciudad'),
