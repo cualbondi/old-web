@@ -38,10 +38,14 @@ def seleccionar_ciudad(request):
                                   context_instance=RequestContext(request))
     elif request.method == 'POST':
         id_ciudad = request.POST.get('ciudad', None)
+        next = request.POST.get('next', 'mapa')
         predeterminada = request.POST.get('predeterminada', False)
 
         ciudad = get_object_or_404(Ciudad, id=id_ciudad)
-        response = redirect('/{0}/'.format(ciudad.slug))
+        if next == 'mapa':
+            response = redirect('/mapa/{0}/'.format(ciudad.slug))
+        else:
+            response = redirect('/{0}/'.format(ciudad.slug))
         if predeterminada:
             response.set_cookie('default_city', ciudad.id)
         return response
