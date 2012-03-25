@@ -1,0 +1,34 @@
+{% extends "maquetado.html" %}
+{% load url from future %}
+
+{% block bloque_izquierda %}
+    <h1>Iniciar sesion</h1>
+    <p>¿Todavía no tenes una cuenta? <a href="/usuarios/registracion/">Creá tu cuenta ahora</a></p>
+    <p><a href="/usuarios/recuperar_password/">¿Olvidaste tu contraseña?</a></p>
+    {% if form.errors %}
+        <div class="alert alert-error fade in" align="center">
+            <a class="close" data-dismiss="alert" href="#">×</a>
+            Usuario y/o Contraseña incorrectos...
+        </div>
+    {% endif %}
+
+    <form method="POST" class="form-horizontal" action="{% url 'apps.usuarios.views.iniciar_sesion' %}">
+        {% csrf_token %}
+        <div class="control-group">
+            <label class="control-label" for="input01">Usuario:</label>
+            <div class="controls">
+                <input name="username" type="text" class="input-xlarge" id="id_username" placeholder="Nombre de usuario...">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="input01">Contraseña:</label>
+            <div class="controls">
+                <input name="password" type="password" class="input-xlarge" id="id_password" placeholder="Contraseña...">
+            </div>
+        </div>
+
+        <input type="hidden" name="next" value="{{referer}}" />
+        <input class="btn btn-success" type="submit" value="Ingresar &raquo;" />
+    </form>
+    <p>Si tenés algun problema para ingresar en tu cuenta, contactanos a <a href="mailto:cualbondi@gmail.com">cualbondi@gmail.com</a>.</p>
+{% endblock %}

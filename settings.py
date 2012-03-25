@@ -4,6 +4,8 @@ import os
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+LOGIN_REDIRECT_URL = '/'
+
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
@@ -123,6 +125,7 @@ TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
 "django.core.context_processors.i18n",
 "django.core.context_processors.media",
 "django.contrib.messages.context_processors.messages",
+"django.core.context_processors.request",
 "apps.core.context_processors.lista_ciudades",
 "apps.core.context_processors.get_ciudad_actual")
 

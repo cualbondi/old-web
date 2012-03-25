@@ -1,7 +1,7 @@
 <div id="lista-comentarios">
     {% for comment in comment_list %}
     <div class="row">
-        <div class="span2">
+        <div class="span2" align="right">
             <h4>{{ comment.name }}</h4>
             ({{ comment.submit_date|date:"d/m/Y" }})
         </div>

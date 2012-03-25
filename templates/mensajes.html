@@ -1,6 +1,6 @@
 {% if messages %}
     {% for message in messages %}
-        <div style="width: 780px;" class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} fade in" align="center">
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} fade in" align="center">
             <a class="close" data-dismiss="alert" href="#">×</a>
             {{ message }}
         </div>
