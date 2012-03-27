@@ -1,0 +1,14 @@
+{% extends "maquetado.html" %}
+{% load bootstrap_tags %}
+
+{% block bloque_izquierda %}
+    <h1>Creá tu cuenta gratis!</h1>
+    <p>¿Ya tenés una cuenta? <a href="/usuarios/login/">Iniciá sesion aquí</a></p>
+    <p><a href="/usuarios/recuperar_password/">¿Olvidaste tu contraseña?</a></p>
+    <form method="POST" class="form-horizontal" action="/usuarios/registracion/">
+        {% csrf_token %}
+        {{ form|as_bootstrap }}
+        <input type="submit" class="btn btn-success" value="Crear cuenta &raquo;">
+    </form>
+    <p>Si tenés algun problema para crear tu cuenta, contactanos a <a href="mailto:cualbondi@gmail.com">cualbondi@gmail.com</a>.</p>
+{% endblock %}

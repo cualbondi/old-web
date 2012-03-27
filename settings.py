@@ -9,6 +9,7 @@ LOGIN_REDIRECT_URL = '/'
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
+DEFAULT_FROM_EMAIL = "info@cualbondi.com.ar"
 
 MANAGERS = ADMINS
 
@@ -152,6 +153,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'django.contrib.gis',
     'apps.core',
+    'apps.usuarios',
     'moderation',
     'floppyforms',
 #    'moderacion',
