@@ -1,0 +1,11 @@
+{% extends "maquetado.html" %}
+{% load bootstrap_tags %}
+
+{% block bloque_izquierda %}
+    <h1>Editar tu perfil</h1>
+    <form method="POST" class="form-horizontal" action="/usuarios/editar-perfil/">
+        {% csrf_token %}
+        {{ form|as_bootstrap }}
+        <input type="submit" class="btn btn-success" value="Guardar cambios &raquo;">
+    </form>
+{% endblock %}

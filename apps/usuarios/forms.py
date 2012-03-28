@@ -2,12 +2,54 @@
 import re
 from django import forms
 from django.contrib.auth.models import User
+from apps.core.models import Ciudad
+from apps.usuarios.models import PerfilUsuario
 
 
 mensajes = {
     'invalid': 'El valor ingresado es incorrecto',
-    'required': 'Este campo no puede ser vacio'
+    'required': 'Este campo no puede ser vacio',
+    'invalid_link': 'La URL ingresada no es valida'
 }
+
+
+class PerfilUsuarioForm(forms.ModelForm):
+    nombre = forms.CharField(
+        label='Nombre(s)',
+        error_messages=mensajes,
+        required=False
+    )
+    apellido = forms.CharField(
+        label='Apellido(s)',
+        error_messages=mensajes,
+        required=False
+    )
+    about = forms.CharField(
+        label='Mini biografia',
+        error_messages=mensajes,
+        widget=forms.Textarea(),
+        required=False
+    )
+    website = forms.URLField(
+        label='Página web',
+        error_messages=mensajes,
+        required=False
+    )
+    class Meta:
+        model = PerfilUsuario
+        exclude = ('usuario', 'confirmacion_key', 'fecha_verificacion')
+
+    """TODO: Las regex no contemplan las letras "ñ" y "Ñ" """
+    def clean_nombre(self):
+        if not re.match("^[A-Za-z ]*$", self.cleaned_data["nombre"]):
+            raise forms.ValidationError("Este campo solo puede contener letras y espacios en blanco")
+        return self.cleaned_data["nombre"]
+
+    def clean_apellido(self):
+        if not re.match("^[A-Za-z ]*$", self.cleaned_data["apellido"]):
+            raise forms.ValidationError("Este campo solo puede contener letras y espacios en blanco")
+        return self.cleaned_data["apellido"]
+
 
 class RegistracionForm(forms.Form):
     username = forms.CharField(
@@ -68,81 +110,3 @@ class RegistracionForm(forms.Form):
                 raise forms.ValidationError("Las contraseñas deben ser iguales.")
         return self.cleaned_data
 
-    def create_user(self, username=None, commit=True):
-        user = User()
-        if username is None:
-            raise NotImplementedError("SignupForm.create_user does not handle "
-                "username=None case. You must override this method.")
-        user.username = username
-        user.email = self.cleaned_data["email"].strip().lower()
-        password = self.cleaned_data.get("password1")
-        if password:
-            user.set_password(password)
-        else:
-            user.set_unusable_password()
-        if commit:
-            user.save()
-        return user
-
-    def login(self, request, user):
-        # nasty hack to get get_user to work in Django
-        user.backend = "django.contrib.auth.backends.ModelBackend"
-        perform_login(request, user)
-
-    def save(self, request=None):
-        # don't assume a username is available. it is a common removal if
-        # site developer wants to use email authentication.
-        username = self.cleaned_data.get("username")
-        email = self.cleaned_data["email"]
-
-        if self.cleaned_data["confirmation_key"]:
-            from friends.models import JoinInvitation # @@@ temporary fix for issue 93
-            try:
-                join_invitation = JoinInvitation.objects.get(confirmation_key=self.cleaned_data["confirmation_key"])
-                confirmed = True
-            except JoinInvitation.DoesNotExist:
-                confirmed = False
-        else:
-            confirmed = False
-
-        # @@@ clean up some of the repetition below -- DRY!
-
-        if confirmed:
-            if email == join_invitation.contact.email:
-                new_user = self.create_user(username)
-                join_invitation.accept(new_user) # should go before creation of EmailAddress below
-                if request:
-                    messages.add_message(request, messages.INFO,
-                        ugettext(u"Your email address has already been verified")
-                    )
-                # already verified so can just create
-                EmailAddress(user=new_user, email=email, verified=True, primary=True).save()
-            else:
-                new_user = self.create_user(username)
-                join_invitation.accept(new_user) # should go before creation of EmailAddress below
-                if email:
-                    if request:
-                        messages.add_message(request, messages.INFO,
-                            ugettext(u"Confirmation email sent to %(email)s") % {
-                                "email": email,
-                            }
-                        )
-                    EmailAddress.objects.add_email(new_user, email)
-        else:
-            new_user = self.create_user(username)
-            if email:
-                if request and not EMAIL_VERIFICATION:
-                    messages.add_message(request, messages.INFO,
-                        ugettext(u"Confirmation email sent to %(email)s") % {
-                            "email": email,
-                        }
-                    )
-                EmailAddress.objects.add_email(new_user, email)
-
-        if EMAIL_VERIFICATION:
-            new_user.is_active = False
-            new_user.save()
-
-        self.after_signup(new_user)
-
-        return new_user

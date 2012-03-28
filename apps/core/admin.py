@@ -9,4 +9,5 @@ class CustomAdmin(ModerationAdmin, admin.OSMGeoAdmin):
 
 admin.site.register(Linea, CustomAdmin)
 admin.site.register(Recorrido, CustomAdmin)
+admin.site.register(RecorridoFavorito)
 

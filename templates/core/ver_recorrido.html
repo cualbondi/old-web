@@ -8,5 +8,18 @@
         <li class="active">{{recorrido_actual.nombre}} (de {{recorrido_actual.inicio}} a {{recorrido_actual.fin}})</li>
     </ul>
 
-    <h1>{{recorrido_actual.nombre}} ({{linea_actual.nombre}})</h1>
+    <h1>{{linea_actual.nombre}} {{recorrido_actual.nombre}}</h1>
+    {% if user.is_authenticated %}
+        {% if favorito %}
+        <button id="btn-favorito" class="btn btn-danger"><i class="icon-heart"></i> <strong>Borrar de favoritos</strong></button>
+        {% else %}
+        <button id="btn-favorito" class="btn btn-warning"><i class="icon-heart"></i> <strong>Guardar en favoritos</strong></button>
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block custom_ready_function %}
+    $("#btn-favorito").click(function(){
+        $("#btn-favorito").toggleClass("btn-warning")
+    })
 {% endblock %}

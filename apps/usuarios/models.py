@@ -16,3 +16,6 @@ class PerfilUsuario(models.Model):
     fecha_envio_confirmacion = models.DateTimeField(auto_now=False, auto_now_add=True, null=False, blank=True)
     fecha_verificacion = models.DateTimeField(null=True, blank=True, default=None)
 
+    def __unicode__(self):
+        return "Perfil de " + self.usuario.username
+

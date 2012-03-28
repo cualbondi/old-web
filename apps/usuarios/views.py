@@ -20,6 +20,8 @@ from django.contrib.auth.models import User
 from django.utils.hashcompat import sha_constructor
 from random import random
 from apps.usuarios.models import PerfilUsuario
+from django.contrib.auth.decorators import login_required
+from apps.usuarios.forms import PerfilUsuarioForm
 
 
 @csrf_protect
@@ -196,6 +198,40 @@ def confirmar_email(request, confirmacion_key=None):
                             messages.ERROR,
                             'El código de verificacion ingresado es incorrecto.')
     return redirect('/')
+
+
+@login_required(login_url="/usuarios/login/")
+def ver_perfil(request):
+    usuario = get_object_or_404(User, id=request.user.id)
+    perfil = PerfilUsuario.objects.get(usuario=usuario)
+    return render_to_response('usuarios/perfil.html',
+                                 {'perfil':perfil},
+                                 context_instance=RequestContext(request))
+
+
+@login_required(login_url="/usuarios/login/")
+def editar_perfil(request):
+    perfil = PerfilUsuario.objects.get(usuario=request.user)
+    if request.method == 'POST':
+        form = PerfilUsuarioForm(request.POST, instance=perfil)
+        if form.is_valid():
+            perfil = form.save(commit=False)
+            perfil.usuario = request.user
+            perfil.save()
+            messages.add_message(request,
+                            messages.SUCCESS,
+                            'Tu perfil ha sido editado correctamente.')
+            return redirect('/usuarios/perfil/')
+        else:
+            return render_to_response('usuarios/editar_perfil.html',
+                                        {'form':form},
+                                        context_instance=RequestContext(request))
+    else:
+        form = PerfilUsuarioForm(instance=perfil)
+        return render_to_response('usuarios/editar_perfil.html',
+                                    {'form':form},
+                                    context_instance=RequestContext(request))
+
 
 
 

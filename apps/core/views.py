@@ -107,10 +107,15 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
                                          slug=slug_recorrido,
                                          linea=linea_actual)
 
+    favorito = False
+    if request.user.is_authenticated():
+        favorito = recorrido_actual.es_favorito(request.user)
+
     return render_to_response('core/ver_recorrido.html',
                               {'ciudad_actual': ciudad_actual,
                                'linea_actual': linea_actual,
-                               'recorrido_actual': recorrido_actual},
+                               'recorrido_actual': recorrido_actual,
+                               'favorito': favorito},
                               context_instance=RequestContext(request))
 
 

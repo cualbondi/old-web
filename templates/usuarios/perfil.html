@@ -1,0 +1,16 @@
+{% extends "maquetado.html" %}
+
+{% block bloque_izquierda %}
+    <div class="row">
+        <div class="span7">
+            <h1>Perfil de @{{user}}</h1>
+            <div><strong>Nombre y Apellido: </strong>{{perfil.nombre}} {{perfil.apellido}}</div>
+            <div><strong>Mini biografia: </strong>{{perfil.about}}</div>
+            <div><strong>Página web: </strong>{{perfil.website}}</div>
+            <div><strong>Ciudad: </strong>{{perfil.ciudad.nombre}}</div>
+        </div>
+        <div class="span2">
+            <div><a href="/usuarios/editar-perfil/" class="btn"><i class="icon-pencil"></i> Editar perfil</a></div>
+        </div>
+    </div>
+{% endblock %}
