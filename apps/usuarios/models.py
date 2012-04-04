@@ -1,6 +1,28 @@
-from django.db import models
+from django.contrib.gis.db import models
 from django.contrib.auth.models import User
-from apps.core.models import Ciudad
+
+
+class CustomPoi(models.Model):
+    """ Los usuarios pueden definir sus propios
+        puntos de interes. Por ej: "Mi casa", y
+        luego usarlos como puntos origen o destino 
+        en las busquedas. 
+    """
+    usuario = models.ForeignKey(User)
+    nombre = models.CharField(max_length=100)
+    latlng = models.PointField()
+    objects = models.GeoManager()
+
+
+class RecorridoFavorito(models.Model):
+    """ Los "Usuarios" pueden marcar un "Recorrido"
+        como favorito. Si lo DESmarcan como favorito,
+        la tupla no se borra, sino que se pone como
+        activo = False
+    """
+    usuario = models.ForeignKey(User)
+    recorrido = models.ForeignKey('core.Recorrido')
+    activo = models.BooleanField()
 
 
 class PerfilUsuario(models.Model):
@@ -9,7 +31,7 @@ class PerfilUsuario(models.Model):
     apellido = models.CharField(max_length=50, null=True, blank=True)
     about = models.TextField(null=True, blank=True)
     website = models.URLField(null=True, blank=True)
-    ciudad = models.ForeignKey(Ciudad, null=True, blank=True)
+    ciudad = models.ForeignKey('catastro.Ciudad', null=True, blank=True)
     fecha_creacion = models.DateTimeField(auto_now=False, auto_now_add=True, null=False, blank=True)
     ultima_modificacion = models.DateTimeField(auto_now=True, auto_now_add=True, null=False, blank=True)
     confirmacion_key = models.CharField(max_length=40, null=False)

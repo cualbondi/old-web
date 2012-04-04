@@ -1,4 +1,5 @@
-from apps.core.models import Ciudad, Poi, Linea, Recorrido
+from apps.core.models import Linea, Recorrido
+from apps.catastro.models import Ciudad, Poi
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.http import HttpResponse
 from django.template import RequestContext, Context

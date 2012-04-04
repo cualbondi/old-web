@@ -1,4 +1,5 @@
-from apps.core.models import Ciudad, Linea, Recorrido
+from apps.core.models import Linea, Recorrido
+from apps.catastro.models import Ciudad
 from piston.handler import BaseHandler
 from piston.utils import rc
 from django.core.exceptions import ObjectDoesNotExist

@@ -1,4 +1,4 @@
-from apps.core.models import Ciudad
+from apps.catastro.models import Ciudad
 
 
 def lista_ciudades(request):
