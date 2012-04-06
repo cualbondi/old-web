@@ -30,16 +30,17 @@ if [ $(id -u) -eq 0 ]; then
     echo "$SYS_USER:$SYS_PASS" | chpasswd
 
     # git clone
+    HOMEDIR=/home/$SYS_USER/geocualbondi
     GIT_URL=https://jperelli@bitbucket.org/martinzugnoni/geocualbondi.git
     cd /home/$SYS_USER
-    su $SYS_USER -c "git clone $GIT_URL"
+    su $SYS_USER -c "git clone $GIT_URL" ||
+    (cd $HOMEDIR && su $SYS_USER -c "git pull")
 # por ssh tira el siguiente error...
 #  Warning: Permanently added 'bitbucket.org,207.223.240.181' (RSA) to the list of known hosts.
 #  Permission denied (publickey).
 # la clave del https es 123210
 
     # django manage.py conf user y crear tablas
-    HOMEDIR=/home/$SYS_USER/geocualbondi
     perl -pi -e "s|'NAME': '.*?',|'NAME': '$DB_NAME',|" $HOMEDIR/settings.py
     perl -pi -e "s|'USER': '.*?',|'USER': '$DB_USER',|" $HOMEDIR/settings.py
     perl -pi -e "s|'PASSWORD': '.*?',|'PASSWORD': '$DB_PASS',|" $HOMEDIR/settings.py
@@ -102,6 +103,10 @@ EOF
     #echo -e "postgres:postgres" | chpasswd
     #su postgres -c "psql -c \"alter user postgres with password 'postgres';\""
     #sed -i "s/conf['extra_login_security'] = true/conf['extra_login_security'] = false/g" /etc/phppgadmin/config.inc.php
+
+    # reparar error de geodjango+postgresql
+    perl -pi -e "s|#?standard_conforming_strings = on|standard_conforming_strings = off|" /etc/postgresql/9.1/main/postgresql.conf
+    /etc/init.d/postgresql restart
 
     a2ensite django
     apache2ctl restart
