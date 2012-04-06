@@ -1,5 +1,5 @@
 body {
-    padding-top: 65px;
+    padding-top: 60px;
     padding-bottom: 40px;
     background-color: white;
     background-image: url(/media/img/background.png);
@@ -10,3 +10,6 @@ body {
 #submit_button { cursor: pointer; }
 .required { color: #B94A48; }
 
+.sidebar-nav {
+    padding: 9px 0;
+}

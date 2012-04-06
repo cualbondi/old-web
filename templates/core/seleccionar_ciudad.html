@@ -4,33 +4,35 @@
             rededine el blocke "content" -->
 {% block content %}
 
-        <div class="row" style="margin-bottom:20px;">
+        <div class="row-fluid" style="margin-bottom:20px;">
             <div class="span7">
-                <div class="span3" style="vertical-align:middle">
-                    <img src="/media/img/logo.png" />
-                </div>
-                <div class="span3">
-                    <h2>Selecioná tu ciudad</h2>
-                    <p>... y comenzá a realizar tus búsquedas</p>
-                    <form method="POST" action="/seleccionar-ciudad/">
-                    {% csrf_token %}
+                <div class="row-fluid">
+                    <div class="span6">
+                        <img src="/media/img/logo.png" />
+                    </div>
+                    <div class="span6">
+                        <h2>Selecioná tu ciudad</h2>
+                        <p>... y comenzá a realizar tus búsquedas</p>
+                        <form method="POST" action="/seleccionar-ciudad/">
+                        {% csrf_token %}
 
-                    <select name="ciudad" class="span2">
-                    {% for ciudad in ciudades %}
-                        <option value="{{ciudad.id}}">{{ciudad.nombre}}</option>
-                    {% endfor %}
-                    </select>
+                        <select name="ciudad" class="span4">
+                        {% for ciudad in ciudades %}
+                            <option value="{{ciudad.id}}">{{ciudad.nombre}}</option>
+                        {% endfor %}
+                        </select>
 
-                    <label class="checkbox">
-                        <input type="checkbox" name="predeterminada" value="true" />
-                        Hacerla mi ciudad predeterminada
-                    </label>
-                    <p>
-                        <button type="submit" name="next" value="mapa" class="btn btn-success btn-large">Ir al mapa &raquo;</button>
-                        <button type="submit" name="next" value="contenido" class="btn btn-primary btn-large">Ir al contenido &raquo;</button>
-                    </p>
-                    </form>
-                </div>
+                        <label class="checkbox">
+                            <input type="checkbox" name="predeterminada" value="true" />
+                            Hacerla mi ciudad predeterminada
+                        </label>
+                        <p>
+                            <button type="submit" name="next" value="mapa" class="btn btn-success btn-large">Ir al mapa &raquo;</button>
+                            <button type="submit" name="next" value="contenido" class="btn btn-primary btn-large">Ir al contenido &raquo;</button>
+                        </p>
+                        </form>
+                    </div>
+                </div>               
             </div>
             <div class="span5">
                 <h2>Registrate gratis!</h2>
@@ -38,14 +40,14 @@
                 <p><a class="btn" href="#">View details &raquo;</a></p>
             </div>
         </div>
-        <div class="row" style="margin-bottom:30px;">
+        <div class="row-fluid" style="margin-bottom:30px;">
             <div class="span12">
                 <div class="thumbnail">
                     <div id="mapa" style="height:200px;"></div>
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row-fluid">
             <div class="span4">
                 <h2>¿Para qué registrarme?</h2>
                 <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>

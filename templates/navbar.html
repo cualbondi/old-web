@@ -1,45 +1,52 @@
 <div class="navbar navbar-fixed-top">
   <div class="navbar-inner">
-    <div class="container">
-        <a class="brand" href="#">CualBondi</a>
-        <ul class="nav">
-          <li class="active"><a href="/"><i class="icon-home icon-white"></i> Inicio</a></li>
-          <li class="dropdown">
-            <a class="dropdown-toggle" data-toggle="dropdown" href="">
-              <i class="icon-picture icon-white"></i> Ciudad
-              <b class="caret"></b>
-            </a>
-            <ul class="dropdown-menu">
-            {% for ciudad in ciudades %}
-                {% if ciudad == ciudad_actual %}
-                    <li><a style="font-weight:bold;" href=""><i class="icon-map-marker"></i> {{ciudad.nombre}}</a></li>
+    <div class="container-fluid">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
+        <a class="brand" href="/">CualBondi</a>
+        <div class="nav-collapse">
+            <ul class="nav">
+              <li class="active"><a href="/"><i class="icon-home icon-white"></i> Inicio</a></li>
+              <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="">
+                  <i class="icon-picture icon-white"></i> Ciudad
+                  <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu">
+                {% for ciudad in ciudades %}
+                    {% if ciudad == ciudad_actual %}
+                        <li><a style="font-weight:bold;" href=""><i class="icon-map-marker"></i> {{ciudad.nombre}}</a></li>
+                    {% else %}
+                        <li><a href="{% if es_vista_mapa %}/mapa{% endif %}/{{ciudad.slug}}"><i class="icon-map-marker"></i> {{ciudad.nombre}}</a></li>
+                    {% endif %}
+                {% endfor %}
+                </ul>
+              </li>
+            {% if ciudad_actual %}
+                {% if es_vista_mapa %}
+                  <li><a href="/{{ciudad_actual.slug}}"><i class="icon-file icon-white"></i> Ir al contenido</a></li>
                 {% else %}
-                    <li><a href="{% if es_vista_mapa %}/mapa{% endif %}/{{ciudad.slug}}"><i class="icon-map-marker"></i> {{ciudad.nombre}}</a></li>
+                  <li><a href="/mapa/{{ciudad_actual.slug}}"><i class="icon-map-marker icon-white"></i> Ir al mapa</a></li>
                 {% endif %}
-            {% endfor %}
-            </ul>
-          </li>
-        {% if ciudad_actual %}
-            {% if es_vista_mapa %}
-              <li><a href="/{{ciudad_actual.slug}}"><i class="icon-file icon-white"></i> Ir al contenido</a></li>
-            {% else %}
-              <li><a href="/mapa/{{ciudad_actual.slug}}"><i class="icon-map-marker icon-white"></i> Ir al mapa</a></li>
             {% endif %}
-        {% endif %}
-        </ul>
-        {% if user.is_authenticated %}
-        <ul class="nav pull-right">
-            <li><a><i class="icon-user icon-white"></i> {{ user.username }}</a></li>
-            <li class="divider-vertical"></li>
-            <li><a href="/usuarios/perfil/"><i class="icon-list icon-white"></i> Perfil</a></li>
-            <li><a href="/usuarios/logout/"><i class="icon-share-alt icon-white"></i> Salir</a></li>
-        </ul>
-        {% else %}
-        <ul class="nav pull-right">
-            <li><a href="/usuarios/login/"><i class="icon-user icon-white"></i> Iniciar sesion</a></li>
-            <li><a href="/usuarios/registracion/"><i class="icon-edit icon-white"></i> Registrarme</a></li>
-        </ul>
-        {% endif %}
+            </ul>
+            {% if user.is_authenticated %}
+            <ul class="nav pull-right">
+                <li><a><i class="icon-user icon-white"></i> {{ user.username }}</a></li>
+                <li class="divider-vertical"></li>
+                <li><a href="/usuarios/perfil/"><i class="icon-list icon-white"></i> Perfil</a></li>
+                <li><a href="/usuarios/logout/"><i class="icon-share-alt icon-white"></i> Salir</a></li>
+            </ul>
+            {% else %}
+            <ul class="nav pull-right">
+                <li><a href="/usuarios/login/"><i class="icon-user icon-white"></i> Iniciar sesion</a></li>
+                <li><a href="/usuarios/registracion/"><i class="icon-edit icon-white"></i> Registrarme</a></li>
+            </ul>
+            {% endif %}
+        </div>
     </div>
   </div>
 </div>
