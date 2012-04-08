@@ -18,9 +18,9 @@ BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'geodjango',                      # Or path to database file if using sqlite3.
-        'USER': 'postgres',                      # Not used with sqlite3.
-        'PASSWORD': 'postgres',                  # Not used with sqlite3.
+        'NAME': 'geocualbondidb',                      # Or path to database file if using sqlite3.
+        'USER': 'geocualbondiuser',                      # Not used with sqlite3.
+        'PASSWORD': 'geocualbondipass',                  # Not used with sqlite3.
         'HOST': '127.0.0.1',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
@@ -34,6 +34,8 @@ CACHES = {
     }
 }
 CACHE_TIMEOUT = 60*60
+
+OLWIDGET_STATIC_URL = "/media/olwidget"
 
 # Variables personalizadas
 RADIO_ORIGEN_DEFAULT = 200
@@ -157,6 +159,7 @@ INSTALLED_APPS = (
     'apps.usuarios',
     'moderation',
     'floppyforms',
+    'olwidget',
 #    'moderacion',
 #    'editor',
 #    'django_extensions',

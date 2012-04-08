@@ -17,7 +17,7 @@ from django.contrib.comments import signals
 from django.contrib.comments.views.utils import next_redirect, confirmation_view
 from django.contrib.comments.views.comments import CommentPostBadRequest
 from django.utils import simplejson
-
+from olwidget.widgets import InfoMap
 
 def index(request):
     """ TODO: Aca hay que checkear si tiene seteada una
@@ -66,13 +66,20 @@ def ver_ciudad(request, nombre_ciudad):
 def ver_mapa_ciudad(request, nombre_ciudad):
     slug_ciudad = slugify(nombre_ciudad)
     ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
-
+    mapa = InfoMap(
+        [], 
+        { 
+            "map_div_style": {"width": '100%', "height": '100%'},
+            "layers":["osm.mapnik"]#, "google.streets", "google.hybrid", "ve.road", "ve.hybrid", "yahoo.map"]
+        }
+    )
 #    pois = Poi.objects.filter(ciudad=ciudad_actual)
 #    comercios = Comercio.objects.filter(ciudad=ciudad_actual)
 
     return render_to_response('core/ver_mapa_ciudad.html',
                               {'es_vista_mapa': True,
-                               'ciudad_actual': ciudad_actual},
+                               'ciudad_actual': ciudad_actual,
+                               'mapa':mapa},
                               context_instance=RequestContext(request))
 
 

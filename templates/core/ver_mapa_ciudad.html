@@ -1,16 +1,94 @@
-{% extends "maquetado.html" %}
+{% extends "base.html" %}
 
-{% block bloque_izquierda %}
-    <h1>Vista del mapa de {{ciudad_actual.nombre}}!</h1>
+{% block navbar %}
+    {% include "navbar.html"%}
+{% endblock %}
+
+{% block content %}
+        <div class="row-fluid">
+            <div id="bloque_izquierda" class="span3">
+                <div id="sidebar" style="background:white;">
+
+                    <div class="tabbable">
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a href="#1" data-toggle="tab">¿Cómo llegar?</a></li>
+                            <li><a href="#2" data-toggle="tab">Recorridos</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="1">
+                                <h2>como llegar</h2>
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed imperdiet sapien vitae augue malesuada facilisis. Suspendisse at nisi urna. Cras blandit suscipit massa, lobortis pharetra odio commodo eget. Curabitur et arcu nunc, sit amet suscipit leo. Morbi ut sagittis sem. Praesent cursus lectus vitae purus laoreet ullamcorper. In ipsum arcu, vulputate non dignissim sed, euismod sed sapien. Pellentesque nisl risus, pharetra sed convallis aliquet, molestie eget massa. In porta dapibus aliquam. Nulla magna quam, pulvinar at scelerisque sit amet, mollis et nibh. Donec rhoncus sagittis lectus eget fermentum. Nunc et massa tortor, vitae volutpat quam. Phasellus at odio sit amet risus pellentesque dignissim at vitae purus. Fusce vehicula suscipit lacus at consectetur. Quisque facilisis, metus quis viverra sodales, lectus lectus consectetur diam, at tempus mi magna non purus. </p>
+                            </div>
+                            <div class="tab-pane" id="2">
+                                <h2>recorridos</h2>
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed imperdiet sapien vitae augue malesuada facilisis. Suspendisse at nisi urna. Cras blandit suscipit massa, lobortis pharetra odio commodo eget. Curabitur et arcu nunc, sit amet suscipit leo. Morbi ut sagittis sem. Praesent cursus lectus vitae purus laoreet ullamcorper. In ipsum arcu, vulputate non dignissim sed, euismod sed sapien. Pellentesque nisl risus, pharetra sed convallis aliquet, molestie eget massa. In porta dapibus aliquam. Nulla magna quam, pulvinar at scelerisque sit amet, mollis et nibh. Donec rhoncus sagittis lectus eget fermentum. Nunc et massa tortor, vitae volutpat quam. Phasellus at odio sit amet risus pellentesque dignissim at vitae purus. Fusce vehicula suscipit lacus at consectetur. Quisque facilisis, metus quis viverra sodales, lectus lectus consectetur diam, at tempus mi magna non purus. </p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div id="bloque_derecha" class="span9">
+                <div id="map" style="background:lightblue;">
+                    {{ mapa }}
+                </div>
+            </div>
+        </div>
 {% endblock %}
 
 {% block custom_scripts %}
-    <script type="text/javascript">
-        $(document).ready(function(){
-            $('.dropdown-toggle').dropdown();
-            $('#submit_button').click(function(){
-                $('#login_form').submit();
-            })
-        })
-    </script>
+<script type="text/javascript">
+$(function() {
+
+    if ( $(window).width() > 980 ) {
+        $("#map").height(($(window).height()-40)+"px")
+        $("#sidebar").height(($(window).height()-40)+"px")
+        $("body").css("padding-top","40px")
+    }
+    else {
+        $("#map").height(($(window).height()-50)+"px")
+        $("#sidebar").height(($(window).height()-50)+"px")
+        $("body").css("padding-top","0px")            
+    }
+    if ( $(window).width() < 456 )
+        $("#map").css("margin-right", "0px")
+    else
+        $("#map").css("margin-right", "-20px")
+
+    $("#sidebar").css("overflow", "auto")
+    $("body").css("padding-bottom","0px")
+    $(".navbar").css("margin-bottom","0px")
+
+    $(window).bind('resize', function() {
+        if ( $(window).width() > 980 ) {
+            $("#map").height(($(window).height()-40)+"px")
+            $("#sidebar").height(($(window).height()-40)+"px")
+            $("body").css("padding-top","40px")
+        }
+        else {
+            $("#map").height(($(window).height()-50)+"px")
+            $("#sidebar").height(($(window).height()-50)+"px")
+            $("body").css("padding-top","0px")            
+        }
+        if ( $(window).width() < 456 )
+            $("#map").css("margin-right", "0px")
+        else
+            $("#map").css("margin-right", "-20px")
+        
+
+        $("#sidebar").css("overflow", "auto")
+        $("body").css("padding-bottom","0px")
+        $(".navbar").css("margin-bottom","0px")
+    });
+
+})
+</script>
+{% endblock %}
+
+{% block custom_top_scripts %}
+{{ mapa.media }}
+{% endblock %}
+
+{% block custom_styles %}
+
 {% endblock %}
