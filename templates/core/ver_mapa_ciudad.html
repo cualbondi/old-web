@@ -16,13 +16,42 @@
                         </ul>
                         <div class="tab-content">
                             <div class="tab-pane active" id="1">
-                                <h2>como llegar</h2>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed imperdiet sapien vitae augue malesuada facilisis. Suspendisse at nisi urna. Cras blandit suscipit massa, lobortis pharetra odio commodo eget. Curabitur et arcu nunc, sit amet suscipit leo. Morbi ut sagittis sem. Praesent cursus lectus vitae purus laoreet ullamcorper. In ipsum arcu, vulputate non dignissim sed, euismod sed sapien. Pellentesque nisl risus, pharetra sed convallis aliquet, molestie eget massa. In porta dapibus aliquam. Nulla magna quam, pulvinar at scelerisque sit amet, mollis et nibh. Donec rhoncus sagittis lectus eget fermentum. Nunc et massa tortor, vitae volutpat quam. Phasellus at odio sit amet risus pellentesque dignissim at vitae purus. Fusce vehicula suscipit lacus at consectetur. Quisque facilisis, metus quis viverra sodales, lectus lectus consectetur diam, at tempus mi magna non purus. </p>
+                            
+                                <form class="well">
+                                    <div class="input-prepend">
+                                        <span class="add-on"><i class="icon-map-marker"></i>A</span>
+                                        <input type="text" size="16" id="inputDesde" class="span9" placeholder="Desde">
+                                    </div>
+                                    <div class="input-prepend">
+                                        <span class="add-on"><i class="icon-map-marker"></i>B</span>
+                                        <input type="text" size="16" id="inputHasta" class="span9" placeholder="Hasta">
+                                    </div>
+                                    <div class="btn-toolbar">
+                                        <div class="btn-group">
+                                            <a class="btn" title="Cambiar origen por destino"><i class="icon-refresh"></i></a>
+                                            <a class="btn" title="Imprimir resultados en papel"><i class="icon-print"></i></a>
+                                            <a class="btn" title="Ayuda" onclick="javascript:$.cb.click_button_ayuda();"><i class="icon-question-sign"></i></a>
+                                            <a class="btn" title="Compartir enlace a esta ubicación"><i class="icon-share"></i></a>
+                                        </div>
+                                        <div class="btn-group pull-right">
+                                            <button class="btn btn-primary" type="submit">Buscar</button>
+                                        </div>
+                                    </div>
+                                </form>                            
+
                             </div>
                             <div class="tab-pane" id="2">
-                                <h2>recorridos</h2>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed imperdiet sapien vitae augue malesuada facilisis. Suspendisse at nisi urna. Cras blandit suscipit massa, lobortis pharetra odio commodo eget. Curabitur et arcu nunc, sit amet suscipit leo. Morbi ut sagittis sem. Praesent cursus lectus vitae purus laoreet ullamcorper. In ipsum arcu, vulputate non dignissim sed, euismod sed sapien. Pellentesque nisl risus, pharetra sed convallis aliquet, molestie eget massa. In porta dapibus aliquam. Nulla magna quam, pulvinar at scelerisque sit amet, mollis et nibh. Donec rhoncus sagittis lectus eget fermentum. Nunc et massa tortor, vitae volutpat quam. Phasellus at odio sit amet risus pellentesque dignissim at vitae purus. Fusce vehicula suscipit lacus at consectetur. Quisque facilisis, metus quis viverra sodales, lectus lectus consectetur diam, at tempus mi magna non purus. </p>
+                                <form class="well">
+                                    <div class="input-append">
+                                        <input type="text" size="16" id="inputLinea" class="span9" placeholder="Linea, ramal, recorrido">
+                                        <span class="add-on"><i class="icon-search"></i></span>
+                                    </div>
+                                    <button class="btn btn-primary" type="submit">Buscar</button>
+                                </form>
                             </div>
+                        </div>
+                        <div id="sidebarContenido">
+                        
                         </div>
                     </div>
 
@@ -39,15 +68,16 @@
 {% block custom_scripts %}
 <script type="text/javascript">
 $(function() {
-
+    $("#sidebar").css("margin-top", "18px")
+    
     if ( $(window).width() > 980 ) {
         $("#map").height(($(window).height()-40)+"px")
-        $("#sidebar").height(($(window).height()-40)+"px")
+        $("#sidebar").height(($(window).height()-58)+"px")
         $("body").css("padding-top","40px")
     }
     else {
         $("#map").height(($(window).height()-50)+"px")
-        $("#sidebar").height(($(window).height()-50)+"px")
+        $("#sidebar").height(($(window).height()-58)+"px")
         $("body").css("padding-top","0px")            
     }
     if ( $(window).width() < 456 )
@@ -62,12 +92,12 @@ $(function() {
     $(window).bind('resize', function() {
         if ( $(window).width() > 980 ) {
             $("#map").height(($(window).height()-40)+"px")
-            $("#sidebar").height(($(window).height()-40)+"px")
+            $("#sidebar").height(($(window).height()-58)+"px")
             $("body").css("padding-top","40px")
         }
         else {
             $("#map").height(($(window).height()-50)+"px")
-            $("#sidebar").height(($(window).height()-50)+"px")
+            $("#sidebar").height(($(window).height()-68)+"px")
             $("body").css("padding-top","0px")            
         }
         if ( $(window).width() < 456 )
@@ -81,7 +111,61 @@ $(function() {
         $(".navbar").css("margin-bottom","0px")
     });
 
+    map = window["olwidget_"+$("#map div:first").attr("id")]
+    //map.zoomToExtent(map.calculateBounds())
+    map.zoomOut()
+    //map.setCenter(map.center())
+
+
+    var markers = new OpenLayers.Layer.Markers( "Markers" );
+    map.addControl(new OpenLayers.Control.DragFeature(markers))
+    markerA = new OpenLayers.Marker() ;
+    markerB = new OpenLayers.Marker() ;
+    map.addLayer(markers);
+    
+    clickHandler = function(e){
+        var opx = map.getLayerPxFromViewPortPx(e.xy)
+        markerA.map = map
+        markerA.moveTo(opx)
+        markers.addMarker(markerA);
+        map.events.un({"click":clickHandler})
+        
+        clickHandler = function(e){
+            var opx = map.getLayerPxFromViewPortPx(e.xy)
+            markerB.map = map
+            markerB.moveTo(opx)
+            markers.addMarker(markerB);
+            map.events.un({"click":clickHandler})
+            lla=markerA.lonlat.transform(new OpenLayers.Projection("EPSG:900913"), new OpenLayers.Projection("EPSG:4326"))
+            llb=markerB.lonlat.transform(new OpenLayers.Projection("EPSG:900913"), new OpenLayers.Projection("EPSG:4326"))
+            $.get(
+                "/api/recorridos/",
+                {
+                    origen: lla.lon+","+lla.lat,
+                    destino: llb.lon+","+llb.lat,
+                    radio_origen: "500",
+                    radio_destino: "500"
+                },
+                function(data){
+                    $('#sidebarContenido').html("RESULTADO:"+data);
+                }
+            );
+        }
+        map.events.register("click", map , clickHandler);
+    }
+    map.events.register("click", map , clickHandler);
+
+    
+    $.cb = new Object()
+    $.cb.click_button_ayuda = function() {
+        $("#sidebarContenido").html("Ayuda");
+        return false;    
+    }
+
 })
+
+    function click_button_ayuda() {
+    }
 </script>
 {% endblock %}
 
