@@ -62,9 +62,6 @@ def iniciar_sesion(request, template_name='registration/login.html',
             return HttpResponseRedirect(redirect_to)
     elif request.method == 'GET':
         if request.user.is_authenticated():
-            messages.add_message(request,
-                            messages.WARNING,
-                            'Tu sesion ya esta iniciada, no te hagas el vivo...')
             return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
         form = authentication_form(request)
 

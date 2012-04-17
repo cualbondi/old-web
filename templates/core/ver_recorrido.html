@@ -1,5 +1,9 @@
 {% extends "maquetado.html" %}
 
+{% block custom_top_scripts %}
+    {{mapa.media}}
+{% endblock %}
+
 {% block bloque_izquierda %}
     <ul class="breadcrumb">
         <li><a href="/">Inicio</a> <span class="divider">></span></li>
@@ -16,6 +20,7 @@
         <button id="btn-favorito" class="btn btn-warning"><i class="icon-heart"></i> <strong>Guardar en favoritos</strong></button>
         {% endif %}
     {% endif %}
+    <div>{{mapa}}</div>
 {% endblock %}
 
 {% block custom_ready_function %}

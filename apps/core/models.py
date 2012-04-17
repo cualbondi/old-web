@@ -6,6 +6,7 @@ from django.contrib.gis.geos import Point
 from apps.core.managers import RecorridoManager
 from django.core.exceptions import ObjectDoesNotExist
 from apps.catastro.models import Ciudad
+from apps.usuarios.models import RecorridoFavorito
 
 
 class Linea(models.Model):

@@ -58,8 +58,20 @@ def ver_ciudad(request, nombre_ciudad):
 
     lineas = ciudad_actual.lineas.all()
 
+    mapa = InfoMap([
+        [ciudad_actual.poligono, {
+            'html': "<p>Special style for this point.</p>",
+            'style': {'fill_color': '#00FF00'},
+        }]],
+        { 
+            "map_div_style": {"width": '100%'},
+            "layers":["osm.mapnik", "google.streets"]#, "google.streets", "google.hybrid", "ve.road", "ve.hybrid", "yahoo.map"]
+        }
+    )
+
     return render_to_response('core/ver_ciudad.html',
-                              {'lineas': lineas},
+                              {'mapa':mapa,
+                               'lineas': lineas},
                               context_instance=RequestContext(request))
 
 
@@ -70,7 +82,7 @@ def ver_mapa_ciudad(request, nombre_ciudad):
         [], 
         { 
             "map_div_style": {"width": '100%', "height": '100%'},
-            "layers":["osm.mapnik"]#, "google.streets", "google.hybrid", "ve.road", "ve.hybrid", "yahoo.map"]
+            "layers":["osm.mapnik", "google.streets"]#, "google.streets", "google.hybrid", "ve.road", "ve.hybrid", "yahoo.map"]
         }
     )
 #    pois = Poi.objects.filter(ciudad=ciudad_actual)
@@ -119,8 +131,20 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
     if request.user.is_authenticated():
         favorito = recorrido_actual.es_favorito(request.user)
 
+    mapa = InfoMap([
+        [recorrido_actual.ruta, {
+            'html': "<p>Special style for this point.</p>",
+            'style': {'stroke_color': '#0000FF'},
+        }]],
+        {
+            "map_div_style": {"width": '100%'},
+            "layers":["osm.mapnik", "google.streets"]#, "google.streets", "google.hybrid", "ve.road", "ve.hybrid", "yahoo.map"]
+        }
+    )
+
     return render_to_response('core/ver_recorrido.html',
-                              {'ciudad_actual': ciudad_actual,
+                              {'mapa': mapa,
+                               'ciudad_actual': ciudad_actual,
                                'linea_actual': linea_actual,
                                'recorrido_actual': recorrido_actual,
                                'favorito': favorito},
