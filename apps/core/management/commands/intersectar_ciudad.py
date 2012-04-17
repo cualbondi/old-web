@@ -10,19 +10,18 @@ class Command(BaseCommand):
         recorridos = Recorrido.objects.all()
         ciudades = Ciudad.objects.all()
         for ciudad in ciudades:
-            stats[ciudad] = {'cant_intersecciones': 0,
-                             'recorridos': [],
-                             'lineas': []}
+            stats[ciudad.id] = 0
             for recorrido in recorridos:
                 """ Checkear si la ciudad intersecta
                     al recorrido. Si lo intersecta
                     agregarlo a la relacion ManyToMany
                 """
-                if ciudad.zona.intersects(recorrido.ruta):
-                    stats[ciudad]['cant_intersecciones'] += 1
-                    stats[ciudad]['recorridos'].append(recorrido)
-                    stats[ciudad]['lineas'].append(recorrido.linea)
+                if ciudad.poligono.intersects(recorrido.ruta):
+                    stats[ciudad.id] += 1
                     ciudad.recorridos.add(recorrido)
                     ciudad.lineas.add(recorrido.linea)
-        pprint(stats)
+            if len(ciudad.recorridos.all())>0:
+                ciudad.activa=True
+                ciudad.save()
+                print ciudad, stats[ciudad.id]
 

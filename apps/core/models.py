@@ -57,7 +57,7 @@ class Recorrido(models.Model):
         # Ver que ciudades intersecta
         ciudades = Ciudad.objects.all()
         for ciudad in ciudades:
-            if ciudad.zona.intersects(self.ruta):
+            if ciudad.poligono.intersects(self.ruta):
                 ciudad.recorridos.add(self)
                 ciudad.lineas.add(self.linea)
 
