@@ -69,6 +69,10 @@
 <script type="text/javascript">
 $(function() {
     $("#sidebar").css("margin-top", "18px")
+
+    $("#sidebar").css("overflow", "auto")
+    $("body").css("padding-bottom","0px")
+    $(".navbar").css("margin-bottom","0px")
     
     if ( $(window).width() > 980 ) {
         $("#map").height(($(window).height()-40)+"px")
@@ -85,20 +89,26 @@ $(function() {
     else
         $("#map").css("margin-right", "-20px")
 
-    $("#sidebar").css("overflow", "auto")
-    $("body").css("padding-bottom","0px")
-    $(".navbar").css("margin-bottom","0px")
 
     $(window).bind('resize', function() {
         if ( $(window).width() > 980 ) {
             $("#map").height(($(window).height()-40)+"px")
             $("#sidebar").height(($(window).height()-58)+"px")
             $("body").css("padding-top","40px")
+            //esto no anda bien
+            if ( $("#sidebar").height() > ($(window).height()-58)+"px" )
+                $("#sidebar").height(($(window).height()-58)+"px")
+            else
+                $("#sidebar").height("")
         }
         else {
             $("#map").height(($(window).height()-50)+"px")
-            $("#sidebar").height(($(window).height()-68)+"px")
-            $("body").css("padding-top","0px")            
+            $("body").css("padding-top","0px")
+            //esto no anda bien            
+            if ( $("#sidebar").height() > ($(window).height()-68)+"px" )
+                $("#sidebar").height(($(window).height()-68)+"px")
+            else
+                $("#sidebar").height("")
         }
         if ( $(window).width() < 456 )
             $("#map").css("margin-right", "0px")
@@ -106,9 +116,6 @@ $(function() {
             $("#map").css("margin-right", "-20px")
         
 
-        $("#sidebar").css("overflow", "auto")
-        $("body").css("padding-bottom","0px")
-        $(".navbar").css("margin-bottom","0px")
     });
 
     map = window["olwidget_"+$("#map div:first").attr("id")]
@@ -116,44 +123,84 @@ $(function() {
     map.zoomOut()
     //map.setCenter(map.center())
 
-
-    var markers = new OpenLayers.Layer.Markers( "Markers" );
-    map.addControl(new OpenLayers.Control.DragFeature(markers))
-    markerA = new OpenLayers.Marker() ;
-    markerB = new OpenLayers.Marker() ;
-    map.addLayer(markers);
-    
-    clickHandler = function(e){
-        var opx = map.getLayerPxFromViewPortPx(e.xy)
-        markerA.map = map
-        markerA.moveTo(opx)
-        markers.addMarker(markerA);
-        map.events.un({"click":clickHandler})
-        
-        clickHandler = function(e){
-            var opx = map.getLayerPxFromViewPortPx(e.xy)
-            markerB.map = map
-            markerB.moveTo(opx)
-            markers.addMarker(markerB);
-            map.events.un({"click":clickHandler})
-            lla=markerA.lonlat.transform(new OpenLayers.Projection("EPSG:900913"), new OpenLayers.Projection("EPSG:4326"))
-            llb=markerB.lonlat.transform(new OpenLayers.Projection("EPSG:900913"), new OpenLayers.Projection("EPSG:4326"))
-            $.get(
-                "/api/recorridos/",
-                {
-                    origen: lla.lon+","+lla.lat,
-                    destino: llb.lon+","+llb.lat,
-                    radio_origen: "500",
-                    radio_destino: "500"
-                },
-                function(data){
-                    $('#sidebarContenido').html("RESULTADO:"+data);
-                }
-            );
-        }
-        map.events.register("click", map , clickHandler);
+    var styleMap = new OpenLayers.StyleMap();
+    lookup = {
+        // nombre:hovering:dragging
+        "A:false:false": { externalGraphic: "http://www.google.com/mapfiles/markerA.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
+        "A:true:false" : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeA.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
+        "A:false:true" : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeA.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1 },
+        "A:true:true"  : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeA.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1 },
+        "B:false:false": { externalGraphic: "http://www.google.com/mapfiles/markerB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
+        "B:true:false" : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
+        "B:false:true" : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1 },
+        "B:true:true"  : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1 },
     }
-    map.events.register("click", map , clickHandler);
+    styleMap.addUniqueValueRules("default", "tipo", lookup);
+    
+    var markers = new OpenLayers.Layer.Vector( "Markers", {styleMap: styleMap} );
+    map.addLayer(markers)
+    var proj = new OpenLayers.Projection("EPSG:4326");
+    var markerA
+    var markerB
+    markerAlisto = false
+    markerBlisto = false
+    
+    var clickHandler = new OpenLayers.Handler.Click(
+        { 'map': map },
+        {
+            'click': function(evt) {
+                var lonlat = map.getLonLatFromViewPortPx(evt.xy);
+                point = new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat);
+                if ( !markerAlisto ) {
+                    markerA = new OpenLayers.Feature.Vector(point, {tipo:"A:false:false"})
+                    markerAlisto = true
+                    markers.addFeatures([markerA]);
+                }
+                else {
+                    if ( !markerBlisto ) {
+                        markerB = new OpenLayers.Feature.Vector(point, {tipo:"B:false:false"})
+                        markerBlisto = true
+                        markers.addFeatures([markerB]);
+                        clickHandler.deactivate();
+                        buscarporclick(markerA.geometry, markerB.geometry)
+                    }
+                }
+            }
+        }
+    );
+    dragControl = new OpenLayers.Control.DragFeature(
+        markers,
+        {
+            onComplete: function(feature, pixel) {
+                t = feature.attributes.tipo.split(":")
+                feature.attributes.tipo=t[0]+":"+t[1]+":false"
+                markers.redraw()
+                buscarporclick(markerA.geometry, markerB.geometry)
+            },
+            onEnter: function(feature, pixel) {
+                t = feature.attributes.tipo.split(":")
+                feature.attributes.tipo=t[0]+":true:"+t[2]
+                markers.redraw()
+            },
+            onLeave: function(feature, pixel) {
+                t = feature.attributes.tipo.split(":")
+                feature.attributes.tipo=t[0]+":false:"+t[2]
+                markers.redraw()
+            },
+            onStart: function(feature, pixel) {
+                t = feature.attributes.tipo.split(":")
+                feature.attributes.tipo=t[0]+":"+t[1]+":true"
+                markers.redraw()
+            }
+        }
+    )
+
+    map.addControl(dragControl)
+    
+    clickHandler.activate()
+    dragControl.activate()
+    
+
 
     
     $.cb = new Object()
@@ -161,11 +208,28 @@ $(function() {
         $("#sidebarContenido").html("Ayuda");
         return false;    
     }
+    
+    function buscarporclick(lla, llb) {
+        lla = lla.transform(map.getProjectionObject(), proj)
+        llb = llb.transform(map.getProjectionObject(), proj)
+        $.get(
+            "/api/recorridos/",
+            {
+                origen: lla.x+","+lla.y,
+                destino: llb.x+","+llb.y,
+                radio_origen: "500",
+                radio_destino: "500"
+            },
+            function(data){
+                $('#sidebarContenido').html("RESULTADO:"+data);
+            }
+        );
+        lla = lla.transform(proj, map.getProjectionObject())
+        llb = llb.transform(proj, map.getProjectionObject())
+    }
 
 })
 
-    function click_button_ayuda() {
-    }
 </script>
 {% endblock %}
 
