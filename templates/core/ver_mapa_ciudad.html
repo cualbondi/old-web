@@ -66,6 +66,8 @@
 {% endblock %}
 
 {% block custom_scripts %}
+<script src="http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
+    
 <script type="text/javascript">
 $(function() {
     $("#sidebar").css("margin-top", "18px")
@@ -138,6 +140,8 @@ $(function() {
     styleMap.addUniqueValueRules("default", "tipo", lookup);
     
     var markers = new OpenLayers.Layer.Vector( "Markers", {styleMap: styleMap} );
+    var recorridos = new OpenLayers.Layer.Vector( "Recorridos", {styleMap: new OpenLayers.StyleMap({strokeWidth: 5}) });
+    map.addLayer(recorridos)
     map.addLayer(markers)
     var proj = new OpenLayers.Projection("EPSG:4326");
     var markerA
@@ -173,23 +177,23 @@ $(function() {
         {
             onComplete: function(feature, pixel) {
                 t = feature.attributes.tipo.split(":")
-                feature.attributes.tipo=t[0]+":"+t[1]+":false"
+                feature.attributes.tipo=t[0]+":true:false"
                 markers.redraw()
                 buscarporclick(markerA.geometry, markerB.geometry)
             },
             onEnter: function(feature, pixel) {
                 t = feature.attributes.tipo.split(":")
-                feature.attributes.tipo=t[0]+":true:"+t[2]
+                feature.attributes.tipo=t[0]+":true:false"
                 markers.redraw()
             },
             onLeave: function(feature, pixel) {
                 t = feature.attributes.tipo.split(":")
-                feature.attributes.tipo=t[0]+":false:"+t[2]
+                feature.attributes.tipo=t[0]+":false:false"
                 markers.redraw()
             },
             onStart: function(feature, pixel) {
                 t = feature.attributes.tipo.split(":")
-                feature.attributes.tipo=t[0]+":"+t[1]+":true"
+                feature.attributes.tipo=t[0]+":true:true"
                 markers.redraw()
             }
         }
@@ -201,12 +205,23 @@ $(function() {
     dragControl.activate()
     
 
-
+    resultados = new Object()
+    poly = null
     
     $.cb = new Object()
     $.cb.click_button_ayuda = function() {
         $("#sidebarContenido").html("Ayuda");
-        return false;    
+    }
+    
+    $.cb.mostrar_resultado = function(id) {
+        if ( typeof(id)==='undefined' )
+            id = $("#sidebarContenido li:first").attr("id").slice(3)
+        $("#sidebarContenido li").removeClass("active")
+        $("#res"+id).addClass("active")
+        recorridos.removeAllFeatures()
+        poly = new OpenLayers.Format.WKT().read(resultados[id].ruta_corta);
+        poly.geometry.transform(proj, map.getProjectionObject())
+        recorridos.addFeatures([poly]);
     }
     
     function buscarporclick(lla, llb) {
@@ -220,21 +235,47 @@ $(function() {
                 radio_origen: "500",
                 radio_destino: "500"
             },
-            function(data){
-                $('#sidebarContenido').html("RESULTADO:"+data);
-            }
+            mostrarResultados
         );
         lla = lla.transform(proj, map.getProjectionObject())
         llb = llb.transform(proj, map.getProjectionObject())
     }
+    
+    function mostrarResultados(data){
+        if (!data)
+            $('#sidebarContenido').html("vacío")
+        else {
+            resultados = new Object()
+            $.each(data, function(key, value) { 
+                resultados[value.id] = value
+            });
+            $("#sidebarContenido").html("")
+            $("#listTempl").tmpl( [{ res: data }] ).appendTo('#sidebarContenido');
+            $.cb.mostrar_resultado()
+        }
+    }
+
 
 })
 
 </script>
+
+<script id="listTempl" type="text/x-jquery-tmpl">
+<ul class="nav nav-pills nav-stacked">
+    {% templatetag openvariable %}tmpl(res) "#itemTempl"{% templatetag closevariable %}
+</ul>
+</script>
+
+<script id="itemTempl" type="text/x-jquery-tmpl"> 
+    <li id="res${id}">
+        <a href="#" onclick="javascript:$.cb.mostrar_resultado(${id});return false">${nombre}</a>
+    </li>
+</script>
+
 {% endblock %}
 
 {% block custom_top_scripts %}
-{{ mapa.media }}
+    {{ mapa.media }}
 {% endblock %}
 
 {% block custom_styles %}
