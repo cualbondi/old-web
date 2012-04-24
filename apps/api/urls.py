@@ -62,7 +62,9 @@ ESTRUCTURA DE LAS URLs
             radio_origen (200)  \   Tolerancia a caminar, tanto al subir como al bajar
             radio_destino (350) /
             combinar (True) => Si es True buscar con transbordo
-            query (Oeste 10 desde Olmos hasta centro)   =>  Busqueda de recorridos por nombre o lugares por dnd pasa
+            --->query (Oeste 10 desde Olmos hasta centro)   =>  Busqueda de recorridos por nombre o lugares por dnd pasa
+                tendria que ser una .com/api/catastro/?query=olmos
+                y la query en recorridos solo hacerse con origen y destino en latlng
             pagina (4)  =>  Dada una busqueda, los resultados se paginan y se devuelve la pagina "pagina"
 [DONE].com/api/recorridos/<id-recorrido>/
 .com/api/recorridos/<id-recorrido>/paradas/

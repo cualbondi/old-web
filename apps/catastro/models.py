@@ -1,59 +1,58 @@
 # -*- coding: UTF-8 -*-
 from django.contrib.gis.db import models
-<<<<<<< Updated upstream
 from django.template.defaultfilters import slugify
-
-
-class ArgAdm1(models.Model):
-    gid = models.IntegerField(primary_key=True)
-    id_0 = models.IntegerField()
-    iso = models.CharField(max_length=3)
-    name_0 = models.CharField(max_length=75)
-    id_1 = models.IntegerField()
-    name_1 = models.CharField(max_length=75)
-    varname_1 = models.CharField(max_length=150)
-    nl_name_1 = models.CharField(max_length=50)
-    hasc_1 = models.CharField(max_length=15)
-    cc_1 = models.CharField(max_length=15)
-    type_1 = models.CharField(max_length=50)
-    engtype_1 = models.CharField(max_length=50)
-    validfr_1 = models.CharField(max_length=25)
-    validto_1 = models.CharField(max_length=25)
-    remarks_1 = models.CharField(max_length=125)
-    shape_leng = models.DecimalField(max_digits=7, decimal_places=2)
-    shape_area = models.DecimalField(max_digits=7, decimal_places=2)
-    the_geom = models.MultiPolygonField(srid=-1)
-    objects = models.GeoManager()
-    class Meta:
-        db_table = u'arg_adm1'
-
-class ArgAdm2(models.Model):
-    gid = models.IntegerField(primary_key=True)
-    id_0 = models.IntegerField()
-    iso = models.CharField(max_length=3)
-    name_0 = models.CharField(max_length=75)
-    id_1 = models.IntegerField()
-    name_1 = models.CharField(max_length=75)
-    id_2 = models.IntegerField()
-    name_2 = models.CharField(max_length=75)
-    varname_2 = models.CharField(max_length=150)
-    nl_name_2 = models.CharField(max_length=75)
-    hasc_2 = models.CharField(max_length=15)
-    cc_2 = models.CharField(max_length=15)
-    type_2 = models.CharField(max_length=50)
-    engtype_2 = models.CharField(max_length=50)
-    validfr_2 = models.CharField(max_length=25)
-    validto_2 = models.CharField(max_length=25)
-    remarks_2 = models.CharField(max_length=100)
-    shape_leng = models.DecimalField(max_digits=7, decimal_places=2)
-    shape_area = models.DecimalField(max_digits=7, decimal_places=2)
-    the_geom = models.MultiPolygonField(srid=-1)
-    objects = models.GeoManager()
-    class Meta:
-        db_table = u'arg_adm2'
-=======
 from apps.catastro.managers import PuntoBusquedaManager
->>>>>>> Stashed changes
+
+""" Dejemos estos modelos comentados hasta que resolvamos
+la migracion de Provincia y Ciudad """
+
+#class ArgAdm1(models.Model):
+#    gid = models.IntegerField(primary_key=True)
+#    id_0 = models.IntegerField()
+#    iso = models.CharField(max_length=3)
+#    name_0 = models.CharField(max_length=75)
+#    id_1 = models.IntegerField()
+#    name_1 = models.CharField(max_length=75)
+#    varname_1 = models.CharField(max_length=150)
+#    nl_name_1 = models.CharField(max_length=50)
+#    hasc_1 = models.CharField(max_length=15)
+#    cc_1 = models.CharField(max_length=15)
+#    type_1 = models.CharField(max_length=50)
+#    engtype_1 = models.CharField(max_length=50)
+#    validfr_1 = models.CharField(max_length=25)
+#    validto_1 = models.CharField(max_length=25)
+#    remarks_1 = models.CharField(max_length=125)
+#    shape_leng = models.DecimalField(max_digits=7, decimal_places=2)
+#    shape_area = models.DecimalField(max_digits=7, decimal_places=2)
+#    the_geom = models.MultiPolygonField(srid=-1)
+#    objects = models.GeoManager()
+#    class Meta:
+#        db_table = u'arg_adm1'
+
+#class ArgAdm2(models.Model):
+#    gid = models.IntegerField(primary_key=True)
+#    id_0 = models.IntegerField()
+#    iso = models.CharField(max_length=3)
+#    name_0 = models.CharField(max_length=75)
+#    id_1 = models.IntegerField()
+#    name_1 = models.CharField(max_length=75)
+#    id_2 = models.IntegerField()
+#    name_2 = models.CharField(max_length=75)
+#    varname_2 = models.CharField(max_length=150)
+#    nl_name_2 = models.CharField(max_length=75)
+#    hasc_2 = models.CharField(max_length=15)
+#    cc_2 = models.CharField(max_length=15)
+#    type_2 = models.CharField(max_length=50)
+#    engtype_2 = models.CharField(max_length=50)
+#    validfr_2 = models.CharField(max_length=25)
+#    validto_2 = models.CharField(max_length=25)
+#    remarks_2 = models.CharField(max_length=100)
+#    shape_leng = models.DecimalField(max_digits=7, decimal_places=2)
+#    shape_area = models.DecimalField(max_digits=7, decimal_places=2)
+#    the_geom = models.MultiPolygonField(srid=-1)
+#    objects = models.GeoManager()
+#    class Meta:
+#        db_table = u'arg_adm2'
 
 
 class Provincia(models.Model):

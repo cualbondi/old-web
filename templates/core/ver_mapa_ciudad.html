@@ -16,13 +16,42 @@
                         </ul>
                         <div class="tab-content">
                             <div class="tab-pane active" id="1">
-                                <h2>como llegar</h2>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed imperdiet sapien vitae augue malesuada facilisis. Suspendisse at nisi urna. Cras blandit suscipit massa, lobortis pharetra odio commodo eget. Curabitur et arcu nunc, sit amet suscipit leo. Morbi ut sagittis sem. Praesent cursus lectus vitae purus laoreet ullamcorper. In ipsum arcu, vulputate non dignissim sed, euismod sed sapien. Pellentesque nisl risus, pharetra sed convallis aliquet, molestie eget massa. In porta dapibus aliquam. Nulla magna quam, pulvinar at scelerisque sit amet, mollis et nibh. Donec rhoncus sagittis lectus eget fermentum. Nunc et massa tortor, vitae volutpat quam. Phasellus at odio sit amet risus pellentesque dignissim at vitae purus. Fusce vehicula suscipit lacus at consectetur. Quisque facilisis, metus quis viverra sodales, lectus lectus consectetur diam, at tempus mi magna non purus. </p>
+                            
+                                <form class="well">
+                                    <div class="input-prepend">
+                                        <span class="add-on"><i class="icon-map-marker"></i>A</span>
+                                        <input type="text" size="16" id="inputDesde" class="span9" placeholder="Desde">
+                                    </div>
+                                    <div class="input-prepend">
+                                        <span class="add-on"><i class="icon-map-marker"></i>B</span>
+                                        <input type="text" size="16" id="inputHasta" class="span9" placeholder="Hasta">
+                                    </div>
+                                    <div class="btn-toolbar">
+                                        <div class="btn-group">
+                                            <a class="btn" title="Cambiar origen por destino"><i class="icon-refresh"></i></a>
+                                            <a class="btn" title="Imprimir resultados en papel"><i class="icon-print"></i></a>
+                                            <a class="btn" title="Ayuda" onclick="javascript:$.cb.click_button_ayuda();"><i class="icon-question-sign"></i></a>
+                                            <a class="btn" title="Compartir enlace a esta ubicación"><i class="icon-share"></i></a>
+                                        </div>
+                                        <div class="btn-group pull-right">
+                                            <button class="btn btn-primary" type="submit">Buscar</button>
+                                        </div>
+                                    </div>
+                                </form>                            
+
                             </div>
                             <div class="tab-pane" id="2">
-                                <h2>recorridos</h2>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed imperdiet sapien vitae augue malesuada facilisis. Suspendisse at nisi urna. Cras blandit suscipit massa, lobortis pharetra odio commodo eget. Curabitur et arcu nunc, sit amet suscipit leo. Morbi ut sagittis sem. Praesent cursus lectus vitae purus laoreet ullamcorper. In ipsum arcu, vulputate non dignissim sed, euismod sed sapien. Pellentesque nisl risus, pharetra sed convallis aliquet, molestie eget massa. In porta dapibus aliquam. Nulla magna quam, pulvinar at scelerisque sit amet, mollis et nibh. Donec rhoncus sagittis lectus eget fermentum. Nunc et massa tortor, vitae volutpat quam. Phasellus at odio sit amet risus pellentesque dignissim at vitae purus. Fusce vehicula suscipit lacus at consectetur. Quisque facilisis, metus quis viverra sodales, lectus lectus consectetur diam, at tempus mi magna non purus. </p>
+                                <form class="well">
+                                    <div class="input-append">
+                                        <input type="text" size="16" id="inputLinea" class="span9" placeholder="Linea, ramal, recorrido">
+                                        <span class="add-on"><i class="icon-search"></i></span>
+                                    </div>
+                                    <button class="btn btn-primary" type="submit">Buscar</button>
+                                </form>
                             </div>
+                        </div>
+                        <div id="sidebarContenido">
+                        
                         </div>
                     </div>
 
@@ -37,17 +66,24 @@
 {% endblock %}
 
 {% block custom_scripts %}
+<script src="http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
+    
 <script type="text/javascript">
 $(function() {
+    $("#sidebar").css("margin-top", "18px")
 
+    $("#sidebar").css("overflow", "auto")
+    $("body").css("padding-bottom","0px")
+    $(".navbar").css("margin-bottom","0px")
+    
     if ( $(window).width() > 980 ) {
         $("#map").height(($(window).height()-40)+"px")
-        $("#sidebar").height(($(window).height()-40)+"px")
+        $("#sidebar").height(($(window).height()-58)+"px")
         $("body").css("padding-top","40px")
     }
     else {
         $("#map").height(($(window).height()-50)+"px")
-        $("#sidebar").height(($(window).height()-50)+"px")
+        $("#sidebar").height(($(window).height()-58)+"px")
         $("body").css("padding-top","0px")            
     }
     if ( $(window).width() < 456 )
@@ -55,20 +91,26 @@ $(function() {
     else
         $("#map").css("margin-right", "-20px")
 
-    $("#sidebar").css("overflow", "auto")
-    $("body").css("padding-bottom","0px")
-    $(".navbar").css("margin-bottom","0px")
 
     $(window).bind('resize', function() {
         if ( $(window).width() > 980 ) {
             $("#map").height(($(window).height()-40)+"px")
-            $("#sidebar").height(($(window).height()-40)+"px")
+            $("#sidebar").height(($(window).height()-58)+"px")
             $("body").css("padding-top","40px")
+            //esto no anda bien
+            if ( $("#sidebar").height() > ($(window).height()-58)+"px" )
+                $("#sidebar").height(($(window).height()-58)+"px")
+            else
+                $("#sidebar").height("")
         }
         else {
             $("#map").height(($(window).height()-50)+"px")
-            $("#sidebar").height(($(window).height()-50)+"px")
-            $("body").css("padding-top","0px")            
+            $("body").css("padding-top","0px")
+            //esto no anda bien            
+            if ( $("#sidebar").height() > ($(window).height()-68)+"px" )
+                $("#sidebar").height(($(window).height()-68)+"px")
+            else
+                $("#sidebar").height("")
         }
         if ( $(window).width() < 456 )
             $("#map").css("margin-right", "0px")
@@ -76,17 +118,164 @@ $(function() {
             $("#map").css("margin-right", "-20px")
         
 
-        $("#sidebar").css("overflow", "auto")
-        $("body").css("padding-bottom","0px")
-        $(".navbar").css("margin-bottom","0px")
     });
 
+    map = window["olwidget_"+$("#map div:first").attr("id")]
+    //map.zoomToExtent(map.calculateBounds())
+    map.zoomOut()
+    //map.setCenter(map.center())
+
+    var styleMap = new OpenLayers.StyleMap();
+    lookup = {
+        // nombre:hovering:dragging
+        "A:false:false": { externalGraphic: "http://www.google.com/mapfiles/markerA.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
+        "A:true:false" : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeA.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
+        "A:false:true" : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeA.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1 },
+        "A:true:true"  : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeA.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1 },
+        "B:false:false": { externalGraphic: "http://www.google.com/mapfiles/markerB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
+        "B:true:false" : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
+        "B:false:true" : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1 },
+        "B:true:true"  : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1 },
+    }
+    styleMap.addUniqueValueRules("default", "tipo", lookup);
+    
+    var markers = new OpenLayers.Layer.Vector( "Markers", {styleMap: styleMap} );
+    var recorridos = new OpenLayers.Layer.Vector( "Recorridos", {styleMap: new OpenLayers.StyleMap({strokeWidth: 5}) });
+    map.addLayer(recorridos)
+    map.addLayer(markers)
+    var proj = new OpenLayers.Projection("EPSG:4326");
+    var markerA
+    var markerB
+    markerAlisto = false
+    markerBlisto = false
+    
+    var clickHandler = new OpenLayers.Handler.Click(
+        { 'map': map },
+        {
+            'click': function(evt) {
+                var lonlat = map.getLonLatFromViewPortPx(evt.xy);
+                point = new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat);
+                if ( !markerAlisto ) {
+                    markerA = new OpenLayers.Feature.Vector(point, {tipo:"A:false:false"})
+                    markerAlisto = true
+                    markers.addFeatures([markerA]);
+                }
+                else {
+                    if ( !markerBlisto ) {
+                        markerB = new OpenLayers.Feature.Vector(point, {tipo:"B:false:false"})
+                        markerBlisto = true
+                        markers.addFeatures([markerB]);
+                        clickHandler.deactivate();
+                        buscarporclick(markerA.geometry, markerB.geometry)
+                    }
+                }
+            }
+        }
+    );
+    dragControl = new OpenLayers.Control.DragFeature(
+        markers,
+        {
+            onComplete: function(feature, pixel) {
+                t = feature.attributes.tipo.split(":")
+                feature.attributes.tipo=t[0]+":true:false"
+                markers.redraw()
+                buscarporclick(markerA.geometry, markerB.geometry)
+            },
+            onEnter: function(feature, pixel) {
+                t = feature.attributes.tipo.split(":")
+                feature.attributes.tipo=t[0]+":true:false"
+                markers.redraw()
+            },
+            onLeave: function(feature, pixel) {
+                t = feature.attributes.tipo.split(":")
+                feature.attributes.tipo=t[0]+":false:false"
+                markers.redraw()
+            },
+            onStart: function(feature, pixel) {
+                t = feature.attributes.tipo.split(":")
+                feature.attributes.tipo=t[0]+":true:true"
+                markers.redraw()
+            }
+        }
+    )
+
+    map.addControl(dragControl)
+    
+    clickHandler.activate()
+    dragControl.activate()
+    
+
+    resultados = new Object()
+    poly = null
+    
+    $.cb = new Object()
+    $.cb.click_button_ayuda = function() {
+        $("#sidebarContenido").html("Ayuda");
+    }
+    
+    $.cb.mostrar_resultado = function(id) {
+        if ( typeof(id)==='undefined' )
+            id = $("#sidebarContenido li:first").attr("id").slice(3)
+        $("#sidebarContenido li").removeClass("active")
+        $("#res"+id).addClass("active")
+        recorridos.removeAllFeatures()
+        poly = new OpenLayers.Format.WKT().read(resultados[id].ruta_corta);
+        poly.geometry.transform(proj, map.getProjectionObject())
+        recorridos.addFeatures([poly]);
+    }
+    
+    function buscarporclick(lla, llb) {
+        lla = lla.transform(map.getProjectionObject(), proj)
+        llb = llb.transform(map.getProjectionObject(), proj)
+        $.get(
+            "/api/recorridos/",
+            {
+                origen: lla.x+","+lla.y,
+                destino: llb.x+","+llb.y,
+                radio_origen: "500",
+                radio_destino: "500"
+            },
+            mostrarResultados
+        );
+        lla = lla.transform(proj, map.getProjectionObject())
+        llb = llb.transform(proj, map.getProjectionObject())
+    }
+    
+    function mostrarResultados(data){
+        if (!data)
+            $('#sidebarContenido').html("vacío")
+        else {
+            resultados = new Object()
+            $.each(data, function(key, value) { 
+                resultados[value.id] = value
+            });
+            $("#sidebarContenido").html("")
+            $("#listTempl").tmpl( [{ res: data }] ).appendTo('#sidebarContenido');
+            $.cb.mostrar_resultado()
+        }
+    }
+
+
 })
+
 </script>
+
+<script id="listTempl" type="text/x-jquery-tmpl">
+<ul class="nav nav-pills nav-stacked">
+    {% templatetag openvariable %}tmpl(res) "#itemTempl"{% templatetag closevariable %}
+</ul>
+</script>
+
+<script id="itemTempl" type="text/x-jquery-tmpl"> 
+    <li id="res${id}">
+        <a href="#" onclick="javascript:$.cb.mostrar_resultado(${id});return false">${nombre}</a>
+    </li>
+</script>
+
 {% endblock %}
 
 {% block custom_top_scripts %}
-{{ mapa.media }}
+    {{ mapa.media }}
 {% endblock %}
 
 {% block custom_styles %}

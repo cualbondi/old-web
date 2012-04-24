@@ -17,7 +17,7 @@ from django.contrib.comments import signals
 from django.contrib.comments.views.utils import next_redirect, confirmation_view
 from django.contrib.comments.views.comments import CommentPostBadRequest
 from django.utils import simplejson
-from olwidget.widgets import InfoMap
+from olwidget.widgets import EditableMap
 
 def index(request):
     """ TODO: Aca hay que checkear si tiene seteada una
@@ -78,11 +78,14 @@ def ver_ciudad(request, nombre_ciudad):
 def ver_mapa_ciudad(request, nombre_ciudad):
     slug_ciudad = slugify(nombre_ciudad)
     ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
-    mapa = InfoMap(
-        [], 
-        { 
+    mapa = EditableMap(
+        options={ 
             "map_div_style": {"width": '100%', "height": '100%'},
-            "layers":["osm.mapnik", "google.streets"]#, "google.streets", "google.hybrid", "ve.road", "ve.hybrid", "yahoo.map"]
+            "layers":["osm.mapnik"],# "google.streets", "google.hybrid"],#, "ve.road", "ve.hybrid", "yahoo.map"]
+            "default_lat":ciudad_actual.centro.coords[1],
+            "default_lon":ciudad_actual.centro.coords[0],
+            "default_zoom":ciudad_actual.zoom,
+            "editable":False
         }
     )
 #    pois = Poi.objects.filter(ciudad=ciudad_actual)

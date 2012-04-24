@@ -8,6 +8,8 @@ class RecorridoManager(models.GeoManager):
         return []
 
     def get_recorridos(self, puntoA, puntoB, distanciaA, distanciaB):
+        distanciaA=int(distanciaA)
+        distanciaB=int(distanciaB)
         if not isinstance(puntoA, Point):
             raise DatabaseError("get_recorridos: PuntoA Expected GEOS Point instance as parameter, %s given" % type(puntoA))
         if not isinstance(puntoB, Point):

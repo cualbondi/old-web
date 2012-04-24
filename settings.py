@@ -36,6 +36,7 @@ CACHES = {
 CACHE_TIMEOUT = 60*60
 
 OLWIDGET_STATIC_URL = "/media/olwidget"
+GOOGLE_API = "//maps.google.com/maps/api/js?v=3.6&sensor=false"
 
 # Variables personalizadas
 RADIO_ORIGEN_DEFAULT = 200
