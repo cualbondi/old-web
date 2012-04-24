@@ -1,4 +1,6 @@
+# -*- coding: UTF-8 -*-
 from django.contrib.gis.db import models
+<<<<<<< Updated upstream
 from django.template.defaultfilters import slugify
 
 
@@ -49,6 +51,9 @@ class ArgAdm2(models.Model):
     objects = models.GeoManager()
     class Meta:
         db_table = u'arg_adm2'
+=======
+from apps.catastro.managers import PuntoBusquedaManager
+>>>>>>> Stashed changes
 
 
 class Provincia(models.Model):
@@ -107,5 +112,11 @@ class Poi(models.Model):
     ciudad = models.ForeignKey(Ciudad)
     objects = models.GeoManager()
 
+
+class PuntoBusqueda(models.Model):
+    objects = PuntoBusquedaManager()
+
+    class Meta:
+        abstract = True
 
 
