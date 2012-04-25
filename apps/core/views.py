@@ -18,6 +18,7 @@ from django.contrib.comments.views.utils import next_redirect, confirmation_view
 from django.contrib.comments.views.comments import CommentPostBadRequest
 from django.utils import simplejson
 from olwidget.widgets import EditableMap
+from olwidget.widgets import InfoMap
 
 def index(request):
     """ TODO: Aca hay que checkear si tiene seteada una
