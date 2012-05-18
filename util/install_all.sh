@@ -21,6 +21,27 @@ if [ $(id -u) -eq 0 ]; then
     su postgres -c "psql -d $DB_NAME -c \"alter user $DB_USER with password '$DB_PASS';\""
     su postgres -c "psql -d $DB_NAME -c \"grant select on spatial_ref_sys to $DB_USER;\""
     su postgres -c "psql -d $DB_NAME -c \"grant select,update,insert,delete on geometry_columns to $DB_USER;\""
+    
+    su postgres <<-HEREDOC1
+    psql -d $DB_NAME <<-HEREDOC2
+    CREATE OR REPLACE FUNCTION
+        min_linestring ( "line1" Geometry, "line2" Geometry )
+        RETURNS geometry
+        AS \\\$$
+        BEGIN
+            IF ST_Length2D_Spheroid(line1, 'SPHEROID["GRS_1980",6378137,298.257222101]') < ST_Length2D_Spheroid(line2, 'SPHEROID["GRS_1980",6378137,298.257222101]') THEN
+                RETURN line1;
+            ELSE
+                RETURN line2;
+            END IF;
+        END;
+        \\\$$ LANGUAGE plpgsql;
+        
+    CREATE AGGREGATE min_path ( Geometry ) (
+        SFUNC = min_linestring,
+        STYPE = Geometry)
+HEREDOC2
+HEREDOC1
 
     # useradd o adduser
     # Script to add a user to Linux system http://www.cyberciti.biz/tips/howto-write-shell-script-to-add-user.html
@@ -47,7 +68,7 @@ if [ $(id -u) -eq 0 ]; then
     python $HOMEDIR/manage.py syncdb
     
     # apache conf wsgi
-    (cat <<EOF
+    (cat <<-EOF
     <VirtualHost *:80>
 
 	ServerName localhost
