@@ -27,14 +27,14 @@ class RecorridoManager(models.GeoManager):
 		                id,
 		                nombre,
 		                ST_AsText(min_path(ruta_corta)) as ruta_corta,
-		                min(long_bondi) as long_bondi,
-		                min(long_pata) as long_pata
+		                round(min(long_bondi)::numeric, 2) as long_bondi,
+		                round(min(long_pata)::numeric, 2) as long_pata
 	                FROM
                 (
                   (
               		  SELECT
                 			*,
-                			ST_Length(ruta_corta) as long_bondi,
+                			ST_Length(ruta_corta::Geography) as long_bondi,
                 			ST_Distance_Sphere(ST_GeomFromText(%(puntoA)s),ruta_corta) +
                 			ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s),ruta_corta) as long_pata
                 		FROM
@@ -59,7 +59,7 @@ class RecorridoManager(models.GeoManager):
                   (
               		  SELECT
                 			*,
-                			ST_Length(ruta_corta) as long_bondi,
+                			ST_Length(ruta_corta::Geography) as long_bondi,
                 			ST_Distance_Sphere(ST_GeomFromText(%(puntoA)s),ruta_corta) + ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s),ruta_corta) as long_pata
                 		FROM
                 		(
@@ -83,7 +83,7 @@ class RecorridoManager(models.GeoManager):
 	                      (
               		  SELECT
                 			*,
-                			ST_Length(ruta_corta) as long_bondi,
+                			ST_Length(ruta_corta::Geography) as long_bondi,
                 			ST_Distance_Sphere(ST_GeomFromText(%(puntoA)s),ruta_corta) + ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s),ruta_corta) as long_pata
                 		FROM
                 		(
@@ -117,4 +117,70 @@ class RecorridoManager(models.GeoManager):
         query_set = self.raw(query, params)
         return list(query_set)
 
+
+    def fuzzy_trgm_query(self, q):
+        params = {"q": q}
+        query = """
+            SELECT
+                set_limit(0.01);
+            SELECT
+                r.id,
+                l.nombre || ' ' || r.nombre as nombre,
+                similarity(l.nombre || ' ' || r.nombre, %(q)s) as similarity,
+                Astext(r.ruta) as ruta_corta
+            FROM
+                core_recorrido as r
+                join core_linea as l on (r.linea_id = l.id)
+            WHERE
+                (l.nombre || ' ' || r.nombre) %% %(q)s
+            ORDER BY
+                similarity DESC
+            LIMIT
+                10
+            ;
+        """
+        query_set = self.raw(query, params)
+        return list(query_set)
+
+    def fuzzy_fts_query(self, q):
+        params = {"q": q}
+        query = """
+            SELECT
+                r.id,
+                l.nombre || ' ' || r.nombre as nombre,
+                ts_rank_cd(to_tsvector('spanish', l.nombre || ' ' || r.nombre), query, 32) as similarity,
+                Astext(r.ruta) as ruta_corta
+            FROM
+                core_recorrido as r
+                join core_linea as l on (r.linea_id = l.id)
+                cross join plainto_tsquery('spanish', %(q)s) query
+            WHERE
+                query @@ to_tsvector('spanish', l.nombre || ' ' || r.nombre)
+            ORDER BY
+                similarity DESC
+            LIMIT
+                10
+            ;
+        """
+        query_set = self.raw(query, params)
+        return list(query_set)
+
+    def fuzzy_like_query(self, q):
+        params = {"q": q}
+        query = """
+            SELECT
+                r.id,
+                l.nombre || ' ' || r.nombre as nombre,
+                Astext(r.ruta) as ruta_corta
+            FROM
+                core_recorrido as r
+                join core_linea as l on (r.linea_id = l.id)
+            WHERE
+                (l.nombre || ' ' || r.nombre) ILIKE ('%%' || %(q)s || '%%')
+            LIMIT
+                10
+            ;
+        """
+        query_set = self.raw(query, params)
+        return list(query_set)
 

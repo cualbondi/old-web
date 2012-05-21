@@ -70,6 +70,8 @@ ESTRUCTURA DE LAS URLs
 .com/api/recorridos/<id-recorrido>/paradas/
 .com/api/recorridos/<id-recorrido>/paradas/<id-parada>/
 .com/api/recorridos/<id-recorrido>/paradas/<id-parada>/horarios/
+.com/api/recorridos/
+    GET:    q (string de busqueda difusa)
 
 .com/api/usuarios/
 .com/api/usuarios/<id-usuario>/

@@ -4,42 +4,48 @@
 #solo root puede ejecutar el script
 if [ $(id -u) -eq 0 ]; then
 
-    #apt-get update
-    apt-get install git python-django python-psycopg2 python-memcache postgresql postgis postgresql-9.1-postgis proj-bin gdal-bin python-django-piston python-pip libapache2-mod-wsgi
+    #apt-get update (instalar lo que mas se pueda por pip, que son versiones mas nuevas).
+    apt-get install git python-django python-psycopg2 python-memcache postgresql postgis postgresql-9.1-postgis proj-bin gdal-bin python-django-piston python-pip libapache2-mod-wsgi postgresql-contrib
     pip install django-moderation django-floppyforms
 
     # Instalacion de la base de datos bajo el $USER
     DB_USER=geocualbondiuser
     DB_NAME=geocualbondidb
     DB_PASS=geocualbondipass
-    su postgres -c "createuser -RSD $DB_USER"
-    su postgres -c "createdb $DB_NAME"
-    su postgres -c "psql -d $DB_NAME -f /usr/share/postgresql/9.1/contrib/postgis-1.5/postgis.sql"
-    su postgres -c "psql -d $DB_NAME -f /usr/share/postgresql/9.1/contrib/postgis_comments.sql"
-    su postgres -c "psql -d $DB_NAME -f /usr/share/postgresql/9.1/contrib/postgis-1.5/spatial_ref_sys.sql"
 
-    su postgres -c "psql -d $DB_NAME -c \"alter user $DB_USER with password '$DB_PASS';\""
-    su postgres -c "psql -d $DB_NAME -c \"grant select on spatial_ref_sys to $DB_USER;\""
-    su postgres -c "psql -d $DB_NAME -c \"grant select,update,insert,delete on geometry_columns to $DB_USER;\""
-    
     su postgres <<-HEREDOC1
-    psql -d $DB_NAME <<-HEREDOC2
-    CREATE OR REPLACE FUNCTION
-        min_linestring ( "line1" Geometry, "line2" Geometry )
-        RETURNS geometry
-        AS \\\$$
-        BEGIN
-            IF ST_Length2D_Spheroid(line1, 'SPHEROID["GRS_1980",6378137,298.257222101]') < ST_Length2D_Spheroid(line2, 'SPHEROID["GRS_1980",6378137,298.257222101]') THEN
-                RETURN line1;
-            ELSE
-                RETURN line2;
-            END IF;
-        END;
-        \\\$$ LANGUAGE plpgsql;
+        createuser -RSD $DB_USER
+        createdb $DB_NAME
+
+        psql -d $DB_NAME -f /usr/share/postgresql/9.1/contrib/postgis-1.5/postgis.sql
+        psql -d $DB_NAME -f /usr/share/postgresql/9.1/contrib/postgis_comments.sql
+        psql -d $DB_NAME -f /usr/share/postgresql/9.1/contrib/postgis-1.5/spatial_ref_sys.sql
+
+        psql -d $DB_NAME <<-HEREDOC2
         
-    CREATE AGGREGATE min_path ( Geometry ) (
-        SFUNC = min_linestring,
-        STYPE = Geometry)
+        alter user $DB_USER with password '$DB_PASS';
+        grant select on spatial_ref_sys to $DB_USER;
+        grant select,update,insert,delete on geometry_columns to $DB_USER;
+        
+        CREATE OR REPLACE FUNCTION
+            min_linestring ( "line1" Geometry, "line2" Geometry )
+            RETURNS geometry
+            AS \\\$$
+            BEGIN
+                IF ST_Length2D_Spheroid(line1, 'SPHEROID["GRS_1980",6378137,298.257222101]') < ST_Length2D_Spheroid(line2, 'SPHEROID["GRS_1980",6378137,298.257222101]') THEN
+                    RETURN line1;
+                ELSE
+                    RETURN line2;
+                END IF;
+            END;
+            \\\$$ LANGUAGE plpgsql;
+            
+        CREATE AGGREGATE min_path ( Geometry ) (
+            SFUNC = min_linestring,
+            STYPE = Geometry);
+        
+        CREATE EXTENSION pg_trgm;
+
 HEREDOC2
 HEREDOC1
 
@@ -66,7 +72,16 @@ HEREDOC1
     perl -pi -e "s|'USER': '.*?',|'USER': '$DB_USER',|" $HOMEDIR/settings.py
     perl -pi -e "s|'PASSWORD': '.*?',|'PASSWORD': '$DB_PASS',|" $HOMEDIR/settings.py
     python $HOMEDIR/manage.py syncdb
-    
+
+
+## Agregar indices personalizados aca
+    su postgres <<-HEREDOC1
+        psql -d $DB_NAME <<-HEREDOC2
+            CREATE INDEX nombre_trgm_idx ON core_linea USING gist (nombre gist_trgm_ops);
+HEREDOC2
+HEREDOC1
+
+
     # apache conf wsgi
     (cat <<-EOF
     <VirtualHost *:80>
@@ -131,6 +146,8 @@ EOF
 
     a2ensite django
     apache2ctl restart
+
+CREATE INDEX nombre_trgm_idx ON core_linea USING gist (nombre gist_trgm_ops);
 
 else
     echo "ERROR: debe ejecutar el script como root"
