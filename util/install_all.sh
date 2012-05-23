@@ -147,8 +147,6 @@ EOF
     a2ensite django
     apache2ctl restart
 
-CREATE INDEX nombre_trgm_idx ON core_linea USING gist (nombre gist_trgm_ops);
-
 else
     echo "ERROR: debe ejecutar el script como root"
     exit 2
