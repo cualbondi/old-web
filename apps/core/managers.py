@@ -4,8 +4,86 @@ from django.contrib.gis.geos import Point
 
 
 class RecorridoManager(models.GeoManager):
-    def get_recorridos_combinados(self, puntoA, puntoB, distanciaA, distanciaB):
-        return []
+    def get_recorridos_combinados(self, puntoA, puntoB, distanciaA, distanciaB, gap):
+        distanciaA=int(distanciaA)
+        distanciaB=int(distanciaB)
+        gap=int(gap)
+        if not isinstance(puntoA, Point):
+            raise DatabaseError("get_recorridos: PuntoA Expected GEOS Point instance as parameter, %s given" % type(puntoA))
+        if not isinstance(puntoB, Point):
+            raise DatabaseError("get_recorridos: PuntoB Expected GEOS Point instance as parameter, %s given" % type(puntoB))
+        if not isinstance(distanciaA, (int, long)):
+            raise DatabaseError("get_recorridos: distanciaA Expected integer as parameter, %s given" % type(distanciaA))
+        if not isinstance(distanciaB, (int, long)):
+            raise DatabaseError("get_recorridos: distanciaB Expected integer as parameter, %s given" % type(distanciaB))
+        if not isinstance(gap, (int, long)):
+            raise DatabaseError("get_recorridos: gap Expected integer as parameter, %s given" % type(gap))
+        puntoA.set_srid(4326)
+        puntoB.set_srid(4326)
+
+        params = {'puntoA':puntoA.ewkt, 'puntoB':puntoB.ewkt, 'rad1':distanciaA, 'rad2':distanciaB, 'gap':gap}
+        query = """
+            SELECT *
+            FROM (
+                SELECT
+                    re1.id as id,
+                    re1.id as id1,
+                    re2.id as id2,
+                    ST_AsText(
+                        ST_Line_Substring(
+                            re1.ruta,
+                            ST_Line_Locate_Point(re1.ruta, %(puntoA)s),
+                            ST_Line_Locate_Point(re1.ruta, ST_ClosestPoint(re1.ruta, re2.ruta))
+                            )::Geography
+                        ) as ruta1,
+                    ST_AsText(
+                        ST_Line_Substring(
+                            re2.ruta,
+                            ST_Line_Locate_Point(re2.ruta, ST_ClosestPoint(re1.ruta, re2.ruta)),
+                            ST_Line_Locate_Point(re2.ruta, %(puntoB)s)
+                            )::Geography
+                        ) as ruta2,
+                    ST_Length(
+                        ST_Line_Substring(
+                            re1.ruta,
+                            ST_Line_Locate_Point(re1.ruta, %(puntoA)s),
+                            ST_Line_Locate_Point(re1.ruta, ST_ClosestPoint(re1.ruta, re2.ruta))
+                            )::Geography
+                        ) as long_ruta1,
+                    ST_Length(
+                        ST_Line_Substring(
+                            re2.ruta,
+                            ST_Line_Locate_Point(re2.ruta, ST_ClosestPoint(re1.ruta, re2.ruta)),
+                            ST_Line_Locate_Point(re2.ruta, %(puntoB)s)
+                            )::Geography
+                        ) as long_ruta2,
+                    ST_Distance_Sphere(ST_GeomFromText(%(puntoA)s), re1.ruta)
+                        + ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s), re2.ruta)
+                        + ST_Distance_Sphere(re1.ruta, re2.ruta) as long_pata
+
+                FROM
+                    core_recorrido as re1
+                    join core_recorrido as re2 on (re1.id <> re2.id)
+                WHERE
+                    ST_Distance_Sphere(ST_GeomFromText(%(puntoA)s), re1.ruta) < %(rad1)s
+                    and
+                    ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s), re2.ruta) < %(rad2)s
+                    and
+                        ST_Distance_Sphere(re1.ruta, re2.ruta) < %(gap)s
+                    and
+                        ST_Line_Locate_Point(re1.ruta, %(puntoA)s)
+                        <
+                        ST_Line_Locate_Point(re1.ruta, ST_ClosestPoint(re1.ruta, re2.ruta) )
+                    and
+                        ST_Line_Locate_Point(re2.ruta, ST_ClosestPoint(re1.ruta, re2.ruta) )
+                        <
+                        ST_Line_Locate_Point(re2.ruta, %(puntoB)s)
+                ) as subquery
+            ORDER BY (cast(long_pata as integer)*10 + cast(long_ruta1 as integer) + cast(long_ruta2 as integer)) ASC
+        ;"""
+        query_set = self.raw(query, params)
+        return list(query_set)
+
 
     def get_recorridos(self, puntoA, puntoB, distanciaA, distanciaB):
         distanciaA=int(distanciaA)
