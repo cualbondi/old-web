@@ -99,7 +99,10 @@ class Ciudad(models.Model):
 
 
 class Calle(models.Model):
-    pass
+    way = models.GeometryField(srid=0, geography=True)
+    nom_normal = models.TextField()
+    nom = models.TextField()
+    objects = models.GeoManager()
 
 
 class Poi(models.Model):
