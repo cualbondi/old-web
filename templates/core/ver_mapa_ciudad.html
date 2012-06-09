@@ -59,15 +59,19 @@
             </div>
             <div id="bloque_derecha" class="span9">
                 <div id="map" style="background:lightblue;">
-                    {{ mapa }}
+
                 </div>
             </div>
         </div>
 {% endblock %}
 
 {% block custom_scripts %}
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/openlayers/2.11/OpenLayers.js"></script>
 <script type="text/javascript" src="/media/js/bootstrap-typeahead-gist2204728.js"></script>
 <script src="http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
+<script src="http://maps.google.com/maps/api/js?v=3.6&amp;sensor=false"></script>
+<link rel="stylesheet" href="http://openlayers.org/dev/theme/default/style.css" type="text/css" />
+
 
 <script type="text/javascript">
 $(function() {
@@ -121,8 +125,19 @@ $(function() {
 
     });
 
-    map = window["olwidget_"+$("#map div:first").attr("id")]
+    //map = window["olwidget_"+$("#map div:first").attr("id")]
     //map.zoomToExtent(map.calculateBounds())
+    OpenLayers.ImgPath = "/media/css/openlayers/"
+    map = new OpenLayers.Map("map", {theme: null})
+    var osm = new OpenLayers.Layer.OSM();
+    var gmap = new OpenLayers.Layer.Google("Google Streets", {visibility: false});
+    map.addLayers([osm, gmap]);
+    //map.addControl(new OpenLayers.Control.LayerSwitcher());
+    map.setCenter(new OpenLayers.LonLat{{ ciudad_actual.centro.coords }}.transform(
+        new OpenLayers.Projection("EPSG:4326"),
+        map.getProjectionObject()
+    ), {{ ciudad_actual.zoom }});
+    
     map.zoomOut()
     //map.setCenter(map.center())
 
@@ -313,7 +328,7 @@ $(function() {
 {% endblock %}
 
 {% block custom_top_scripts %}
-    {{ mapa.media }}
+
 {% endblock %}
 
 {% block custom_styles %}

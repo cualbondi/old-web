@@ -79,23 +79,14 @@ def ver_ciudad(request, nombre_ciudad):
 def ver_mapa_ciudad(request, nombre_ciudad):
     slug_ciudad = slugify(nombre_ciudad)
     ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
-    mapa = EditableMap(
-        options={ 
-            "map_div_style": {"width": '100%', "height": '100%'},
-            "layers":["osm.mapnik"],# "google.streets", "google.hybrid"],#, "ve.road", "ve.hybrid", "yahoo.map"]
-            "default_lat":ciudad_actual.centro.coords[1],
-            "default_lon":ciudad_actual.centro.coords[0],
-            "default_zoom":ciudad_actual.zoom,
-            "editable":False
-        }
-    )
+    #        "default_lat":ciudad_actual.centro.coords[1],
+    #        "default_lon":ciudad_actual.centro.coords[0],
 #    pois = Poi.objects.filter(ciudad=ciudad_actual)
 #    comercios = Comercio.objects.filter(ciudad=ciudad_actual)
 
     return render_to_response('core/ver_mapa_ciudad.html',
                               {'es_vista_mapa': True,
-                               'ciudad_actual': ciudad_actual,
-                               'mapa':mapa},
+                               'ciudad_actual': ciudad_actual},
                               context_instance=RequestContext(request))
 
 
