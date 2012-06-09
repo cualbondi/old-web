@@ -99,7 +99,7 @@ class Ciudad(models.Model):
 
 
 class Calle(models.Model):
-    way = models.GeometryField(srid=0, geography=True)
+    way = models.GeometryField(srid=4326, geography=True)
     nom_normal = models.TextField()
     nom = models.TextField()
     objects = models.GeoManager()
@@ -109,9 +109,9 @@ class Poi(models.Model):
     """ Un "Punto de interes" es algun lugar representativo
         de una "Ciudad". Por ej: la catedral de La Plata.
     """
-    nombre = models.CharField(max_length=100)
+    nom_normal = models.TextField()
+    nom = models.TextField()
     latlng = models.PointField()
-    ciudad = models.ForeignKey(Ciudad)
     objects = models.GeoManager()
 
 
