@@ -1,5 +1,5 @@
 from apps.core.models import Linea, Recorrido
-from apps.catastro.models import Ciudad
+from apps.catastro.models import Ciudad, PuntoBusqueda
 from piston.handler import BaseHandler
 from piston.utils import rc
 from django.core.exceptions import ObjectDoesNotExist
@@ -184,5 +184,19 @@ class RecorridoHandler(BaseHandler):
             return Recorrido.objects.fuzzy_like_query(query)
 
 
+class CalleHandler(BaseHandler):
+    allowed_methods = ['GET']
+    #model = Calle
+    exclude = ()
 
+    def read(self, request):
+        calle1 = request.GET.get('calle1', None)
+        calle2 = request.GET.get('calle2', None)
+        if calle1 is None or calle2 is None:
+            return rc.BAD_REQUEST
+        else:
+            try:
+                return PuntoBusqueda.objects.interseccion(calle1, calle2)
+            except ObjectDoesNotExist:
+                return rc.NOT_FOUND
 

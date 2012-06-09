@@ -2,7 +2,14 @@
 from django.conf.urls.defaults import patterns, url
 from django.http import HttpResponse
 from piston.resource import Resource
-from apps.api.handlers import CiudadHandler, CiudadLineaHandler, CiudadRecorridoHandler, LineaHandler, LineaRecorridoHandler, RecorridoHandler
+from apps.api.handlers import CiudadHandler,
+                              CiudadLineaHandler,
+                              CiudadRecorridoHandler,
+                              LineaHandler,
+                              LineaRecorridoHandler,
+                              RecorridoHandler,
+                              CalleHandler,
+                              CatastroHandler
 
 def api_welcome(request):
     msg = """
@@ -24,6 +31,8 @@ ciudades_recorridos_handler = Resource(CiudadRecorridoHandler, authentication=No
 lineas_handler = Resource(LineaHandler, authentication=None)
 lineas_recorridos_handler = Resource(LineaRecorridoHandler, authentication=None)
 recorridos_handler = Resource(RecorridoHandler, authentication=None)
+calles_handler = Resource(CalleHandler, authentication=None)
+catastro_handler = Resource(CatastroHandler, authentication=None)
 
 urlpatterns = patterns('',
     url(r'^$', api_welcome),
@@ -39,6 +48,9 @@ urlpatterns = patterns('',
 
     url(r'^recorridos/$', recorridos_handler),
     url(r'^recorridos/(?P<id_recorrido>\d+)/$', recorridos_handler),
+    
+    url(r'^catastro/$', catastro_handler),
+    url(r'^catastro/calles/$', calles_handler),
 )
 
 
