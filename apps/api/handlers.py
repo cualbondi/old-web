@@ -184,6 +184,22 @@ class RecorridoHandler(BaseHandler):
             return Recorrido.objects.fuzzy_like_query(query)
 
 
+class CatastroHandler(BaseHandler):
+    allowed_methods = ['GET']
+    #model = Calle
+    exclude = ()
+
+    def read(self, request):
+        q = request.GET.get('q', None)
+        if q is None:
+            return rc.BAD_REQUEST
+        else:
+            try:
+                return PuntoBusqueda.objects.buscar(q)
+            except ObjectDoesNotExist:
+                return rc.NOT_FOUND
+
+
 class CalleHandler(BaseHandler):
     allowed_methods = ['GET']
     #model = Calle
