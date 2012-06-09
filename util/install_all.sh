@@ -6,7 +6,7 @@ if [ $(id -u) -eq 0 ]; then
 
     #apt-get update (instalar lo que mas se pueda por pip, que son versiones mas nuevas).
     apt-get install git python-django python-psycopg2 python-memcache postgresql postgis postgresql-9.1-postgis proj-bin gdal-bin python-django-piston python-pip libapache2-mod-wsgi postgresql-contrib
-    pip install django-moderation django-floppyforms
+    pip install django-moderation django-floppyforms django-olwidget
 
     # Instalacion de la base de datos bajo el $USER
     DB_USER=geocualbondiuser
