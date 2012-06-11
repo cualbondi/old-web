@@ -34,7 +34,7 @@
                                             <a class="btn" title="Compartir enlace a esta ubicación"><i class="icon-share"></i></a>
                                         </div>
                                         <div class="btn-group pull-right">
-                                            <button class="btn btn-primary" type="submit">Buscar</button>
+                                            <button class="btn btn-primary" type="submit" onclick="javascript:$.cb.click_button_buscar();return false">Buscar</button>
                                         </div>
                                     </div>
                                 </form>                            
@@ -75,12 +75,11 @@
 
 <script type="text/javascript">
 $(function() {
+    // todo esto inicial es para hacer bootstrap 100% height
     $("#sidebar").css("margin-top", "18px")
-
     $("#sidebar").css("overflow", "auto")
     $("body").css("padding-bottom","0px")
     $(".navbar").css("margin-bottom","0px")
-    
     if ( $(window).width() > 980 ) {
         $("#map").height(($(window).height()-40)+"px")
         $("#sidebar").height(($(window).height()-58)+"px")
@@ -95,7 +94,6 @@ $(function() {
         $("#map").css("margin-right", "0px")
     else
         $("#map").css("margin-right", "-20px")
-
 
     $(window).bind('resize', function() {
         if ( $(window).width() > 980 ) {
@@ -121,26 +119,26 @@ $(function() {
             $("#map").css("margin-right", "0px")
         else
             $("#map").css("margin-right", "-20px")
-        
-
     });
 
-    //map = window["olwidget_"+$("#map div:first").attr("id")]
-    //map.zoomToExtent(map.calculateBounds())
+
+    // definicion inicial del mapa
     OpenLayers.ImgPath = "/media/css/openlayers/"
     map = new OpenLayers.Map("map", {theme: null})
     var osm = new OpenLayers.Layer.OSM();
-    var gmap = new OpenLayers.Layer.Google("Google Streets", {visibility: false});
-    map.addLayers([osm, gmap]);
+    map.addLayers([osm]);
+    //var gmap = new OpenLayers.Layer.Google("Google Streets", {visibility: false});
+    //map.addLayers([osm, gmap]);
     //map.addControl(new OpenLayers.Control.LayerSwitcher());
     map.setCenter(new OpenLayers.LonLat{{ ciudad_actual.centro.coords }}.transform(
         new OpenLayers.Projection("EPSG:4326"),
         map.getProjectionObject()
     ), {{ ciudad_actual.zoom }});
     
-    map.zoomOut()
+    map.zoomOut() //esto es para que el mapa se redibuje (workaround de redraw)
     //map.setCenter(map.center())
 
+    // estilos de los markers
     var styleMap = new OpenLayers.StyleMap();
     lookup = {
         // nombre:hovering:dragging
@@ -155,39 +153,67 @@ $(function() {
     }
     styleMap.addUniqueValueRules("default", "tipo", lookup);
     
+    // creacion de las diferentes capas
     var markers = new OpenLayers.Layer.Vector( "Markers", {styleMap: styleMap} );
     var recorridos = new OpenLayers.Layer.Vector( "Recorridos", {styleMap: new OpenLayers.StyleMap({strokeWidth: 5}) });
     map.addLayer(recorridos)
     map.addLayer(markers)
-    var proj = new OpenLayers.Projection("EPSG:4326");
-    var markerA
-    var markerB
-    markerAlisto = false
-    markerBlisto = false
     
+    // proyeccion que se necesita para transformar proyecciones mas adelante
+    var proj = new OpenLayers.Projection("EPSG:4326");
+
+    // clase Marker (para manejar el markerA y marerB mas facil)
+    function Marker(layer, id) {
+        this.listo = false
+        this.point = null
+        this.layer = layer
+        this.id = id
+    }
+    Marker.prototype.setPoint = function(point) {
+        // setea el punto con latlng y lo pone en el mapa
+        // point = new OpenLayers.Geometry.Point(lon, lat);
+        if (!this.listo) {
+            this.point = new OpenLayers.Feature.Vector(point, {tipo:this.id+":false:false"})
+            this.layer.addFeatures([this.point])
+        }
+        else {
+            this.point.geometry.x = point.x
+            this.point.geometry.y = point.y
+            this.point.geometry.clearBounds()
+            //this.layer.drawFeature(this.point);
+        }
+        this.listo = true
+        this.layer.redraw()
+    }
+    
+    // dos objetos de la clase marker
+    var markerA = new Marker(markers, "A")
+    var markerB = new Marker(markers, "B")
+
+    // manejo de clicks en el mapa
+    //      creacion de los markers A y B
+    //      busqueda por click en el mapa
     var clickHandler = new OpenLayers.Handler.Click(
         { 'map': map },
         {
             'click': function(evt) {
                 var lonlat = map.getLonLatFromViewPortPx(evt.xy);
                 point = new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat);
-                if ( !markerAlisto ) {
-                    markerA = new OpenLayers.Feature.Vector(point, {tipo:"A:false:false"})
-                    markerAlisto = true
-                    markers.addFeatures([markerA]);
-                }
-                else {
-                    if ( !markerBlisto ) {
-                        markerB = new OpenLayers.Feature.Vector(point, {tipo:"B:false:false"})
-                        markerBlisto = true
-                        markers.addFeatures([markerB]);
+                if ( !markerA.listo )
+                    markerA.setPoint(point)
+                else
+                    if ( !markerB.listo ) {
+                        markerB.setPoint(point)
                         clickHandler.deactivate();
-                        buscarporclick(markerA.geometry, markerB.geometry)
+                        buscarporclick(markerA.point.geometry, markerB.point.geometry)
                     }
-                }
             }
         }
     );
+    
+    // manejo del drag de los markers
+    //      cambio de imagenes al draggear y onhover
+    //      busqueda por ondrag
     dragControl = new OpenLayers.Control.DragFeature(
         markers,
         {
@@ -195,7 +221,7 @@ $(function() {
                 t = feature.attributes.tipo.split(":")
                 feature.attributes.tipo=t[0]+":true:false"
                 markers.redraw()
-                buscarporclick(markerA.geometry, markerB.geometry)
+                buscarporclick(markerA.point.geometry, markerB.point.geometry)
             },
             onEnter: function(feature, pixel) {
                 t = feature.attributes.tipo.split(":")
@@ -214,12 +240,13 @@ $(function() {
             }
         }
     )
-
     map.addControl(dragControl)
     
+    // activar el click y drag handlers
     clickHandler.activate()
     dragControl.activate()
- 
+
+    // buscador de lineas por sugerencia al tipear
     $('#inputLinea').typeahead({
         source: function (typeahead, query) {
             $.ajax({
@@ -240,14 +267,21 @@ $(function() {
         timeout: 100
     })
 
+
+    // variables "globales"
     resultados = new Object()
     poly = null
     
+    // aca arrancan las funciones de cualbondi que pueden llamarse desde el html
+    // namespace de cualbondi que se ve desde afuera por mas que minifiquemos
     $.cb = new Object()
+    
+    // handler para el boton de ayuda
     $.cb.click_button_ayuda = function() {
         $("#sidebarContenido").html("Ayuda");
     }
     
+    // handler para mostrar resultados, usa el template de listado de results
     $.cb.mostrar_resultado = function(id) {
         if ( typeof(id)==='undefined' )
             id = $("#sidebarContenido li:first").attr("id").slice(3)
@@ -259,7 +293,60 @@ $(function() {
         recorridos.addFeatures([poly]);
     }
     
+    // handler para buscar por origen y destino
+    $.cb.click_button_buscar = function() {
+        var data1 = null
+        var data2 = null
+        // TODO: poner ajaxloader
+        // muestra los resultados de la busqueda como sugerencia
+        function mostrarResultadoCatastro(data, id) {
+            data.id = id
+            data = $.map(data, function(item, i){item.id = id; return item});
+            if ( id == 1 ) data1=data
+            else data2=data
+            if ( data1 !== null && data2 !== null ) {
+                $("#sidebarContenido").html("")
+                $("#listSuggest").tmpl([{ data1: data1, data2: data2 }]).appendTo('#sidebarContenido')
+            }
+        }
+        $.ajax({
+            url: "/api/catastro/?query="+$("#inputDesde").val(),
+            success: function (data) {
+                mostrarResultadoCatastro(data, 1)
+            }
+        })
+        $.ajax({
+            url: "/api/catastro/?query="+$("#inputHasta").val(),
+            success: function (data) {
+                mostrarResultadoCatastro(data, 2)
+            }
+        })
+    }
+
+    // mueve el markerA o B a el punto seleccionado
+    $.cb.marcarPunto = function(pointWKT, id) {
+        // pointWKT es 'POINT(12.234 56.789)'
+        // id es 1 para origen(markerA) y 2 para destino(markerB)
+        var point = new OpenLayers.Format.WKT().read(pointWKT).geometry
+        point.transform(proj, map.getProjectionObject())
+        point = new OpenLayers.Geometry.Point(point.x, point.y);
+        console.debug(point)
+        if ( id == 1 )
+            markerA.setPoint(point)
+        else if ( id == 2 )
+            markerB.setPoint(point)
+    }
+
+    // busca una vez que se eligieron las sugerencias
+    $.cb.seleccionarSugerencias = function() {
+        if ( markerA.listo && markerB.listo )
+            buscarporclick(markerA.point.geometry, markerB.point.geometry)
+    }
+    
+    // envia peticion al server para buscar por latlng
     function buscarporclick(lla, llb) {
+        console.debug(lla)
+        console.debug(llb)
         lla = lla.transform(map.getProjectionObject(), proj)
         llb = llb.transform(map.getProjectionObject(), proj)
         $.get(
@@ -275,13 +362,14 @@ $(function() {
         lla = lla.transform(proj, map.getProjectionObject())
         llb = llb.transform(proj, map.getProjectionObject())
     }
-    
+
+    // muestra los resultados devueltos por el server usando un template
     function mostrarResultados(data){
         if (!data)
             $('#sidebarContenido').html("vacío")
         else {
             resultados = new Object()
-            $.each(data, function(key, value) { 
+            $.each(data, function(key, value) {
                 resultados[value.id] = value
             });
             $("#sidebarContenido").html("")
@@ -292,7 +380,6 @@ $(function() {
 
 
 })
-
 </script>
 
 <script id="listTempl" type="text/x-jquery-tmpl">
@@ -300,28 +387,44 @@ $(function() {
     {% templatetag openvariable %}tmpl(res) "#itemTempl"{% templatetag closevariable %}
 </ul>
 </script>
-
 <script id="itemTempl" type="text/x-jquery-tmpl"> 
-    <li id="res${id}">
+<li id="res${id}">
         <a href="#" onclick="javascript:$.cb.mostrar_resultado(${id});return false">
             <table>
-				<tr>
-					<td>
-						<strong>${nombre}</strong>
-						<br>
-						de ${inicio} a ${fin}
-						<br>
-						a pie: ${long_pata}km
-						<br>
-						en bondi:${long_bondi}km
-					</td>
-					<td>
-						<a class="btn btn-small" title="Editar recorrido"><i class="icon-pencil"></i></a>
-						<a class="btn btn-small" title="Reportar recorrido erróneo"><i class="icon-flag"></i></a>
-					</td>
-				</tr>
+                <tr>
+                    <td>
+                        <strong>${nombre}</strong>
+                        <br>
+                        de ${inicio} a ${fin}
+                        <br>
+                        a pie: ${long_pata}km
+                        <br>
+                        en bondi:${long_bondi}km
+                    </td>
+                    <td>
+                        <a class="btn btn-small" title="Editar recorrido"><i class="icon-pencil"></i></a>
+                        <a class="btn btn-small" title="Reportar recorrido erróneo"><i class="icon-flag"></i></a>
+                    </td>
+                </tr>
             </table>
         </a>
+    </li>
+</script>
+
+
+<script id="listSuggest" type="text/x-jquery-tmpl">
+<ul id="#sug1" class="nav nav-pills nav-stacked">
+    {% templatetag openvariable %}tmpl(data1) "#itemSuggest"{% templatetag closevariable %}
+</ul>
+<hr>
+<ul id="#sug2" class="nav nav-pills nav-stacked">
+    {% templatetag openvariable %}tmpl(data2) "#itemSuggest"{% templatetag closevariable %}
+</ul>
+<button class="btn btn-primary" type="submit" onclick="javascript:$.cb.seleccionarSugerencias();return false">Buscar</button>
+</script>
+<script id="itemSuggest" type="text/x-jquery-tmpl">
+    <li>
+        <a id="" href="#" onclick="javascript:$.cb.marcarPunto('${geom}', ${id});return false">${nombre} <span style="font-size:0.6em">(${(precision*100).toFixed(2)}%)</span></a>
     </li>
 </script>
 

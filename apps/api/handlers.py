@@ -190,7 +190,7 @@ class CatastroHandler(BaseHandler):
     exclude = ()
 
     def read(self, request):
-        q = request.GET.get('q', None)
+        q = request.GET.get('query', None)
         if q is None:
             return rc.BAD_REQUEST
         else:

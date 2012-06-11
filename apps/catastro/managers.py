@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 from django.db.models import get_model
 from django.contrib.gis.db import models
-
+import re
 
 class PuntoBusquedaManager(models.Manager):
     """ Este manager se encarga de convertir una query tipo texto
@@ -19,21 +19,21 @@ class PuntoBusquedaManager(models.Manager):
     """
 
     def buscar(self, query):
-        result = []
-        result += self._buscar_calles(query)
-        result += self._buscar_comercios(query)
-        return result
+        if query is not None:
+            calles = re.split(' y ', query)
+            if len(calles) == 2:
+                return self.interseccion(calles[0], calles[1])
+        else:
+            pass
 
     def interseccion(self, calle1, calle2):
         params = {'calle1':calle1, 'calle2':calle2}
         query = """
             SELECT DISTINCT
-                SEL1.nom as nom1,
-                SEL2.nom as nom2,
-                SEL2.similarity + SEL1.similarity as total_similarity,
-                SEL1.similarity as s1,
-                SEL2.similarity as s2,
-                ST_AsText(ST_Intersection(SEL1.way, SEL2.way)) as int
+                SEL1.nom || ' y ' || SEL2.nom as nombre,
+                ST_AsText(ST_Intersection(SEL1.way, SEL2.way)) as geom,
+                ( SEL2.similarity + SEL1.similarity ) / 2 as precision,
+                'interseccion' as tipo
             FROM
                 (
                     SELECT
@@ -56,10 +56,11 @@ class PuntoBusquedaManager(models.Manager):
                     WHERE
                         nom_normal %% %(calle2)s
                 ) AS SEL2
-                on ( ST_Intersects(SEL1.way, SEL2.way) )
+                on ( ST_Intersects(SEL1.way, SEL2.way) 
+                    and ST_GeometryType(ST_Intersection(SEL1.way, SEL2.way)::Geometry)='ST_Point')
             ORDER BY
-                SEL2.similarity + SEL1.similarity DESC
-            LIMIT 10
+                precision DESC
+            LIMIT 5
         ;"""
         query_set = self.raw(query, params)
         return list(query_set)
