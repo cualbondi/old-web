@@ -249,6 +249,7 @@ $(function() {
     // buscador de lineas por sugerencia al tipear
     $('#inputLinea').typeahead({
         source: function (typeahead, query) {
+            $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
             $.ajax({
                 url: "/api/recorridos/?q="+query,
                 success: function (data) {
@@ -295,6 +296,7 @@ $(function() {
     
     // handler para buscar por origen y destino
     $.cb.click_button_buscar = function() {
+        $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
         var data1 = null
         var data2 = null
         // TODO: poner ajaxloader
@@ -305,8 +307,7 @@ $(function() {
             if ( id == 1 ) data1=data
             else data2=data
             if ( data1 !== null && data2 !== null ) {
-                $("#sidebarContenido").html("")
-                $("#listSuggest").tmpl([{ data1: data1, data2: data2 }]).appendTo('#sidebarContenido')
+                $("#listSuggest").tmpl([{ data1: data1, data2: data2 }]).appendTo($("#sidebarContenido").empty())
             }
         }
         $.ajax({
@@ -345,6 +346,7 @@ $(function() {
     
     // envia peticion al server para buscar por latlng
     function buscarporclick(lla, llb) {
+        $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
         console.debug(lla)
         console.debug(llb)
         lla = lla.transform(map.getProjectionObject(), proj)
@@ -372,14 +374,19 @@ $(function() {
             $.each(data, function(key, value) {
                 resultados[value.id] = value
             });
-            $("#sidebarContenido").html("")
-            $("#listTempl").tmpl( [{ res: data }] ).appendTo('#sidebarContenido');
+            $("#listTempl").tmpl( [{ res: data }] ).appendTo($("#sidebarContenido").empty());
             $.cb.mostrar_resultado()
         }
     }
 
 
 })
+</script>
+
+<script id="ajaxLoader" type="text/x-jquery-tmpl">
+<center>
+    <img src="/media/img/ajax-loader.gif" />
+</center>
 </script>
 
 <script id="listTempl" type="text/x-jquery-tmpl">
