@@ -247,6 +247,7 @@ $(function() {
     dragControl.activate()
 
     // buscador de lineas por sugerencia al tipear
+    $('#inputLinea').attr("autocomplete","off")
     $('#inputLinea').typeahead({
         source: function (typeahead, query) {
             $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
@@ -256,7 +257,7 @@ $(function() {
                     // data must be a list of either strings or objects
                     // data = [{'nombre': 'Joe',.. }, {'name': 'Henry'}, ...]
                     typeahead.process(data)
-                    mostrarResultados(data)
+                    //mostrarResultados(data)
                 }
             })
         },
