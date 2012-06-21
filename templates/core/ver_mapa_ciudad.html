@@ -398,23 +398,13 @@ $(function() {
 <script id="itemTempl" type="text/x-jquery-tmpl"> 
 <li id="res${id}">
         <a href="#" onclick="javascript:$.cb.mostrar_resultado(${id});return false">
-            <table>
-                <tr>
-                    <td>
-                        <strong>${nombre}</strong>
-                        <br>
-                        de ${inicio} a ${fin}
-                        <br>
-                        a pie: ${long_pata}km
-                        <br>
-                        en bondi:${long_bondi}km
-                    </td>
-                    <td>
-                        <a class="btn btn-small" title="Editar recorrido"><i class="icon-pencil"></i></a>
-                        <a class="btn btn-small" title="Reportar recorrido erróneo"><i class="icon-flag"></i></a>
-                    </td>
-                </tr>
-            </table>
+            <strong>${nombre}</strong>
+            <br>
+            de ${inicio} a ${fin}
+            <br>
+            a pie: ${long_pata}km
+            <br>
+            en bondi:${long_bondi}km
         </a>
     </li>
 </script>
