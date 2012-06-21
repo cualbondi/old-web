@@ -33,17 +33,6 @@
                 {% endif %}
             {% endif %}
             </ul>
-            {% if user.is_authenticated %}
-            <ul class="nav pull-right">
-                <li><a href="/usuarios/perfil/"><i class="icon-user icon-white"></i> {{ user.username }}</a></li>
-                <li><a href="/usuarios/logout/"><i class="icon-share-alt icon-white"></i> Salir</a></li>
-            </ul>
-            {% else %}
-            <ul class="nav pull-right">
-                <li><a href="/usuarios/login/"><i class="icon-user icon-white"></i> Iniciar sesion</a></li>
-                <li><a href="/usuarios/registracion/"><i class="icon-edit icon-white"></i> Registrarme</a></li>
-            </ul>
-            {% endif %}
         </div>
     </div>
   </div>
