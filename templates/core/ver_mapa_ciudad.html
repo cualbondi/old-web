@@ -332,7 +332,7 @@ $(function() {
         var point = new OpenLayers.Format.WKT().read(pointWKT).geometry
         point.transform(proj, map.getProjectionObject())
         point = new OpenLayers.Geometry.Point(point.x, point.y);
-        console.debug(point)
+        //console.debug(point)
         if ( id == 1 )
             markerA.setPoint(point)
         else if ( id == 2 )
@@ -348,8 +348,8 @@ $(function() {
     // envia peticion al server para buscar por latlng
     function buscarporclick(lla, llb) {
         $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
-        console.debug(lla)
-        console.debug(llb)
+        //console.debug(lla)
+        //console.debug(llb)
         lla = lla.transform(map.getProjectionObject(), proj)
         llb = llb.transform(map.getProjectionObject(), proj)
         $.get(
