@@ -16,34 +16,36 @@
                         </ul>
                         <div class="tab-content">
                             <div class="tab-pane active" id="1">
-                            
-                                <form class="well">
+                                <form>
                                     <div class="input-prepend">
                                         <span class="add-on"><i class="icon-map-marker"></i>A</span>
-                                        <input type="text" size="16" id="inputDesde" class="span9" placeholder="Desde">
+                                        <input type="text" size="16" id="inputDesde" class="span10" placeholder="Desde">
                                     </div>
                                     <div class="input-prepend">
                                         <span class="add-on"><i class="icon-map-marker"></i>B</span>
-                                        <input type="text" size="16" id="inputHasta" class="span9" placeholder="Hasta">
+                                        <input type="text" size="16" id="inputHasta" class="span10" placeholder="Hasta">
                                     </div>
+                                    <span>Ejemplos: 14 y 54 || 14 n568 || Catedral</span>
                                     <div class="btn-toolbar">
+                                        <div class="btn-group pull-left">
+                                            <button class="btn btn-primary" type="submit" onclick="javascript:$.cb.click_button_buscar();return false">Buscar</button>
+                                        </div>
                                         <div class="btn-group">
                                             <a class="btn" title="Cambiar origen por destino"><i class="icon-refresh"></i></a>
-                                            <a class="btn" title="Imprimir resultados en papel"><i class="icon-print"></i></a>
                                             <a class="btn" title="Ayuda" onclick="javascript:$.cb.click_button_ayuda();"><i class="icon-question-sign"></i></a>
                                             <a class="btn" title="Compartir enlace a esta ubicación"><i class="icon-share"></i></a>
                                         </div>
-                                        <div class="btn-group pull-right">
-                                            <button class="btn btn-primary" type="submit" onclick="javascript:$.cb.click_button_buscar();return false">Buscar</button>
-                                        </div>
                                     </div>
-                                </form>                            
-
+                                </form>
+                                <div align="left" style="padding-top: 5px;">
+                                    <iframe src="http://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwww.facebook.com%2Fpages%2FCualBondicomar%2F140243409338332&amp;layout=standard&amp;show_faces=false&amp;width=290&amp;action=like&amp;font=verdana&amp;colorscheme=light&amp;height=52" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:260px; height:70px;"></iframe><br>
+                                    <g:plusone></g:plusone>
+                                </div>
                             </div>
                             <div class="tab-pane" id="2">
-                                <form class="well">
-                                    <div class="input-append">
-                                        <input type="text" size="16" id="inputLinea" class="span9" placeholder="Linea, ramal, recorrido" data-provide="typeahead">
+                                <form>
+                                    <div class="input-prepend">
+                                        <input type="text" size="16" id="inputLinea" class="span10" placeholder="Linea, ramal, recorrido" data-provide="typeahead">
                                         <span class="add-on"><i class="icon-search"></i></span>
                                     </div>
                                     <button class="btn btn-primary" type="submit">Buscar</button>
@@ -51,7 +53,6 @@
                             </div>
                         </div>
                         <div id="sidebarContenido">
-                        
                         </div>
                     </div>
 
@@ -88,7 +89,7 @@ $(function() {
     else {
         $("#map").height(($(window).height()-50)+"px")
         $("#sidebar").height(($(window).height()-58)+"px")
-        $("body").css("padding-top","0px")            
+        $("body").css("padding-top","0px")
     }
     if ( $(window).width() < 456 )
         $("#map").css("margin-right", "0px")
@@ -109,7 +110,7 @@ $(function() {
         else {
             $("#map").height(($(window).height()-50)+"px")
             $("body").css("padding-top","0px")
-            //esto no anda bien            
+            //esto no anda bien
             if ( $("#sidebar").height() > ($(window).height()-68)+"px" )
                 $("#sidebar").height(($(window).height()-68)+"px")
             else
@@ -125,8 +126,11 @@ $(function() {
     // definicion inicial del mapa
     OpenLayers.ImgPath = "/media/css/openlayers/"
     map = new OpenLayers.Map("map", {theme: null})
+    var gmap = new OpenLayers.Layer.Google(
+        "Google Streets", {numZoomLevels: 20}
+    );
     var osm = new OpenLayers.Layer.OSM();
-    map.addLayers([osm]);
+    map.addLayers([gmap, osm]);
     //var gmap = new OpenLayers.Layer.Google("Google Streets", {visibility: false});
     //map.addLayers([osm, gmap]);
     //map.addControl(new OpenLayers.Control.LayerSwitcher());
@@ -134,7 +138,7 @@ $(function() {
         new OpenLayers.Projection("EPSG:4326"),
         map.getProjectionObject()
     ), {{ ciudad_actual.zoom }});
-    
+
     map.zoomOut() //esto es para que el mapa se redibuje (workaround de redraw)
     //map.setCenter(map.center())
 
@@ -152,13 +156,13 @@ $(function() {
         "B:true:true"  : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1 },
     }
     styleMap.addUniqueValueRules("default", "tipo", lookup);
-    
+
     // creacion de las diferentes capas
     var markers = new OpenLayers.Layer.Vector( "Markers", {styleMap: styleMap} );
     var recorridos = new OpenLayers.Layer.Vector( "Recorridos", {styleMap: new OpenLayers.StyleMap({strokeWidth: 5}) });
     map.addLayer(recorridos)
     map.addLayer(markers)
-    
+
     // proyeccion que se necesita para transformar proyecciones mas adelante
     var proj = new OpenLayers.Projection("EPSG:4326");
 
@@ -185,7 +189,7 @@ $(function() {
         this.listo = true
         this.layer.redraw()
     }
-    
+
     // dos objetos de la clase marker
     var markerA = new Marker(markers, "A")
     var markerB = new Marker(markers, "B")
@@ -210,7 +214,7 @@ $(function() {
             }
         }
     );
-    
+
     // manejo del drag de los markers
     //      cambio de imagenes al draggear y onhover
     //      busqueda por ondrag
@@ -241,7 +245,7 @@ $(function() {
         }
     )
     map.addControl(dragControl)
-    
+
     // activar el click y drag handlers
     clickHandler.activate()
     dragControl.activate()
@@ -273,16 +277,28 @@ $(function() {
     // variables "globales"
     resultados = new Object()
     poly = null
-    
+
     // aca arrancan las funciones de cualbondi que pueden llamarse desde el html
     // namespace de cualbondi que se ve desde afuera por mas que minifiquemos
     $.cb = new Object()
-    
+
     // handler para el boton de ayuda
     $.cb.click_button_ayuda = function() {
-        $("#sidebarContenido").html("Ayuda");
+        html = '<div>'
+    	    html += '<h3 align="center">¿Como busco recorridos?</h3>'
+            html += '<h4>Campos de búsqueda</h4>'
+            html += '<p style="margin-left:5px">Escriba directamente en los campos de texto del panel superior. Puede considerar interseccion de calles, calle y número o lugares de interes. Vea los ejemplos debajo de los campos de búsqueda.</p>'
+            html += '<hr>'
+            html += '<h4>Click sobre el mapa</h4>'
+            html += '<p style="margin-left:5px">Puede hacer click directamente sobre el mapa para indicar el Origen y Destino de su búsqueda. Luego puede arrastrar los marcadores A o B para editar su ubicación.</p>'
+            html += '<hr>'
+            html += '<h4>Lineas de micro</h4>'
+            html += '<p style="margin-left:5px">Para buscar un recorrido completo de una linea de colectivo en particular, consulte la sección "Lineas de micro" del panel lateral izquierdo.</p>'
+            html += '<hr>'
+        html += '</div>'
+        $("#sidebarContenido").html(html);
     }
-    
+
     // handler para mostrar resultados, usa el template de listado de results
     $.cb.mostrar_resultado = function(id) {
         if ( typeof(id)==='undefined' )
@@ -294,7 +310,7 @@ $(function() {
         poly.geometry.transform(proj, map.getProjectionObject())
         recorridos.addFeatures([poly]);
     }
-    
+
     // handler para buscar por origen y destino
     $.cb.click_button_buscar = function() {
         $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
@@ -344,7 +360,7 @@ $(function() {
         if ( markerA.listo && markerB.listo )
             buscarporclick(markerA.point.geometry, markerB.point.geometry)
     }
-    
+
     // envia peticion al server para buscar por latlng
     function buscarporclick(lla, llb) {
         $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())

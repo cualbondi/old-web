@@ -41,7 +41,7 @@ urlpatterns = patterns('',
 
     url(r'^recorridos/$', recorridos_handler),
     url(r'^recorridos/(?P<id_recorrido>\d+)/$', recorridos_handler),
-    
+
     url(r'^catastro/$', catastro_handler),
     url(r'^catastro/calles/$', calles_handler),
 )

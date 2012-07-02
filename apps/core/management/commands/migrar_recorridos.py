@@ -1,5 +1,6 @@
 # -*- coding: utf-8 *-*
 from django.core.management.base import BaseCommand, CommandError
+from django.core.exceptions import DoesNotExist
 from apps.core.models import Recorrido, Linea
 from apps.catastro.models import Ciudad
 from django.db import connection, transaction
@@ -57,27 +58,23 @@ class Command(BaseCommand):
                 JOIN ramal     ra on (li.id = ra.id_linea)
                 JOIN recorrido re on (ra.id = re.id_ramal)
         """)
-        i=0
         for row in cursor.fetchall():
-            if row['li_descripcion'] is None:
-                row['li_descripcion'] = " "
-            li=Linea(
-                nombre=row['li_nombre'],
-                slug=slugify(row['li_nombre']),
-                descripcion=row['li_descripcion']
+            try:
+                linea = Linea.objects.get(nombre=row['li_nombre'])
+            except DoesNotExist:
+                # la linea aun no fue agregada, hay que crearla
+                linea = Linea(
+                    nombre = row['li_nombre'],
+                    descripcion = row['li_descripcion']
+                )
+                linea.save()
+
+            recorrido = Recorrido(
+                nombre = row['ra_nombre'] + row['re_nombre'],
+                linea = linea,
+                inicio = row['re_zona_inicio'],
+                fin = row['re_zona_fin'],
+                semirrapido = row['li_semirrapido'],
+                ruta = row['re_camino']
             )
-            pprint(li)
-            li.save()
-            rec=Recorrido(
-                nombre=row['ra_nombre'] + " [" + row['re_nombre'] + "]",
-                linea_id=li.id,
-                slug=slugify(row['ra_nombre'] + " " + row['re_nombre']),
-                inicio=row['re_zona_inicio'],
-                fin=row['re_zona_fin'],
-                semirrapido=row['li_semirrapido'],
-                ruta=row['re_camino']
-            )
-            rec.save()
-            pprint(rec)
-            i+=1
-            print i
+            recorrido.save()
