@@ -66,7 +66,7 @@ def ver_ciudad(request, nombre_ciudad):
         }]],
         { 
             "map_div_style": {"width": '100%'},
-            "layers":["osm.mapnik", "google.streets"]#, "google.streets", "google.hybrid", "ve.road", "ve.hybrid", "yahoo.map"]
+            "layers":["google.streets", "osm.mapnik"]#, "google.streets", "google.hybrid", "ve.road", "ve.hybrid", "yahoo.map"]
         }
     )
 

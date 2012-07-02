@@ -21,7 +21,7 @@ class Linea(models.Model):
         return self.nombre
 
     def save(self, *args, **kwargs):
-        self.slug = slugify("linea " + self.nombre)
+        self.slug = slugify(self.nombre)
         super(Linea, self).save(*args, **kwargs)
 
 
@@ -50,8 +50,7 @@ class Recorrido(models.Model):
 
     def save(self, *args, **kwargs):
         # Generar el SLUG a partir del origen y destino del recorrido
-        self.slug = slugify("recorrido " + self.nombre + " desde " +\
-                                   self.inicio + " hasta " + self.fin)
+        self.slug = slugify(self.nombre + " desde " + self.inicio + " hasta " + self.fin)
 
         # Ejecutar el SAVE original
         super(Recorrido, self).save(*args, **kwargs)
