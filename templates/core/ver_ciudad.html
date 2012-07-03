@@ -11,7 +11,7 @@
         <li class="active">{{ciudad_actual.nombre}}</li>
     </ul>
 
-    <h1>{{ciudad_actual.nombre}}</h1>
+    <h1>Ciudad de {{ciudad_actual.nombre}}</h1>
 
     <div>{{mapa}}</div>
 
@@ -24,42 +24,43 @@
         <tbody>
         {% for linea in lineas %}
             <tr>
-                <td><a href="{{linea.slug}}">{{linea.nombre}}</a></td>
+                <td><a href="{{linea.slug}}">Linea {{linea.nombre}}</a></td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
 
-    <div align="center"><div class="fb-comments" data-href="{{request.get_full_path}}" data-num-posts="2" data-width="900"></div></div>
+    <h3>Dejanos un comentario sobre "{{ciudad_actual.nombre}}"</h3>
+    <div align="center"><div class="fb-comments" data-href="http://www.cualbondi.com.ar{{request.get_full_path}}" data-num-posts="2" data-width="900"></div></div>
 
-    <h3>Comentarios:</h3>
-    {% render_comment_list for ciudad_actual %}
+<!--    <h3>Comentarios:</h3>-->
+<!--    {% render_comment_list for ciudad_actual %}-->
 
-	{% get_comment_form for ciudad_actual as form %}
-	<div class='row-fluid'>
-		<div id='nuevo-comentario' class='span12'>
-			<h3>Dejanos un comentario:</h3>
-            <div id="mensajes-comments"></div>
-                <div class="well">
-                	<form id="comment-form" action="/comments/post/" method="POST">
-	            		{% csrf_token %}
-	            		{{ form.content_type }} 
-				        {{ form.object_pk }}
-				        {{ form.timestamp }}
-				        {{ form.security_hash }}
-                    	{% if not user.is_authenticated %}
-                            <input id="comment-name" name="name" type="text" placeholder="Tu nombre...">
-                            <input id="comment-email" name="email" type="text" placeholder="Tu email...">
-                        {% endif %}
-	            		<textarea class="span12" name='comment' id="comment-textarea" rows="3" placeholder="Tu Comentario..."></textarea>
-	            		<input type="hidden" name="next" value="{% url ver_ciudad ciudad_actual.slug %}" />
-				        <input type="hidden" name="honeypot" id="id_honeypot" />
-				        <br />
-				        <button type="submit" class="btn pull-right"><i class="icon-comment"></i> Enviar comentario</button>
-			        </form>
-			    </div>
-		</div>
-	</div>
+<!--	{% get_comment_form for ciudad_actual as form %}-->
+<!--	<div class='row-fluid'>-->
+<!--		<div id='nuevo-comentario' class='span12'>-->
+<!--			<h3>Dejanos un comentario:</h3>-->
+<!--            <div id="mensajes-comments"></div>-->
+<!--                <div class="well">-->
+<!--                	<form id="comment-form" action="/comments/post/" method="POST">-->
+<!--	            		{% csrf_token %}-->
+<!--	            		{{ form.content_type }} -->
+<!--				        {{ form.object_pk }}-->
+<!--				        {{ form.timestamp }}-->
+<!--				        {{ form.security_hash }}-->
+<!--                    	{% if not user.is_authenticated %}-->
+<!--                            <input id="comment-name" name="name" type="text" placeholder="Tu nombre...">-->
+<!--                            <input id="comment-email" name="email" type="text" placeholder="Tu email...">-->
+<!--                        {% endif %}-->
+<!--	            		<textarea class="span12" name='comment' id="comment-textarea" rows="3" placeholder="Tu Comentario..."></textarea>-->
+<!--	            		<input type="hidden" name="next" value="{% url ver_ciudad ciudad_actual.slug %}" />-->
+<!--				        <input type="hidden" name="honeypot" id="id_honeypot" />-->
+<!--				        <br />-->
+<!--				        <button type="submit" class="btn pull-right"><i class="icon-comment"></i> Enviar comentario</button>-->
+<!--			        </form>-->
+<!--			    </div>-->
+<!--		</div>-->
+<!--	</div>-->
 
 {% endblock %}
 

@@ -62,7 +62,7 @@ def ver_ciudad(request, nombre_ciudad):
     mapa = InfoMap([
         [ciudad_actual.poligono, {
             'html': "<p>Special style for this point.</p>",
-            'style': {'fill_color': '#00FF00'},
+            'style': {'fill_color': '#0099CC', 'strokeColor': "#0066CC"},
         }]],
         { 
             "map_div_style": {"width": '100%'},
@@ -128,12 +128,12 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
 
     mapa = InfoMap([
         [recorrido_actual.ruta, {
-            'html': "<p>Special style for this point.</p>",
-            'style': {'stroke_color': '#0000FF'},
+#            'html': "<p>Special style for this point.</p>",
+            'style': {'stroke_color': '#0066CC'},
         }]],
         {
             "map_div_style": {"width": '100%'},
-            "layers":["osm.mapnik", "google.streets"]#, "google.streets", "google.hybrid", "ve.road", "ve.hybrid", "yahoo.map"]
+            "layers":["google.streets", "osm.mapnik"]#, "google.streets", "google.hybrid", "ve.road", "ve.hybrid", "yahoo.map"]
         }
     )
 

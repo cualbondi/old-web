@@ -12,15 +12,12 @@
         <li class="active">{{recorrido_actual.nombre}} (de {{recorrido_actual.inicio}} a {{recorrido_actual.fin}})</li>
     </ul>
 
-    <h1>{{linea_actual.nombre}} {{recorrido_actual.nombre}}</h1>
-    {% if user.is_authenticated %}
-        {% if favorito %}
-        <button id="btn-favorito" class="btn btn-danger"><i class="icon-heart"></i> <strong>Borrar de favoritos</strong></button>
-        {% else %}
-        <button id="btn-favorito" class="btn btn-warning"><i class="icon-heart"></i> <strong>Guardar en favoritos</strong></button>
-        {% endif %}
-    {% endif %}
+    <h1>Recorrido {{linea_actual.nombre}} {{recorrido_actual.nombre}} de {{ciudad_actual.nombre}}</h1>
+
     <div>{{mapa}}</div>
+
+    <h3>Dejanos un comentario sobre el recorrido "{{linea_actual.nombre}} {{recorrido_actual.nombre}}"</h3>
+    <div align="center"><div class="fb-comments" data-href="http://www.cualbondi.com.ar{{request.get_full_path}}" data-num-posts="2" data-width="900"></div></div>
 {% endblock %}
 
 {% block custom_ready_function %}
