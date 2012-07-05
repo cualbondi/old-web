@@ -7,7 +7,7 @@
         <li class="active">{{linea_actual.nombre}}</li>
     </ul>
 
-    <h1>{{linea_actual.nombre}} ({{ciudad_actual.nombre}})</h1>
+    <h1>Linea {{linea_actual.nombre}} de {{ciudad_actual.nombre}}</h1>
 
     <table class="table table-striped table-bordered table-condensed">
         <thead>
@@ -18,9 +18,12 @@
         <tbody>
         {% for recorrido in recorridos %}
             <tr>
-                <td><a href="{{recorrido.slug}}">{{recorrido.nombre}}</a></td>
+                <td><a href="{{recorrido.slug}}">Recorrido {{recorrido.nombre}}</a></td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
+
+    <h3>Dejanos un comentario sobre la linea "{{linea_actual.nombre}}"</h3>
+    <div align="center"><div class="fb-comments" data-href="http://www.cualbondi.com.ar{{request.get_full_path}}" data-num-posts="2" data-width="900"></div></div>
 {% endblock %}
