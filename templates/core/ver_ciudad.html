@@ -2,7 +2,9 @@
 {% load comments %}
 
 {% block custom_top_scripts %}
-    {{mapa.media}}
+    <script src="http://openlayers.org/api/OpenLayers.js"></script>
+    <script src="http://maps.google.com/maps/api/js?v=3.6&amp;sensor=false"></script>
+    <link rel="stylesheet" href="http://openlayers.org/dev/theme/default/style.css" type="text/css" />
 {% endblock %}
 
 {% block bloque_izquierda %}
@@ -13,78 +15,60 @@
 
     <h1>Ciudad de {{ciudad_actual.nombre}}</h1>
 
-    <div>{{mapa}}</div>
+    <div class="row">
+        <div class="span8 thumbnail"><div id="map" style="background:lightblue; height:500px;"></div></div>
 
-    <table class="table table-striped table-bordered table-condensed">
-        <thead>
-            <tr>
-            <th>Nombre de la linea</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for linea in lineas %}
-            <tr>
-                <td><a href="{{linea.slug}}">Linea {{linea.nombre}}</a></td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+        <div class="span3">
+            <table class="table table-striped table-bordered table-condensed">
+                <thead>
+                    <tr>
+                    <th>Nombre de la linea</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for linea in lineas %}
+                    <tr>
+                        <td><a href="{{linea.slug}}">Linea {{linea.nombre}}</a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 
     <h3>Dejanos un comentario sobre "{{ciudad_actual.nombre}}"</h3>
     <div align="center"><div class="fb-comments" data-href="http://www.cualbondi.com.ar{{request.get_full_path}}" data-num-posts="2" data-width="900"></div></div>
 
-<!--    <h3>Comentarios:</h3>-->
-<!--    {% render_comment_list for ciudad_actual %}-->
-
-<!--	{% get_comment_form for ciudad_actual as form %}-->
-<!--	<div class='row-fluid'>-->
-<!--		<div id='nuevo-comentario' class='span12'>-->
-<!--			<h3>Dejanos un comentario:</h3>-->
-<!--            <div id="mensajes-comments"></div>-->
-<!--                <div class="well">-->
-<!--                	<form id="comment-form" action="/comments/post/" method="POST">-->
-<!--	            		{% csrf_token %}-->
-<!--	            		{{ form.content_type }} -->
-<!--				        {{ form.object_pk }}-->
-<!--				        {{ form.timestamp }}-->
-<!--				        {{ form.security_hash }}-->
-<!--                    	{% if not user.is_authenticated %}-->
-<!--                            <input id="comment-name" name="name" type="text" placeholder="Tu nombre...">-->
-<!--                            <input id="comment-email" name="email" type="text" placeholder="Tu email...">-->
-<!--                        {% endif %}-->
-<!--	            		<textarea class="span12" name='comment' id="comment-textarea" rows="3" placeholder="Tu Comentario..."></textarea>-->
-<!--	            		<input type="hidden" name="next" value="{% url ver_ciudad ciudad_actual.slug %}" />-->
-<!--				        <input type="hidden" name="honeypot" id="id_honeypot" />-->
-<!--				        <br />-->
-<!--				        <button type="submit" class="btn pull-right"><i class="icon-comment"></i> Enviar comentario</button>-->
-<!--			        </form>-->
-<!--			    </div>-->
-<!--		</div>-->
-<!--	</div>-->
-
 {% endblock %}
 
 {% block custom_ready_function %}
-    $("#comment-form").submit(function(event){
-        event.preventDefault();
-        $.post('/comments/post/',
-               $(this).serialize(),
-               function(data) {
-                    if (data['exito']==true){
-                        alert_html = '<div style="width: 780px;" class="alert alert-success fade in" align="center">'
-                        alert_html += '<a class="close" data-dismiss="alert" href="#">×</a>Comentario agregado correctamente!</div>'
-                        dibujar_comentario(data['comentario'], data['usuario'], data['fecha']);
-                        $("#comment-textarea").val('')
-                        $("#comment-name").val('')
-                        $("#comment-email").val('')
-                    }else{
-                        alert_html = '<div style="width: 780px;" class="alert alert-error fade in" align="center">'
-                        alert_html += '<a class="close" data-dismiss="alert" href="#">×</a>Algo anduvo mal...</div>'
-                    }
-                    $("#mensajes-comments").html(alert_html)
-               },
-               'json'
-        );
-    })
+    //Proyeccion que se necesita para transformar proyecciones mas adelante
+    var proj = new OpenLayers.Projection("EPSG:4326");
+
+    //Creamos el mapa
+    map = new OpenLayers.Map("map", {theme: null})
+    var gmap = new OpenLayers.Layer.Google(
+        "Google Streets", {numZoomLevels: 20}
+    );
+    map.addLayers([gmap]);
+    map.setCenter(new OpenLayers.LonLat{{ ciudad_actual.centro.coords }}.transform(
+        new OpenLayers.Projection("EPSG:4326"),
+        map.getProjectionObject()
+    ), {{ ciudad_actual.zoom }});
+
+    //Le agregamos una capa para el poligono de la ciudad
+    var layer_poligono = new OpenLayers.Layer.Vector("Poligono", {styleMap: new OpenLayers.StyleMap() });
+    map.addLayer(layer_poligono)
+
+    //Insertamos el poligono en la nueva capa
+    poligono_ciudad = new OpenLayers.Format.WKT().read('{{ciudad_actual.poligono.wkt}}');
+
+    poligono_ciudad.geometry.transform(proj, map.getProjectionObject())
+    layer_poligono.addFeatures([poligono_ciudad]);
+
+    //Acomodar el zoom al poligono
+    var extent = new OpenLayers.Bounds();
+    extent.extend(poligono_ciudad.geometry.getBounds())
+    map.zoomToExtent(extent);
 {% endblock %}
 

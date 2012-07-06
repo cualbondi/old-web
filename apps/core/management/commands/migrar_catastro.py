@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from apps.catastro.models import Ciudad, Provincia
+from apps.catastro.models import Ciudad, Provincia, ArgAdm1, ArgAdm2
 from pprint import pprint
 
 class Command(BaseCommand):
