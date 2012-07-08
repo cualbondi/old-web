@@ -144,6 +144,27 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
                                'favorito': favorito},
                               context_instance=RequestContext(request))
 
+"""
+cualbondi.com.ar/la-plata/recorridos/Norte/10/IDA/ (ANTES)
+cualbondi.com.ar/la-plata/norte/10-desde-x-hasta-y (DESPUES)
+cualbondi.com.ar/cordoba/recorridos/T%20(Transversal)/Central/IDA/ (NO ANDA, CHECKEAR REGEXP URLs)
+"""
+def redirect_nuevas_urls(request, ciudad=None, linea=None, ramal=None, recorrido=None):
+    url = '/'
+    if not ciudad:
+        ciudad = 'la-plata'
+    if ciudad == 'buenos-aires':
+        ciudad = 'capital-federal'
+    url += slugify(ciudad) + '/'
+    if linea:
+        url += slugify(linea) + '/'
+        if ramal and recorrido:
+            try:
+                recorrido = Recorrido.objects.get(linea__nombre=linea, nombre=ramal, sentido=recorrido)
+                url += slugify(recorrido.nombre) + '-desde-' + slugify(recorrido.inicio) + '-hasta-' + slugify(recorrido.fin)
+            except ObjectDoesNotExist:
+                pass
+    return redirect(url)
 
 @login_required(login_url="/usuarios/login/")
 def agregar_linea(request):
