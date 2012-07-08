@@ -20,8 +20,8 @@ class Command(BaseCommand):
                     stats[ciudad.id] += 1
                     ciudad.recorridos.add(recorrido)
                     ciudad.lineas.add(recorrido.linea)
-            if len(ciudad.recorridos.all())>0:
-                ciudad.activa=True
-                ciudad.save()
+#            if len(ciudad.recorridos.all())>0:
+#                ciudad.activa=True
+#                ciudad.save()
                 print ciudad, stats[ciudad.id]
 

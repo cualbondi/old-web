@@ -1,5 +1,6 @@
 {% extends "maquetado.html" %}
 {% load comments %}
+{% load bootstrap_tags %}
 
 {% block custom_top_scripts %}
     <script src="http://openlayers.org/api/OpenLayers.js"></script>
@@ -15,30 +16,23 @@
 
     <h1>Ciudad de {{ciudad_actual.nombre}}</h1>
 
-    <div class="row">
-        <div class="span8 thumbnail"><div id="map" style="background:lightblue; height:500px;"></div></div>
+    <div class="thumbnail"><div id="map" style="background:lightblue; height:300px;"></div></div>
 
-        <div class="span3">
-            <table class="table table-striped table-bordered table-condensed">
-                <thead>
-                    <tr>
-                    <th>Nombre de la linea</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for linea in lineas %}
-                    <tr>
-                        <td><a href="{{linea.slug}}">Linea {{linea.nombre}}</a></td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <h3>Lineas de micro en {{ciudad_actual.nombre}}:</h3>
+    <table class="table table-striped table-bordered table-condensed">
+        <tbody>
+        {% for columna in lineas|dividir_columnas:5 %}
+            <tr>
+            {% for linea in columna %}
+                <td><a href={{linea.slug}}/>Linea {{linea.nombre}}<a></td>
+            {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 
     <h3>Dejanos un comentario sobre "{{ciudad_actual.nombre}}"</h3>
     <div align="center"><div class="fb-comments" data-href="http://www.cualbondi.com.ar{{request.get_full_path}}" data-num-posts="2" data-width="900"></div></div>
-
 {% endblock %}
 
 {% block custom_ready_function %}
@@ -57,7 +51,8 @@
     ), {{ ciudad_actual.zoom }});
 
     //Le agregamos una capa para el poligono de la ciudad
-    var layer_poligono = new OpenLayers.Layer.Vector("Poligono", {styleMap: new OpenLayers.StyleMap() });
+    var style = {'strokeWidth': 2, 'strokeColor': '#0033CC', fillColor: "#0066CC", fillOpacity: 0.5}
+    var layer_poligono = new OpenLayers.Layer.Vector("Poligono", {styleMap: new OpenLayers.StyleMap(style) });
     map.addLayer(layer_poligono)
 
     //Insertamos el poligono en la nueva capa

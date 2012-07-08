@@ -57,7 +57,7 @@ def ver_ciudad(request, nombre_ciudad):
     slug_ciudad = slugify(nombre_ciudad)
     ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
 
-    lineas = ciudad_actual.lineas.all()
+    lineas = ciudad_actual.lineas.all().order_by("nombre")
 
     mapa = InfoMap([
         [ciudad_actual.poligono, {
@@ -69,7 +69,6 @@ def ver_ciudad(request, nombre_ciudad):
             "layers":["google.streets", "osm.mapnik"]#, "google.streets", "google.hybrid", "ve.road", "ve.hybrid", "yahoo.map"]
         }
     )
-
     return render_to_response('core/ver_ciudad.html',
                               {'mapa':mapa,
                                'lineas': lineas},
@@ -99,7 +98,7 @@ def ver_linea(request, nombre_ciudad, nombre_linea):
     linea_actual = get_object_or_404(Linea,
                                      slug=slug_linea,
                                      ciudad=ciudad_actual)
-    recorridos = Recorrido.objects.filter(linea=linea_actual)
+    recorridos = Recorrido.objects.filter(linea=linea_actual).order_by("nombre")
     return render_to_response('core/ver_linea.html',
                               {'ciudad_actual': ciudad_actual,
                                'linea_actual': linea_actual,
