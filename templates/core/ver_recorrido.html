@@ -1,7 +1,9 @@
 {% extends "maquetado.html" %}
 
 {% block custom_top_scripts %}
-    {{mapa.media}}
+    <script src="http://openlayers.org/api/OpenLayers.js"></script>
+    <script src="http://maps.google.com/maps/api/js?v=3.6&amp;sensor=false"></script>
+    <link rel="stylesheet" href="http://openlayers.org/dev/theme/default/style.css" type="text/css" />
 {% endblock %}
 
 {% block bloque_izquierda %}
@@ -13,15 +15,40 @@
     </ul>
 
     <h1>Recorrido {{linea_actual.nombre}} {{recorrido_actual.nombre}} de {{ciudad_actual.nombre}}</h1>
+    <h3>desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}}</h3>
 
-    <div>{{mapa}}</div>
+    <div class="thumbnail"><div id="map" style="background:lightblue; height:300px;"></div></div>
 
     <h3>Dejanos un comentario sobre el recorrido "{{linea_actual.nombre}} {{recorrido_actual.nombre}}"</h3>
     <div align="center"><div class="fb-comments" data-href="http://www.cualbondi.com.ar{{request.get_full_path}}" data-num-posts="2" data-width="900"></div></div>
 {% endblock %}
 
 {% block custom_ready_function %}
-    $("#btn-favorito").click(function(){
-        $("#btn-favorito").toggleClass("btn-warning")
-    })
+    //Proyeccion que se necesita para transformar proyecciones mas adelante
+    var proj = new OpenLayers.Projection("EPSG:4326");
+
+    //Creamos el mapa
+    map = new OpenLayers.Map("map", {theme: null})
+    var gmap = new OpenLayers.Layer.Google(
+        "Google Streets", {numZoomLevels: 20}
+    );
+    map.addLayers([gmap]);
+    map.setCenter(new OpenLayers.LonLat{{ ciudad_actual.centro.coords }}.transform(
+        new OpenLayers.Projection("EPSG:4326"),
+        map.getProjectionObject()
+    ), {{ ciudad_actual.zoom }});
+
+    //Le agregamos una capa para el poligono de la ciudad
+    var style = {'strokeWidth': 2, 'strokeColor': '#0033CC', fillColor: "#0066CC", fillOpacity: 0.5}
+    var layer_recorrido = new OpenLayers.Layer.Vector("Recorrido", {styleMap: new OpenLayers.StyleMap(style) });
+    map.addLayer(layer_recorrido)
+
+    path_recorrido = new OpenLayers.Format.WKT().read('{{recorrido_actual.ruta.wkt}}');
+    path_recorrido.geometry.transform(proj, map.getProjectionObject())
+    layer_recorrido.addFeatures([path_recorrido]);
+
+    //Acomodar el zoom al poligono
+    var extent = new OpenLayers.Bounds();
+    extent.extend(path_recorrido.geometry.getBounds())
+    map.zoomToExtent(extent);
 {% endblock %}

@@ -57,7 +57,7 @@ def ver_ciudad(request, nombre_ciudad):
     slug_ciudad = slugify(nombre_ciudad)
     ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
 
-    lineas = ciudad_actual.lineas.all()
+    lineas = ciudad_actual.lineas.all().order_by("nombre")
 
     mapa = InfoMap([
         [ciudad_actual.poligono, {
@@ -69,7 +69,6 @@ def ver_ciudad(request, nombre_ciudad):
             "layers":["google.streets", "osm.mapnik"]#, "google.streets", "google.hybrid", "ve.road", "ve.hybrid", "yahoo.map"]
         }
     )
-
     return render_to_response('core/ver_ciudad.html',
                               {'mapa':mapa,
                                'lineas': lineas},
@@ -99,7 +98,7 @@ def ver_linea(request, nombre_ciudad, nombre_linea):
     linea_actual = get_object_or_404(Linea,
                                      slug=slug_linea,
                                      ciudad=ciudad_actual)
-    recorridos = Recorrido.objects.filter(linea=linea_actual)
+    recorridos = Recorrido.objects.filter(linea=linea_actual).order_by("nombre")
     return render_to_response('core/ver_linea.html',
                               {'ciudad_actual': ciudad_actual,
                                'linea_actual': linea_actual,
@@ -145,6 +144,27 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
                                'favorito': favorito},
                               context_instance=RequestContext(request))
 
+"""
+cualbondi.com.ar/la-plata/recorridos/Norte/10/IDA/ (ANTES)
+cualbondi.com.ar/la-plata/norte/10-desde-x-hasta-y (DESPUES)
+cualbondi.com.ar/cordoba/recorridos/T%20(Transversal)/Central/IDA/ (NO ANDA, CHECKEAR REGEXP URLs)
+"""
+def redirect_nuevas_urls(request, ciudad=None, linea=None, ramal=None, recorrido=None):
+    url = '/'
+    if not ciudad:
+        ciudad = 'la-plata'
+    if ciudad == 'buenos-aires':
+        ciudad = 'capital-federal'
+    url += slugify(ciudad) + '/'
+    if linea:
+        url += slugify(linea) + '/'
+        if ramal and recorrido:
+            try:
+                recorrido = Recorrido.objects.get(linea__nombre=linea, nombre=ramal, sentido=recorrido)
+                url += slugify(recorrido.nombre) + '-desde-' + slugify(recorrido.inicio) + '-hasta-' + slugify(recorrido.fin)
+            except ObjectDoesNotExist:
+                pass
+    return redirect(url)
 
 @login_required(login_url="/usuarios/login/")
 def agregar_linea(request):
