@@ -14,7 +14,7 @@ from apps.usuarios.models import RecorridoFavorito
 class Linea(models.Model):
     nombre = models.CharField(max_length=100)
     slug = models.SlugField(max_length=120, blank=True, null=False)
-    descripcion = models.TextField()
+    descripcion = models.TextField(blank=True, null=True)
     foto = models.CharField(max_length=20, blank=True, null=True)
 
     def __unicode__(self):
@@ -29,7 +29,7 @@ class Recorrido(models.Model):
     nombre = models.CharField(max_length=100)
     linea = models.ForeignKey(Linea)
     ruta = models.LineStringField()
-
+    sentido = models.CharField(max_length=100)
     slug = models.SlugField(max_length=200, blank=True, null=False)
     inicio = models.CharField(max_length=100, blank=True, null=False)
     fin = models.CharField(max_length=100, blank=True, null=False)
@@ -88,7 +88,7 @@ class Horario(models.Model):
 
 class Terminal(models.Model):
     linea = models.ForeignKey(Linea)
-    descripcion = models.TextField()
+    descripcion = models.TextField(blank=True, null=True)
     direccion = models.CharField(max_length=150)
     telefono = models.CharField(max_length=150)
     latlng = models.PointField()

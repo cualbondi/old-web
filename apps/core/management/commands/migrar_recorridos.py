@@ -1,6 +1,6 @@
 # -*- coding: utf-8 *-*
 from django.core.management.base import BaseCommand, CommandError
-from django.core.exceptions import DoesNotExist
+from django.core.exceptions import ObjectDoesNotExist
 from apps.core.models import Recorrido, Linea
 from apps.catastro.models import Ciudad
 from django.db import connection, transaction
@@ -61,7 +61,7 @@ class Command(BaseCommand):
         for row in cursor.fetchall():
             try:
                 linea = Linea.objects.get(nombre=row['li_nombre'])
-            except DoesNotExist:
+            except ObjectDoesNotExist:
                 # la linea aun no fue agregada, hay que crearla
                 linea = Linea(
                     nombre = row['li_nombre'],
@@ -70,7 +70,8 @@ class Command(BaseCommand):
                 linea.save()
 
             recorrido = Recorrido(
-                nombre = row['ra_nombre'] + row['re_nombre'],
+                nombre = row['ra_nombre'],
+                sentido = row['re_nombre'],
                 linea = linea,
                 inicio = row['re_zona_inicio'],
                 fin = row['re_zona_fin'],

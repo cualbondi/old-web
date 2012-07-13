@@ -67,10 +67,10 @@
 {% endblock %}
 
 {% block custom_scripts %}
-<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/openlayers/2.11/OpenLayers.js"></script>
+<script src="http://openlayers.org/api/OpenLayers.js"></script>
 <script type="text/javascript" src="/media/js/bootstrap-typeahead-gist2204728.js"></script>
 <script src="http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
-<script src="http://maps.google.com/maps/api/js?v=3.6&amp;sensor=false"></script>
+<script src="http://maps.google.com/maps/api/js?v=3&amp;libraries=adsense&amp;sensor=false"></script>
 {# <link rel="stylesheet" href="http://openlayers.org/dev/theme/default/style.css" type="text/css" /> #}
 
 
@@ -97,24 +97,26 @@ $(function() {
         $("#map").css("margin-right", "-20px")
 
     $(window).bind('resize', function() {
+        $("#sidebar").css("margin-top", "18px")
+        $("#sidebar").css("overflow", "auto")
+        $("body").css("padding-bottom","0px")
+        $(".navbar").css("margin-bottom","0px")
         if ( $(window).width() > 980 ) {
             $("#map").height(($(window).height()-40)+"px")
             $("#sidebar").height(($(window).height()-58)+"px")
             $("body").css("padding-top","40px")
             //esto no anda bien
-            if ( $("#sidebar").height() > ($(window).height()-58)+"px" )
+
                 $("#sidebar").height(($(window).height()-58)+"px")
-            else
-                $("#sidebar").height("")
+
         }
         else {
             $("#map").height(($(window).height()-50)+"px")
             $("body").css("padding-top","0px")
             //esto no anda bien
-            if ( $("#sidebar").height() > ($(window).height()-68)+"px" )
+
                 $("#sidebar").height(($(window).height()-68)+"px")
-            else
-                $("#sidebar").height("")
+
         }
         if ( $(window).width() < 456 )
             $("#map").css("margin-right", "0px")
@@ -273,6 +275,15 @@ $(function() {
         timeout: 100
     })
 
+    var adUnitDiv = document.createElement('div');
+    var adUnitOptions = {
+        format: google.maps.adsense.AdFormat.HALF_BANNER,
+        position: google.maps.ControlPosition.TOP,
+        map: map.baseLayer.mapObject,
+        visible: true,
+        publisherId: 'ca-pub-1193419141108967'
+    }
+    adUnit = new google.maps.adsense.AdUnit(adUnitDiv, adUnitOptions);
 
     // variables "globales"
     resultados = new Object()
