@@ -108,80 +108,77 @@ class RecorridoHandler(BaseHandler):
         return recorridos[desde:hasta]
 
     def read(self, request, id_recorrido=None):
+        response = {'long_pagina': LONGITUD_PAGINA, 'cached': True}
         query = request.GET.get('q', None)
-        if query is None:
-            if id_recorrido is None:
-                origen = request.GET.get('origen', None)
-                destino = request.GET.get('destino', None)
-                radio_origen = request.GET.get('radio_origen', RADIO_ORIGEN_DEFAULT)
-                radio_destino = request.GET.get('radio_destino', RADIO_DESTINO_DEFAULT)
-                query = request.GET.get('query', None)
-
-                combinar = request.GET.get('combinar', 'false')
-                if combinar == 'true': combinar = True
-                elif combinar == 'false': combinar = False
-                else: return rc.BAD_REQUEST
-
-                pagina = request.GET.get('pagina', None)
-                if pagina is not None:
-                    try:
-                        pagina = int(pagina)
-                    except ValueError:
-                        return rc.BAD_REQUEST
-
-                if query is not None:
-                    # Buscar recorridos por nombre
-                    rc.NOT_IMPLEMENTED
-                elif origen is not None and destino is not None:
-                    # Buscar geograficamente en base a origen y destino
-                    origen = str(origen).split(",")
-                    try:
-                        latitud_origen = float(origen[1])
-                        longitud_origen = float(origen[0])
-                    except ValueError:
-                        return rc.BAD_REQUEST
-                    origen = Point(longitud_origen, latitud_origen)
-
-                    destino = str(destino).split(",")
-                    try:
-                        latitud_destino = float(destino[1])
-                        longitud_destino = float(destino[0])
-                    except ValueError:
-                        return rc.BAD_REQUEST
-                    destino = Point(longitud_destino, latitud_destino)
-
-                    if USE_CACHE:
-                        recorridos = self._get_response_from_cache(origen, destino,
-                                        radio_origen, radio_destino, combinar)
-                    else: recorridos = None
-
-                    if recorridos is None:
-                        # No se encontro en la cache, hay que buscarlo en la DB.
-                        if not combinar:
-                            # Buscar SIN transbordo
-                            recorridos = Recorrido.objects.get_recorridos(origen, destino, radio_origen, radio_destino)
-                        else:
-                            # Buscar CON transbordo
-                            recorridos = Recorrido.objects.get_recorridos_combinados(origen, destino, radio_origen, radio_destino)
-                            return rc.NOT_IMPLEMENTED
-                        # Guardar los resultados calculados en memcached
-                        if USE_CACHE:
-                            self._save_in_cache(origen, destino, radio_origen, radio_destino, combinar, recorridos)
-                    if pagina is not None:
-                        # Filtrar todos los recorridos y devolver solo la pagina pedida
-                        recorridos = self._paginar(recorridos, pagina)
-                    return recorridos
-                else:
-                    # Sin parametros GET, devolver todos los recorridos
-                    return Recorrido.objects.all()
-            else:
-                # Me mandaron "id_recorrido", tengo que devolver ese solo recorrido.
-                try:
-                    return Recorrido.objects.get(id=id_recorrido)
-                except ObjectDoesNotExist:
-                    return rc.NOT_FOUND
-        else:
+        if query is not None:
             return Recorrido.objects.fuzzy_like_query(query)
+        elif id_recorrido is not None:
+            # Me mandaron "id_recorrido", tengo que devolver ese solo recorrido.
+            try:
+                return Recorrido.objects.get(id=id_recorrido)
+            except ObjectDoesNotExist:
+                return rc.NOT_FOUND
+        else:
+            origen = request.GET.get('origen', None)
+            destino = request.GET.get('destino', None)
+            radio_origen = request.GET.get('radio_origen', RADIO_ORIGEN_DEFAULT)
+            radio_destino = request.GET.get('radio_destino', RADIO_DESTINO_DEFAULT)
+            query = request.GET.get('query', None)
+
+            combinar = request.GET.get('combinar', 'false')
+            if combinar == 'true': combinar = True
+            elif combinar == 'false': combinar = False
+            else: return rc.BAD_REQUEST
+
+            pagina = request.GET.get('pagina', 1)
+            try:
+                pagina = int(pagina)
+            except ValueError:
+                return rc.BAD_REQUEST
+            response['pag_actual'] = pagina
+
+            if origen is not None and destino is not None:
+                # Buscar geograficamente en base a origen y destino
+                origen = str(origen).split(",")
+                try:
+                    latitud_origen = float(origen[1])
+                    longitud_origen = float(origen[0])
+                except ValueError:
+                    return rc.BAD_REQUEST
+                origen = Point(longitud_origen, latitud_origen)
+
+                destino = str(destino).split(",")
+                try:
+                    latitud_destino = float(destino[1])
+                    longitud_destino = float(destino[0])
+                except ValueError:
+                    return rc.BAD_REQUEST
+                destino = Point(longitud_destino, latitud_destino)
+
+                if USE_CACHE:
+                    recorridos = self._get_response_from_cache(origen, destino,
+                                    radio_origen, radio_destino, combinar)
+                else: recorridos = None
+
+                if recorridos is None:
+                    # No se encontro en la cache, hay que buscarlo en la DB.
+                    response['cached'] = False
+                    if not combinar:
+                        # Buscar SIN transbordo
+                        recorridos = Recorrido.objects.get_recorridos(origen, destino, radio_origen, radio_destino)
+                    else:
+                        # Buscar CON transbordo
+                        recorridos = Recorrido.objects.get_recorridos_combinados(origen, destino, radio_origen, radio_destino)
+                        return rc.NOT_IMPLEMENTED
+                    # Guardar los resultados calculados en memcached
+                    if USE_CACHE:
+                        self._save_in_cache(origen, destino, radio_origen, radio_destino, combinar, recorridos)
+                response['cant_total'] = len(recorridos)
+                if pagina > response['cant_total']/LONGITUD_PAGINA:
+                    return rc.BAD_REQUEST
+                # Filtrar todos los recorridos y devolver solo la pagina pedida
+                response['resultados'] = self._paginar(recorridos, pagina)
+                return response
 
 
 class CatastroHandler(BaseHandler):
