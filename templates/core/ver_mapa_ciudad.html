@@ -385,7 +385,8 @@ $(function() {
                 origen: lla.x+","+lla.y,
                 destino: llb.x+","+llb.y,
                 radio_origen: "500",
-                radio_destino: "500"
+                radio_destino: "500",
+                pagina: 1
             },
             mostrarResultados
         );
@@ -421,9 +422,10 @@ $(function() {
 <ul class="nav nav-pills nav-stacked">
     {% templatetag openvariable %}tmpl(res) "#itemTempl"{% templatetag closevariable %}
 </ul>
+    {% templatetag openvariable %}tmpl(res) "#paginacionTempl"{% templatetag closevariable %}
 </script>
 <script id="itemTempl" type="text/x-jquery-tmpl"> 
-<li id="res${id}">
+    <li id="res${id}">
         <a href="#" onclick="javascript:$.cb.mostrar_resultado(${id});return false">
             <strong>${nombre}</strong>
             <br>
@@ -435,7 +437,19 @@ $(function() {
         </a>
     </li>
 </script>
-
+<!--TODO: HACER FUNCIONAR EL PAGINADOR EN EL TEMPLATE, LA API YA ANDA -->
+<script id="paginacionTempl" type="text/x-jquery-tmpl"> 
+    <div class="pagination">
+        <ul>
+            <li class="disabled"><a href="#">«</a></li>
+            <li class="active"><a href="#">1</a></li>
+            <li><a href="#">2</a></li>
+            <li><a href="#">3</a></li>
+            <li><a href="#">4</a></li>
+            <li><a href="#">»</a></li>
+        </ul>
+    </div>
+</script>
 
 <script id="listSuggest" type="text/x-jquery-tmpl">
 <ul id="#sug1" class="nav nav-pills nav-stacked">
