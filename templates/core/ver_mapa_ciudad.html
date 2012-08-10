@@ -148,14 +148,14 @@ $(function() {
     var styleMap = new OpenLayers.StyleMap();
     lookup = {
         // nombre:hovering:dragging
-        "A:false:false": { externalGraphic: "http://www.google.com/mapfiles/markerA.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
-        "A:true:false" : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeA.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
-        "A:false:true" : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeA.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1 },
-        "A:true:true"  : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeA.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1 },
-        "B:false:false": { externalGraphic: "http://www.google.com/mapfiles/markerB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
-        "B:true:false" : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
-        "B:false:true" : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1 },
-        "B:true:true"  : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1 },
+        "A:false:false": { externalGraphic: "/media/css/openlayers/markerA.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
+        "A:true:false" : { externalGraphic: "/media/css/openlayers/markerA-hover.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
+        "A:false:true" : { externalGraphic: "/media/css/openlayers/markerA-drag.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -41, graphicOpacity: 1 },
+        "A:true:true"  : { externalGraphic: "/media/css/openlayers/markerA-drag.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -41, graphicOpacity: 1 },
+        "B:false:false": { externalGraphic: "/media/css/openlayers/markerB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
+        "B:true:false" : { externalGraphic: "/media/css/openlayers/markerB-hover.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
+        "B:false:true" : { externalGraphic: "/media/css/openlayers/markerB-drag.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -41, graphicOpacity: 1 },
+        "B:true:true"  : { externalGraphic: "/media/css/openlayers/markerB-drag.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -41, graphicOpacity: 1 },
     }
     styleMap.addUniqueValueRules("default", "tipo", lookup);
 
