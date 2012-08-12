@@ -146,14 +146,14 @@ $(function() {
     var styleMap = new OpenLayers.StyleMap();
     lookup = {
         // nombre:hovering:dragging
-        "A:false:false": { externalGraphic: "http://www.google.com/mapfiles/markerA.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
-        "A:true:false" : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeA.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
-        "A:false:true" : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeA.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1 },
-        "A:true:true"  : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeA.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1 },
-        "B:false:false": { externalGraphic: "http://www.google.com/mapfiles/markerB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
-        "B:true:false" : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
-        "B:false:true" : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1 },
-        "B:true:true"  : { externalGraphic: "http://www.google.com/mapfiles/marker_orangeB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1 },
+        "A:false:false": { externalGraphic: "http://www.google.com/mapfiles/marker_blackA.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
+        "A:true:false" : { externalGraphic: "http://www.google.com/mapfiles/marker_whiteA.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
+        "A:false:true" : { externalGraphic: "http://www.google.com/mapfiles/marker_whiteA.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1 },
+        "A:true:true"  : { externalGraphic: "http://www.google.com/mapfiles/marker_whiteA.png", backgroundGraphic: "http://maps.gstatic.com/intl/en_ALL/mapfiles/drag_cross_67_16.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1, backgroundWidth: 16, backgroundHeight: 16 },
+        "B:false:false": { externalGraphic: "http://www.google.com/mapfiles/marker_blackB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
+        "B:true:false" : { externalGraphic: "http://www.google.com/mapfiles/marker_whiteB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
+        "B:false:true" : { externalGraphic: "http://www.google.com/mapfiles/marker_whiteB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1 },
+        "B:true:true"  : { externalGraphic: "http://www.google.com/mapfiles/marker_whiteB.png", backgroundGraphic: "http://maps.gstatic.com/intl/en_ALL/mapfiles/drag_cross_67_16.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1, backgroundWidth: 16, backgroundHeight: 16 },
     }
     styleMap.addUniqueValueRules("default", "tipo", lookup);
 
@@ -389,10 +389,10 @@ $(function() {
             $('#sidebarContenido').html("vacío")
         else {
             resultados = new Object()
-            $.each(data, function(key, value) {
+            $.each(data.resultados, function(key, value) {
                 resultados[value.id] = value
             });
-            $("#listTempl").tmpl( [{ res: data }] ).appendTo($("#sidebarContenido").empty());
+            $("#listTempl").tmpl( [{ res: data.resultados }] ).appendTo($("#sidebarContenido").empty());
             $.cb.mostrar_resultado()
         }
     }
@@ -411,7 +411,6 @@ $(function() {
 <ul class="nav nav-pills nav-stacked">
     {% templatetag openvariable %}tmpl(res) "#itemTempl"{% templatetag closevariable %}
 </ul>
-    {% templatetag openvariable %}tmpl(res) "#paginacionTempl"{% templatetag closevariable %}
 </script>
 <script id="itemTempl" type="text/x-jquery-tmpl"> 
     <li id="res${id}">
@@ -425,19 +424,6 @@ $(function() {
             en bondi:${long_bondi}km
         </a>
     </li>
-</script>
-<!--TODO: HACER FUNCIONAR EL PAGINADOR EN EL TEMPLATE, LA API YA ANDA -->
-<script id="paginacionTempl" type="text/x-jquery-tmpl"> 
-    <div class="pagination">
-        <ul>
-            <li class="disabled"><a href="#">«</a></li>
-            <li class="active"><a href="#">1</a></li>
-            <li><a href="#">2</a></li>
-            <li><a href="#">3</a></li>
-            <li><a href="#">4</a></li>
-            <li><a href="#">»</a></li>
-        </ul>
-    </div>
 </script>
 
 <script id="listSuggest" type="text/x-jquery-tmpl">
