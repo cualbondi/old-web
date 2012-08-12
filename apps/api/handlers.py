@@ -174,8 +174,8 @@ class RecorridoHandler(BaseHandler):
                     if USE_CACHE:
                         self._save_in_cache(origen, destino, radio_origen, radio_destino, combinar, recorridos)
                 response['cant_total'] = len(recorridos)
-                if pagina > response['cant_total']/LONGITUD_PAGINA:
-                    return rc.BAD_REQUEST
+#                if pagina > response['cant_total']/LONGITUD_PAGINA:
+#                    return rc.BAD_REQUEST
                 # Filtrar todos los recorridos y devolver solo la pagina pedida
                 response['resultados'] = self._paginar(recorridos, pagina)
                 return response

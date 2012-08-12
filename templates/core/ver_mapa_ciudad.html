@@ -348,7 +348,6 @@ $(function() {
         var point = new OpenLayers.Format.WKT().read(pointWKT).geometry
         point.transform(proj, map.getProjectionObject())
         point = new OpenLayers.Geometry.Point(point.x, point.y);
-        //console.debug(point)
         if ( id == 1 )
             markerA.setPoint(point)
         else if ( id == 2 )
@@ -364,8 +363,6 @@ $(function() {
     // envia peticion al server para buscar por latlng
     function buscarporclick(lla, llb) {
         $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
-        //console.debug(lla)
-        //console.debug(llb)
         lla = lla.transform(map.getProjectionObject(), proj)
         llb = llb.transform(map.getProjectionObject(), proj)
         $.get(
@@ -385,8 +382,8 @@ $(function() {
 
     // muestra los resultados devueltos por el server usando un template
     function mostrarResultados(data){
-        if (!data)
-            $('#sidebarContenido').html("vacío")
+        if (data.cant_total==0)
+            $('#sidebarContenido').html('<div class="alert alert-error">No se ha encontrado ningun resultado...</div>')
         else {
             resultados = new Object()
             $.each(data.resultados, function(key, value) {
