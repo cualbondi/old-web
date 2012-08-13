@@ -111,7 +111,9 @@ class RecorridoHandler(BaseHandler):
         response = {'long_pagina': LONGITUD_PAGINA, 'cached': True}
         query = request.GET.get('q', None)
         if query is not None:
-            return Recorrido.objects.fuzzy_like_query(query)
+	    response['resultados'] = Recorrido.objects.fuzzy_like_query(query)
+	    response['cant_total'] = len(response['resultados'])
+	    return response
         elif id_recorrido is not None:
             # Me mandaron "id_recorrido", tengo que devolver ese solo recorrido.
             try:

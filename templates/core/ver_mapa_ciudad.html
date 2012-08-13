@@ -254,23 +254,25 @@ $(function() {
     $('#inputLinea').attr("autocomplete","off")
     $('#inputLinea').typeahead({
         source: function (typeahead, query) {
-            $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
+            $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty()),
             $.ajax({
                 url: "/api/recorridos/?q="+query,
                 success: function (data) {
                     // data must be a list of either strings or objects
                     // data = [{'nombre': 'Joe',.. }, {'name': 'Henry'}, ...]
-                    typeahead.process(data)
+                    typeahead.process(data.resultados)
                     //mostrarResultados(data)
                 }
             })
         },
         onselect: function (obj) {
-            //alert('Selected '+obj)
-            mostrarResultados([obj])
+	  var res = new Array();
+	  res.push(obj);
+	  var response = {'resultados': res, 'cant_total': 1};
+          mostrarResultados(response);
         },
         property: "nombre",
-        timeout: 100
+        timeout: 1000
     })
 
 
@@ -382,9 +384,9 @@ $(function() {
 
     // muestra los resultados devueltos por el server usando un template
     function mostrarResultados(data){
-        if (data.cant_total==0)
+        if (data.cant_total==0){
             $('#sidebarContenido').html('<div class="alert alert-error">No se ha encontrado ningun resultado...</div>')
-        else {
+        }else{
             resultados = new Object()
             $.each(data.resultados, function(key, value) {
                 resultados[value.id] = value
