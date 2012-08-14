@@ -26,7 +26,7 @@ DATABASES = {
     }
 }
 
-USE_CACHE = True
+USE_CACHE = False
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
