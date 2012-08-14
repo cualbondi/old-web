@@ -41,7 +41,7 @@ GOOGLE_API = "//maps.google.com/maps/api/js?v=3.6&sensor=false"
 # Variables personalizadas
 RADIO_ORIGEN_DEFAULT = 200
 RADIO_DESTINO_DEFAULT = 200
-LONGITUD_PAGINA = 2
+LONGITUD_PAGINA = 5
 
 
 # Local time zone for this installation. Choices can be found here:
