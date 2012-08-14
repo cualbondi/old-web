@@ -109,15 +109,36 @@ class RecorridoHandler(BaseHandler):
 
     def read(self, request, id_recorrido=None):
         response = {'long_pagina': LONGITUD_PAGINA, 'cached': True}
+
+        pagina = request.GET.get('p', 1)
+        try:
+            pagina = int(pagina)
+        except ValueError:
+            return rc.BAD_REQUEST
+        response['p'] = pagina
+
         query = request.GET.get('q', None)
+        ciudad_slug = request.GET.get('c', None)
+        response['c'] = ciudad_slug
+
         if query is not None:
-            return Recorrido.objects.fuzzy_like_query(query)
+            qs = Recorrido.objects.fuzzy_like_query( query, ciudad_slug )
+            recorridos = list(qs)
+            response['cant'] = len(recorridos)
+            #if pagina >= response['cant_total']/LONGITUD_PAGINA+1:
+            #    return rc.BAD_REQUEST
+            # Filtrar todos los recorridos y devolver solo la pagina pedida
+            response['resultados'] = self._paginar(recorridos, pagina)
+            response['q'] = query
+            return response
+
         elif id_recorrido is not None:
             # Me mandaron "id_recorrido", tengo que devolver ese solo recorrido.
             try:
                 return Recorrido.objects.get(id=id_recorrido)
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND
+
         else:
             origen = request.GET.get('origen', None)
             destino = request.GET.get('destino', None)
@@ -129,13 +150,6 @@ class RecorridoHandler(BaseHandler):
             if combinar == 'true': combinar = True
             elif combinar == 'false': combinar = False
             else: return rc.BAD_REQUEST
-
-            pagina = request.GET.get('pagina', 1)
-            try:
-                pagina = int(pagina)
-            except ValueError:
-                return rc.BAD_REQUEST
-            response['pag_actual'] = pagina
 
             if origen is not None and destino is not None:
                 # Buscar geograficamente en base a origen y destino
@@ -173,9 +187,9 @@ class RecorridoHandler(BaseHandler):
                     # Guardar los resultados calculados en memcached
                     if USE_CACHE:
                         self._save_in_cache(origen, destino, radio_origen, radio_destino, combinar, recorridos)
-                response['cant_total'] = len(recorridos)
-                if pagina > response['cant_total']/LONGITUD_PAGINA:
-                    return rc.BAD_REQUEST
+                response['cant'] = len(recorridos)
+                #if pagina > response['cant']/LONGITUD_PAGINA:
+                #    return rc.BAD_REQUEST
                 # Filtrar todos los recorridos y devolver solo la pagina pedida
                 response['resultados'] = self._paginar(recorridos, pagina)
                 return response

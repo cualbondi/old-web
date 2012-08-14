@@ -218,7 +218,7 @@ class RecorridoManager(models.GeoManager):
             ;
         """
         query_set = self.raw(query, params)
-        return list(query_set)
+        return query_set
 
     def fuzzy_fts_query(self, q):
         params = {"q": q}
@@ -241,10 +241,10 @@ class RecorridoManager(models.GeoManager):
             ;
         """
         query_set = self.raw(query, params)
-        return list(query_set)
+        return query_set
 
-    def fuzzy_like_query(self, q):
-        params = {"q": q}
+    def fuzzy_like_query(self, q, ciudad):
+        params = {"q": q, "ci": ciudad}
         query = """
             SELECT
                 r.id,
@@ -253,12 +253,15 @@ class RecorridoManager(models.GeoManager):
             FROM
                 core_recorrido as r
                 join core_linea as l on (r.linea_id = l.id)
+                join catastro_ciudad_lineas as cl on (cl.linea_id = l.id )
+                join catastro_ciudad as c on (c.id = cl.ciudad_id) 
             WHERE
                 (l.nombre || ' ' || r.nombre) ILIKE ('%%' || %(q)s || '%%')
+                AND c.slug = %(ci)s
             LIMIT
                 10
             ;
         """
         query_set = self.raw(query, params)
-        return list(query_set)
+        return query_set
 

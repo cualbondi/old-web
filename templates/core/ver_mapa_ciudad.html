@@ -52,6 +52,7 @@
                                 </form>
                             </div>
                         </div>
+                        <hr>
                         <div id="sidebarContenido">
                         </div>
                     </div>
@@ -75,6 +76,9 @@
 
 
 <script type="text/javascript">
+
+GLOBAL_ci = "{{ ciudad_actual.slug }}"
+
 $(function() {
     // todo esto inicial es para hacer bootstrap 100% height
     $("#sidebar").css("margin-top", "18px")
@@ -211,6 +215,7 @@ $(function() {
                     if ( !markerB.listo ) {
                         markerB.setPoint(point)
                         clickHandler.deactivate();
+                        pagina = 1
                         buscarporclick(markerA.point.geometry, markerB.point.geometry)
                     }
             }
@@ -227,6 +232,7 @@ $(function() {
                 t = feature.attributes.tipo.split(":")
                 feature.attributes.tipo=t[0]+":true:false"
                 markers.redraw()
+                pagina = 1
                 buscarporclick(markerA.point.geometry, markerB.point.geometry)
             },
             onEnter: function(feature, pixel) {
@@ -254,15 +260,18 @@ $(function() {
 
     // buscador de lineas por sugerencia al tipear
     $('#inputLinea').attr("autocomplete","off")
+
+/*
     $('#inputLinea').typeahead({
         source: function (typeahead, query) {
+            console.log(query)
             $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
             $.ajax({
-                url: "/api/recorridos/?q="+query,
+                url: "/api/recorridos/?ciudad="+GLOBAL_ci+"&q="+query,
                 success: function (data) {
                     // data must be a list of either strings or objects
                     // data = [{'nombre': 'Joe',.. }, {'name': 'Henry'}, ...]
-                    typeahead.process(data)
+                    typeahead.process(data['resultados'])
                     //mostrarResultados(data)
                 }
             })
@@ -274,6 +283,22 @@ $(function() {
         property: "nombre",
         timeout: 100
     })
+*/
+
+    $('#inputLinea').keyup(function () {
+        $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
+        if ( ajaxInputLinea ) ajaxInputLinea.abort()
+        pagina = 1
+        inputLinea()
+    })
+
+    function inputLinea() {
+        buscar = false
+        ajaxInputLinea = $.ajax({
+            url: "/api/recorridos/?c="+GLOBAL_ci+"&q="+$('#inputLinea').val()+"&p="+pagina,
+            success: mostrarResultados
+        })
+    }
 
     var adUnitDiv = document.createElement('div');
     var adUnitOptions = {
@@ -286,8 +311,11 @@ $(function() {
     adUnit = new google.maps.adsense.AdUnit(adUnitDiv, adUnitOptions);
 
     // variables "globales"
-    resultados = new Object()
-    poly = null
+    var resultados = new Object()
+    var poly       = null
+    var pagina     = 1
+    var ajaxInputLinea = false
+    var buscar     = true //false si busca de A a B, true si busca por nombre de recorrido (es para llamar la funcion correcta al paginar)
 
     // aca arrancan las funciones de cualbondi que pueden llamarse desde el html
     // namespace de cualbondi que se ve desde afuera por mas que minifiquemos
@@ -327,7 +355,6 @@ $(function() {
         $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
         var data1 = null
         var data2 = null
-        // TODO: poner ajaxloader
         // muestra los resultados de la busqueda como sugerencia
         function mostrarResultadoCatastro(data, id) {
             data.id = id
@@ -368,15 +395,34 @@ $(function() {
 
     // busca una vez que se eligieron las sugerencias
     $.cb.seleccionarSugerencias = function() {
-        if ( markerA.listo && markerB.listo )
+        if ( markerA.listo && markerB.listo ) {
+            pagina = 1
             buscarporclick(markerA.point.geometry, markerB.point.geometry)
+        }
+    }
+
+    // pasa a la siguiente pagina
+    // n = -1: pagina anterior
+    //      x: pagina x
+    //      0: pagina siguiente
+    $.cb.pagina = function(n) {
+        if ( n < 0 )
+            pagina = ( pagina > 1 ) ? pagina - 1 : 1;
+        else if ( n == 0 )
+            pagina+=1;
+        else if ( n > 0)
+            pagina = n;
+
+        if ( buscar )
+            buscarporclick(markerA.point.geometry, markerB.point.geometry)
+        else
+            inputLinea()
     }
 
     // envia peticion al server para buscar por latlng
     function buscarporclick(lla, llb) {
+        buscar     = true
         $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
-        //console.debug(lla)
-        //console.debug(llb)
         lla = lla.transform(map.getProjectionObject(), proj)
         llb = llb.transform(map.getProjectionObject(), proj)
         $.get(
@@ -386,7 +432,8 @@ $(function() {
                 destino: llb.x+","+llb.y,
                 radio_origen: "500",
                 radio_destino: "500",
-                pagina: 1
+                c: GLOBAL_ci,
+                p: pagina
             },
             mostrarResultados
         );
@@ -396,14 +443,18 @@ $(function() {
 
     // muestra los resultados devueltos por el server usando un template
     function mostrarResultados(data){
-        if (!data)
-            $('#sidebarContenido').html("vacío")
+        res = data['resultados']
+        if ( res.length === 0 )
+            if ( pagina == 1 )
+                $('#sidebarContenido').html("vacío")
+            else
+                pagina -= 1
         else {
             resultados = new Object()
-            $.each(data, function(key, value) {
+            $.each(res, function(key, value) {
                 resultados[value.id] = value
             });
-            $("#listTempl").tmpl( [{ res: data }] ).appendTo($("#sidebarContenido").empty());
+            $("#listTempl").tmpl( [{ data: data }] ).appendTo($("#sidebarContenido").empty());
             $.cb.mostrar_resultado()
         }
     }
@@ -419,10 +470,13 @@ $(function() {
 </script>
 
 <script id="listTempl" type="text/x-jquery-tmpl">
+<div><small>Página ${data['p']}</small><small class="pull-right">${data['cant']} resultados</small></div>
+<div>
 <ul class="nav nav-pills nav-stacked">
-    {% templatetag openvariable %}tmpl(res) "#itemTempl"{% templatetag closevariable %}
+    {% templatetag openvariable %}tmpl(data['resultados']) "#itemTempl"{% templatetag closevariable %}
 </ul>
-    {% templatetag openvariable %}tmpl(res) "#paginacionTempl"{% templatetag closevariable %}
+{% templatetag openvariable %}tmpl(data) "#paginacionTempl"{% templatetag closevariable %}
+</div>
 </script>
 <script id="itemTempl" type="text/x-jquery-tmpl"> 
     <li id="res${id}">
@@ -437,16 +491,16 @@ $(function() {
         </a>
     </li>
 </script>
+
 <!--TODO: HACER FUNCIONAR EL PAGINADOR EN EL TEMPLATE, LA API YA ANDA -->
-<script id="paginacionTempl" type="text/x-jquery-tmpl"> 
-    <div class="pagination">
+<script id="paginacionTempl" type="text/x-jquery-tmpl">
+    <div class="pagination pagination-centered">
         <ul>
-            <li class="disabled"><a href="#">«</a></li>
-            <li class="active"><a href="#">1</a></li>
-            <li><a href="#">2</a></li>
-            <li><a href="#">3</a></li>
-            <li><a href="#">4</a></li>
-            <li><a href="#">»</a></li>
+            <li><a href="#" onclick="javascript:$.cb.pagina(-1);return false">«</a></li>
+            <li><a href="#" onclick="javascript:$.cb.pagina(1);return false">1</a></li>
+            <li class="disabled"><a>...</a></li>
+            <li><a href="#" onclick="javascript:$.cb.pagina(${cant/long_pagina+((cant%long_pagina)?1:0)});return false">${cant/long_pagina+((cant%long_pagina)?1:0)}</a></li>
+            <li><a href="#" onclick="javascript:$.cb.pagina(0);return false">»</a></li>
         </ul>
     </div>
 </script>
