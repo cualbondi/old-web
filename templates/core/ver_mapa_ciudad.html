@@ -389,7 +389,6 @@ $(function() {
         var point = new OpenLayers.Format.WKT().read(pointWKT).geometry
         point.transform(proj, map.getProjectionObject())
         point = new OpenLayers.Geometry.Point(point.x, point.y);
-        //console.debug(point)
         if ( id == 1 )
             markerA.setPoint(point)
         else if ( id == 2 )
