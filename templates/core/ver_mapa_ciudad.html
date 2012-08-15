@@ -326,19 +326,7 @@ $(function() {
 
     // handler para el boton de ayuda
     $.cb.click_button_ayuda = function() {
-        html = '<div>'
-    	    html += '<h3 align="center">¿Como busco recorridos?</h3>'
-            html += '<h4>Campos de búsqueda</h4>'
-            html += '<p style="margin-left:5px">Escriba directamente en los campos de texto del panel superior. Puede considerar interseccion de calles, calle y número o lugares de interes. Vea los ejemplos debajo de los campos de búsqueda.</p>'
-            html += '<hr>'
-            html += '<h4>Click sobre el mapa</h4>'
-            html += '<p style="margin-left:5px">Puede hacer click directamente sobre el mapa para indicar el Origen y Destino de su búsqueda. Luego puede arrastrar los marcadores A o B para editar su ubicación.</p>'
-            html += '<hr>'
-            html += '<h4>Lineas de micro</h4>'
-            html += '<p style="margin-left:5px">Para buscar un recorrido completo de una linea de colectivo en particular, consulte la sección "Lineas de micro" del panel lateral izquierdo.</p>'
-            html += '<hr>'
-        html += '</div>'
-        $("#sidebarContenido").html(html);
+        $("#ayudaTempl").tmpl().appendTo($("#sidebarContenido").empty());
     }
 
     // handler para mostrar resultados, usa el template de listado de results
@@ -521,6 +509,16 @@ $(function() {
     <li>
         <a id="" href="#" onclick="javascript:$.cb.marcarPunto('${geom}', ${id});return false">${nombre} <span style="font-size:0.6em">(${(precision*100).toFixed(2)}%)</span></a>
     </li>
+</script>
+
+<script id="ayudaTempl" type="text/x-jquery-tmpl">
+   <h3>¿Como busco recorridos?</h3>
+   <h4>Campos de búsqueda</h4>
+   <p>Escriba directamente en los campos de texto del panel superior. Puede considerar interseccion de calles, calle y número o lugares de interes. Vea los ejemplos debajo de los campos de búsqueda.</p>
+   <h4>Click sobre el mapa</h4>
+   <p> hacer click directamente sobre el mapa para indicar el Origen y Destino de su búsqueda. Luego puede arrastrar los marcadores A o B para editar su ubicación.</p>
+   <h4>Lineas de micro</h4>
+   <p>Para buscar un recorrido completo de una linea de colectivo en particular, consulte la sección "Recorridos" aqui arriba.</p>
 </script>
 
 {% endblock %}
