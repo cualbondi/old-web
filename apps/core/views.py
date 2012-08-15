@@ -20,6 +20,13 @@ from django.utils import simplejson
 from olwidget.widgets import EditableMap
 from olwidget.widgets import InfoMap
 
+def natural_sort_qs(qs, key):
+    import re, operator
+    def natural_key(string_):
+        return [int(s) if s.isdigit() else s for s in re.split(r'(\d+)', string_)]
+    op = operator.attrgetter(key)
+    return sorted(qs, key=lambda a:natural_key(op(a)) )
+
 def index(request):
     """ TODO: Aca hay que checkear si tiene seteada una
         cookie con la ciudad predeterminada.
@@ -57,7 +64,7 @@ def ver_ciudad(request, nombre_ciudad):
     slug_ciudad = slugify(nombre_ciudad)
     ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
 
-    lineas = ciudad_actual.lineas.all().order_by("nombre")
+    lineas = natural_sort_qs(ciudad_actual.lineas.all(), 'slug')
 
     mapa = InfoMap([
         [ciudad_actual.poligono, {
@@ -98,7 +105,8 @@ def ver_linea(request, nombre_ciudad, nombre_linea):
     linea_actual = get_object_or_404(Linea,
                                      slug=slug_linea,
                                      ciudad=ciudad_actual)
-    #recorridos = Recorrido.objects.filter(linea=linea_actual).order_by("nombre")
+    recorridos = natural_sort_qs(Recorrido.objects.filter(linea=linea_actual), 'slug')
+
     params = {"id_li": int(linea_actual.id)}
     query = """
         SELECT
@@ -118,7 +126,7 @@ def ver_linea(request, nombre_ciudad, nombre_linea):
                               {'ciudad_actual': ciudad_actual,
                                'linea_actual': linea_actual,
                                'poli': poli,
-                               #'recorridos': recorridos
+                               'recorridos': recorridos
                                },
                               context_instance=RequestContext(request))
 
