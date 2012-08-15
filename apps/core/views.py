@@ -98,11 +98,28 @@ def ver_linea(request, nombre_ciudad, nombre_linea):
     linea_actual = get_object_or_404(Linea,
                                      slug=slug_linea,
                                      ciudad=ciudad_actual)
-    recorridos = Recorrido.objects.filter(linea=linea_actual).order_by("nombre")
+    #recorridos = Recorrido.objects.filter(linea=linea_actual).order_by("nombre")
+    params = {"id_li": int(linea_actual.id)}
+    query = """
+        SELECT
+            l.id,
+            AsText(ST_Union(ST_Buffer(ruta, 0.0045))) as wkt
+        FROM
+            core_recorrido as r
+            join core_linea as l on (r.linea_id = l.id)
+        WHERE
+            l.id = %(id_li)s
+        GROUP BY
+            l.id
+        ;
+    """
+    poli = Recorrido.objects.raw(query, params)[0]
     return render_to_response('core/ver_linea.html',
                               {'ciudad_actual': ciudad_actual,
                                'linea_actual': linea_actual,
-                               'recorridos': recorridos},
+                               'poli': poli,
+                               #'recorridos': recorridos
+                               },
                               context_instance=RequestContext(request))
 
 

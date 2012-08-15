@@ -55,11 +55,11 @@
     var layer_recorridos = new OpenLayers.Layer.Vector("Recorridos", {styleMap: new OpenLayers.StyleMap(style) });
     map.addLayer(layer_recorridos)
 
-    {% for recorrido in recorridos %}
-        path_recorrido = new OpenLayers.Format.WKT().read('{{recorrido.ruta.wkt}}');
+
+        path_recorrido = new OpenLayers.Format.WKT().read("{{poli.wkt}}");
         path_recorrido.geometry.transform(proj, map.getProjectionObject())
         layer_recorridos.addFeatures([path_recorrido]);
-    {% endfor %}
+
 
     //Acomodar el zoom al poligono
     var extent = new OpenLayers.Bounds();
