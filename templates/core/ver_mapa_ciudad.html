@@ -166,8 +166,11 @@ $(function() {
     styleMap.addUniqueValueRules("default", "tipo", lookup);
 
     // creacion de las diferentes capas
-    var markers = new OpenLayers.Layer.Vector( "Markers", {styleMap: styleMap} );
-    var recorridos = new OpenLayers.Layer.Vector( "Recorridos", {styleMap: new OpenLayers.StyleMap({strokeWidth: 5}) });
+    var markers = new OpenLayers.Layer.Vector( "Markers", {
+        styleMap: styleMap
+        //,renderers: ["SVG2", "VML", "Canvas"] // allow render while panning when possible
+    });
+    var recorridos = new OpenLayers.Layer.Vector( "Recorridos", {styleMap: new OpenLayers.StyleMap({strokeWidth: 5})});
     map.addLayer(recorridos)
     map.addLayer(markers)
 
