@@ -21,6 +21,11 @@ from olwidget.widgets import EditableMap
 from olwidget.widgets import InfoMap
 
 def natural_sort_qs(qs, key):
+    """ Hace un sort sobre un queryset sobre el campo key
+        utilizando una tecnica para obtener un natural_sort
+        ej de algo ordenado naturalmente:             ['xx1', 'xx20', 'xx100']
+        lo mismo ordenado con sort comun (asciisort): ['xx1', 'xx100', 'xx20']
+    """
     import re, operator
     def natural_key(string_):
         return [int(s) if s.isdigit() else s for s in re.split(r'(\d+)', string_)]
