@@ -350,7 +350,7 @@ $(function() {
         // muestra los resultados de la busqueda como sugerencia
         function mostrarResultadoCatastro(data, id) {
             data.id = id
-            data = $.map(data, function(item, i){item.id = id; return item});
+            data = $.map(data, function(item, i){item.id = id; item.domId = Math.floor(Math.random()*10000);return item});
             if ( id == 1 ) data1=data
             else data2=data
             if ( data1 !== null && data2 !== null ) {
@@ -372,7 +372,7 @@ $(function() {
     }
 
     // mueve el markerA o B a el punto seleccionado
-    $.cb.marcarPunto = function(pointWKT, id) {
+    $.cb.marcarPunto = function(pointWKT, id, domId) {
         // pointWKT es 'POINT(12.234 56.789)'
         // id es 1 para origen(markerA) y 2 para destino(markerB)
         var point = new OpenLayers.Format.WKT().read(pointWKT).geometry
@@ -382,6 +382,9 @@ $(function() {
             markerA.setPoint(point)
         else if ( id == 2 )
             markerB.setPoint(point)
+        map.panTo(new OpenLayers.LonLat(point.x, point.y))
+        $("#sug" + domId).siblings().removeClass("active")
+        $("#sug" + domId).addClass("active")
     }
 
     // busca una vez que se eligieron las sugerencias
@@ -507,8 +510,8 @@ $(function() {
 <button class="btn btn-primary" type="submit" onclick="javascript:$.cb.seleccionarSugerencias();return false">Buscar</button>
 </script>
 <script id="itemSuggest" type="text/x-jquery-tmpl">
-    <li>
-        <a id="" href="#" onclick="javascript:$.cb.marcarPunto('${geom}', ${id});return false">${nombre} <span style="font-size:0.6em">(${(precision*100).toFixed(2)}%)</span></a>
+    <li id="sug${domId}">
+        <a href="#" onclick="javascript:$.cb.marcarPunto('${geom}', ${id}, ${domId});return false">${nombre} <span style="font-size:0.6em; color:#AAA">(${(precision*100).toFixed(2)}%)</span></a>
     </li>
 </script>
 
