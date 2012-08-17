@@ -134,7 +134,7 @@ $(function() {
 
     // definicion inicial del mapa
     OpenLayers.ImgPath = "/media/css/openlayers/"
-    map = new OpenLayers.Map("map", {theme: null})
+    var map = new OpenLayers.Map("map", {theme: null})
     var gmap = new OpenLayers.Layer.Google(
         "Google Streets", {numZoomLevels: 20}
     );
