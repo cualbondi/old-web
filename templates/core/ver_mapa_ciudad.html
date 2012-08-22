@@ -442,7 +442,7 @@ $(function() {
         res = data['resultados']
         if ( res.length === 0 )
             if ( pagina == 1 )
-                $('#sidebarContenido').html("vacío")
+                $("#vacioTempl").tmpl().appendTo($("#sidebarContenido").empty());
             else
                 pagina -= 1
         else {
@@ -536,6 +536,10 @@ $(function() {
    <p> hacer click directamente sobre el mapa para indicar el Origen y Destino de su búsqueda. Luego puede arrastrar los marcadores A o B para editar su ubicación.</p>
    <h4>Lineas de micro</h4>
    <p>Para buscar un recorrido completo de una linea de colectivo en particular, consulte la sección "Recorridos" aqui arriba.</p>
+</script>
+
+<script id="vacioTempl" type="text/x-jquery-tmpl">
+   <h3>No se encontraron resultados</h3>
 </script>
 
 {% endblock %}
