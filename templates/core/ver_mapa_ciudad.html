@@ -502,14 +502,25 @@ $(function() {
 </script>
 
 <script id="listSuggest" type="text/x-jquery-tmpl">
-<ul id="#sug1" class="nav nav-pills nav-stacked">
-    {% templatetag openvariable %}tmpl(data1) "#itemSuggest"{% templatetag closevariable %}
+<p>Seleccione la opción correcta</p>
+<div class="well sidebar-nav" style="padding-bottom:20px">
+    <ul class="nav nav-list">
+        <li class="nav-header">Origen:</li>
+    </ul>
+    <ul id="#sug1" class="nav nav-list">
+        {% templatetag openvariable %}tmpl(data1) "#itemSuggest"{% templatetag closevariable %}
+    </ul>
+    <ul class="nav nav-list">
+        <li class="nav-header">Destino:</li>
+    </ul>
+    <ul id="#sug2" class="nav nav-list">
+        {% templatetag openvariable %}tmpl(data2) "#itemSuggest"{% templatetag closevariable %}
+    </ul>
+    <div>
+        &nbsp;
+        <button style="margin:5px" class="btn btn-primary pull-right" type="submit" onclick="javascript:$.cb.seleccionarSugerencias();return false">Aceptar</button>
+    </div>
 </ul>
-<hr>
-<ul id="#sug2" class="nav nav-pills nav-stacked">
-    {% templatetag openvariable %}tmpl(data2) "#itemSuggest"{% templatetag closevariable %}
-</ul>
-<button class="btn btn-primary" type="submit" onclick="javascript:$.cb.seleccionarSugerencias();return false">Buscar</button>
 </script>
 <script id="itemSuggest" type="text/x-jquery-tmpl">
     <li id="sug${domId}">
