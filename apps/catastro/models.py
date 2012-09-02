@@ -98,6 +98,13 @@ class Ciudad(models.Model):
         return self.nombre + " (" + self.provincia.nombre + ")"
 
 
+class Zona(models.Model):
+    name = models.CharField(max_length=100, blank=False, null=False)
+    geo = models.GeometryField(srid=4326, geography=True)
+
+    objects = models.GeoManager()
+
+
 class Calle(models.Model):
     way = models.GeometryField(srid=4326, geography=True)
     nom_normal = models.TextField()

@@ -37,7 +37,7 @@ class PuntoBusquedaManager(models.Manager):
 #            SELECT nombre || ", " ci.nombre
         query = """
                 SELECT DISTINCT
-                    SEL1.nom || ' y ' || SEL2.nom as nombre,
+                    SEL1.nom || ' y ' || SEL2.nom || ', ' || z.name as nombre,
                     ST_AsText(ST_Intersection(SEL1.way, SEL2.way)) as geom,
                     ( SEL2.similarity + SEL1.similarity ) / 2 as precision,
                     'interseccion' as tipo
@@ -65,6 +65,11 @@ class PuntoBusquedaManager(models.Manager):
                     ) AS SEL2
                     on ( ST_Intersects(SEL1.way, SEL2.way) 
                         and ST_GeometryType(ST_Intersection(SEL1.way, SEL2.way)::Geometry)='ST_Point')
+
+                    left outer join
+                        catastro_zona as z
+                        on ST_Intersects(z.geo, ST_Intersection(SEL1.way, SEL2.way))
+
                 ORDER BY
                     precision DESC
                 LIMIT 5
