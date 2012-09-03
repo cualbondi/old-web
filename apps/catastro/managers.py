@@ -37,7 +37,7 @@ class PuntoBusquedaManager(models.Manager):
 #            SELECT nombre || ", " ci.nombre
         query = """
                 SELECT DISTINCT
-                    SEL1.nom || ' y ' || SEL2.nom || ', ' || z.name as nombre,
+                    SEL1.nom || ' y ' || SEL2.nom || coalesce(', ' || z.name, '') as nombre,
                     ST_AsText(ST_Intersection(SEL1.way, SEL2.way)) as geom,
                     ( SEL2.similarity + SEL1.similarity ) / 2 as precision,
                     'interseccion' as tipo
