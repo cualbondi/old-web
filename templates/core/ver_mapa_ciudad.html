@@ -129,6 +129,7 @@ $(function() {
         else
             $("#map").css("margin-right", "-20px")
     });
+    // fin bootstrap 100% height
 
 
     // definicion inicial del mapa
@@ -266,30 +267,6 @@ $(function() {
 
     // buscador de lineas por sugerencia al tipear
     $('#inputLinea').attr("autocomplete","off")
-
-/*
-    $('#inputLinea').typeahead({
-        source: function (typeahead, query) {
-            console.log(query)
-            $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
-            $.ajax({
-                url: "/api/recorridos/?ciudad="+GLOBAL_ci+"&q="+query,
-                success: function (data) {
-                    // data must be a list of either strings or objects
-                    // data = [{'nombre': 'Joe',.. }, {'name': 'Henry'}, ...]
-                    typeahead.process(data['resultados'])
-                    //mostrarResultados(data)
-                }
-            })
-        },
-        onselect: function (obj) {
-            //alert('Selected '+obj)
-            mostrarResultados([obj])
-        },
-        property: "nombre",
-        timeout: 100
-    })
-*/
 
     $('#inputLinea').keyup(function () {
         $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
