@@ -477,7 +477,7 @@ $(function() {
             <li><a href="#" onclick="javascript:$.cb.pagina(-1);return false">«</a></li>
             <li><a href="#" onclick="javascript:$.cb.pagina(1);return false">1</a></li>
             <li class="disabled"><a>...</a></li>
-            <li><a href="#" onclick="javascript:$.cb.pagina(${cant/long_pagina+((cant%long_pagina)?1:0)});return false">${cant/long_pagina+((cant%long_pagina)?1:0)}</a></li>
+            <li><a href="#" onclick="javascript:$.cb.pagina(${Math.ceil(cant/long_pagina)});return false">${Math.ceil(cant/long_pagina)}</a></li>
             <li><a href="#" onclick="javascript:$.cb.pagina(0);return false">»</a></li>
         </ul>
     </div>
