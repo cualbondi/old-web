@@ -184,20 +184,26 @@ $(function() {
         this.point = null
         this.layer = layer
         this.id = id
+        this.centro = null
     }
     Marker.prototype.setPoint = function(point) {
         // setea el punto con latlng y lo pone en el mapa
         // point = new OpenLayers.Geometry.Point(lon, lat);
-        if (!this.listo) {
-            this.point = new OpenLayers.Feature.Vector(point, {tipo:this.id+":false:false"})
-            this.layer.addFeatures([this.point])
+        if (this.listo) {
+            this.layer.removeFeatures(this.point)
         }
-        else {
-            this.point.geometry.x = point.x
-            this.point.geometry.y = point.y
-            this.point.geometry.clearBounds()
-            //this.layer.drawFeature(this.point);
-        }
+        
+        this.centro = point
+        this.point = new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Collection(
+                [
+                point,
+                OpenLayers.Geometry.Polygon.createRegularPolygon(point, 600, 20, 0)
+                ]
+            ),
+            {tipo:this.id+":false:false"}
+        )
+        this.layer.addFeatures([this.point])
         this.listo = true
         this.layer.redraw()
         this.layer.map.moveTo(this.point)
@@ -223,7 +229,7 @@ $(function() {
                         markerB.setPoint(point)
                         clickHandler.deactivate();
                         pagina = 1
-                        buscarporclick(markerA.point.geometry, markerB.point.geometry)
+                        buscarporclick(markerA.centro, markerB.centro)
                     }
             }
         }
@@ -240,7 +246,7 @@ $(function() {
                 feature.attributes.tipo=t[0]+":true:false"
                 markers.redraw()
                 pagina = 1
-                buscarporclick(markerA.point.geometry, markerB.point.geometry)
+                buscarporclick(markerA.centro, markerB.centro)
             },
             onEnter: function(feature, pixel) {
                 t = feature.attributes.tipo.split(":")
@@ -370,7 +376,7 @@ $(function() {
     $.cb.seleccionarSugerencias = function() {
         if ( markerA.listo && markerB.listo ) {
             pagina = 1
-            buscarporclick(markerA.point.geometry, markerB.point.geometry)
+            buscarporclick(markerA.centro, markerB.centro)
         }
     }
 
@@ -387,7 +393,7 @@ $(function() {
             pagina = n;
 
         if ( buscar )
-            buscarporclick(markerA.point.geometry, markerB.point.geometry)
+            buscarporclick(markerA.centro, markerB.centro)
         else
             inputLinea()
     }
