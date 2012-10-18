@@ -28,11 +28,11 @@
                                     <p><small>Ejemplos: 14 y 54 || 14 n568 || Catedral</small></p>
                                     <div class="btn-toolbar">
                                         <div class="btn-group">
-                                            <a class="btn" title="Cambiar origen por destino"><i class="icon-refresh"></i></a>
+                                            <a id="button-origendestino" class="btn" title="Cambiar origen por destino"><i class="icon-refresh"></i></a>
                                             <a id="button-ayuda" class="btn" title="Ayuda"><i class="icon-question-sign"></i></a>
                                         </div>
                                         <div class="btn-group pull-right">
-                                            <button class="btn btn-primary" type="submit" onclick="javascript:$.cb.click_button_buscar();return false">Buscar</button>
+                                            <button id="button-buscarinputs" class="btn btn-primary" type="submit">Buscar</button>
                                         </div>
                                     </div>
                                 </form>
@@ -179,11 +179,12 @@ $(function() {
 
     // clase Marker (para manejar el markerA y marerB mas facil)
     function Marker(layer, id) {
-        this.listo = false
-        this.point = null
-        this.layer = layer
-        this.id = id
+        this.listo  = false
+        this.point  = null
+        this.layer  = layer
+        this.id     = id
         this.centro = null
+        this.confirmado = false
     }
     Marker.prototype.setPoint = function(point) {
         // setea el punto con latlng y lo pone en el mapa
@@ -204,8 +205,8 @@ $(function() {
         )
         this.layer.addFeatures([this.point])
         this.listo = true
-        this.layer.drawFeature(this.point)
         this.layer.map.moveTo(this.point)
+        this.layer.drawFeature(this.point)
     }
 
     // dos objetos de la clase marker
@@ -221,11 +222,14 @@ $(function() {
             'click': function(evt) {
                 var lonlat = map.getLonLatFromViewPortPx(evt.xy);
                 point = new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat);
-                if ( !markerA.listo )
+                if ( !markerA.listo ) {
                     markerA.setPoint(point)
+                    markerA.confirmado = true
+                }
                 else
                     if ( !markerB.listo ) {
                         markerB.setPoint(point)
+                        markerB.confirmado = true
                         clickHandler.deactivate();
                         pagina = 1
                         buscarporclick(markerA.centro, markerB.centro)
@@ -244,6 +248,8 @@ $(function() {
                 t = feature.attributes.tipo.split(":")
                 feature.attributes.tipo=t[0]+":true:false"
                 markers.redraw()
+                if ( feature == markerA.punto ) markerA.confirmado = true
+                if ( feature == markerB.punto ) markerB.confirmado = true
                 pagina = 1
                 buscarporclick(markerA.centro, markerB.centro)
             },
@@ -322,8 +328,7 @@ $(function() {
         recorridos.addFeatures([poly]);
     }
 
-    // handler para buscar por origen y destino
-    $.cb.click_button_buscar = function() {
+    function buscar_por_inputs() {
         $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
         var data1 = null
         var data2 = null
@@ -369,6 +374,8 @@ $(function() {
 
     // busca una vez que se eligieron las sugerencias
     $.cb.seleccionarSugerencias = function() {
+        markerA.confirmado = true
+        markerB.confirmado = true
         if ( markerA.listo && markerB.listo ) {
             pagina = 1
             buscarporclick(markerA.centro, markerB.centro)
@@ -454,6 +461,40 @@ $(function() {
     // bind eventos click
     $("#button-ayuda").bind("click", function(e) {
         $("#ayudaTempl").tmpl().appendTo($("#sidebarContenido").empty());
+        e.preventDefault()
+    })
+    
+    $("#button-origendestino").bind("click", function(e) {
+        desde = $("#inputDesde").val()
+        hasta = $("#inputHasta").val()
+        if ( $.trim(desde) != '' && $.trim(hasta) != '' ) {
+            $("#inputDesde").val(hasta)
+            $("#inputHasta").val(desde)
+        }
+        if ( markerA.confirmado && markerB.confirmado ) {
+            ma = new OpenLayers.Geometry.Point(markerA.centro.x, markerA.centro.y)
+            mb = new OpenLayers.Geometry.Point(markerB.centro.x, markerB.centro.y)
+            markerA.setPoint(mb)
+            markerB.setPoint(ma)
+            // buscar sobre los markers
+            buscarporclick(markerA.centro, markerB.centro)
+        }
+        else {
+            // buscar sobre los textbox
+            buscar_por_inputs()
+        }
+        e.preventDefault()
+    })
+
+    function invalidarMarkers() {
+        markerA.confirmado = false
+        markerB.confirmado = false
+    }
+    $("#inputDesde").bind("change", invalidarMarkers)
+    $("#inputHasta").bind("change", invalidarMarkers)
+
+    $("#button-buscarinputs").bind("click", function(e) {
+        buscar_por_inputs()
         e.preventDefault()
     })
 
