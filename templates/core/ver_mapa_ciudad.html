@@ -29,7 +29,7 @@
                                     <div class="btn-toolbar">
                                         <div class="btn-group">
                                             <a class="btn" title="Cambiar origen por destino"><i class="icon-refresh"></i></a>
-                                            <a class="btn" title="Ayuda" onclick="javascript:$.cb.click_button_ayuda();"><i class="icon-question-sign"></i></a>
+                                            <a id="button-ayuda" class="btn" title="Ayuda"><i class="icon-question-sign"></i></a>
                                         </div>
                                         <div class="btn-group pull-right">
                                             <button class="btn btn-primary" type="submit" onclick="javascript:$.cb.click_button_buscar();return false">Buscar</button>
@@ -310,11 +310,6 @@ $(function() {
     // namespace de cualbondi que se ve desde afuera por mas que minifiquemos
     $.cb = new Object()
 
-    // handler para el boton de ayuda
-    $.cb.click_button_ayuda = function() {
-        $("#ayudaTempl").tmpl().appendTo($("#sidebarContenido").empty());
-    }
-
     // handler para mostrar resultados, usa el template de listado de results
     $.cb.mostrar_resultado = function(id) {
         if ( typeof(id)==='undefined' )
@@ -456,6 +451,11 @@ $(function() {
         }
     }
 
+    // bind eventos click
+    $("#button-ayuda").bind("click", function(e) {
+        $("#ayudaTempl").tmpl().appendTo($("#sidebarContenido").empty());
+        e.preventDefault()
+    })
 
 })
 </script>
