@@ -302,6 +302,7 @@ $(function() {
     // variables "globales"
     var resultados = new Object()
     var poly       = null
+    var polyhover  = null
     var pagina     = 1
     var ajaxInputLinea = false
     var buscar     = true //false si busca de A a B, true si busca por nombre de recorrido (es para llamar la funcion correcta al paginar)
@@ -434,6 +435,24 @@ $(function() {
                 resultados[value.id] = value
             });
             $("#listTempl").tmpl( [{ data: data }] ).appendTo($("#sidebarContenido").empty());
+            $("[id^=res]").each( function(i) {
+                $(this).children().bind("click", function(e) {
+                    id = $(this).attr("id")
+                    $.cb.mostrar_resultado(id)
+                    e.preventDefault()
+                })
+                $(this).children().bind("mouseenter", function(e) {
+                    id = $(this).attr("id")
+                    if (polyhover !== null) recorridos.removeFeatures([polyhover])
+                    polyhover = new OpenLayers.Format.WKT().read(resultados[id].ruta_corta);
+                    polyhover.geometry.transform(proj, map.getProjectionObject())
+                    recorridos.addFeatures([polyhover])
+                    recorridos.drawFeature(polyhover, { fillOpacity: 0.2, strokeWidth: 5 })
+                })
+                $(this).children().bind("mouseleave", function(e) {
+                    if (polyhover !== null) recorridos.removeFeatures([polyhover])
+                })
+            })
             $.cb.mostrar_resultado()
         }
     }
@@ -459,7 +478,7 @@ $(function() {
 </script>
 <script id="itemTempl" type="text/x-jquery-tmpl"> 
     <li id="res${id}">
-        <a href="#" onclick="javascript:$.cb.mostrar_resultado(${id});return false">
+        <a href="#" id="${id}">
             <strong>${nombre}</strong>
             <br>
             de ${inicio} a ${fin}
