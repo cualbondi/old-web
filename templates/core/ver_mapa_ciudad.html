@@ -205,7 +205,7 @@ $(function() {
         )
         this.layer.addFeatures([this.point])
         this.listo = true
-        this.layer.redraw()
+        this.layer.drawFeature(this.point)
         this.layer.map.moveTo(this.point)
     }
 
