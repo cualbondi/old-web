@@ -448,7 +448,7 @@ $(function() {
                     polyhover = new OpenLayers.Format.WKT().read(resultados[id].ruta_corta);
                     polyhover.geometry.transform(proj, map.getProjectionObject())
                     recorridos.addFeatures([polyhover])
-                    recorridos.drawFeature(polyhover, { fillOpacity: 0.2, strokeWidth: 5 })
+                    recorridos.drawFeature(polyhover, { strokeOpacity: 0.5, strokeWidth: 5, strokeColor: 'black' })
                 })
                 $(this).children().bind("mouseleave", function(e) {
                     if (polyhover !== null) recorridos.removeFeatures([polyhover])
