@@ -1,0 +1,55 @@
+body {
+    padding-top: 60px;
+    padding-bottom: 40px;
+}
+.escrachado { background-color: red; }
+.required { color: #B94A48; }
+
+.container {
+    padding-right: 0;
+}
+
+#map {
+    background:lightblue;
+}
+
+.sidebar-nav {
+    padding-bottom:20px
+}
+
+#button-seleccionarSugerencias {
+    margin:5px;
+}
+
+.distancia {
+    font-size:0.6em;
+    color:#AAA
+}
+
+#bloque_izquierda {
+    overflow: auto;
+    padding-right: 2.564102564%;
+}
+
+#bloque_derecha {
+    margin:0;
+    width: 74.361%;
+}
+
+.container-fluid {
+    padding-right: 0;
+}
+
+body {
+    padding-top: 60px;
+    padding-bottom: 40px;
+    background: white;
+}
+
+@media (min-width: 1200px) {
+#bloque_izquierda {
+    padding-right: 2.564102564%;
+}
+
+}
+

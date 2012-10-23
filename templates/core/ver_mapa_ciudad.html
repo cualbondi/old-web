@@ -7,7 +7,7 @@
 {% block content %}
         <div class="row-fluid">
             <div id="bloque_izquierda" class="span3">
-                <div id="sidebar" style="background:white;">
+                <div id="sidebar">
 
                     <div class="tabbable">
                         <ul class="nav nav-tabs">
@@ -62,7 +62,7 @@
                 </div>
             </div>
             <div id="bloque_derecha" class="span9">
-                <div id="map" style="background:lightblue;">
+                <div id="map">
 
                 </div>
             </div>
@@ -82,18 +82,17 @@ GLOBAL_ci = "{{ ciudad_actual.slug }}"
 
 $(function() {
     // todo esto inicial es para hacer bootstrap 100% height
-    $("#sidebar").css("margin-top", "18px")
-    $("#sidebar").css("overflow", "auto")
+    $("#bloque_izquierda").css("margin-top", "18px")
     $("body").css("padding-bottom","0px")
     $(".navbar").css("margin-bottom","0px")
     if ( $(window).width() > 980 ) {
         $("#map").height(($(window).height()-40)+"px")
-        $("#sidebar").height(($(window).height()-58)+"px")
+        $("#bloque_izquierda").height(($(window).height()-58)+"px")
         $("body").css("padding-top","40px")
     }
     else {
         $("#map").height(($(window).height()-50)+"px")
-        $("#sidebar").height(($(window).height()-58)+"px")
+        $("#bloque_izquierda").height(($(window).height()-58)+"px")
         $("body").css("padding-top","0px")
     }
     if ( $(window).width() < 456 )
@@ -102,17 +101,16 @@ $(function() {
         $("#map").css("margin-right", "-20px")
 
     $(window).bind('resize', function() {
-        $("#sidebar").css("margin-top", "18px")
-        $("#sidebar").css("overflow", "auto")
+        $("#bloque_izquierda").css("margin-top", "18px")
         $("body").css("padding-bottom","0px")
         $(".navbar").css("margin-bottom","0px")
         if ( $(window).width() > 980 ) {
             $("#map").height(($(window).height()-40)+"px")
-            $("#sidebar").height(($(window).height()-58)+"px")
+            $("#bloque_izquierda").height(($(window).height()-58)+"px")
             $("body").css("padding-top","40px")
             //esto no anda bien
 
-                $("#sidebar").height(($(window).height()-58)+"px")
+                $("#bloque_izquierda").height(($(window).height()-58)+"px")
 
         }
         else {
@@ -120,7 +118,7 @@ $(function() {
             $("body").css("padding-top","0px")
             //esto no anda bien
 
-                $("#sidebar").height(($(window).height()-68)+"px")
+                $("#bloque_izquierda").height(($(window).height()-68)+"px")
 
         }
         if ( $(window).width() < 456 )
@@ -544,7 +542,7 @@ $(function() {
 
 <script id="listSuggest" type="text/x-jquery-tmpl">
 <p>Seleccione la opción correcta</p>
-<div class="well sidebar-nav" style="padding-bottom:20px">
+<div class="well sidebar-nav">
     <ul class="nav nav-list">
         <li class="nav-header">Origen:</li>
     </ul>
@@ -559,13 +557,13 @@ $(function() {
     </ul>
     <div>
         &nbsp;
-        <button style="margin:5px" class="btn btn-primary pull-right" type="submit" onclick="javascript:$.cb.seleccionarSugerencias();return false">Aceptar</button>
+        <button id="button-seleccionarSugerencias" class="btn btn-primary pull-right" type="submit" onclick="javascript:$.cb.seleccionarSugerencias();return false">Aceptar</button>
     </div>
 </ul>
 </script>
 <script id="itemSuggest" type="text/x-jquery-tmpl">
     <li id="sug${domId}">
-        <a href="#" onclick="javascript:$.cb.marcarPunto('${geom}', ${id}, ${domId});return false">${nombre} <span style="font-size:0.6em; color:#AAA">(${(precision*100).toFixed(2)}%)</span></a>
+        <a href="#" onclick="javascript:$.cb.marcarPunto('${geom}', ${id}, ${domId});return false">${nombre} <span class="distancia">(${(precision*100).toFixed(2)}%)</span></a>
     </li>
 </script>
 
@@ -590,5 +588,5 @@ $(function() {
 {% endblock %}
 
 {% block custom_styles %}
-
+    <link href="/media/css/override-mapa.css" rel="stylesheet" type="text/css" />
 {% endblock %}
