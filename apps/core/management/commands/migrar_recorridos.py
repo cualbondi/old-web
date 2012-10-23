@@ -65,7 +65,14 @@ class Command(BaseCommand):
                 # la linea aun no fue agregada, hay que crearla
                 linea = Linea(
                     nombre = row['li_nombre'],
-                    descripcion = row['li_descripcion']
+                    descripcion = row['li_descripcion'],
+                    color_polilinea = row['re_color_polilinea'],
+                    foto = row['li_foto'],
+                    info_empresa = row['li_info_empresa'],
+                    info_terminal = row['li_info_terminal'],
+                    localidad = row['li_localidad'],
+                    cp = row['li_cp'],
+                    telefono = row['li_telefono']
                 )
                 linea.save()
 
@@ -76,6 +83,10 @@ class Command(BaseCommand):
                 inicio = row['re_zona_inicio'],
                 fin = row['re_zona_fin'],
                 semirrapido = row['li_semirrapido'],
-                ruta = row['re_camino']
+                ruta = row['re_camino'],
+                color_polilinea = row['re_color_polilinea'],
+                horarios = row['re_horarios'],
+                pois = row['ra_descripcion'],
+                descripcion = row['re_descripcion']
             )
             recorrido.save()
