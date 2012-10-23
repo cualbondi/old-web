@@ -103,7 +103,7 @@ class RecorridoManager(models.GeoManager):
         query = """
                 SELECT
                     re.id,
-                    li.nombre || ' ' || ra.nombre as nombre,
+                    li.nombre || ' ' || re.nombre as nombre,
                     ruta_corta,
                     long_bondi,
                     long_pata,
@@ -197,7 +197,8 @@ class RecorridoManager(models.GeoManager):
                         GROUP BY
                             id,
                             linea_id,
-                            nombre
+                            nombre,
+                            color_polilinea
                         ORDER BY
                         (
                             cast(min(long_pata)  as integer)*10 +
