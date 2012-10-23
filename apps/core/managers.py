@@ -102,11 +102,12 @@ class RecorridoManager(models.GeoManager):
         params = {'puntoA':puntoA.ewkt, 'puntoB':puntoB.ewkt, 'rad1':distanciaA, 'rad2':distanciaB}
         query = """
                 SELECT
-                    ra.id,
+                    re.id,
                     li.nombre || ' ' || ra.nombre as nombre,
                     ruta_corta,
                     long_bondi,
-                    long_pata
+                    long_pata,
+                    coalesce(re.color_polilinea, li.color_polilinea, '#000') as color_polilinea
                 FROM
                     core_linea as li join
                     (
@@ -116,7 +117,8 @@ class RecorridoManager(models.GeoManager):
                             ST_AsText(min_path(ruta_corta)) as ruta_corta,
                             round(min(long_bondi)::numeric, 2) as long_bondi,
                             round(min(long_pata)::numeric, 2) as long_pata,
-                            linea_id
+                            linea_id,
+                            color_polilinea
                         FROM 
                         (
                             (
@@ -201,8 +203,8 @@ class RecorridoManager(models.GeoManager):
                             cast(min(long_pata)  as integer)*10 +
                             cast(min(long_bondi) as integer)
                         ) ASC
-                    ) as ra
-                    on li.id = ra.linea_id
+                    ) as re
+                    on li.id = re.linea_id
             ;"""
 
         query_set = self.raw(query, params)

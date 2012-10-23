@@ -326,6 +326,7 @@ $(function() {
         poly = new OpenLayers.Format.WKT().read(resultados[id].ruta_corta);
         poly.geometry.transform(proj, map.getProjectionObject())
         recorridos.addFeatures([poly]);
+        recorridos.drawFeature(poly, { strokeOpacity: 0.8, strokeWidth: 5, strokeColor: resultados[id].color_polilinea })
     }
 
     function buscar_por_inputs() {
@@ -448,7 +449,7 @@ $(function() {
                     polyhover = new OpenLayers.Format.WKT().read(resultados[id].ruta_corta);
                     polyhover.geometry.transform(proj, map.getProjectionObject())
                     recorridos.addFeatures([polyhover])
-                    recorridos.drawFeature(polyhover, { strokeOpacity: 0.5, strokeWidth: 5, strokeColor: 'black' })
+                    recorridos.drawFeature(polyhover, { strokeOpacity: 0.5, strokeWidth: 5, strokeColor: resultados[id].color_polilinea })
                 })
                 $(this).children().bind("mouseleave", function(e) {
                     if (polyhover !== null) recorridos.removeFeatures([polyhover])
