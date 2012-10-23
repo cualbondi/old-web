@@ -107,7 +107,8 @@ class RecorridoManager(models.GeoManager):
                     ruta_corta,
                     long_bondi,
                     long_pata,
-                    coalesce(re.color_polilinea, li.color_polilinea, '#000') as color_polilinea
+                    coalesce(re.color_polilinea, li.color_polilinea, '#000') as color_polilinea,
+                    coalesce(li.foto, 'default') as foto
                 FROM
                     core_linea as li join
                     (
