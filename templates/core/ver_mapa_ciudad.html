@@ -323,8 +323,12 @@ $(function() {
         recorridos.removeAllFeatures()
         poly = new OpenLayers.Format.WKT().read(resultados[id].ruta_corta);
         poly.geometry.transform(proj, map.getProjectionObject())
+        var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+        style.strokeOpacity = 0.8;
+        style.strokeWidth   = 5;
+        style.strokeColor   = resultados[id].color_polilinea ? resultados[id].color_polilinea : "#000000";
+        poly.style = style;
         recorridos.addFeatures([poly]);
-        recorridos.drawFeature(poly, { strokeOpacity: 0.8, strokeWidth: 5, strokeColor: resultados[id].color_polilinea })
     }
 
     function buscar_por_inputs() {
@@ -446,8 +450,12 @@ $(function() {
                     if (polyhover !== null) recorridos.removeFeatures([polyhover])
                     polyhover = new OpenLayers.Format.WKT().read(resultados[id].ruta_corta);
                     polyhover.geometry.transform(proj, map.getProjectionObject())
+                    var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+                    style.strokeOpacity = 0.5
+                    style.strokeWidth   = 5
+                    style.strokeColor   = resultados[id].color_polilinea ? resultados[id].color_polilinea : "#000000"
+                    polyhover.style = style
                     recorridos.addFeatures([polyhover])
-                    recorridos.drawFeature(polyhover, { strokeOpacity: 0.5, strokeWidth: 5, strokeColor: resultados[id].color_polilinea })
                 })
                 $(this).children().bind("mouseleave", function(e) {
                     if (polyhover !== null) recorridos.removeFeatures([polyhover])
