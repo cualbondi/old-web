@@ -87,6 +87,7 @@ class Ciudad(models.Model):
     centro = models.PointField(blank=True, null=False)
     provincia = models.ForeignKey(Provincia)
     activa = models.BooleanField(default=False)
+    sugerencia = models.CharField(max_length=100, blank=False, null=False)
     objects = models.GeoManager()
 
     def save(self, *args, **kwargs):
