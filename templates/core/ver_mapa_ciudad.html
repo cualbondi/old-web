@@ -346,13 +346,13 @@ $(function() {
             }
         }
         $.ajax({
-            url: "/api/catastro/?query="+$("#inputDesde").val(),
+            url: "/api/catastro/?query="+$("#inputDesde").val()+"&ciudad="+GLOBAL_ci,
             success: function (data) {
                 mostrarResultadoCatastro(data, 1)
             }
         })
         $.ajax({
-            url: "/api/catastro/?query="+$("#inputHasta").val(),
+            url: "/api/catastro/?query="+$("#inputHasta").val()+"&ciudad="+GLOBAL_ci,
             success: function (data) {
                 mostrarResultadoCatastro(data, 2)
             }

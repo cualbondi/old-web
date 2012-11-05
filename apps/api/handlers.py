@@ -202,11 +202,12 @@ class CatastroHandler(BaseHandler):
 
     def read(self, request):
         q = request.GET.get('query', None)
+        ciudad_actual_slug = request.GET.get('ciudad_slug', None)
         if q is None:
             return rc.BAD_REQUEST
         else:
             try:
-                return PuntoBusqueda.objects.buscar(q)
+                return PuntoBusqueda.objects.buscar(q, ciudad_actual_slug)
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND
 

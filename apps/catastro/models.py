@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 from django.contrib.gis.db import models
 from django.template.defaultfilters import slugify
-from apps.catastro.managers import PuntoBusquedaManager
+#from apps.catastro.managers import PuntoBusquedaManager
 
 """ Dejemos estos modelos comentados hasta que resolvamos
 la migracion de Provincia y Ciudad """
@@ -73,6 +73,26 @@ class Provincia(models.Model):
     def __unicode__(self):
         return self.nombre
 
+class CiudadManager(models.GeoManager):
+    def fuzzy_like_query(self, q):
+        params = {"q": q}
+        query = """
+            SELECT
+                id,
+                nombre,
+                poligono
+            FROM
+                catastro_ciudad
+            WHERE
+                nombre %% %(q)s
+            ORDER BY
+                similarity(nombre, %(q)s) DESC
+            LIMIT
+                1
+            ;
+        """
+        query_set = self.raw(query, params)
+        return list(query_set)
 
 class Ciudad(models.Model):
     nombre = models.CharField(max_length=100, blank=False, null=False)
@@ -88,7 +108,7 @@ class Ciudad(models.Model):
     provincia = models.ForeignKey(Provincia)
     activa = models.BooleanField(default=False)
     sugerencia = models.CharField(max_length=100, blank=False, null=False)
-    objects = models.GeoManager()
+    objects = CiudadManager()
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.nombre)
@@ -99,11 +119,32 @@ class Ciudad(models.Model):
         return self.nombre + " (" + self.provincia.nombre + ")"
 
 
+class ZonaManager(models.GeoManager):
+    def fuzzy_like_query(self, q):
+        params = {"q": q}
+        query = """
+            SELECT
+                id,
+                name as nombre,
+                geo as poligono
+            FROM
+                catastro_zona
+            WHERE
+                name %% %(q)s
+            ORDER BY
+                similarity(name, %(q)s) DESC
+            LIMIT
+                1
+            ;
+        """
+        query_set = self.raw(query, params)
+        return list(query_set)
+
 class Zona(models.Model):
     name = models.CharField(max_length=100, blank=False, null=False)
     geo = models.GeometryField(srid=4326, geography=True)
 
-    objects = models.GeoManager()
+    objects = ZonaManager()
 
 
 class Calle(models.Model):
@@ -122,8 +163,260 @@ class Poi(models.Model):
     latlng = models.PointField()
     objects = models.GeoManager()
 
+# -*- coding: UTF-8 -*-
+from django.db.models import get_model
+from django.contrib.gis.db import models
+import re
+from operator import attrgetter, methodcaller
+from django.contrib.gis.geos import GEOSGeometry
+import logging
+#from apps.catastro.models import Ciudad # Este import falla, creo que por una referencia circular. Preguntar a Martin como lo podemos resolver.
 
+class PuntoBusquedaManager(models.Manager):
+    """ Este manager se encarga de convertir una query tipo texto
+    en una lista de puntos geográficos que pueden ser usados como origen
+    o destino de una búsqueda. Los datos tenidos en cuenta son:
+    **Interseccion de calles
+    **Comercios
+    **Pois
+    **CustomPois
+    **Google Geocoder
+
+    A futuro puede sumarse:
+    **Paradas
+
+    """
+
+    def buscar(self, query, ciudad_actual_slug=None):
+        # podria reemplazar todo esto por un lucene/solr/elasticsearch
+        # que tenga un campo texto y un punto asociado
+        
+        # Dados estos ejemplos:
+        #  - 12 y 64, casco urbano, la plata, buenos aires, argentina
+        #  - plaza italia, casco urbano, la plata, buenos aires, argentina
+        # la idea es separar lo que hay entre comas, en una lista de tokens
+        # 1. tomat token[0] y fijarse si es
+        #   una interseccion (contiene ' y ')
+        #   una direccion postal (contiene ' n ')
+        #   una punto de interes o zona o ciudad o "raw geocoder"
+        # 2. tomar la lista de resultados devueltos, que contienen una "precision"
+        #   Para cada uno del resto de los tokens:
+        #   elevar un 20% la precision si el token coincide con el slug de la ciudad (o zona) donde el punto cae
+        #   caso contrario, disminuir en un 20% la precision de ese punto
+        
+        if query is not None:
+            tokens = filter( None, map( unicode.strip, query.split(',') ) )
+
+            calles = tokens[0].upper()[:]
+            separators = ['Y','ESQ','ESQ.','ESQUINA','ESQUINA.','INTERSECCION','CON','CRUCE']
+            for sep in separators:
+                calles = calles.replace(' '+ sep +' ', '@')
+            calles = calles.split('@')
+
+            if len(calles) == 2:
+                res = self.interseccion(calles[0].strip(), calles[1].strip())
+            else:
+
+                direccion = tokens[0].upper()[:]
+                separators = ['N','NUM','NUM.','NRO','NUMERO','NUMERO.','NO','NO.']
+                for sep in separators:
+                    direccion = direccion.replace(' '+ sep +' ', '@')
+                direccion = direccion.split('@')
+
+                if len(direccion) == 2:
+                    res = self.direccionPostal(direccion[0].strip(), direccion[1].strip())
+                else:
+                    # worst case (ordenar por precision?)
+                    res = []
+                    for tok in tokens:
+                        # PROBLEMA! estos devuelven diccionarios que se acceden asi: punto['item']
+                        # PROBLEMA! pero los otros devuelven objetos que se acceden asi punto.attr
+                        res += self.poi(tok) + self.zona(tok) + self.rawGeocoder(tok)
+            #
+            # aca chequear si los resultados intersectan con el poligono de la ciudad_actual y de la ciudad_entrada o de la zona
+            # ciudad entrada estaría en token[1]. Sumar puntos si eso es una ciudad, o si es una zona, a la cual cada punto pertenece.
+            areas = []
+
+            # ciudad actual, en la que esta el mapa, deberia ser pasada por parametro
+            try:
+                # No puedo importar ciudad. Un workaround sería siempre esperar que me pasen una ciudad, pero igualmente voy a tener que buscar ciudad despues. (si viene algo en token[1], lo voy a buscar en ciudades y zonas)
+                areas.append( Ciudad.objects.get(slug=ciudad_actual_slug).poligono )
+            except:
+                pass
+
+            # zona o ciudad ingresada (tokens>1)
+            for token in tokens[1:]:
+                try:
+                    areas += [GEOSGeometry(i.poligono) for i in Zona.objects.fuzzy_like_query(token)]
+                except:
+                    pass
+                try:
+                    areas += [GEOSGeometry(i.poligono) for i in Ciudad.objects.fuzzy_like_query(token)]
+                except:
+                    pass
+
+            # para cada resultado aplicar la subida o bajada de puntaje segun el area en la que se encuentra
+            for r in res:
+                # para cada area en la que este resultado intersecta, sumar o restar
+                for area in areas:
+                    if area.intersects(GEOSGeometry(r.geom)):
+                        # sumar un 20% a la precision, sino restar un 20%
+                        r.precision *= 1.2
+                    else:
+                        r.precision *= 0.8
+
+            # ordenar
+            res.sort(key = attrgetter("precision"), reverse = True)
+            # si el mejor tiene diferencia de .5 o mas con el segundo y esta sobre el .5 de precision, listo, gano
+            # generar alguna otra regla heuristica similar para filtrar
+            return res
+        else:
+            pass
+
+    def interseccion(self, calle1, calle2):
+        params = {'calle1':calle1, 'calle2':calle2}
+        query = """
+                SELECT DISTINCT
+                    SEL1.nom || ' y ' || SEL2.nom || coalesce(', ' || z.name, '') as nombre,
+                    ST_AsText(ST_Intersection(SEL1.way, SEL2.way)) as geom,
+                    ( SEL2.similarity + SEL1.similarity ) / 2 as precision,
+                    'interseccion' as tipo
+                FROM
+                    (
+                        SELECT
+                            nom,
+                            similarity(nom_normal, %(calle1)s) as similarity,
+                            way
+                        FROM
+                            catastro_calle as c
+                        WHERE
+                            nom_normal %% %(calle1)s
+                    ) AS SEL1
+                    join
+                    (
+                        SELECT
+                            nom,
+                            similarity(nom_normal, %(calle2)s) as similarity,
+                            way
+                        FROM
+                            catastro_calle as c
+                        WHERE
+                            nom_normal %% %(calle2)s
+                    ) AS SEL2
+                    on ( ST_Intersects(SEL1.way, SEL2.way) 
+                        and ST_GeometryType(ST_Intersection(SEL1.way, SEL2.way)::Geometry)='ST_Point')
+
+                    left outer join
+                        catastro_zona as z
+                        on ST_Intersects(z.geo, ST_Intersection(SEL1.way, SEL2.way))
+
+                ORDER BY
+                    precision DESC
+                LIMIT 5
+        ;"""
+        query_set = self.raw(query, params)
+        return list(query_set)
+
+
+    def poi(self, nombre):
+        params = {'nombre':nombre}
+        query = """
+            SELECT
+                nom as nombre,
+                similarity(nom_normal, %(nombre)s) as precision,
+                ST_AsText(latlng) as geom,
+                'poi' as tipo
+            FROM
+                catastro_poi as p
+            WHERE
+                nom_normal %% %(nombre)s
+            ORDER BY
+                precision DESC
+            LIMIT 5
+        ;"""
+        query_set = self.raw(query, params)
+        return list(query_set)
+
+    def zona(self, nombre):
+        params = {'nombre':nombre}
+        query = """
+            SELECT
+                name as nombre,
+                similarity(name, %(nombre)s) as precision,
+                ST_AsText(ST_Centroid(geo::geometry)) as geom,
+                'zona' as tipo
+            FROM
+                catastro_zona
+            WHERE
+                name %% %(nombre)s
+            ORDER BY
+                precision DESC
+            LIMIT 5
+        ;"""
+        query_set = self.raw(query, params)
+        return list(query_set)
+
+    def rawGeocoder(self, query):
+        # http://stackoverflow.com/questions/9884475/using-google-maps-geocoder-from-python-with-urllib2
+        import urllib2
+        import json
+        add = query+", Argentina"
+        add = urllib2.quote(add)
+        geocode_url = "http://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false" % add
+        req = urllib2.urlopen(geocode_url)
+        res = json.loads(req.read())
+        # comprehension para parsear lo devuelto por el google geocoder
+        ret = [ self.model(nombre=i["formatted_address"],
+                  precision=len( i["address_components"] ) / 6,
+                  geom="POINT("+str(i["geometry"]["location"]["lng"])+" "+str(i["geometry"]["location"]["lat"])+")",
+                  tipo="rawGeocoder" )
+                for i in res["results"]
+              ]
+        return ret
+
+    def direccionPostal(self, calle, numero, ciudad_slug):
+        # http://stackoverflow.com/questions/9884475/using-google-maps-geocoder-from-python-with-urllib2
+        import urllib2
+        import json
+        add = calle+" "+numero+", "+ciudad_slug+", Argentina"
+        add = urllib2.quote(add)
+        geocode_url = "http://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false" % add
+        req = urllib2.urlopen(geocode_url)
+        res = json.loads(req.read())
+        # comprehension para parsear lo devuelto por el google geocoder
+        ret = [ self.model(nombre=i["formatted_address"],
+                  precision=1,
+                  geom="POINT("+str(i["geometry"]["location"]["lng"])+" "+str(i["geometry"]["location"]["lat"])+")",
+                  tipo="direccionPostal" )
+                for i in res["results"]
+                    if "street_address" in i["types"]
+              ]
+        return ret
+
+
+    def _buscar_calles(self, query):
+        calle_model = get_model('catastro', 'Calle')
+        return calle_model.objects.all()
+
+    def _buscar_comercios(self, query):
+        comercio_model = get_model('core', 'Comercio')
+        return comercio_model.objects.all()
+
+    def _buscar_pois(self, query):
+        pass
+
+    def _buscar_custom_pois(self, query):
+        pass
+
+    def _buscar_google_geocoder(self, query):
+        pass
+        
 class PuntoBusqueda(models.Model):
+    nombre = models.TextField()
+    precision = models.FloatField()
+    geom = models.TextField()
+    tipo = models.TextField()
+
     objects = PuntoBusquedaManager()
 
     class Meta:
