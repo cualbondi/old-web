@@ -277,12 +277,14 @@ class RecorridoManager(models.GeoManager):
             SELECT
                 r.id,
                 l.nombre || ' ' || r.nombre as nombre,
-                Astext(r.ruta) as ruta_corta
+                Astext(r.ruta) as ruta_corta,
+                l.foto as foto,
+                ST_Length(r.ruta::Geography) as long_ruta
             FROM
                 core_recorrido as r
                 join core_linea as l on (r.linea_id = l.id)
                 join catastro_ciudad_lineas as cl on (cl.linea_id = l.id )
-                join catastro_ciudad as c on (c.id = cl.ciudad_id) 
+                join catastro_ciudad as c on (c.id = cl.ciudad_id)
             WHERE
                 (l.nombre || ' ' || r.nombre) ILIKE ('%%' || %(q)s || '%%')
                 AND c.slug = %(ci)s

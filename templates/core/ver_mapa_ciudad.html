@@ -554,7 +554,7 @@ $(function() {
                     <br>
                     de ${inicio} a ${fin}
                     <br>
-                    distancia: ${Math.round(long_pata)} m (pie) + ${Math.round(long_bondi/100)/10} km (bondi)
+                    distancia: {% templatetag openvariable %}if long_pata{% templatetag closevariable %}${Math.round(long_pata)} m (pie) + {% templatetag openvariable %}/if{% templatetag closevariable %}${Math.round(long_bondi/100)/10} km (bondi)
                 </div>
             {% templatetag openvariable %}/each{% templatetag closevariable %}
         </a>

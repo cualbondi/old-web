@@ -124,7 +124,24 @@ class RecorridoHandler(BaseHandler):
 
         if query is not None:
             qs = Recorrido.objects.fuzzy_like_query( query, ciudad_slug )
-            recorridos = list(qs)
+            recorridos = [
+                { "id": r.id,
+                  "itinerario" : [
+                        {
+                            "id": r.id,
+                            "ruta_corta"     : r.ruta_corta,
+                            "long_bondi"     : r.long_ruta,
+                            "long_pata"      : None,
+                            "color_polilinea": r.color_polilinea,
+                            "inicio"         : r.inicio,
+                            "fin"            : r.fin,
+                            "nombre"         : r.nombre,
+                            "foto"           : r.foto
+                        }
+                    ]
+                }
+                for r in list(qs)
+            ]
             response['cant'] = len(recorridos)
             #if pagina >= response['cant_total']/LONGITUD_PAGINA+1:
             #    return rc.BAD_REQUEST
