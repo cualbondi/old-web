@@ -7,6 +7,7 @@ from settings import RADIO_ORIGEN_DEFAULT, RADIO_DESTINO_DEFAULT, CACHE_TIMEOUT,
 from django.contrib.gis.geos import Point
 from django.core.cache import cache
 from hashlib import sha1
+from django.db.models import Q
 
 
 class CiudadHandler(BaseHandler):
@@ -179,11 +180,55 @@ class RecorridoHandler(BaseHandler):
                     response['cached'] = False
                     if not combinar:
                         # Buscar SIN transbordo
-                        recorridos = Recorrido.objects.get_recorridos(origen, destino, radio_origen, radio_destino)
+                        recorridos = [
+                            { "id": r.id,
+                              "itinerario" : [
+                                    {
+                                        "id": r.id,
+                                        "ruta_corta"     : r.ruta_corta,
+                                        "long_bondi"     : r.long_ruta,
+                                        "long_pata"      : r.long_pata,
+                                        "color_polilinea": r.color_polilinea,
+                                        "inicio"         : r.inicio,
+                                        "fin"            : r.fin,
+                                        "nombre"         : r.nombre,
+                                        "foto"           : r.foto
+                                    }
+                                ]
+                            }
+                            for r in Recorrido.objects.get_recorridos(origen, destino, radio_origen, radio_destino)
+                        ]
                     else:
                         # Buscar CON transbordo
-                        recorridos = Recorrido.objects.get_recorridos_combinados(origen, destino, radio_origen, radio_destino)
-                        return rc.NOT_IMPLEMENTED
+                        recorridos = [
+                            { "id": str(r.id)+str(r.id2),
+                              "itinerario" : [
+                                    {
+                                        "id": r.id,
+                                        "ruta_corta"     : r.ruta_corta,
+                                        "long_bondi"     : r.long_ruta,
+                                        "long_pata"      : r.long_pata,
+                                        "color_polilinea": r.color_polilinea,
+                                        "inicio"         : r.inicio,
+                                        "fin"            : r.fin,
+                                        "nombre"         : r.nombre,
+                                        "foto"           : r.foto
+                                    },
+                                    {
+                                        "id": r.id2,
+                                        "ruta_corta"     : r.ruta_corta2,
+                                        "long_bondi"     : r.long_ruta2,
+                                        "long_pata"      : r.long_pata2,
+                                        "color_polilinea": r.color_polilinea2,
+                                        "inicio"         : r.inicio2,
+                                        "fin"            : r.fin2,
+                                        "nombre"         : r.nombre2,
+                                        "foto"           : r.foto2
+                                    }
+                                ]
+                            }
+                            for r in Recorrido.objects.get_recorridos_combinados(origen, destino, radio_origen, radio_destino, radio_origen)
+                        ]
                     # Guardar los resultados calculados en memcached
                     if USE_CACHE:
                         self._save_in_cache(origen, destino, radio_origen, radio_destino, combinar, recorridos)

@@ -304,8 +304,8 @@ $(function() {
 
     // variables "globales"
     var resultados = new Object()
-    var poly       = null
-    var polyhover  = null
+    var polylinea  = new Array()
+    var polyhover  = new Array()
     var pagina     = 1
     var ajaxInputLinea = false
     var buscar     = true //false si busca de A a B, true si busca por nombre de recorrido (es para llamar la funcion correcta al paginar)
@@ -321,14 +321,19 @@ $(function() {
         $("#sidebarContenido li").removeClass("active")
         $("#res"+id).addClass("active")
         recorridos.removeAllFeatures()
-        poly = new OpenLayers.Format.WKT().read(resultados[id].ruta_corta);
-        poly.geometry.transform(proj, map.getProjectionObject())
-        var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
-        style.strokeOpacity = 0.8;
-        style.strokeWidth   = 5;
-        style.strokeColor   = resultados[id].color_polilinea ? resultados[id].color_polilinea : "#000000";
-        poly.style = style;
-        recorridos.addFeatures([poly]);
+
+        var polylinea = new Array()
+        $.each(resultados[id], function(key, value) {
+            var poly = new OpenLayers.Format.WKT().read(value.ruta_corta);
+            poly.geometry.transform(proj, map.getProjectionObject())
+            var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+            style.strokeOpacity = 0.8;
+            style.strokeWidth   = 5;
+            style.strokeColor   = value.color_polilinea ? value.color_polilinea : "#000000";
+            poly.style          = style;
+            polylinea.push(poly);
+        });        
+        recorridos.addFeatures(polylinea);
     }
 
     function buscar_por_inputs() {
@@ -385,6 +390,16 @@ $(function() {
         }
     }
 
+    // busca por transbordo
+    $.cb.buscarTransbordo = function() {
+        markerA.confirmado = true
+        markerB.confirmado = true
+        if ( markerA.listo && markerB.listo ) {
+            pagina = 1
+            buscarporclick(markerA.centro, markerB.centro, 'true')
+        }
+    }
+
     // pasa a la siguiente pagina
     // n = -1: pagina anterior
     //      x: pagina x
@@ -404,7 +419,8 @@ $(function() {
     }
 
     // envia peticion al server para buscar por latlng
-    function buscarporclick(lla, llb) {
+    function buscarporclick(lla, llb, combinar) {
+        if ( typeof(combinar) === 'undefined' ) combinar = 'false';
         buscar     = true
         $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
         lla = lla.transform(map.getProjectionObject(), proj)
@@ -417,7 +433,8 @@ $(function() {
                 radio_origen: "500",
                 radio_destino: "500",
                 c: GLOBAL_ci,
-                p: pagina
+                p: pagina,
+                combinar: combinar
             },
             mostrarResultados
         );
@@ -436,7 +453,7 @@ $(function() {
         else {
             resultados = new Object()
             $.each(res, function(key, value) {
-                resultados[value.id] = value
+                resultados[value.id] = value.itinerario
             });
             $("#listTempl").tmpl( [{ data: data }] ).appendTo($("#sidebarContenido").empty());
             $("[id^=res]").each( function(i) {
@@ -447,18 +464,22 @@ $(function() {
                 })
                 $(this).children().bind("mouseenter", function(e) {
                     id = $(this).attr("id")
-                    if (polyhover !== null) recorridos.removeFeatures([polyhover])
-                    polyhover = new OpenLayers.Format.WKT().read(resultados[id].ruta_corta);
-                    polyhover.geometry.transform(proj, map.getProjectionObject())
-                    var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
-                    style.strokeOpacity = 0.5
-                    style.strokeWidth   = 5
-                    style.strokeColor   = resultados[id].color_polilinea ? resultados[id].color_polilinea : "#000000"
-                    polyhover.style = style
-                    recorridos.addFeatures([polyhover])
+                    recorridos.removeFeatures(polyhover)
+                    polyhover = new Array();
+                    $.each(resultados[id], function(key, value) {
+                        var poly = new OpenLayers.Format.WKT().read(value.ruta_corta)
+                        poly.geometry.transform(proj, map.getProjectionObject())
+                        var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+                        style.strokeOpacity = 0.5
+                        style.strokeWidth   = 5
+                        style.strokeColor   = value.color_polilinea ? value.color_polilinea : "#000000"
+                        poly.style          = style
+                        polyhover.push(poly);
+                    });
+                    recorridos.addFeatures(polyhover)
                 })
                 $(this).children().bind("mouseleave", function(e) {
-                    if (polyhover !== null) recorridos.removeFeatures([polyhover])
+                    recorridos.removeFeatures(polyhover)
                 })
             })
             $.cb.mostrar_resultado()
@@ -526,12 +547,16 @@ $(function() {
 <script id="itemTempl" type="text/x-jquery-tmpl"> 
     <li id="res${id}">
         <a href="#" id="${id}">
-            <img src="/media/img/micros/30x35/${foto}.png" style="float:left; margin-top: 4px; margin-right: 4px"/>
-            <strong>${nombre}</strong>
-            <br>
-            de ${inicio} a ${fin}
-            <br>
-            distancia: ${Math.round(long_pata)} m (pie) + ${Math.round(long_bondi/100)/10} km (bondi)
+            {% templatetag openvariable %}each itinerario{% templatetag closevariable %}
+                <div style="margin:0; padding:0">
+                    <img src="/media/img/micros/30x35/${foto}.png" style="float:left; margin-top: 4px; margin-right: 4px"/>
+                    <strong>${nombre}</strong>
+                    <br>
+                    de ${inicio} a ${fin}
+                    <br>
+                    distancia: ${Math.round(long_pata)} m (pie) + ${Math.round(long_bondi/100)/10} km (bondi)
+                </div>
+            {% templatetag openvariable %}/each{% templatetag closevariable %}
         </a>
     </li>
 </script>
@@ -586,7 +611,9 @@ $(function() {
 </script>
 
 <script id="vacioTempl" type="text/x-jquery-tmpl">
-   <h3>No se encontraron resultados</h3>
+   <h3>No se encontraron resultados sin transbordo</h3>
+   <p>Si igualmente desea buscar con transbordo, presione el siguiente botón</p>
+   <button id="button_buscar_transbordo" class="btn btn-primary" onclick="javascript:$.cb.buscarTransbordo(); return false;">Buscar con Transbordo</button>
 </script>
 
 {% endblock %}
