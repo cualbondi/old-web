@@ -1,8 +1,8 @@
 from django.contrib.gis import admin
-from moderation.admin import ModerationAdmin
-from apps.core.models import Terminal, Linea, Recorrido, Comercio, Parada, Horario
-from apps.catastro.models import Ciudad, Provincia, Poi
-from apps.usuarios.models import CustomPoi, RecorridoFavorito
+
+from apps.core.models import Linea, Recorrido
+from apps.usuarios.models import RecorridoFavorito
+
 
 class CustomAdmin(admin.OSMGeoAdmin):
     exclude = ()
@@ -10,4 +10,3 @@ class CustomAdmin(admin.OSMGeoAdmin):
 admin.site.register(Linea, CustomAdmin)
 admin.site.register(Recorrido, CustomAdmin)
 admin.site.register(RecorridoFavorito)
-

@@ -3,6 +3,7 @@ from django.contrib.gis.db import models
 from django.template.defaultfilters import slugify
 #from apps.catastro.managers import PuntoBusquedaManager
 
+
 """ Dejemos estos modelos comentados hasta que resolvamos
 la migracion de Provincia y Ciudad """
 
@@ -158,8 +159,8 @@ class Poi(models.Model):
     """ Un "Punto de interes" es algun lugar representativo
         de una "Ciudad". Por ej: la catedral de La Plata.
     """
-    nom_normal = models.TextField()
-    nom = models.TextField()
+#    nom_normal = models.TextField()
+#    nom = models.TextField()
     latlng = models.PointField()
     objects = models.GeoManager()
 
@@ -421,5 +422,3 @@ class PuntoBusqueda(models.Model):
 
     class Meta:
         abstract = True
-
-

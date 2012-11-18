@@ -1,13 +1,9 @@
-from apps.core.models import Linea, Recorrido
-from apps.catastro.models import Ciudad, Poi
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.http import HttpResponse
-from django.template import RequestContext, Context
+from django.template import RequestContext
 from django.template.defaultfilters import slugify
-from apps.core.forms import LineaForm, RecorridoForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core import serializers
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -17,8 +13,11 @@ from django.contrib.comments import signals
 from django.contrib.comments.views.utils import next_redirect, confirmation_view
 from django.contrib.comments.views.comments import CommentPostBadRequest
 from django.utils import simplejson
-from olwidget.widgets import EditableMap
 from olwidget.widgets import InfoMap
+
+from apps.core.models import Linea, Recorrido
+from apps.catastro.models import Ciudad
+from apps.core.forms import LineaForm, RecorridoForm
 
 def natural_sort_qs(qs, key):
     """ Hace un sort sobre un queryset sobre el campo key
@@ -32,6 +31,7 @@ def natural_sort_qs(qs, key):
     op = operator.attrgetter(key)
     return sorted(qs, key=lambda a:natural_key(op(a)) )
 
+
 def index(request):
     """ TODO: Aca hay que checkear si tiene seteada una
         cookie con la ciudad predeterminada.
@@ -44,6 +44,7 @@ def index(request):
     else:
         url = '/seleccionar-ciudad/'
     return redirect(url)
+
 
 def seleccionar_ciudad(request):
     if request.method == 'GET':
@@ -76,13 +77,13 @@ def ver_ciudad(request, nombre_ciudad):
             'html': "<p>Special style for this point.</p>",
             'style': {'fill_color': '#0099CC', 'strokeColor': "#0066CC"},
         }]],
-        { 
+        {
             "map_div_style": {"width": '100%'},
-            "layers":["google.streets", "osm.mapnik"]#, "google.streets", "google.hybrid", "ve.road", "ve.hybrid", "yahoo.map"]
+            "layers": ["google.streets", "osm.mapnik"]  # "google.streets", "google.hybrid", "ve.road", "ve.hybrid", "yahoo.map"]
         }
     )
     return render_to_response('core/ver_ciudad.html',
-                              {'mapa':mapa,
+                              {'mapa': mapa,
                                'lineas': lineas},
                               context_instance=RequestContext(request))
 
@@ -162,7 +163,7 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
         }]],
         {
             "map_div_style": {"width": '100%'},
-            "layers":["google.streets", "osm.mapnik"]#, "google.streets", "google.hybrid", "ve.road", "ve.hybrid", "yahoo.map"]
+            "layers": ["google.streets", "osm.mapnik"]  # "google.streets", "google.hybrid", "ve.road", "ve.hybrid", "yahoo.map"]
         }
     )
 
@@ -174,12 +175,13 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
                                'favorito': favorito},
                               context_instance=RequestContext(request))
 
-"""
-cualbondi.com.ar/la-plata/recorridos/Norte/10/IDA/ (ANTES)
-cualbondi.com.ar/la-plata/norte/10-desde-x-hasta-y (DESPUES)
-cualbondi.com.ar/cordoba/recorridos/T%20(Transversal)/Central/IDA/ (NO ANDA, CHECKEAR REGEXP URLs)
-"""
+
 def redirect_nuevas_urls(request, ciudad=None, linea=None, ramal=None, recorrido=None):
+    """
+    cualbondi.com.ar/la-plata/recorridos/Norte/10/IDA/ (ANTES)
+    cualbondi.com.ar/la-plata/norte/10-desde-x-hasta-y (DESPUES)
+    cualbondi.com.ar/cordoba/recorridos/T%20(Transversal)/Central/IDA/ (NO ANDA, CHECKEAR REGEXP URLs)
+    """
     url = '/'
     if not ciudad:
         ciudad = 'la-plata'
@@ -195,6 +197,7 @@ def redirect_nuevas_urls(request, ciudad=None, linea=None, ramal=None, recorrido
             except ObjectDoesNotExist:
                 pass
     return redirect(url)
+
 
 @login_required(login_url="/usuarios/login/")
 def agregar_linea(request):
@@ -298,8 +301,8 @@ def dejar_comentario(request, next=None, using=None):
             ]
             return render_to_response(
                 template_list, {
-                    "comment" : form.data.get("comment", ""),
-                    "form" : form,
+                    "comment": form.data.get("comment", ""),
+                    "form": form,
                     "next": next,
                 },
                 RequestContext(request, {})
@@ -313,9 +316,9 @@ def dejar_comentario(request, next=None, using=None):
 
     # Signal that the comment is about to be saved
     responses = signals.comment_will_be_posted.send(
-        sender  = comment.__class__,
-        comment = comment,
-        request = request
+        sender=comment.__class__,
+        comment=comment,
+        request=request
     )
 
     for (receiver, response) in responses:
@@ -326,14 +329,14 @@ def dejar_comentario(request, next=None, using=None):
     # Save the comment and signal that it was saved
     comment.save()
     signals.comment_was_posted.send(
-        sender  = comment.__class__,
-        comment = comment,
-        request = request
+        sender=comment.__class__,
+        comment=comment,
+        request=request
     )
 
     if request.is_ajax():
         cleaned_data = form.cleaned_data
-        json = {'exito': True, 
+        json = {'exito': True,
                 'comentario': cleaned_data['comment'],
                 'usuario': cleaned_data['name'],
                 'fecha': cleaned_data['timestamp']}
@@ -343,6 +346,6 @@ def dejar_comentario(request, next=None, using=None):
         return next_redirect(data, next, comment_done, c=comment._get_pk_val())
 
 comment_done = confirmation_view(
-    template = "comments/posted.html",
-    doc = """Display a "comment was posted" success page."""
+    template="comments/posted.html",
+    doc="""Display a "comment was posted" success page."""
 )

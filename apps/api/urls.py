@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
+from piston.resource import Resource
 from django.conf.urls.defaults import patterns, url
 from django.http import HttpResponse
-from piston.resource import Resource
-from apps.api.handlers import CiudadHandler, CiudadLineaHandler, CiudadRecorridoHandler, LineaHandler, LineaRecorridoHandler, RecorridoHandler, CalleHandler, CatastroHandler
+
+from apps.api.handlers import (CiudadHandler, CiudadLineaHandler,
+                               CiudadRecorridoHandler, LineaHandler,
+                               LineaRecorridoHandler, RecorridoHandler,
+                               CalleHandler, CatastroHandler)
+
 
 def api_welcome(request):
     msg = """

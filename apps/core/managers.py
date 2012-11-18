@@ -5,9 +5,9 @@ from django.contrib.gis.geos import Point
 
 class RecorridoManager(models.GeoManager):
     def get_recorridos_combinados(self, puntoA, puntoB, distanciaA, distanciaB, gap):
-        distanciaA=int(distanciaA)
-        distanciaB=int(distanciaB)
-        gap=int(gap)
+        distanciaA = int(distanciaA)
+        distanciaB = int(distanciaB)
+        gap = int(gap)
         if not isinstance(puntoA, Point):
             raise DatabaseError("get_recorridos: PuntoA Expected GEOS Point instance as parameter, %s given" % type(puntoA))
         if not isinstance(puntoB, Point):
@@ -21,7 +21,7 @@ class RecorridoManager(models.GeoManager):
         puntoA.set_srid(4326)
         puntoB.set_srid(4326)
 
-        params = {'puntoA':puntoA.ewkt, 'puntoB':puntoB.ewkt, 'rad1':distanciaA, 'rad2':distanciaB, 'gap':gap}
+        params = {'puntoA': puntoA.ewkt, 'puntoB': puntoB.ewkt, 'rad1': distanciaA, 'rad2': distanciaB, 'gap': gap}
         query = """
             SELECT *
             FROM (
@@ -95,10 +95,9 @@ class RecorridoManager(models.GeoManager):
         query_set = self.raw(query, params)
         return list(query_set)
 
-
     def get_recorridos(self, puntoA, puntoB, distanciaA, distanciaB):
-        distanciaA=int(distanciaA)
-        distanciaB=int(distanciaB)
+        distanciaA = int(distanciaA)
+        distanciaB = int(distanciaB)
         if not isinstance(puntoA, Point):
             raise DatabaseError("get_recorridos: PuntoA Expected GEOS Point instance as parameter, %s given" % type(puntoA))
         if not isinstance(puntoB, Point):
@@ -110,7 +109,7 @@ class RecorridoManager(models.GeoManager):
         puntoA.set_srid(4326)
         puntoB.set_srid(4326)
 
-        params = {'puntoA':puntoA.ewkt, 'puntoB':puntoB.ewkt, 'rad1':distanciaA, 'rad2':distanciaB}
+        params = {'puntoA': puntoA.ewkt, 'puntoB': puntoB.ewkt, 'rad1': distanciaA, 'rad2': distanciaB}
         query = """
                 SELECT
                     re.id,
@@ -222,7 +221,6 @@ class RecorridoManager(models.GeoManager):
 
         query_set = self.raw(query, params)
         return list(query_set)
-
 
     def fuzzy_trgm_query(self, q):
         params = {"q": q}

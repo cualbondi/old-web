@@ -1,13 +1,14 @@
-from apps.core.models import Linea, Recorrido
-from apps.catastro.models import Ciudad, PuntoBusqueda
+from hashlib import sha1
 from piston.handler import BaseHandler
 from piston.utils import rc
 from django.core.exceptions import ObjectDoesNotExist
-from settings import RADIO_ORIGEN_DEFAULT, RADIO_DESTINO_DEFAULT, CACHE_TIMEOUT, LONGITUD_PAGINA, USE_CACHE
 from django.contrib.gis.geos import Point
 from django.core.cache import cache
-from hashlib import sha1
 from django.db.models import Q
+from apps.core.models import Linea, Recorrido
+from apps.catastro.models import Ciudad, PuntoBusqueda
+from settings import (RADIO_ORIGEN_DEFAULT, RADIO_DESTINO_DEFAULT,
+                      CACHE_TIMEOUT, LONGITUD_PAGINA, USE_CACHE)
 
 
 class CiudadHandler(BaseHandler):
@@ -104,8 +105,8 @@ class RecorridoHandler(BaseHandler):
         cache.set(key, recorridos, CACHE_TIMEOUT)
 
     def _paginar(self, recorridos, pagina):
-        desde = (pagina-1)*LONGITUD_PAGINA
-        hasta = desde+LONGITUD_PAGINA
+        desde = (pagina - 1) * LONGITUD_PAGINA
+        hasta = desde + LONGITUD_PAGINA
         return recorridos[desde:hasta]
 
     def read(self, request, id_recorrido=None):
@@ -165,9 +166,12 @@ class RecorridoHandler(BaseHandler):
             query = request.GET.get('query', None)
 
             combinar = request.GET.get('combinar', 'false')
-            if combinar == 'true': combinar = True
-            elif combinar == 'false': combinar = False
-            else: return rc.BAD_REQUEST
+            if combinar == 'true':
+                combinar = True
+            elif combinar == 'false':
+                combinar = False
+            else:
+                return rc.BAD_REQUEST
 
             if origen is not None and destino is not None:
                 # Buscar geograficamente en base a origen y destino
@@ -190,7 +194,8 @@ class RecorridoHandler(BaseHandler):
                 if USE_CACHE:
                     recorridos = self._get_response_from_cache(origen, destino,
                                     radio_origen, radio_destino, combinar)
-                else: recorridos = None
+                else:
+                    recorridos = None
 
                 if recorridos is None:
                     # No se encontro en la cache, hay que buscarlo en la DB.
@@ -289,4 +294,3 @@ class CalleHandler(BaseHandler):
                 return PuntoBusqueda.objects.interseccion(calle1, calle2)
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND
-

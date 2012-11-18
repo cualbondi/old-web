@@ -1,4 +1,5 @@
-from django.conf.urls.defaults import patterns, include, url
+from django.conf.urls.defaults import patterns
+
 
 urlpatterns = patterns('',
 #    (r'^login/$', 'apps.usuarios.views.iniciar_sesion'),
