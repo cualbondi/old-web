@@ -1,7 +1,8 @@
 # -*- coding: UTF-8 -*-
+import re
 from django.db.models import get_model
 from django.contrib.gis.db import models
-import re
+
 
 class PuntoBusquedaManager(models.Manager):
     """ Este manager se encarga de convertir una query tipo texto
@@ -33,7 +34,7 @@ class PuntoBusquedaManager(models.Manager):
             pass
 
     def interseccion(self, calle1, calle2):
-        params = {'calle1':calle1, 'calle2':calle2}
+        params = {'calle1': calle1, 'calle2': calle2}
 #            SELECT nombre || ", " ci.nombre
         query = """
                 SELECT DISTINCT
@@ -63,7 +64,7 @@ class PuntoBusquedaManager(models.Manager):
                         WHERE
                             nom_normal %% %(calle2)s
                     ) AS SEL2
-                    on ( ST_Intersects(SEL1.way, SEL2.way) 
+                    on ( ST_Intersects(SEL1.way, SEL2.way)
                         and ST_GeometryType(ST_Intersection(SEL1.way, SEL2.way)::Geometry)='ST_Point')
                 ORDER BY
                     precision DESC
@@ -72,9 +73,8 @@ class PuntoBusquedaManager(models.Manager):
         query_set = self.raw(query, params)
         return list(query_set)
 
-
     def poi(self, nombre):
-        params = {'nombre':nombre}
+        params = {'nombre': nombre}
         query = """
             SELECT
                 nom as nombre,
@@ -92,26 +92,24 @@ class PuntoBusquedaManager(models.Manager):
         query_set = self.raw(query, params)
         return list(query_set)
 
-
     def direccionPostal(self, calle, numero):
         # http://stackoverflow.com/questions/9884475/using-google-maps-geocoder-from-python-with-urllib2
         import urllib2
         import json
-        add = calle+" "+numero+", La Plata, Argentina"
+        add = calle + " " + numero + ", La Plata, Argentina"
         add = urllib2.quote(add)
         geocode_url = "http://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false" % add
         req = urllib2.urlopen(geocode_url)
         res = json.loads(req.read())
         # comprehension para parsear lo devuelto por el google geocoder
-        ret = [ { 'nombre': i["address_components"][1]["long_name"] + u" N°" + i["address_components"][0]["long_name"] + ", " + i["address_components"][2]["long_name"],
+        ret = [{'nombre': i["address_components"][1]["long_name"] + u" N°" + i["address_components"][0]["long_name"] + ", " + i["address_components"][2]["long_name"],
                   'precision': "1",
-                  'geom': "POINT("+str(i["geometry"]["location"]["lng"])+" "+str(i["geometry"]["location"]["lat"])+")",
-                  'tipo': "direccionPostal" }
+                  'geom': "POINT(" + str(i["geometry"]["location"]["lng"]) + " " + str(i["geometry"]["location"]["lat"]) + ")",
+                  'tipo': "direccionPostal"}
                 for i in res["results"]
                     if "street_address" in i["types"]
               ]
         return ret
-
 
     def _buscar_calles(self, query):
         calle_model = get_model('catastro', 'Calle')

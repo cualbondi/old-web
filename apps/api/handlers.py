@@ -1,12 +1,14 @@
-from apps.core.models import Linea, Recorrido
-from apps.catastro.models import Ciudad, PuntoBusqueda
+from hashlib import sha1
 from piston.handler import BaseHandler
 from piston.utils import rc
 from django.core.exceptions import ObjectDoesNotExist
-from settings import RADIO_ORIGEN_DEFAULT, RADIO_DESTINO_DEFAULT, CACHE_TIMEOUT, LONGITUD_PAGINA, USE_CACHE
 from django.contrib.gis.geos import Point
 from django.core.cache import cache
-from hashlib import sha1
+
+from apps.core.models import Linea, Recorrido
+from apps.catastro.models import Ciudad, PuntoBusqueda
+from settings import (RADIO_ORIGEN_DEFAULT, RADIO_DESTINO_DEFAULT,
+                      CACHE_TIMEOUT, LONGITUD_PAGINA, USE_CACHE)
 
 
 class CiudadHandler(BaseHandler):
@@ -103,17 +105,17 @@ class RecorridoHandler(BaseHandler):
         cache.set(key, recorridos, CACHE_TIMEOUT)
 
     def _paginar(self, recorridos, pagina):
-        desde = (pagina-1)*LONGITUD_PAGINA
-        hasta = desde+LONGITUD_PAGINA
+        desde = (pagina - 1) * LONGITUD_PAGINA
+        hasta = desde + LONGITUD_PAGINA
         return recorridos[desde:hasta]
 
     def read(self, request, id_recorrido=None):
         response = {'long_pagina': LONGITUD_PAGINA, 'cached': True}
         query = request.GET.get('q', None)
         if query is not None:
-	    response['resultados'] = Recorrido.objects.fuzzy_like_query(query)
-	    response['cant_total'] = len(response['resultados'])
-	    return response
+            response['resultados'] = Recorrido.objects.fuzzy_like_query(query)
+            response['cant_total'] = len(response['resultados'])
+            return response
         elif id_recorrido is not None:
             # Me mandaron "id_recorrido", tengo que devolver ese solo recorrido.
             try:
@@ -128,9 +130,12 @@ class RecorridoHandler(BaseHandler):
             query = request.GET.get('query', None)
 
             combinar = request.GET.get('combinar', 'false')
-            if combinar == 'true': combinar = True
-            elif combinar == 'false': combinar = False
-            else: return rc.BAD_REQUEST
+            if combinar == 'true':
+                combinar = True
+            elif combinar == 'false':
+                combinar = False
+            else:
+                return rc.BAD_REQUEST
 
             pagina = request.GET.get('pagina', 1)
             try:
@@ -160,21 +165,25 @@ class RecorridoHandler(BaseHandler):
                 if USE_CACHE:
                     recorridos = self._get_response_from_cache(origen, destino,
                                     radio_origen, radio_destino, combinar)
-                else: recorridos = None
+                else:
+                    recorridos = None
 
                 if recorridos is None:
                     # No se encontro en la cache, hay que buscarlo en la DB.
                     response['cached'] = False
                     if not combinar:
                         # Buscar SIN transbordo
-                        recorridos = Recorrido.objects.get_recorridos(origen, destino, radio_origen, radio_destino)
+                        recorridos = Recorrido.objects.get_recorridos(origen,
+                            destino, radio_origen, radio_destino)
                     else:
                         # Buscar CON transbordo
-                        recorridos = Recorrido.objects.get_recorridos_combinados(origen, destino, radio_origen, radio_destino)
+                        recorridos = Recorrido.objects.get_recorridos_combinados(
+                            origen, destino, radio_origen, radio_destino)
                         return rc.NOT_IMPLEMENTED
                     # Guardar los resultados calculados en memcached
                     if USE_CACHE:
-                        self._save_in_cache(origen, destino, radio_origen, radio_destino, combinar, recorridos)
+                        self._save_in_cache(origen, destino, radio_origen,
+                            radio_destino, combinar, recorridos)
                 response['cant_total'] = len(recorridos)
 #                if pagina > response['cant_total']/LONGITUD_PAGINA:
 #                    return rc.BAD_REQUEST
@@ -214,4 +223,3 @@ class CalleHandler(BaseHandler):
                 return PuntoBusqueda.objects.interseccion(calle1, calle2)
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND
-

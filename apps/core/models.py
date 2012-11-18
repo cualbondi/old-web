@@ -1,9 +1,6 @@
 # -*- coding: UTF-8 -*-
 from django.contrib.gis.db import models
-from django.db import DatabaseError
-from django.contrib.auth.models import User
 from django.template.defaultfilters import slugify
-from django.contrib.gis.geos import Point
 from django.core.exceptions import ObjectDoesNotExist
 
 from apps.core.managers import RecorridoManager
@@ -78,7 +75,7 @@ class Parada(models.Model):
 
 class Horario(models.Model):
     """ Un "Recorrido" pasa por una "Parada" a
-        cierto "Horario". "Horario" es el modelo 
+        cierto "Horario". "Horario" es el modelo
         interpuesto entre "Recorrido" y "Parada"
     """
     recorrido = models.ForeignKey(Recorrido)

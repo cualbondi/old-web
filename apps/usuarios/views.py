@@ -1,26 +1,25 @@
 # -*- coding: UTF-8 -*-
-
-from django.contrib.auth import authenticate, login, logout
+import urlparse
+import settings
+from random import random
+from datetime import datetime, timedelta
+from django.contrib.auth import logout
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-import settings
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.cache import never_cache
-from django.contrib.auth import REDIRECT_FIELD_NAME, login as auth_login, logout as auth_logout, authenticate
+from django.contrib.auth import REDIRECT_FIELD_NAME, login as auth_login
 from django.contrib.sites.models import get_current_site
 from django.template import RequestContext
-import urlparse
 from django.http import HttpResponseRedirect
 from django.core.exceptions import ObjectDoesNotExist
-from datetime import datetime, timedelta
-from apps.usuarios.forms import RegistracionForm
-from django.contrib.sites.models import Site
 from django.contrib.auth.models import User
 from django.utils.hashcompat import sha_constructor
-from random import random
-from apps.usuarios.models import PerfilUsuario
 from django.contrib.auth.decorators import login_required
+
+from apps.usuarios.models import PerfilUsuario
+from apps.usuarios.forms import RegistracionForm
 from apps.usuarios.forms import PerfilUsuarioForm
 
 
@@ -157,7 +156,7 @@ def confirmar_email(request, confirmacion_key=None):
             fecha_envio = perfil.fecha_envio_confirmacion
             now = datetime.now()
             td = timedelta(weeks=1)
-            if now>(fecha_envio+td):
+            if now > (fecha_envio + td):
                 # Clave de verificacion vencida, enviar una nueva
                 key, url_activacion = _generar_link_activacion(request, usuario.email)
 
@@ -202,7 +201,7 @@ def ver_perfil(request):
     usuario = get_object_or_404(User, id=request.user.id)
     perfil = PerfilUsuario.objects.get(usuario=usuario)
     return render_to_response('usuarios/perfil.html',
-                                 {'perfil':perfil},
+                                 {'perfil': perfil},
                                  context_instance=RequestContext(request))
 
 
@@ -221,14 +220,10 @@ def editar_perfil(request):
             return redirect('/usuarios/perfil/')
         else:
             return render_to_response('usuarios/editar_perfil.html',
-                                        {'form':form},
+                                        {'form': form},
                                         context_instance=RequestContext(request))
     else:
         form = PerfilUsuarioForm(instance=perfil)
         return render_to_response('usuarios/editar_perfil.html',
-                                    {'form':form},
+                                    {'form': form},
                                     context_instance=RequestContext(request))
-
-
-
-

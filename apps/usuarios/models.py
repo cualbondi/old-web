@@ -5,8 +5,8 @@ from django.contrib.auth.models import User
 class CustomPoi(models.Model):
     """ Los usuarios pueden definir sus propios
         puntos de interes. Por ej: "Mi casa", y
-        luego usarlos como puntos origen o destino 
-        en las busquedas. 
+        luego usarlos como puntos origen o destino
+        en las busquedas.
     """
     usuario = models.ForeignKey(User)
     nombre = models.CharField(max_length=100)
@@ -40,4 +40,3 @@ class PerfilUsuario(models.Model):
 
     def __unicode__(self):
         return "Perfil de " + self.usuario.username
-

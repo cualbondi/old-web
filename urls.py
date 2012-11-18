@@ -5,8 +5,6 @@ import settings
 # Uncomment the next two lines to enable the admin:
 admin.autodiscover()
 
-from moderation.helpers import auto_discover
-auto_discover()
 
 urlpatterns = patterns('',
     # Archivos estaticos

@@ -5,9 +5,9 @@ from django.contrib.gis.geos import Point
 
 class RecorridoManager(models.GeoManager):
     def get_recorridos_combinados(self, puntoA, puntoB, distanciaA, distanciaB, gap):
-        distanciaA=int(distanciaA)
-        distanciaB=int(distanciaB)
-        gap=int(gap)
+        distanciaA = int(distanciaA)
+        distanciaB = int(distanciaB)
+        gap = int(gap)
         if not isinstance(puntoA, Point):
             raise DatabaseError("get_recorridos: PuntoA Expected GEOS Point instance as parameter, %s given" % type(puntoA))
         if not isinstance(puntoB, Point):
@@ -21,7 +21,7 @@ class RecorridoManager(models.GeoManager):
         puntoA.set_srid(4326)
         puntoB.set_srid(4326)
 
-        params = {'puntoA':puntoA.ewkt, 'puntoB':puntoB.ewkt, 'rad1':distanciaA, 'rad2':distanciaB, 'gap':gap}
+        params = {'puntoA': puntoA.ewkt, 'puntoB': puntoB.ewkt, 'rad1': distanciaA, 'rad2': distanciaB, 'gap': gap}
         query = """
             SELECT *
             FROM (
@@ -84,10 +84,9 @@ class RecorridoManager(models.GeoManager):
         query_set = self.raw(query, params)
         return list(query_set)
 
-
     def get_recorridos(self, puntoA, puntoB, distanciaA, distanciaB):
-        distanciaA=int(distanciaA)
-        distanciaB=int(distanciaB)
+        distanciaA = int(distanciaA)
+        distanciaB = int(distanciaB)
         if not isinstance(puntoA, Point):
             raise DatabaseError("get_recorridos: PuntoA Expected GEOS Point instance as parameter, %s given" % type(puntoA))
         if not isinstance(puntoB, Point):
@@ -99,7 +98,7 @@ class RecorridoManager(models.GeoManager):
         puntoA.set_srid(4326)
         puntoB.set_srid(4326)
 
-        params = {'puntoA':puntoA.ewkt, 'puntoB':puntoB.ewkt, 'rad1':distanciaA, 'rad2':distanciaB}
+        params = {'puntoA': puntoA.ewkt, 'puntoB': puntoB.ewkt, 'rad1': distanciaA, 'rad2': distanciaB}
         query = """
                 SELECT
 		                id,
@@ -120,7 +119,7 @@ class RecorridoManager(models.GeoManager):
                     	  SELECT
                 		    *,
 	                  			ST_Line_Substring(
-                  				ST_Line_Substring(ruta, 0, 0.5), 
+                  				ST_Line_Substring(ruta, 0, 0.5),
                   				ST_Line_Locate_Point(ST_Line_Substring(ruta, 0, 0.5),	%(puntoA)s),
                     			ST_Line_Locate_Point(ST_Line_Substring(ruta, 0, 0.5),	%(puntoB)s)
                   			) as ruta_corta
@@ -144,7 +143,7 @@ class RecorridoManager(models.GeoManager):
                     	  SELECT
                 		    *,
 	                  			ST_Line_Substring(
-                  				ST_Line_Substring(ruta, 0.5, 1), 
+                  				ST_Line_Substring(ruta, 0.5, 1),
                   				ST_Line_Locate_Point(ST_Line_Substring(ruta, 0.5, 1),	%(puntoA)s),
                     			ST_Line_Locate_Point(ST_Line_Substring(ruta, 0.5, 1),	%(puntoB)s)
                   			) as ruta_corta
@@ -176,7 +175,7 @@ class RecorridoManager(models.GeoManager):
 	                        core_recorrido
                 		  WHERE
 		                      ST_Distance_Sphere(ST_GeomFromText(%(puntoA)s), ruta) < %(rad1)s and
-		                      ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s), ruta) < %(rad2)s and 
+		                      ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s), ruta) < %(rad2)s and
 		                      ST_Line_Locate_Point(ruta, %(puntoA)s) <
 		                      ST_Line_Locate_Point(ruta, %(puntoB)s)
                 		) as completa_inner
@@ -194,7 +193,6 @@ class RecorridoManager(models.GeoManager):
 
         query_set = self.raw(query, params)
         return list(query_set)
-
 
     def fuzzy_trgm_query(self, q):
         params = {"q": q}
@@ -261,4 +259,3 @@ class RecorridoManager(models.GeoManager):
         """
         query_set = self.raw(query, params)
         return list(query_set)
-
