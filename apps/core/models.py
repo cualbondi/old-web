@@ -13,6 +13,12 @@ class Linea(models.Model):
     slug = models.SlugField(max_length=120, blank=True, null=False)
     descripcion = models.TextField(blank=True, null=True)
     foto = models.CharField(max_length=20, blank=True, null=True)
+    color_polilinea = models.CharField(max_length=20, blank=True, null=True)
+    info_empresa = models.TextField(blank=True, null=True)
+    info_terminal = models.TextField(blank=True, null=True)
+    localidad = models.CharField(max_length=50, blank=True, null=True)
+    cp = models.CharField(max_length=20, blank=True, null=True)
+    telefono = models.CharField(max_length=200, blank=True, null=True)
 
     def __unicode__(self):
         return self.nombre
@@ -31,6 +37,10 @@ class Recorrido(models.Model):
     inicio = models.CharField(max_length=100, blank=True, null=False)
     fin = models.CharField(max_length=100, blank=True, null=False)
     semirrapido = models.BooleanField(default=False)
+    color_polilinea = models.CharField(max_length=20, blank=True, null=True)
+    horarios = models.TextField(blank=True, null=True)
+    pois = models.TextField(blank=True, null=True)
+    descripcion = models.TextField(blank=True, null=True)
 
     objects = RecorridoManager()
 
@@ -85,7 +95,7 @@ class Horario(models.Model):
 
 class Terminal(models.Model):
     linea = models.ForeignKey(Linea)
-    descripcion = models.TextField()
+    descripcion = models.TextField(blank=True, null=True)
     direccion = models.CharField(max_length=150)
     telefono = models.CharField(max_length=150)
     latlng = models.PointField()

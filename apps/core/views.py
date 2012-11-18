@@ -19,6 +19,18 @@ from apps.core.models import Linea, Recorrido
 from apps.catastro.models import Ciudad
 from apps.core.forms import LineaForm, RecorridoForm
 
+def natural_sort_qs(qs, key):
+    """ Hace un sort sobre un queryset sobre el campo key
+        utilizando una tecnica para obtener un natural_sort
+        ej de algo ordenado naturalmente:             ['xx1', 'xx20', 'xx100']
+        lo mismo ordenado con sort comun (asciisort): ['xx1', 'xx100', 'xx20']
+    """
+    import re, operator
+    def natural_key(string_):
+        return [int(s) if s.isdigit() else s for s in re.split(r'(\d+)', string_)]
+    op = operator.attrgetter(key)
+    return sorted(qs, key=lambda a:natural_key(op(a)) )
+
 
 def index(request):
     """ TODO: Aca hay que checkear si tiene seteada una
@@ -58,7 +70,7 @@ def ver_ciudad(request, nombre_ciudad):
     slug_ciudad = slugify(nombre_ciudad)
     ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
 
-    lineas = ciudad_actual.lineas.all().order_by("nombre")
+    lineas = natural_sort_qs(ciudad_actual.lineas.all(), 'slug')
 
     mapa = InfoMap([
         [ciudad_actual.poligono, {
@@ -99,11 +111,29 @@ def ver_linea(request, nombre_ciudad, nombre_linea):
     linea_actual = get_object_or_404(Linea,
                                      slug=slug_linea,
                                      ciudad=ciudad_actual)
-    recorridos = Recorrido.objects.filter(linea=linea_actual).order_by("nombre")
+    recorridos = natural_sort_qs(Recorrido.objects.filter(linea=linea_actual), 'slug')
+
+    params = {"id_li": int(linea_actual.id)}
+    query = """
+        SELECT
+            l.id,
+            AsText(ST_Union(ST_Buffer(ruta, 0.0045))) as wkt
+        FROM
+            core_recorrido as r
+            join core_linea as l on (r.linea_id = l.id)
+        WHERE
+            l.id = %(id_li)s
+        GROUP BY
+            l.id
+        ;
+    """
+    poli = Recorrido.objects.raw(query, params)[0]
     return render_to_response('core/ver_linea.html',
                               {'ciudad_actual': ciudad_actual,
                                'linea_actual': linea_actual,
-                               'recorridos': recorridos},
+                               'poli': poli,
+                               'recorridos': recorridos
+                               },
                               context_instance=RequestContext(request))
 
 

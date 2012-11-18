@@ -4,7 +4,7 @@ from piston.utils import rc
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.gis.geos import Point
 from django.core.cache import cache
-
+from django.db.models import Q
 from apps.core.models import Linea, Recorrido
 from apps.catastro.models import Ciudad, PuntoBusqueda
 from settings import (RADIO_ORIGEN_DEFAULT, RADIO_DESTINO_DEFAULT,
@@ -111,17 +111,53 @@ class RecorridoHandler(BaseHandler):
 
     def read(self, request, id_recorrido=None):
         response = {'long_pagina': LONGITUD_PAGINA, 'cached': True}
+
+        pagina = request.GET.get('p', 1)
+        try:
+            pagina = int(pagina)
+        except ValueError:
+            return rc.BAD_REQUEST
+        response['p'] = pagina
+
         query = request.GET.get('q', None)
+        ciudad_slug = request.GET.get('c', None)
+        response['c'] = ciudad_slug
+
         if query is not None:
-            response['resultados'] = Recorrido.objects.fuzzy_like_query(query)
-            response['cant_total'] = len(response['resultados'])
+            qs = Recorrido.objects.fuzzy_like_query( query, ciudad_slug )
+            recorridos = [
+                { "id": r.id,
+                  "itinerario" : [
+                        {
+                            "id": r.id,
+                            "ruta_corta"     : r.ruta_corta,
+                            "long_bondi"     : r.long_ruta,
+                            "long_pata"      : None,
+                            "color_polilinea": r.color_polilinea,
+                            "inicio"         : r.inicio,
+                            "fin"            : r.fin,
+                            "nombre"         : r.nombre,
+                            "foto"           : r.foto
+                        }
+                    ]
+                }
+                for r in list(qs)
+            ]
+            response['cant'] = len(recorridos)
+            #if pagina >= response['cant_total']/LONGITUD_PAGINA+1:
+            #    return rc.BAD_REQUEST
+            # Filtrar todos los recorridos y devolver solo la pagina pedida
+            response['resultados'] = self._paginar(recorridos, pagina)
+            response['q'] = query
             return response
+
         elif id_recorrido is not None:
             # Me mandaron "id_recorrido", tengo que devolver ese solo recorrido.
             try:
                 return Recorrido.objects.get(id=id_recorrido)
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND
+
         else:
             origen = request.GET.get('origen', None)
             destino = request.GET.get('destino', None)
@@ -136,13 +172,6 @@ class RecorridoHandler(BaseHandler):
                 combinar = False
             else:
                 return rc.BAD_REQUEST
-
-            pagina = request.GET.get('pagina', 1)
-            try:
-                pagina = int(pagina)
-            except ValueError:
-                return rc.BAD_REQUEST
-            response['pag_actual'] = pagina
 
             if origen is not None and destino is not None:
                 # Buscar geograficamente en base a origen y destino
@@ -173,20 +202,61 @@ class RecorridoHandler(BaseHandler):
                     response['cached'] = False
                     if not combinar:
                         # Buscar SIN transbordo
-                        recorridos = Recorrido.objects.get_recorridos(origen,
-                            destino, radio_origen, radio_destino)
+                        recorridos = [
+                            { "id": r.id,
+                              "itinerario" : [
+                                    {
+                                        "id": r.id,
+                                        "ruta_corta"     : r.ruta_corta,
+                                        "long_bondi"     : r.long_ruta,
+                                        "long_pata"      : r.long_pata,
+                                        "color_polilinea": r.color_polilinea,
+                                        "inicio"         : r.inicio,
+                                        "fin"            : r.fin,
+                                        "nombre"         : r.nombre,
+                                        "foto"           : r.foto
+                                    }
+                                ]
+                            }
+                            for r in Recorrido.objects.get_recorridos(origen, destino, radio_origen, radio_destino)
+                        ]
                     else:
                         # Buscar CON transbordo
-                        recorridos = Recorrido.objects.get_recorridos_combinados(
-                            origen, destino, radio_origen, radio_destino)
-                        return rc.NOT_IMPLEMENTED
+                        recorridos = [
+                            { "id": str(r.id)+str(r.id2),
+                              "itinerario" : [
+                                    {
+                                        "id": r.id,
+                                        "ruta_corta"     : r.ruta_corta,
+                                        "long_bondi"     : r.long_ruta,
+                                        "long_pata"      : r.long_pata,
+                                        "color_polilinea": r.color_polilinea,
+                                        "inicio"         : r.inicio,
+                                        "fin"            : r.fin,
+                                        "nombre"         : r.nombre,
+                                        "foto"           : r.foto
+                                    },
+                                    {
+                                        "id": r.id2,
+                                        "ruta_corta"     : r.ruta_corta2,
+                                        "long_bondi"     : r.long_ruta2,
+                                        "long_pata"      : r.long_pata2,
+                                        "color_polilinea": r.color_polilinea2,
+                                        "inicio"         : r.inicio2,
+                                        "fin"            : r.fin2,
+                                        "nombre"         : r.nombre2,
+                                        "foto"           : r.foto2
+                                    }
+                                ]
+                            }
+                            for r in Recorrido.objects.get_recorridos_combinados(origen, destino, radio_origen, radio_destino, radio_origen)
+                        ]
                     # Guardar los resultados calculados en memcached
                     if USE_CACHE:
-                        self._save_in_cache(origen, destino, radio_origen,
-                            radio_destino, combinar, recorridos)
-                response['cant_total'] = len(recorridos)
-#                if pagina > response['cant_total']/LONGITUD_PAGINA:
-#                    return rc.BAD_REQUEST
+                        self._save_in_cache(origen, destino, radio_origen, radio_destino, combinar, recorridos)
+                response['cant'] = len(recorridos)
+                #if pagina > response['cant']/LONGITUD_PAGINA:
+                #    return rc.BAD_REQUEST
                 # Filtrar todos los recorridos y devolver solo la pagina pedida
                 response['resultados'] = self._paginar(recorridos, pagina)
                 return response
@@ -199,11 +269,12 @@ class CatastroHandler(BaseHandler):
 
     def read(self, request):
         q = request.GET.get('query', None)
+        ciudad_actual_slug = request.GET.get('ciudad_slug', None)
         if q is None:
             return rc.BAD_REQUEST
         else:
             try:
-                return PuntoBusqueda.objects.buscar(q)
+                return PuntoBusqueda.objects.buscar(q, ciudad_actual_slug)
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND
 

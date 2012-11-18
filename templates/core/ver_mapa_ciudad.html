@@ -7,7 +7,7 @@
 {% block content %}
         <div class="row-fluid">
             <div id="bloque_izquierda" class="span3">
-                <div id="sidebar" style="background:white;">
+                <div id="sidebar">
 
                     <div class="tabbable">
                         <ul class="nav nav-tabs">
@@ -25,22 +25,24 @@
                                         <span class="add-on"><i class="icon-map-marker"></i>B</span>
                                         <input type="text" size="16" id="inputHasta" class="span10" placeholder="Hasta">
                                     </div>
-                                    <span>Ejemplos: 14 y 54 || 14 n568 || Catedral</span>
+                                    <p><small>Ejemplos: {{ ciudad_actual.sugerencia }}</small></p>
                                     <div class="btn-toolbar">
-                                        <div class="btn-group pull-left">
-                                            <button class="btn btn-primary" type="submit" onclick="javascript:$.cb.click_button_buscar();return false">Buscar</button>
-                                        </div>
                                         <div class="btn-group">
-                                            <a class="btn" title="Cambiar origen por destino"><i class="icon-refresh"></i></a>
-                                            <a class="btn" title="Ayuda" onclick="javascript:$.cb.click_button_ayuda();"><i class="icon-question-sign"></i></a>
-                                            <a class="btn" title="Compartir enlace a esta ubicación"><i class="icon-share"></i></a>
+                                            <a id="button-origendestino" class="btn" title="Cambiar origen por destino"><i class="icon-refresh"></i></a>
+                                            <a id="button-ayuda" class="btn" title="Ayuda"><i class="icon-question-sign"></i></a>
+                                        </div>
+                                        <div class="btn-group pull-right">
+                                            <button id="button-buscarinputs" class="btn btn-primary" type="submit">Buscar</button>
                                         </div>
                                     </div>
                                 </form>
+                                <!-- 
                                 <div align="left" style="padding-top: 5px;">
-                                    <iframe src="http://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwww.facebook.com%2Fpages%2FCualBondicomar%2F140243409338332&amp;layout=standard&amp;show_faces=false&amp;width=290&amp;action=like&amp;font=verdana&amp;colorscheme=light&amp;height=52" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:260px; height:70px;"></iframe><br>
+                                    <iframe src="//www.facebook.com/plugins/like.php?href=https%3A%2F%2Fwww.facebook.com%2Fcualbondi&amp;send=false&amp;layout=button_count&amp;width=450&amp;show_faces=false&amp;action=like&amp;colorscheme=light&amp;font=verdana&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:450px; height:21px;" allowTransparency="true"></iframe>
+                                    <br>
                                     <g:plusone></g:plusone>
                                 </div>
+                                !-->
                             </div>
                             <div class="tab-pane" id="2">
                                 <form>
@@ -52,6 +54,7 @@
                                 </form>
                             </div>
                         </div>
+                        <hr>
                         <div id="sidebarContenido">
                         </div>
                     </div>
@@ -59,7 +62,7 @@
                 </div>
             </div>
             <div id="bloque_derecha" class="span9">
-                <div id="map" style="background:lightblue;">
+                <div id="map">
 
                 </div>
             </div>
@@ -70,25 +73,26 @@
 <script src="http://openlayers.org/api/OpenLayers.js"></script>
 <script type="text/javascript" src="/media/js/bootstrap-typeahead-gist2204728.js"></script>
 <script src="http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
-<script src="http://maps.google.com/maps/api/js?v=3.6&amp;sensor=false"></script>
-<link rel="stylesheet" href="http://openlayers.org/dev/theme/default/style.css" type="text/css" />
-
+<script src="http://maps.google.com/maps/api/js?v=3&amp;libraries=adsense&amp;sensor=false"></script>
+<link rel="stylesheet" href="/media/css/openlayers/style.css" type="text/css" />
 
 <script type="text/javascript">
+
+GLOBAL_ci = "{{ ciudad_actual.slug }}"
+
 $(function() {
     // todo esto inicial es para hacer bootstrap 100% height
-    $("#sidebar").css("margin-top", "18px")
-    $("#sidebar").css("overflow", "auto")
+    $("#bloque_izquierda").css("margin-top", "18px")
     $("body").css("padding-bottom","0px")
     $(".navbar").css("margin-bottom","0px")
     if ( $(window).width() > 980 ) {
         $("#map").height(($(window).height()-40)+"px")
-        $("#sidebar").height(($(window).height()-58)+"px")
+        $("#bloque_izquierda").height(($(window).height()-58)+"px")
         $("body").css("padding-top","40px")
     }
     else {
         $("#map").height(($(window).height()-50)+"px")
-        $("#sidebar").height(($(window).height()-58)+"px")
+        $("#bloque_izquierda").height(($(window).height()-58)+"px")
         $("body").css("padding-top","0px")
     }
     if ( $(window).width() < 456 )
@@ -97,35 +101,37 @@ $(function() {
         $("#map").css("margin-right", "-20px")
 
     $(window).bind('resize', function() {
+        $("#bloque_izquierda").css("margin-top", "18px")
+        $("body").css("padding-bottom","0px")
+        $(".navbar").css("margin-bottom","0px")
         if ( $(window).width() > 980 ) {
             $("#map").height(($(window).height()-40)+"px")
-            $("#sidebar").height(($(window).height()-58)+"px")
+            $("#bloque_izquierda").height(($(window).height()-58)+"px")
             $("body").css("padding-top","40px")
             //esto no anda bien
-            if ( $("#sidebar").height() > ($(window).height()-58)+"px" )
-                $("#sidebar").height(($(window).height()-58)+"px")
-            else
-                $("#sidebar").height("")
+
+                $("#bloque_izquierda").height(($(window).height()-58)+"px")
+
         }
         else {
             $("#map").height(($(window).height()-50)+"px")
             $("body").css("padding-top","0px")
             //esto no anda bien
-            if ( $("#sidebar").height() > ($(window).height()-68)+"px" )
-                $("#sidebar").height(($(window).height()-68)+"px")
-            else
-                $("#sidebar").height("")
+
+                $("#bloque_izquierda").height(($(window).height()-68)+"px")
+
         }
         if ( $(window).width() < 456 )
             $("#map").css("margin-right", "0px")
         else
             $("#map").css("margin-right", "-20px")
     });
+    // fin bootstrap 100% height
 
 
     // definicion inicial del mapa
     OpenLayers.ImgPath = "/media/css/openlayers/"
-    map = new OpenLayers.Map("map", {theme: null})
+    var map = new OpenLayers.Map("map", {theme: null})
     var gmap = new OpenLayers.Layer.Google(
         "Google Streets", {numZoomLevels: 20}
     );
@@ -143,23 +149,26 @@ $(function() {
     //map.setCenter(map.center())
 
     // estilos de los markers
-    var styleMap = new OpenLayers.StyleMap();
+    var styleMap = new OpenLayers.StyleMap({fillColor: '#1166EE', fillOpacity: 0.2, strokeColor: '#1166EE', strokeOpacity: 0.3, strokeWidth: 2});
     lookup = {
         // nombre:hovering:dragging
-        "A:false:false": { externalGraphic: "http://www.google.com/mapfiles/marker_blackA.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
-        "A:true:false" : { externalGraphic: "http://www.google.com/mapfiles/marker_whiteA.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
-        "A:false:true" : { externalGraphic: "http://www.google.com/mapfiles/marker_whiteA.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1 },
-        "A:true:true"  : { externalGraphic: "http://www.google.com/mapfiles/marker_whiteA.png", backgroundGraphic: "http://maps.gstatic.com/intl/en_ALL/mapfiles/drag_cross_67_16.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1, backgroundWidth: 16, backgroundHeight: 16 },
-        "B:false:false": { externalGraphic: "http://www.google.com/mapfiles/marker_blackB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
-        "B:true:false" : { externalGraphic: "http://www.google.com/mapfiles/marker_whiteB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -34, graphicOpacity: 1 },
-        "B:false:true" : { externalGraphic: "http://www.google.com/mapfiles/marker_whiteB.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1 },
-        "B:true:true"  : { externalGraphic: "http://www.google.com/mapfiles/marker_whiteB.png", backgroundGraphic: "http://maps.gstatic.com/intl/en_ALL/mapfiles/drag_cross_67_16.png", graphicWidth: 20, graphicHeight: 34, graphicYOffset: -44, graphicOpacity: 1, backgroundWidth: 16, backgroundHeight: 16 },
+        "A:false:false": { externalGraphic: "/media/css/openlayers/markerA.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -50, graphicOpacity: 1 },
+        "A:true:false" : { externalGraphic: "/media/css/openlayers/markerA-hover.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -50, graphicOpacity: 1 },
+        "A:false:true" : { externalGraphic: "/media/css/openlayers/markerA-drag.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -41, graphicOpacity: 1 },
+        "A:true:true"  : { externalGraphic: "/media/css/openlayers/markerA-drag.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -41, graphicOpacity: 1 },
+        "B:false:false": { externalGraphic: "/media/css/openlayers/markerB.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -50, graphicOpacity: 1 },
+        "B:true:false" : { externalGraphic: "/media/css/openlayers/markerB-hover.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -50, graphicOpacity: 1 },
+        "B:false:true" : { externalGraphic: "/media/css/openlayers/markerB-drag.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -41, graphicOpacity: 1 },
+        "B:true:true"  : { externalGraphic: "/media/css/openlayers/markerB-drag.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -41, graphicOpacity: 1 },
     }
     styleMap.addUniqueValueRules("default", "tipo", lookup);
 
     // creacion de las diferentes capas
-    var markers = new OpenLayers.Layer.Vector( "Markers", {styleMap: styleMap} );
-    var recorridos = new OpenLayers.Layer.Vector( "Recorridos", {styleMap: new OpenLayers.StyleMap({strokeWidth: 5}) });
+    var markers = new OpenLayers.Layer.Vector( "Markers", {
+        styleMap: styleMap
+        //,renderers: ["SVG2", "VML", "Canvas"] // allow render while panning when possible
+    });
+    var recorridos = new OpenLayers.Layer.Vector( "Recorridos", {styleMap: new OpenLayers.StyleMap({strokeWidth: 5})});
     map.addLayer(recorridos)
     map.addLayer(markers)
 
@@ -168,26 +177,34 @@ $(function() {
 
     // clase Marker (para manejar el markerA y marerB mas facil)
     function Marker(layer, id) {
-        this.listo = false
-        this.point = null
-        this.layer = layer
-        this.id = id
+        this.listo  = false
+        this.point  = null
+        this.layer  = layer
+        this.id     = id
+        this.centro = null
+        this.confirmado = false
     }
     Marker.prototype.setPoint = function(point) {
         // setea el punto con latlng y lo pone en el mapa
         // point = new OpenLayers.Geometry.Point(lon, lat);
-        if (!this.listo) {
-            this.point = new OpenLayers.Feature.Vector(point, {tipo:this.id+":false:false"})
-            this.layer.addFeatures([this.point])
+        if (this.listo) {
+            this.layer.removeFeatures(this.point)
         }
-        else {
-            this.point.geometry.x = point.x
-            this.point.geometry.y = point.y
-            this.point.geometry.clearBounds()
-            //this.layer.drawFeature(this.point);
-        }
+        
+        this.centro = point
+        this.point = new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Collection(
+                [
+                OpenLayers.Geometry.Polygon.createRegularPolygon(point, 600, 20, 0),
+                point
+                ]
+            ),
+            {tipo:this.id+":false:false"}
+        )
+        this.layer.addFeatures([this.point])
         this.listo = true
-        this.layer.redraw()
+        this.layer.map.moveTo(this.point)
+        this.layer.drawFeature(this.point)
     }
 
     // dos objetos de la clase marker
@@ -203,13 +220,17 @@ $(function() {
             'click': function(evt) {
                 var lonlat = map.getLonLatFromViewPortPx(evt.xy);
                 point = new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat);
-                if ( !markerA.listo )
+                if ( !markerA.listo ) {
                     markerA.setPoint(point)
+                    markerA.confirmado = true
+                }
                 else
                     if ( !markerB.listo ) {
                         markerB.setPoint(point)
+                        markerB.confirmado = true
                         clickHandler.deactivate();
-                        buscarporclick(markerA.point.geometry, markerB.point.geometry)
+                        pagina = 1
+                        buscarporclick(markerA.centro, markerB.centro)
                     }
             }
         }
@@ -225,7 +246,10 @@ $(function() {
                 t = feature.attributes.tipo.split(":")
                 feature.attributes.tipo=t[0]+":true:false"
                 markers.redraw()
-                buscarporclick(markerA.point.geometry, markerB.point.geometry)
+                if ( feature == markerA.punto ) markerA.confirmado = true
+                if ( feature == markerB.punto ) markerB.confirmado = true
+                pagina = 1
+                buscarporclick(markerA.centro, markerB.centro)
             },
             onEnter: function(feature, pixel) {
                 t = feature.attributes.tipo.split(":")
@@ -252,54 +276,43 @@ $(function() {
 
     // buscador de lineas por sugerencia al tipear
     $('#inputLinea').attr("autocomplete","off")
-    $('#inputLinea').typeahead({
-        source: function (typeahead, query) {
-            $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty()),
-            $.ajax({
-                url: "/api/recorridos/?q="+query,
-                success: function (data) {
-                    // data must be a list of either strings or objects
-                    // data = [{'nombre': 'Joe',.. }, {'name': 'Henry'}, ...]
-                    typeahead.process(data.resultados)
-                    //mostrarResultados(data)
-                }
-            })
-        },
-        onselect: function (obj) {
-	  var res = new Array();
-	  res.push(obj);
-	  var response = {'resultados': res, 'cant_total': 1};
-          mostrarResultados(response);
-        },
-        property: "nombre",
-        timeout: 1000
+
+    $('#inputLinea').keyup(function () {
+        $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
+        if ( ajaxInputLinea ) ajaxInputLinea.abort()
+        pagina = 1
+        inputLinea()
     })
 
+    function inputLinea() {
+        buscar = false
+        ajaxInputLinea = $.ajax({
+            url: "/api/recorridos/?c="+GLOBAL_ci+"&q="+$('#inputLinea').val()+"&p="+pagina,
+            success: mostrarResultados
+        })
+    }
+
+    var adUnitDiv = document.createElement('div');
+    var adUnitOptions = {
+        format: google.maps.adsense.AdFormat.HALF_BANNER,
+        position: google.maps.ControlPosition.TOP,
+        map: map.baseLayer.mapObject,
+        visible: true,
+        publisherId: 'ca-pub-1193419141108967'
+    }
+    adUnit = new google.maps.adsense.AdUnit(adUnitDiv, adUnitOptions);
 
     // variables "globales"
-    resultados = new Object()
-    poly = null
+    var resultados = new Object()
+    var polylinea  = new Array()
+    var polyhover  = new Array()
+    var pagina     = 1
+    var ajaxInputLinea = false
+    var buscar     = true //false si busca de A a B, true si busca por nombre de recorrido (es para llamar la funcion correcta al paginar)
 
     // aca arrancan las funciones de cualbondi que pueden llamarse desde el html
     // namespace de cualbondi que se ve desde afuera por mas que minifiquemos
     $.cb = new Object()
-
-    // handler para el boton de ayuda
-    $.cb.click_button_ayuda = function() {
-        html = '<div>'
-    	    html += '<h3 align="center">¿Como busco recorridos?</h3>'
-            html += '<h4>Campos de búsqueda</h4>'
-            html += '<p style="margin-left:5px">Escriba directamente en los campos de texto del panel superior. Puede considerar interseccion de calles, calle y número o lugares de interes. Vea los ejemplos debajo de los campos de búsqueda.</p>'
-            html += '<hr>'
-            html += '<h4>Click sobre el mapa</h4>'
-            html += '<p style="margin-left:5px">Puede hacer click directamente sobre el mapa para indicar el Origen y Destino de su búsqueda. Luego puede arrastrar los marcadores A o B para editar su ubicación.</p>'
-            html += '<hr>'
-            html += '<h4>Lineas de micro</h4>'
-            html += '<p style="margin-left:5px">Para buscar un recorrido completo de una linea de colectivo en particular, consulte la sección "Lineas de micro" del panel lateral izquierdo.</p>'
-            html += '<hr>'
-        html += '</div>'
-        $("#sidebarContenido").html(html);
-    }
 
     // handler para mostrar resultados, usa el template de listado de results
     $.cb.mostrar_resultado = function(id) {
@@ -308,21 +321,29 @@ $(function() {
         $("#sidebarContenido li").removeClass("active")
         $("#res"+id).addClass("active")
         recorridos.removeAllFeatures()
-        poly = new OpenLayers.Format.WKT().read(resultados[id].ruta_corta);
-        poly.geometry.transform(proj, map.getProjectionObject())
-        recorridos.addFeatures([poly]);
+
+        var polylinea = new Array()
+        $.each(resultados[id], function(key, value) {
+            var poly = new OpenLayers.Format.WKT().read(value.ruta_corta);
+            poly.geometry.transform(proj, map.getProjectionObject())
+            var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+            style.strokeOpacity = 0.8;
+            style.strokeWidth   = 5;
+            style.strokeColor   = value.color_polilinea ? value.color_polilinea : "#000000";
+            poly.style          = style;
+            polylinea.push(poly);
+        });        
+        recorridos.addFeatures(polylinea);
     }
 
-    // handler para buscar por origen y destino
-    $.cb.click_button_buscar = function() {
+    function buscar_por_inputs() {
         $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
         var data1 = null
         var data2 = null
-        // TODO: poner ajaxloader
         // muestra los resultados de la busqueda como sugerencia
         function mostrarResultadoCatastro(data, id) {
             data.id = id
-            data = $.map(data, function(item, i){item.id = id; return item});
+            data = $.map(data, function(item, i){item.id = id; item.domId = Math.floor(Math.random()*10000);return item});
             if ( id == 1 ) data1=data
             else data2=data
             if ( data1 !== null && data2 !== null ) {
@@ -330,13 +351,13 @@ $(function() {
             }
         }
         $.ajax({
-            url: "/api/catastro/?query="+$("#inputDesde").val(),
+            url: "/api/catastro/?query="+$("#inputDesde").val()+"&ciudad="+GLOBAL_ci,
             success: function (data) {
                 mostrarResultadoCatastro(data, 1)
             }
         })
         $.ajax({
-            url: "/api/catastro/?query="+$("#inputHasta").val(),
+            url: "/api/catastro/?query="+$("#inputHasta").val()+"&ciudad="+GLOBAL_ci,
             success: function (data) {
                 mostrarResultadoCatastro(data, 2)
             }
@@ -344,7 +365,7 @@ $(function() {
     }
 
     // mueve el markerA o B a el punto seleccionado
-    $.cb.marcarPunto = function(pointWKT, id) {
+    $.cb.marcarPunto = function(pointWKT, id, domId) {
         // pointWKT es 'POINT(12.234 56.789)'
         // id es 1 para origen(markerA) y 2 para destino(markerB)
         var point = new OpenLayers.Format.WKT().read(pointWKT).geometry
@@ -354,16 +375,53 @@ $(function() {
             markerA.setPoint(point)
         else if ( id == 2 )
             markerB.setPoint(point)
+        map.panTo(new OpenLayers.LonLat(point.x, point.y))
+        $("#sug" + domId).siblings().removeClass("active")
+        $("#sug" + domId).addClass("active")
     }
 
     // busca una vez que se eligieron las sugerencias
     $.cb.seleccionarSugerencias = function() {
-        if ( markerA.listo && markerB.listo )
-            buscarporclick(markerA.point.geometry, markerB.point.geometry)
+        markerA.confirmado = true
+        markerB.confirmado = true
+        if ( markerA.listo && markerB.listo ) {
+            pagina = 1
+            buscarporclick(markerA.centro, markerB.centro)
+        }
+    }
+
+    // busca por transbordo
+    $.cb.buscarTransbordo = function() {
+        markerA.confirmado = true
+        markerB.confirmado = true
+        if ( markerA.listo && markerB.listo ) {
+            pagina = 1
+            buscarporclick(markerA.centro, markerB.centro, 'true')
+        }
+    }
+
+    // pasa a la siguiente pagina
+    // n = -1: pagina anterior
+    //      x: pagina x
+    //      0: pagina siguiente
+    $.cb.pagina = function(n) {
+        if ( n < 0 )
+            pagina = ( pagina > 1 ) ? pagina - 1 : 1;
+        else if ( n == 0 )
+            pagina+=1;
+        else if ( n > 0)
+            pagina = n;
+
+        if ( buscar )
+            buscarporclick(markerA.centro, markerB.centro)
+        else
+            inputLinea()
     }
 
     // envia peticion al server para buscar por latlng
-    function buscarporclick(lla, llb) {
+    function buscarporclick(lla, llb, combinar) {
+        if ( typeof(combinar) === 'undefined' ) combinar = 'false';
+        buscar     = true
         $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
         lla = lla.transform(map.getProjectionObject(), proj)
         llb = llb.transform(map.getProjectionObject(), proj)
@@ -374,7 +432,9 @@ $(function() {
                 destino: llb.x+","+llb.y,
                 radio_origen: "500",
                 radio_destino: "500",
-                pagina: 1
+                c: GLOBAL_ci,
+                p: pagina,
+                combinar: combinar
             },
             mostrarResultados
         );
@@ -384,18 +444,87 @@ $(function() {
 
     // muestra los resultados devueltos por el server usando un template
     function mostrarResultados(data){
-        if (data.cant_total==0){
-            $('#sidebarContenido').html('<div class="alert alert-error">No se ha encontrado ningun resultado...</div>')
-        }else{
+        res = data['resultados']
+        if ( res.length === 0 )
+            if ( pagina == 1 )
+                $("#vacioTempl").tmpl().appendTo($("#sidebarContenido").empty());
+            else
+                pagina -= 1
+        else {
             resultados = new Object()
-            $.each(data.resultados, function(key, value) {
-                resultados[value.id] = value
+            $.each(res, function(key, value) {
+                resultados[value.id] = value.itinerario
             });
-            $("#listTempl").tmpl( [{ res: data.resultados }] ).appendTo($("#sidebarContenido").empty());
+            $("#listTempl").tmpl( [{ data: data }] ).appendTo($("#sidebarContenido").empty());
+            $("[id^=res]").each( function(i) {
+                $(this).children().bind("click", function(e) {
+                    id = $(this).attr("id")
+                    $.cb.mostrar_resultado(id)
+                    e.preventDefault()
+                })
+                $(this).children().bind("mouseenter", function(e) {
+                    id = $(this).attr("id")
+                    recorridos.removeFeatures(polyhover)
+                    polyhover = new Array();
+                    $.each(resultados[id], function(key, value) {
+                        var poly = new OpenLayers.Format.WKT().read(value.ruta_corta)
+                        poly.geometry.transform(proj, map.getProjectionObject())
+                        var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+                        style.strokeOpacity = 0.5
+                        style.strokeWidth   = 5
+                        style.strokeColor   = value.color_polilinea ? value.color_polilinea : "#000000"
+                        poly.style          = style
+                        polyhover.push(poly);
+                    });
+                    recorridos.addFeatures(polyhover)
+                })
+                $(this).children().bind("mouseleave", function(e) {
+                    recorridos.removeFeatures(polyhover)
+                })
+            })
             $.cb.mostrar_resultado()
         }
     }
 
+    // bind eventos click
+    $("#button-ayuda").bind("click", function(e) {
+        $("#ayudaTempl").tmpl().appendTo($("#sidebarContenido").empty());
+        e.preventDefault()
+    })
+    
+    $("#button-origendestino").bind("click", function(e) {
+        desde = $("#inputDesde").val()
+        hasta = $("#inputHasta").val()
+        if ( $.trim(desde) != '' && $.trim(hasta) != '' ) {
+            $("#inputDesde").val(hasta)
+            $("#inputHasta").val(desde)
+        }
+        if ( markerA.confirmado && markerB.confirmado ) {
+            ma = new OpenLayers.Geometry.Point(markerA.centro.x, markerA.centro.y)
+            mb = new OpenLayers.Geometry.Point(markerB.centro.x, markerB.centro.y)
+            markerA.setPoint(mb)
+            markerB.setPoint(ma)
+            // buscar sobre los markers
+            buscarporclick(markerA.centro, markerB.centro)
+        }
+        else {
+            // buscar sobre los textbox
+            buscar_por_inputs()
+        }
+        e.preventDefault()
+    })
+
+    function invalidarMarkers() {
+        markerA.confirmado = false
+        markerB.confirmado = false
+    }
+    $("#inputDesde").bind("change", invalidarMarkers)
+    $("#inputHasta").bind("change", invalidarMarkers)
+
+    $("#button-buscarinputs").bind("click", function(e) {
+        buscar_por_inputs()
+        e.preventDefault()
+    })
 
 })
 </script>
@@ -407,38 +536,84 @@ $(function() {
 </script>
 
 <script id="listTempl" type="text/x-jquery-tmpl">
+<div><small>Página ${data['p']}</small><small class="pull-right">${data['cant']} resultados</small></div>
+<div>
 <ul class="nav nav-pills nav-stacked">
-    {% templatetag openvariable %}tmpl(res) "#itemTempl"{% templatetag closevariable %}
+    {% templatetag openvariable %}tmpl(data['resultados']) "#itemTempl"{% templatetag closevariable %}
 </ul>
+{% templatetag openvariable %}tmpl(data) "#paginacionTempl"{% templatetag closevariable %}
+</div>
 </script>
 <script id="itemTempl" type="text/x-jquery-tmpl"> 
     <li id="res${id}">
-        <a href="#" onclick="javascript:$.cb.mostrar_resultado(${id});return false">
-            <strong>${nombre}</strong>
-            <br>
-            de ${inicio} a ${fin}
-            <br>
-            a pie: ${long_pata}km
-            <br>
-            en bondi:${long_bondi}km
+        <a href="#" id="${id}">
+            {% templatetag openvariable %}each itinerario{% templatetag closevariable %}
+                <div style="margin:0; padding:0">
+                    <img src="/media/img/micros/30x35/${foto}.png" style="float:left; margin-top: 4px; margin-right: 4px"/>
+                    <strong>${nombre}</strong>
+                    <br>
+                    de ${inicio} a ${fin}
+                    <br>
+                    distancia: {% templatetag openvariable %}if long_pata{% templatetag closevariable %}${Math.round(long_pata)} m (pie) + {% templatetag openvariable %}/if{% templatetag closevariable %}${Math.round(long_bondi/100)/10} km (bondi)
+                </div>
+            {% templatetag openvariable %}/each{% templatetag closevariable %}
         </a>
     </li>
 </script>
 
+<script id="paginacionTempl" type="text/x-jquery-tmpl">
+    <div class="pagination pagination-centered">
+        <ul>
+            <li><a href="#" onclick="javascript:$.cb.pagina(-1);return false">«</a></li>
+            <li><a href="#" onclick="javascript:$.cb.pagina(1);return false">1</a></li>
+            <li class="disabled"><a>...</a></li>
+            <li><a href="#" onclick="javascript:$.cb.pagina(${Math.ceil(cant/long_pagina)});return false">${Math.ceil(cant/long_pagina)}</a></li>
+            <li><a href="#" onclick="javascript:$.cb.pagina(0);return false">»</a></li>
+        </ul>
+    </div>
+</script>
+
 <script id="listSuggest" type="text/x-jquery-tmpl">
-<ul id="#sug1" class="nav nav-pills nav-stacked">
-    {% templatetag openvariable %}tmpl(data1) "#itemSuggest"{% templatetag closevariable %}
+<p>Seleccione la opción correcta</p>
+<div class="well sidebar-nav">
+    <ul class="nav nav-list">
+        <li class="nav-header">Origen:</li>
+    </ul>
+    <ul id="#sug1" class="nav nav-list">
+        {% templatetag openvariable %}tmpl(data1) "#itemSuggest"{% templatetag closevariable %}
+    </ul>
+    <ul class="nav nav-list">
+        <li class="nav-header">Destino:</li>
+    </ul>
+    <ul id="#sug2" class="nav nav-list">
+        {% templatetag openvariable %}tmpl(data2) "#itemSuggest"{% templatetag closevariable %}
+    </ul>
+    <div>
+        &nbsp;
+        <button id="button-seleccionarSugerencias" class="btn btn-primary pull-right" type="submit" onclick="javascript:$.cb.seleccionarSugerencias();return false">Aceptar</button>
+    </div>
 </ul>
-<hr>
-<ul id="#sug2" class="nav nav-pills nav-stacked">
-    {% templatetag openvariable %}tmpl(data2) "#itemSuggest"{% templatetag closevariable %}
-</ul>
-<button class="btn btn-primary" type="submit" onclick="javascript:$.cb.seleccionarSugerencias();return false">Buscar</button>
 </script>
 <script id="itemSuggest" type="text/x-jquery-tmpl">
-    <li>
-        <a id="" href="#" onclick="javascript:$.cb.marcarPunto('${geom}', ${id});return false">${nombre} <span style="font-size:0.6em">(${(precision*100).toFixed(2)}%)</span></a>
+    <li id="sug${domId}">
+        <a href="#" onclick="javascript:$.cb.marcarPunto('${geom}', ${id}, ${domId});return false">${nombre} <span class="distancia">(${(precision*100).toFixed(2)}%)</span></a>
     </li>
+</script>
+
+<script id="ayudaTempl" type="text/x-jquery-tmpl">
+   <h3>¿Como busco recorridos?</h3>
+   <h4>Campos de búsqueda</h4>
+   <p>Escriba directamente en los campos de texto del panel superior. Puede considerar interseccion de calles, calle y número o lugares de interes. Vea los ejemplos debajo de los campos de búsqueda.</p>
+   <h4>Click sobre el mapa</h4>
+   <p> hacer click directamente sobre el mapa para indicar el Origen y Destino de su búsqueda. Luego puede arrastrar los marcadores A o B para editar su ubicación.</p>
+   <h4>Lineas de micro</h4>
+   <p>Para buscar un recorrido completo de una linea de colectivo en particular, consulte la sección "Recorridos" aqui arriba.</p>
+</script>
+
+<script id="vacioTempl" type="text/x-jquery-tmpl">
+   <h3>No se encontraron resultados sin transbordo</h3>
+   <p>Si igualmente desea buscar con transbordo, presione el siguiente botón</p>
+   <button id="button_buscar_transbordo" class="btn btn-primary" onclick="javascript:$.cb.buscarTransbordo(); return false;">Buscar con Transbordo</button>
 </script>
 
 {% endblock %}
@@ -448,5 +623,5 @@ $(function() {
 {% endblock %}
 
 {% block custom_styles %}
-
+    <link href="/media/css/override-mapa.css" rel="stylesheet" type="text/css" />
 {% endblock %}

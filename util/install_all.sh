@@ -86,16 +86,16 @@ HEREDOC1
     (cat <<-EOF
     <VirtualHost *:80>
 
-	ServerName localhost
-	DocumentRoot $HOMEDIR
+    ServerName localhost
+    DocumentRoot $HOMEDIR
 
-	<Directory $HOMEDIR >
-		Order allow,deny
-		Allow from all
-	</Directory>
+    <Directory $HOMEDIR >
+        Order allow,deny
+        Allow from all
+    </Directory>
 
-	WSGIDaemonProcess geocualbondi.djangoserver processes=2 threads=15 display-name=%{GROUP}
-	WSGIProcessGroup geocualbondi.djangoserver
+    WSGIDaemonProcess geocualbondi.djangoserver processes=2 threads=15 display-name=%{GROUP}
+    WSGIProcessGroup geocualbondi.djangoserver
 
     Alias /robots.txt $HOMEDIR/static/robots.txt
     Alias /favicon.ico $HOMEDIR/static/favicon.ico
