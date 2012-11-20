@@ -1,6 +1,6 @@
 # Requerimientos python para utilizar Cualbondi
 
-Django==1.4.1
+Django
 psycopg2
 python-memcached
 django-olwidget

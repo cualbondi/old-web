@@ -1,0 +1,20 @@
+"""
+Local configuration for settings.py
+(to allow multiple configurations for each developer)
+
+Put your own configuration and rename this file to settings_local.py
+The loadDbParameters() function is imported from settings.py to set the
+DATABASE parameters
+"""
+
+def loadDbParameters():
+    return {
+                'default': {
+                    'ENGINE': 'django.contrib.gis.db.backends.postgis', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+                    'NAME': 'geocb',                      # Or path to database file if using sqlite3.
+                    'USER': 'postgres',                      # Not used with sqlite3.
+                    'PASSWORD': 'postgres',                  # Not used with sqlite3.
+                    'HOST': '127.0.0.1',                      # Set to empty string for localhost. Not used with sqlite3.
+                    'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+                }
+            }
