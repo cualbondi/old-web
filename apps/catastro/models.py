@@ -110,6 +110,7 @@ class Ciudad(models.Model):
     activa = models.BooleanField(default=False)
     sugerencia = models.CharField(max_length=100, blank=False, null=False)
     objects = CiudadManager()
+    descripcion = models.TextField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.nombre)
@@ -191,7 +192,7 @@ class PuntoBusquedaManager(models.Manager):
     def buscar(self, query, ciudad_actual_slug=None):
         # podria reemplazar todo esto por un lucene/solr/elasticsearch
         # que tenga un campo texto y un punto asociado
-        
+
         # Dados estos ejemplos:
         #  - 12 y 64, casco urbano, la plata, buenos aires, argentina
         #  - plaza italia, casco urbano, la plata, buenos aires, argentina
@@ -204,7 +205,7 @@ class PuntoBusquedaManager(models.Manager):
         #   Para cada uno del resto de los tokens:
         #   elevar un 20% la precision si el token coincide con el slug de la ciudad (o zona) donde el punto cae
         #   caso contrario, disminuir en un 20% la precision de ese punto
-        
+
         if query is not None:
             tokens = filter( None, map( unicode.strip, query.split(',') ) )
 
@@ -304,7 +305,7 @@ class PuntoBusquedaManager(models.Manager):
                         WHERE
                             nom_normal %% %(calle2)s
                     ) AS SEL2
-                    on ( ST_Intersects(SEL1.way, SEL2.way) 
+                    on ( ST_Intersects(SEL1.way, SEL2.way)
                         and ST_GeometryType(ST_Intersection(SEL1.way, SEL2.way)::Geometry)='ST_Point')
 
                     left outer join
@@ -411,7 +412,7 @@ class PuntoBusquedaManager(models.Manager):
 
     def _buscar_google_geocoder(self, query):
         pass
-        
+
 class PuntoBusqueda(models.Model):
     nombre = models.TextField()
     precision = models.FloatField()
