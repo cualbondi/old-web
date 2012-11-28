@@ -82,8 +82,27 @@ def ver_ciudad(request, nombre_ciudad):
             "layers": ["google.streets", "osm.mapnik"]  # "google.streets", "google.hybrid", "ve.road", "ve.hybrid", "yahoo.map"]
         }
     )
+
+    params = {"id_ciudad": int(ciudad_actual.id)}
+    query = """
+        SELECT
+            c.id,
+            AsText(ST_Union(ST_Buffer(r.ruta, 0.0045))) as wkt
+        FROM
+            core_recorrido as r
+            join catastro_ciudad_recorridos as cr on (cr.recorrido_id = r.id)
+            join catastro_ciudad as c on (cr.ciudad_id = c.id)
+        WHERE
+            cr.ciudad_id = %(id_ciudad)s
+        GROUP BY
+            c.id
+        ;
+    """
+    poli = Recorrido.objects.raw(query, params)[0]
+
     return render_to_response('core/ver_ciudad.html',
                               {'mapa': mapa,
+                               'poli': poli,
                                'lineas': lineas},
                               context_instance=RequestContext(request))
 
