@@ -1,0 +1,38 @@
+/* Open Sans */
+
+@font-face {
+    font-family: 'opensans_regular';
+    src: url('../fonts/OpenSans/OpenSans-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'opensans_bold';
+    src: url('../fonts/OpenSans/OpenSans-Bold.ttf');
+}
+
+@font-face {
+    font-family: 'opensans_italic';
+    src: url('../fonts/OpenSans/OpenSans-Italic.ttf');
+}
+
+/* GeoSlab */
+
+@font-face {
+    font-family: 'geoslab_medium_normal';
+    src: url('../fonts/GeoSlab/GES703MD.TTF');
+}
+
+@font-face {
+    font-family: 'geoslab_medium_italic';
+    src: url('../fonts/GeoSlab/GES703MI.TTF');
+}
+
+@font-face {
+    font-family: 'geoslab_bold_normal';
+    src: url('../fonts/GeoSlab/GES703BD.TTF');
+}
+
+@font-face {
+    font-family: 'geoslab_bold_italic';
+    src: url('../fonts/GeoSlab/GES703BI.TTF');
+}

@@ -5,9 +5,9 @@
         <link rel="icon" type="image/x-icon" href="/media/img/favicon.png" />
     	<title>{% block title %}Cualbondi{% endblock %}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link href="/media/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <link href="/media/css/fonts.css" rel="stylesheet" type="text/css" />
+		<link href="/media/css/bootstrap.custom.min.css" rel="stylesheet" type="text/css" />
 		<link href="/media/css/estilo.css" rel="stylesheet" type="text/css" />
-		<link href="/media/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css" />
 
         <meta name="google-site-verification" content="NVSk_0zcZdYua2ILJ4L0DvspOCmHujouihZPlo3mDco">
         <link href="https://plus.google.com/117455886911192315188" rel="publisher">
@@ -31,13 +31,11 @@
           fjs.parentNode.insertBefore(js, fjs);
         }(document, 'script', 'facebook-jssdk'));</script>
 
+        {% block navbar %}{% endblock %}
 
-	    {% block navbar %}{% endblock %}
-        <div class="container-fluid">
-            <div id="mensajes" align="center">{% include "mensajes.html" %}</div>
-		    {% block content %}{% endblock %}
-        </div>
-	    {% block footer %}{% endblock %}
+        {% block content %}{% endblock %}
+
+        {% block footer %}{% endblock %}
 
 	    <!-- Scripts -->
 	    <script src="/media/js/jquery-1.7.1.min.js"></script>

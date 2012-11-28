@@ -1,11 +1,16 @@
+@media (min-width: 980px) {
+    body { padding-top: 60px; }
+}
+
 body {
-    padding-top: 60px;
     padding-bottom: 40px;
     background-color: white;
-    background-image: url(/media/img/background.png);
     background-repeat: repeat-x;
     background-position: 0 40px;
+    font-family: 'opensans_regular';
+    font-size: 13px !important;
 }
+h1, h2, h3, h4, h5, h6 { font-family: 'geoslab_medium_normal'; }
 .escrachado { background-color: red; }
 #submit_button { cursor: pointer; }
 .required { color: #B94A48; }

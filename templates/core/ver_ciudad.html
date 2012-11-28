@@ -1,4 +1,5 @@
-{% extends "maquetado.html" %}
+{% extends "contenido.html" %}
+
 {% load comments %}
 {% load bootstrap_tags %}
 
@@ -16,6 +17,29 @@
 
     <h1>Ciudad de {{ciudad_actual.nombre}}</h1>
 
+    <div id="ciudad_carousel" class="carousel slide">
+        <div class="carousel-inner">
+            <div class="item active">
+                <img src="/media/img/ciudades/estadio.jpg" alt="">
+                <div class="carousel-caption">
+                    <h4>Estadio único</h4>
+                    <p>Terrible estado ubicado en 25 y 32.</p>
+                </div>
+            </div>
+            <div class="item">
+                <img src="/media/img/ciudades/catedral.jpg" alt="">
+                <div class="carousel-caption">
+                    <h4>Catedral</h4>
+                    <p>Increible catedral ubicada en Plaza Moreno, frente a la municipalidad.</p>
+                </div>
+            </div>
+        </div>
+        <a class="left carousel-control" href="#ciudad_carousel" data-slide="prev">‹</a>
+        <a class="right carousel-control" href="#ciudad_carousel" data-slide="next">›</a>
+    </div>
+
+    <p>{{ciudad_actual.descripcion}}</p>
+
     <div class="thumbnail"><div id="map" style="background:lightblue; height:300px;"></div></div>
 
     <h3>Lineas de micro en {{ciudad_actual.nombre}}:</h3>
@@ -32,10 +56,12 @@
     </table>
 
     <h3>Dejanos un comentario sobre "{{ciudad_actual.nombre}}"</h3>
-    <div align="center"><div class="fb-comments" data-href="http://www.cualbondi.com.ar{{request.get_full_path}}" data-num-posts="2" data-width="900"></div></div>
 {% endblock %}
 
 {% block custom_ready_function %}
+    //CAROUSEL
+    $('.carousel').carousel()
+
     //Proyeccion que se necesita para transformar proyecciones mas adelante
     var proj = new OpenLayers.Projection("EPSG:4326");
 
@@ -56,7 +82,7 @@
     map.addLayer(layer_poligono)
 
     //Insertamos el poligono en la nueva capa
-    poligono_ciudad = new OpenLayers.Format.WKT().read('{{ciudad_actual.poligono.wkt}}');
+    poligono_ciudad = new OpenLayers.Format.WKT().read("{{poli.wkt}}");
 
     poligono_ciudad.geometry.transform(proj, map.getProjectionObject())
     layer_poligono.addFeatures([poligono_ciudad]);

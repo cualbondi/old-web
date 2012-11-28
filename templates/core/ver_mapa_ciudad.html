@@ -1,10 +1,17 @@
 {% extends "base.html" %}
 
 {% block navbar %}
-    {% include "navbar.html"%}
+    <div class="navbar navbar-fixed-top navbar-inverse">
+        <div class="navbar-inner">
+            <div class="container-fluid">
+                {% include "navbar.html"%}
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block content %}
+    <div class="container-fluid">
         <div class="row-fluid">
             <div id="bloque_izquierda" class="span3">
                 <div id="sidebar">
@@ -36,7 +43,7 @@
                                         </div>
                                     </div>
                                 </form>
-                                <!-- 
+                                <!--
                                 <div align="left" style="padding-top: 5px;">
                                     <iframe src="//www.facebook.com/plugins/like.php?href=https%3A%2F%2Fwww.facebook.com%2Fcualbondi&amp;send=false&amp;layout=button_count&amp;width=450&amp;show_faces=false&amp;action=like&amp;colorscheme=light&amp;font=verdana&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:450px; height:21px;" allowTransparency="true"></iframe>
                                     <br>
@@ -67,6 +74,7 @@
                 </div>
             </div>
         </div>
+    </div>
 {% endblock %}
 
 {% block custom_scripts %}
@@ -190,7 +198,7 @@ $(function() {
         if (this.listo) {
             this.layer.removeFeatures(this.point)
         }
-        
+
         this.centro = point
         this.point = new OpenLayers.Feature.Vector(
             new OpenLayers.Geometry.Collection(
@@ -332,7 +340,7 @@ $(function() {
             style.strokeColor   = value.color_polilinea ? value.color_polilinea : "#000000";
             poly.style          = style;
             polylinea.push(poly);
-        });        
+        });
         recorridos.addFeatures(polylinea);
     }
 
@@ -491,7 +499,7 @@ $(function() {
         $("#ayudaTempl").tmpl().appendTo($("#sidebarContenido").empty());
         e.preventDefault()
     })
-    
+
     $("#button-origendestino").bind("click", function(e) {
         desde = $("#inputDesde").val()
         hasta = $("#inputHasta").val()
@@ -544,7 +552,7 @@ $(function() {
 {% templatetag openvariable %}tmpl(data) "#paginacionTempl"{% templatetag closevariable %}
 </div>
 </script>
-<script id="itemTempl" type="text/x-jquery-tmpl"> 
+<script id="itemTempl" type="text/x-jquery-tmpl">
     <li id="res${id}">
         <a href="#" id="${id}">
             {% templatetag openvariable %}each itinerario{% templatetag closevariable %}

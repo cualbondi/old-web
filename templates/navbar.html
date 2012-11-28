@@ -1,21 +1,18 @@
-<div class="navbar navbar-fixed-top">
-  <div class="navbar-inner">
-    <div class="container-fluid">
-        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </a>
-        <a class="brand" href="/" style="background:url(/media/img/logo-navbar.png); height:25px; width:132px; padding:0; margin: 5px 20px 0 0;"></a>
-        <div class="nav-collapse">
-            <ul class="nav">
-              <li class="active"><a href="/"><i class="icon-home icon-white"></i> Inicio</a></li>
-              <li class="dropdown">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="">
-                  <i class="icon-picture icon-white"></i> Ciudad
-                  <b class="caret"></b>
-                </a>
-                <ul class="dropdown-menu">
+<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+</a>
+<a class="brand" href="/" style="background:url(/media/img/logo-navbar.png); height:25px; width:132px; padding:0; margin: 5px 20px 0 0;"></a>
+<div class="nav-collapse">
+    <ul class="nav">
+        <li class="active"><a href="/"><i class="icon-home icon-white"></i> Inicio</a></li>
+        <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="">
+                <i class="icon-picture icon-white"></i> Ciudad
+                <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
                 {% for ciudad in ciudades %}
                     {% if ciudad == ciudad_actual %}
                         <li><a style="font-weight:bold;" href=""><i class="icon-map-marker"></i> {{ciudad.nombre}}</a></li>
@@ -23,20 +20,17 @@
                         <li><a href="{% if es_vista_mapa %}/mapa{% endif %}/{{ciudad.slug}}"><i class="icon-map-marker"></i> {{ciudad.nombre}}</a></li>
                     {% endif %}
                 {% endfor %}
-                </ul>
-              </li>
-            {% if ciudad_actual %}
-                {% if es_vista_mapa %}
-                  <li><a href="/{{ciudad_actual.slug}}"><i class="icon-file icon-white"></i> Ir al contenido</a></li>
-                {% else %}
-                  <li><a href="/mapa/{{ciudad_actual.slug}}"><i class="icon-map-marker icon-white"></i> Ir al mapa</a></li>
-                {% endif %}
+            </ul>
+        </li>
+        {% if ciudad_actual %}
+            {% if es_vista_mapa %}
+                <li><a href="/{{ciudad_actual.slug}}"><i class="icon-file icon-white"></i> Ir al contenido</a></li>
+            {% else %}
+                <li><a href="/mapa/{{ciudad_actual.slug}}"><i class="icon-map-marker icon-white"></i> Ir al mapa</a></li>
             {% endif %}
-            </ul>
-            <ul class="nav pull-right">
-                <li><a href="https://spreadsheets.google.com/spreadsheet/viewform?formkey=dFJERlREQjUyaE1iSkFDYnhOa2Nnbmc6MQ+"><i class="icon-pencil icon-white"></i> Ayudanos completando la encuesta</a></li>
-            </ul>
-        </div>
-    </div>
-  </div>
+        {% endif %}
+    </ul>
+    <ul class="nav pull-right">
+    <li><a href="https://spreadsheets.google.com/spreadsheet/viewform?formkey=dFJERlREQjUyaE1iSkFDYnhOa2Nnbmc6MQ+"><i class="icon-pencil icon-white"></i> Ayudanos completando la encuesta</a></li>
+    </ul>
 </div>
