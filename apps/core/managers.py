@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*-
+from django.db import DatabaseError
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Point
 
@@ -130,7 +131,7 @@ class RecorridoManager(models.GeoManager):
                             round(min(long_pata)::numeric, 2) as long_pata,
                             linea_id,
                             color_polilinea
-                        FROM 
+                        FROM
                         (
                             (
                                 SELECT
@@ -143,7 +144,7 @@ class RecorridoManager(models.GeoManager):
                                     SELECT
                                         *,
                                         ST_Line_Substring(
-                                            ST_Line_Substring(ruta, 0, 0.5), 
+                                            ST_Line_Substring(ruta, 0, 0.5),
                                             ST_Line_Locate_Point(ST_Line_Substring(ruta, 0, 0.5),	%(puntoA)s),
                                             ST_Line_Locate_Point(ST_Line_Substring(ruta, 0, 0.5),	%(puntoB)s)
                                         ) as ruta_corta
@@ -167,7 +168,7 @@ class RecorridoManager(models.GeoManager):
                                 SELECT
                                     *,
                                     ST_Line_Substring(
-                                        ST_Line_Substring(ruta, 0.5, 1), 
+                                        ST_Line_Substring(ruta, 0.5, 1),
                                         ST_Line_Locate_Point(ST_Line_Substring(ruta, 0.5, 1),	%(puntoA)s),
                                         ST_Line_Locate_Point(ST_Line_Substring(ruta, 0.5, 1),	%(puntoB)s)
                                     ) as ruta_corta
@@ -199,7 +200,7 @@ class RecorridoManager(models.GeoManager):
                                         core_recorrido
                                     WHERE
                                         ST_Distance_Sphere(ST_GeomFromText(%(puntoA)s), ruta) < %(rad1)s and
-                                        ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s), ruta) < %(rad2)s and 
+                                        ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s), ruta) < %(rad2)s and
                                         ST_Line_Locate_Point(ruta, %(puntoA)s) <
                                         ST_Line_Locate_Point(ruta, %(puntoB)s)
                                 ) as completa_inner
@@ -292,4 +293,3 @@ class RecorridoManager(models.GeoManager):
         """
         query_set = self.raw(query, params)
         return query_set
-

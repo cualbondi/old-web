@@ -4,7 +4,6 @@ from piston.utils import rc
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.gis.geos import Point
 from django.core.cache import cache
-from django.db.models import Q
 from apps.core.models import Linea, Recorrido
 from apps.catastro.models import Ciudad, PuntoBusqueda
 from settings import (RADIO_ORIGEN_DEFAULT, RADIO_DESTINO_DEFAULT,
@@ -124,20 +123,20 @@ class RecorridoHandler(BaseHandler):
         response['c'] = ciudad_slug
 
         if query is not None:
-            qs = Recorrido.objects.fuzzy_like_query( query, ciudad_slug )
+            qs = Recorrido.objects.fuzzy_like_query(query, ciudad_slug)
             recorridos = [
-                { "id": r.id,
-                  "itinerario" : [
+                {"id": r.id,
+                  "itinerario": [
                         {
                             "id": r.id,
-                            "ruta_corta"     : r.ruta_corta,
-                            "long_bondi"     : r.long_ruta,
-                            "long_pata"      : None,
+                            "ruta_corta": r.ruta_corta,
+                            "long_bondi": r.long_ruta,
+                            "long_pata": None,
                             "color_polilinea": r.color_polilinea,
-                            "inicio"         : r.inicio,
-                            "fin"            : r.fin,
-                            "nombre"         : r.nombre,
-                            "foto"           : r.foto
+                            "inicio": r.inicio,
+                            "fin": r.fin,
+                            "nombre": r.nombre,
+                            "foto": r.foto
                         }
                     ]
                 }
@@ -203,18 +202,18 @@ class RecorridoHandler(BaseHandler):
                     if not combinar:
                         # Buscar SIN transbordo
                         recorridos = [
-                            { "id": r.id,
-                              "itinerario" : [
+                            {"id": r.id,
+                              "itinerario": [
                                     {
                                         "id": r.id,
-                                        "ruta_corta"     : r.ruta_corta,
-                                        "long_bondi"     : r.long_ruta,
-                                        "long_pata"      : r.long_pata,
+                                        "ruta_corta": r.ruta_corta,
+                                        "long_bondi": r.long_ruta,
+                                        "long_pata": r.long_pata,
                                         "color_polilinea": r.color_polilinea,
-                                        "inicio"         : r.inicio,
-                                        "fin"            : r.fin,
-                                        "nombre"         : r.nombre,
-                                        "foto"           : r.foto
+                                        "inicio": r.inicio,
+                                        "fin": r.fin,
+                                        "nombre": r.nombre,
+                                        "foto": r.foto
                                     }
                                 ]
                             }
@@ -223,29 +222,29 @@ class RecorridoHandler(BaseHandler):
                     else:
                         # Buscar CON transbordo
                         recorridos = [
-                            { "id": str(r.id)+str(r.id2),
-                              "itinerario" : [
+                            {"id": str(r.id) + str(r.id2),
+                              "itinerario": [
                                     {
                                         "id": r.id,
-                                        "ruta_corta"     : r.ruta_corta,
-                                        "long_bondi"     : r.long_ruta,
-                                        "long_pata"      : r.long_pata,
+                                        "ruta_corta": r.ruta_corta,
+                                        "long_bondi": r.long_ruta,
+                                        "long_pata": r.long_pata,
                                         "color_polilinea": r.color_polilinea,
-                                        "inicio"         : r.inicio,
-                                        "fin"            : r.fin,
-                                        "nombre"         : r.nombre,
-                                        "foto"           : r.foto
+                                        "inicio": r.inicio,
+                                        "fin": r.fin,
+                                        "nombre": r.nombre,
+                                        "foto": r.foto
                                     },
                                     {
                                         "id": r.id2,
-                                        "ruta_corta"     : r.ruta_corta2,
-                                        "long_bondi"     : r.long_ruta2,
-                                        "long_pata"      : r.long_pata2,
+                                        "ruta_corta": r.ruta_corta2,
+                                        "long_bondi": r.long_ruta2,
+                                        "long_pata": r.long_pata2,
                                         "color_polilinea": r.color_polilinea2,
-                                        "inicio"         : r.inicio2,
-                                        "fin"            : r.fin2,
-                                        "nombre"         : r.nombre2,
-                                        "foto"           : r.foto2
+                                        "inicio": r.inicio2,
+                                        "fin": r.fin2,
+                                        "nombre": r.nombre2,
+                                        "foto": r.foto2
                                     }
                                 ]
                             }
@@ -269,7 +268,7 @@ class CatastroHandler(BaseHandler):
 
     def read(self, request):
         q = request.GET.get('query', None)
-        ciudad_actual_slug = request.GET.get('ciudad_slug', None)
+        ciudad_actual_slug = request.GET.get('ciudad', None)
         if q is None:
             return rc.BAD_REQUEST
         else:

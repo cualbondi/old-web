@@ -100,5 +100,3 @@ class Terminal(models.Model):
     telefono = models.CharField(max_length=150)
     latlng = models.PointField()
     objects = models.GeoManager()
-
-
