@@ -38,7 +38,9 @@
         <a class="right carousel-control" href="#ciudad_carousel" data-slide="next">›</a>
     </div>
 
-    <p>{{ciudad_actual.descripcion}}</p>
+    {% if ciudad_actual.descripcion %}
+        <p>{{ciudad_actual.descripcion}}</p>
+    {% endif %}
 
     <div class="thumbnail"><div id="map" style="background:lightblue; height:300px;"></div></div>
 
