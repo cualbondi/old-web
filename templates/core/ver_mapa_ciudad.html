@@ -457,8 +457,10 @@ $(function() {
     function mostrarResultados(data){
         res = data['resultados']
         if ( res.length === 0 )
-            if ( pagina == 1 )
+            if ( pagina == 1 ) {
                 $("#vacioTempl").tmpl().appendTo($("#sidebarContenido").empty());
+                bindearEventos();
+            }
             else
                 pagina -= 1
         else {
