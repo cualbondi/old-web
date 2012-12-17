@@ -84,7 +84,7 @@
     map.addLayer(layer_poligono)
 
     //Insertamos el poligono en la nueva capa
-    poligono_ciudad = new OpenLayers.Format.WKT().read("{{poli.wkt}}");
+    poligono_ciudad = new OpenLayers.Format.WKT().read("{{ciudad_actual.envolvente}}");
 
     poligono_ciudad.geometry.transform(proj, map.getProjectionObject())
     layer_poligono.addFeatures([poligono_ciudad]);

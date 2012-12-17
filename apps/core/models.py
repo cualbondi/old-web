@@ -19,6 +19,7 @@ class Linea(models.Model):
     localidad = models.CharField(max_length=50, blank=True, null=True)
     cp = models.CharField(max_length=20, blank=True, null=True)
     telefono = models.CharField(max_length=200, blank=True, null=True)
+    envolvente = models.PolygonField(blank=True, null=True)
 
     def __unicode__(self):
         return self.nombre

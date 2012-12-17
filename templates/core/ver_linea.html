@@ -56,7 +56,7 @@
     map.addLayer(layer_recorridos)
 
 
-        path_recorrido = new OpenLayers.Format.WKT().read("{{poli.wkt}}");
+        path_recorrido = new OpenLayers.Format.WKT().read("{{linea_actual.envolvente}}");
         path_recorrido.geometry.transform(proj, map.getProjectionObject())
         layer_recorridos.addFeatures([path_recorrido]);
 

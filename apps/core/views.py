@@ -83,26 +83,8 @@ def ver_ciudad(request, nombre_ciudad):
         }
     )
 
-    params = {"id_ciudad": int(ciudad_actual.id)}
-    query = """
-        SELECT
-            c.id,
-            AsText(ST_Union(ST_Buffer(r.ruta, 0.0045))) as wkt
-        FROM
-            core_recorrido as r
-            join catastro_ciudad_recorridos as cr on (cr.recorrido_id = r.id)
-            join catastro_ciudad as c on (cr.ciudad_id = c.id)
-        WHERE
-            cr.ciudad_id = %(id_ciudad)s
-        GROUP BY
-            c.id
-        ;
-    """
-    poli = Recorrido.objects.raw(query, params)[0]
-
     return render_to_response('core/ver_ciudad.html',
                               {'mapa': mapa,
-                               'poli': poli,
                                'lineas': lineas},
                               context_instance=RequestContext(request))
 
@@ -132,25 +114,9 @@ def ver_linea(request, nombre_ciudad, nombre_linea):
                                      ciudad=ciudad_actual)
     recorridos = natural_sort_qs(Recorrido.objects.filter(linea=linea_actual), 'slug')
 
-    params = {"id_li": int(linea_actual.id)}
-    query = """
-        SELECT
-            l.id,
-            AsText(ST_Union(ST_Buffer(ruta, 0.0045))) as wkt
-        FROM
-            core_recorrido as r
-            join core_linea as l on (r.linea_id = l.id)
-        WHERE
-            l.id = %(id_li)s
-        GROUP BY
-            l.id
-        ;
-    """
-    poli = Recorrido.objects.raw(query, params)[0]
     return render_to_response('core/ver_linea.html',
                               {'ciudad_actual': ciudad_actual,
                                'linea_actual': linea_actual,
-                               'poli': poli,
                                'recorridos': recorridos
                                },
                               context_instance=RequestContext(request))

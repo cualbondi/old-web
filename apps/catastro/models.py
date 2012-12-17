@@ -59,18 +59,23 @@ la migracion de Provincia y Ciudad """
 
 
 class Provincia(models.Model):
+    # Obligatorios
     nombre = models.CharField(max_length=100, blank=False, null=False)
-    variantes_nombre = models.CharField(max_length=150, blank=True, null=True)
     slug = models.SlugField(max_length=120, blank=True, null=False)
+
+    # Opcionales
+    variantes_nombre = models.CharField(max_length=150, blank=True, null=True)
     longitud_poligono = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)
     area_poligono = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)
-    centro = models.PointField(blank=True, null=False)
-    poligono = models.PolygonField()
+    centro = models.PointField(blank=True, null=True)
+    poligono = models.PolygonField(blank=True, null=True)
+
     objects = models.GeoManager()
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.nombre)
-        self.centro = self.poligono.centroid
+        if self.poligono:
+            self.centro = self.poligono.centroid
         super(Provincia, self).save(*args, **kwargs)
 
     def __unicode__(self):
@@ -91,7 +96,7 @@ class Ciudad(models.Model):
     longitud_poligono = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)
     area_poligono = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)
     poligono = models.PolygonField(blank=True, null=True)
-    poligono = models.PolygonField(blank=True, null=True)
+    envolvente = models.PolygonField(blank=True, null=True)
     zoom = models.IntegerField(blank=True, null=True, default=14)
     centro = models.PointField(blank=True, null=True)
     descripcion = models.TextField(null=True, blank=True)
@@ -101,7 +106,8 @@ class Ciudad(models.Model):
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.nombre)
-        self.centro = self.poligono.centroid
+        if self.poligono:
+            self.centro = self.poligono.centroid
         super(Ciudad, self).save(*args, **kwargs)
 
     def __unicode__(self):
