@@ -1,36 +1,76 @@
 # -*- coding: utf-8 *-*
-from django.core.management.base import BaseCommand, CommandError
-from django.core.exceptions import ObjectDoesNotExist
-from apps.core.models import Recorrido, Linea
-from apps.catastro.models import Ciudad
-from django.db import connection, transaction
+"""Migra los datos de la BD colectivos a los nuevos modelos de django"""
+
 import psycopg2
-import psycopg2.extras
-from pprint import pprint
-from django.template.defaultfilters import slugify
+from psycopg2.extras import RealDictCursor
+
+from django.db import connection
+from django.core.management.base import BaseCommand
+from django.core.exceptions import ObjectDoesNotExist
+
+from apps.catastro.models import Provincia, Ciudad
+from apps.core.models import Linea, Recorrido
+
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
         cursor = connection.cursor()
         db = psycopg2.connect(
-            host = '127.0.0.1',
-            database = 'colectivos',
-            user = 'web_colectivos',
-            password = 'soylawebcolectivos'
+            host='127.0.0.1',
+            database='geocb',
+            user='postgres',
+            password='postgres'
         )
-        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cursor = db.cursor(cursor_factory=RealDictCursor)
+        stats = {'ciudades': 0, 'lineas': 0, 'recorridos': 0}
+
+        # agrego una provincia falsa para referenciar las ciudades
+        provincia = Provincia(nombre="fake")
+        provincia.save()
+
+        cursor.execute("""
+            SELECT id
+            FROM ciudad;
+        """)
+
+        for row in cursor.fetchall():
+            try:
+                Ciudad.objects.get(slug=row['id'])
+            except ObjectDoesNotExist:
+                nombre = row['id'].replace("-", " ").title()
+                ciudad = Ciudad(
+                    nombre=nombre,
+                    provincia=provincia
+                )
+                ciudad.save()
+                stats['ciudades'] += 1
+
+        cursor.execute("""
+            SELECT nombre, descripcion, foto, info_empresa, info_terminal,
+                   id, semirrapido, localidad, cp, telefono
+            FROM linea;
+        """)
+
+        for row in cursor.fetchall():
+            try:
+                Linea.objects.get(id=row['id'])
+            except ObjectDoesNotExist:
+                linea = Linea(
+                    id=row['id'],
+                    nombre=row['nombre'],
+                    descripcion=row['descripcion'],
+                    foto=row['foto'],
+                    info_empresa=row['info_empresa'],
+                    info_terminal=row['info_terminal'],
+                    localidad=row['localidad'],
+                    cp=row['cp'],
+                    telefono=row['telefono']
+                )
+                linea.save()
+                stats['lineas'] += 1
+
         cursor.execute("""
             SELECT
-                li.nombre as li_nombre,
-                li.descripcion as li_descripcion,
-                li.foto as li_foto,
-                li.info_empresa as li_info_empresa,
-                li.info_terminal as li_info_terminal,
-                li.id as li_id,
-                li.semirrapido as li_semirrapido,
-                li.localidad as li_localidad,
-                li.cp as li_cp,
-                li.telefono as li_telefono,
                 ra.nombre as ra_nombre,
                 ra.descripcion as ra_descripcion,
                 ra.id_linea as ra_id_linea,
@@ -53,40 +93,28 @@ class Command(BaseCommand):
                 re.edicion_id_usuario as re_edicion_id_usuario,
                 re.save_timestamp as re_save_timestamp,
                 re.edicion_datatimestamp as re_edicion_datatimestamp
-            FROM
-                linea li
-                JOIN ramal     ra on (li.id = ra.id_linea)
-                JOIN recorrido re on (ra.id = re.id_ramal)
+            FROM recorrido re
+            JOIN ramal ra on (ra.id = re.id_ramal);
         """)
+
         for row in cursor.fetchall():
             try:
-                linea = Linea.objects.get(nombre=row['li_nombre'])
+                Recorrido.objects.get(id=row['re_id'])
             except ObjectDoesNotExist:
-                # la linea aun no fue agregada, hay que crearla
-                linea = Linea(
-                    nombre = row['li_nombre'],
-                    descripcion = row['li_descripcion'],
-                    color_polilinea = row['re_color_polilinea'],
-                    foto = row['li_foto'],
-                    info_empresa = row['li_info_empresa'],
-                    info_terminal = row['li_info_terminal'],
-                    localidad = row['li_localidad'],
-                    cp = row['li_cp'],
-                    telefono = row['li_telefono']
+                recorrido = Recorrido(
+                    id=row['re_id'],
+                    nombre=row['ra_nombre'],
+                    sentido=row['re_nombre'],
+                    linea=Linea.objects.get(id=row['ra_id_linea']),
+                    inicio=row['re_zona_inicio'],
+                    fin=row['re_zona_fin'],
+                    ruta=row['re_camino'],
+                    color_polilinea=row['re_color_polilinea'],
+                    horarios=row['re_horarios'],
+                    pois=row['ra_descripcion'],
+                    descripcion=row['re_descripcion']
                 )
-                linea.save()
+                recorrido.save()
+                stats['recorridos'] += 1
 
-            recorrido = Recorrido(
-                nombre = row['ra_nombre'],
-                sentido = row['re_nombre'],
-                linea = linea,
-                inicio = row['re_zona_inicio'],
-                fin = row['re_zona_fin'],
-                semirrapido = row['li_semirrapido'],
-                ruta = row['re_camino'],
-                color_polilinea = row['re_color_polilinea'],
-                horarios = row['re_horarios'],
-                pois = row['ra_descripcion'],
-                descripcion = row['re_descripcion']
-            )
-            recorrido.save()
+        print "Se han agregado:", stats
