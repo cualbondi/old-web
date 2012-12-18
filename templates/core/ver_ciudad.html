@@ -17,26 +17,25 @@
 
     <h1>Ciudad de {{ciudad_actual.nombre}}</h1>
 
+    {% if imagenes|length > 1 %}
     <div id="ciudad_carousel" class="carousel slide">
         <div class="carousel-inner">
-            <div class="item active">
-                <img src="/media/img/ciudades/estadio.jpg" alt="">
+            {% for imagen in imagenes %}
+            <div class="item {% if forloop.first %}active{% endif %}">
+                <img src="/{{imagen.custom_890x300.url}}" alt="">
+                {% if imagen.titulo and imagen.descripcion %}
                 <div class="carousel-caption">
-                    <h4>Estadio único</h4>
-                    <p>Terrible estado ubicado en 25 y 32.</p>
+                    <h4>{{imagen.titulo}}</h4>
+                    <p>{{imagen.descripcion}}</p>
                 </div>
+                {% endif %}
             </div>
-            <div class="item">
-                <img src="/media/img/ciudades/catedral.jpg" alt="">
-                <div class="carousel-caption">
-                    <h4>Catedral</h4>
-                    <p>Increible catedral ubicada en Plaza Moreno, frente a la municipalidad.</p>
-                </div>
-            </div>
+            {% endfor %}
         </div>
         <a class="left carousel-control" href="#ciudad_carousel" data-slide="prev">‹</a>
         <a class="right carousel-control" href="#ciudad_carousel" data-slide="next">›</a>
     </div>
+    {% endif %}
 
     {% if ciudad_actual.descripcion %}
         <p>{{ciudad_actual.descripcion}}</p>

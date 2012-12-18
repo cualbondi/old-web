@@ -1,10 +1,12 @@
 # Requerimientos python para utilizar Cualbondi
 
+PIL
 Django
 psycopg2
 python-memcached
 django-olwidget
 django-floppyforms
 django-piston
+django-imagekit
 
 #django-moderation

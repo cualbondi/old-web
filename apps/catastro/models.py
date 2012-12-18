@@ -1,4 +1,7 @@
 # -*- coding: UTF-8 -*-
+from imagekit.models import ImageSpecField
+from imagekit.processors import ResizeToFill
+
 from django.contrib.gis.db import models
 from django.template.defaultfilters import slugify
 
@@ -112,6 +115,22 @@ class Ciudad(models.Model):
 
     def __unicode__(self):
         return self.nombre + " (" + self.provincia.nombre + ")"
+
+
+class ImagenCiudad(models.Model):
+    ciudad = models.ForeignKey(Ciudad, blank=False, null=False)
+    original = models.ImageField(
+        upload_to='img/ciudades',
+        blank=False,
+        null=False
+    )
+    custom_890x300 = ImageSpecField([ResizeToFill(890, 300)], image_field='original',
+            format='JPEG', options={'quality': 100})
+    titulo = models.CharField(max_length=100, blank=True, null=True)
+    descripcion = models.TextField(null=True, blank=True)
+
+    def __unicode__(self):
+        return self.original.name + " (" + self.ciudad.nombre + ")"
 
 
 class Zona(models.Model):

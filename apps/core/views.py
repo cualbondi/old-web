@@ -16,8 +16,9 @@ from django.utils import simplejson
 from olwidget.widgets import InfoMap
 
 from apps.core.models import Linea, Recorrido
-from apps.catastro.models import Ciudad
+from apps.catastro.models import Ciudad, ImagenCiudad
 from apps.core.forms import LineaForm, RecorridoForm
+
 
 def natural_sort_qs(qs, key):
     """ Hace un sort sobre un queryset sobre el campo key
@@ -83,8 +84,11 @@ def ver_ciudad(request, nombre_ciudad):
         }
     )
 
+    imagenes = ImagenCiudad.objects.filter(ciudad=ciudad_actual)
+
     return render_to_response('core/ver_ciudad.html',
                               {'mapa': mapa,
+                               'imagenes': imagenes,
                                'lineas': lineas},
                               context_instance=RequestContext(request))
 
