@@ -39,9 +39,12 @@
 
     {% if ciudad_actual.descripcion %}
         <p>{{ciudad_actual.descripcion}}</p>
+        <br />
     {% endif %}
 
+    <h3>Area cubierta por transporte público:</h3>
     <div class="thumbnail"><div id="map" style="background:lightblue; height:300px;"></div></div>
+    <br />
 
     <h3>Lineas de micro en {{ciudad_actual.nombre}}:</h3>
     <table class="table table-striped table-bordered table-condensed">
@@ -55,6 +58,7 @@
         {% endfor %}
         </tbody>
     </table>
+    <br />
 
     <h3>Dejanos un comentario sobre "{{ciudad_actual.nombre}}"</h3>
     <div id="disqus_thread"></div>
