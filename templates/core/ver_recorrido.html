@@ -18,6 +18,7 @@
     {% if recorrido_actual.inicio and recorrido_actual.fin %}<h3>desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}}</h3>{% endif %}
 
     <div class="thumbnail"><div id="map" style="background:lightblue; height:300px;"></div></div>
+    <br />
 
     <h3>Dejanos un comentario sobre el recorrido "{{linea_actual.nombre}} {{recorrido_actual.nombre}}"</h3>
     <div id="disqus_thread"></div>
@@ -52,16 +53,39 @@
     ), {{ ciudad_actual.zoom }});
 
     //Le agregamos una capa para el poligono de la ciudad
-    var style = {'strokeWidth': 2, 'strokeColor': '#0033CC', fillColor: "#0066CC", fillOpacity: 0.5}
+    var style = {'strokeWidth': 4, 'strokeColor': '#0033CC', fillColor: "#0066CC", fillOpacity: 0.5}
     var layer_recorrido = new OpenLayers.Layer.Vector("Recorrido", {styleMap: new OpenLayers.StyleMap(style) });
     map.addLayer(layer_recorrido)
 
-    path_recorrido = new OpenLayers.Format.WKT().read('{{recorrido_actual.ruta.wkt}}');
-    path_recorrido.geometry.transform(proj, map.getProjectionObject())
-    layer_recorrido.addFeatures([path_recorrido]);
+    //Le agregamos una capa para los Markers de inicio y fin
+    var markers = new OpenLayers.Layer.Markers( "Markers" );
+    map.addLayer(markers);
 
-    //Acomodar el zoom al poligono
-    var extent = new OpenLayers.Bounds();
-    extent.extend(path_recorrido.geometry.getBounds())
-    map.zoomToExtent(extent);
+    var size = new OpenLayers.Size(20,50);
+    var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
+    var iconA = new OpenLayers.Icon('/media/css/openlayers/markerA.png',size,offset);
+    var iconB = new OpenLayers.Icon('/media/css/openlayers/markerB.png',size,offset);
+
+    var lonlat_inicio = new OpenLayers.LonLat{{recorrido_actual.ruta|first}};
+    var lonlat_fin = new OpenLayers.LonLat{{recorrido_actual.ruta|last}};
+
+    lonlat_inicio = lonlat_inicio.transform(proj, map.getProjectionObject());
+    lonlat_fin = lonlat_fin.transform(proj, map.getProjectionObject());
+
+    markers.addMarker(new OpenLayers.Marker(lonlat_inicio, iconA));
+    markers.addMarker(new OpenLayers.Marker(lonlat_fin, iconB));
+
+    $.get("/api/recorridos/{{recorrido_actual.id}}/",
+        function(data) {
+            path_recorrido = new OpenLayers.Format.WKT().read(data.ruta);
+            path_recorrido.geometry.transform(proj, map.getProjectionObject())
+            layer_recorrido.addFeatures([path_recorrido]);
+
+            //Acomodar el zoom al poligono
+            var extent = new OpenLayers.Bounds();
+            extent.extend(path_recorrido.geometry.getBounds())
+            map.zoomToExtent(extent);
+        },
+        "json"
+    );
 {% endblock %}

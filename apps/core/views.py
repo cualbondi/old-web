@@ -145,20 +145,8 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
     if request.user.is_authenticated():
         favorito = recorrido_actual.es_favorito(request.user)
 
-    mapa = InfoMap([
-        [recorrido_actual.ruta, {
-#            'html': "<p>Special style for this point.</p>",
-            'style': {'stroke_color': '#0066CC'},
-        }]],
-        {
-            "map_div_style": {"width": '100%'},
-            "layers": ["google.streets", "osm.mapnik"]  # "google.streets", "google.hybrid", "ve.road", "ve.hybrid", "yahoo.map"]
-        }
-    )
-
     return render_to_response('core/ver_recorrido.html',
-                              {'mapa': mapa,
-                               'ciudad_actual': ciudad_actual,
+                              {'ciudad_actual': ciudad_actual,
                                'linea_actual': linea_actual,
                                'recorrido_actual': recorrido_actual,
                                'favorito': favorito},
