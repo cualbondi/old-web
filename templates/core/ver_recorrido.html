@@ -11,11 +11,11 @@
         <li><a href="/">Inicio</a> <span class="divider">></span></li>
         <li><a href="/{{ciudad_actual.slug}}">{{ciudad_actual.nombre}}</a> <span class="divider">></span></li>
         <li><a href="/{{ciudad_actual.slug}}/{{linea_actual.slug}}">{{linea_actual.nombre}}</a> <span class="divider">></span></li>
-        <li class="active">{{recorrido_actual.nombre}} (de {{recorrido_actual.inicio}} a {{recorrido_actual.fin}})</li>
+        <li class="active">{{recorrido_actual.nombre}} {% if recorrido_actual.inicio and recorrido_actual.fin %}(de {{recorrido_actual.inicio}} a {{recorrido_actual.fin}}){% endif %}</li>
     </ul>
 
     <h1>Recorrido {{linea_actual.nombre}} {{recorrido_actual.nombre}} de {{ciudad_actual.nombre}}</h1>
-    <h3>desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}}</h3>
+    {% if recorrido_actual.inicio and recorrido_actual.fin %}<h3>desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}}</h3>{% endif %}
 
     <div class="thumbnail"><div id="map" style="background:lightblue; height:300px;"></div></div>
 
