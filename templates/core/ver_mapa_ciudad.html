@@ -291,7 +291,9 @@ $(function() {
     // buscador de lineas por sugerencia al tipear
     $('#inputLinea').attr("autocomplete","off")
 
-    $('#inputLinea').keyup(function () {
+    $('#inputLinea').keyup(function (e) {
+        e.preventDefault();
+        recorridos.removeAllFeatures()
         $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
         if ( ajaxInputLinea ) ajaxInputLinea.abort()
         pagina = 1
@@ -347,6 +349,7 @@ $(function() {
     }
 
     function buscar_por_inputs() {
+        recorridos.removeAllFeatures()
         $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
         var data1 = null
         var data2 = null
@@ -433,6 +436,7 @@ $(function() {
     function buscarporclick(lla, llb, combinar) {
         if ( typeof(combinar) === 'undefined' ) combinar = 'false';
         buscar     = true
+        recorridos.removeAllFeatures()
         $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
         lla = lla.transform(map.getProjectionObject(), proj)
         llb = llb.transform(map.getProjectionObject(), proj)
