@@ -47,9 +47,15 @@ body {
 }
 
 @media (min-width: 1200px) {
-#bloque_izquierda {
-    padding-right: 2.564102564%;
+    #bloque_izquierda {
+        padding-right: 2.564102564%;
+    }
 }
+
+@media (max-width: 960px) {
+    #bloque_derecha {
+        width: 100% !important;
+    }
 
 }
 
