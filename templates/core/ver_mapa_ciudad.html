@@ -328,8 +328,12 @@ $(function() {
 
     // handler para mostrar resultados, usa el template de listado de results
     function mostrar_resultado(id) {
+        var moverMarkers = false;
         if ( typeof(id)==='undefined' )
             id = $("#sidebarContenido li:first").attr("id").slice(3)
+        else 
+            moverMarkers = true;
+        
         $("#sidebarContenido li").removeClass("active")
         $("#res"+id).addClass("active")
         recorridos.removeAllFeatures()
@@ -346,6 +350,10 @@ $(function() {
             polylinea.push(poly);
         });
         recorridos.addFeatures(polylinea);
+        if (moverMarkers) {
+            markerA.setPoint(polylinea[0].geometry.getVertices()[0]);
+            markerB.setPoint(polylinea[polylinea.length-1].geometry.getVertices()[polylinea[polylinea.length-1].geometry.getVertices().length-1]);
+        }
     }
 
     function buscar_por_inputs() {
