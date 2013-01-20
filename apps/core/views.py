@@ -101,7 +101,7 @@ def ver_mapa_ciudad(request, nombre_ciudad):
 #    pois = Poi.objects.filter(ciudad=ciudad_actual)
 #    comercios = Comercio.objects.filter(ciudad=ciudad_actual)
 
-    return render_to_response('core/ver_mapa_ciudad.html',
+    return render_to_response('core/buscador.html',
                               {'es_vista_mapa': True,
                                'ciudad_actual': ciudad_actual},
                               context_instance=RequestContext(request))
