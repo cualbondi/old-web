@@ -2,6 +2,28 @@
 
 @font-face {
     font-family: 'opensans_regular';
+    src: url('../fonts/OpenSans/opensans-regular-webfont.eot');
+    src: url('../fonts/OpenSans/opensans-regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/OpenSans/opensans-regular-webfont.woff') format('woff'),
+         url('../fonts/OpenSans/opensans-regular-webfont.ttf') format('truetype'),
+         url('../fonts/OpenSans/opensans-regular-webfont.svg#open_sansregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'opensans_bold';
+    src: url('../fonts/OpenSans/opensans-bold-webfont.eot');
+    src: url('../fonts/OpenSans/opensans-bold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/OpenSans/opensans-bold-webfont.woff') format('woff'),
+         url('../fonts/OpenSans/opensans-bold-webfont.ttf') format('truetype'),
+         url('../fonts/OpenSans/opensans-bold-webfont.svg#open_sansbold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/*@font-face {
+    font-family: 'opensans_regular';
     src: url('../fonts/OpenSans/OpenSans-Regular.ttf');
 }
 
@@ -13,11 +35,33 @@
 @font-face {
     font-family: 'opensans_italic';
     src: url('../fonts/OpenSans/OpenSans-Italic.ttf');
-}
+}*/
 
 /* GeoSlab */
 
 @font-face {
+    font-family: 'geoslab_medium_normal';
+    src: url('../fonts/GeoSlab/ges703md-webfont.eot');
+    src: url('../fonts/GeoSlab/ges703md-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/GeoSlab/ges703md-webfont.woff') format('woff'),
+         url('../fonts/GeoSlab/ges703md-webfont.ttf') format('truetype'),
+         url('../fonts/GeoSlab/ges703md-webfont.svg#geoslab703_md_btmedium') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'geoslab_bold_normal';
+    src: url('../fonts/GeoSlab/ges703bd-webfont.eot');
+    src: url('../fonts/GeoSlab/ges703bd-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/GeoSlab/ges703bd-webfont.woff') format('woff'),
+         url('../fonts/GeoSlab/ges703bd-webfont.ttf') format('truetype'),
+         url('../fonts/GeoSlab/ges703bd-webfont.svg#geoslab703_md_btbold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/*@font-face {
     font-family: 'geoslab_medium_normal';
     src: url('../fonts/GeoSlab/GES703MD.TTF');
 }
@@ -35,4 +79,4 @@
 @font-face {
     font-family: 'geoslab_bold_italic';
     src: url('../fonts/GeoSlab/GES703BI.TTF');
-}
+}*/
