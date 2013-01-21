@@ -94,6 +94,8 @@ def ver_ciudad(request, nombre_ciudad):
 
 
 def ver_mapa_ciudad(request, nombre_ciudad):
+    desde = request.GET.get("desde")
+    hasta = request.GET.get("hasta")
     slug_ciudad = slugify(nombre_ciudad)
     ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
     #        "default_lat":ciudad_actual.centro.coords[1],
@@ -101,9 +103,12 @@ def ver_mapa_ciudad(request, nombre_ciudad):
 #    pois = Poi.objects.filter(ciudad=ciudad_actual)
 #    comercios = Comercio.objects.filter(ciudad=ciudad_actual)
 
-    return render_to_response('core/buscador.html',
-                              {'es_vista_mapa': True,
-                               'ciudad_actual': ciudad_actual},
+    return render_to_response('core/buscador.html', {
+                                    'es_vista_mapa': True,
+                                    'ciudad_actual': ciudad_actual,
+                                    'desde': desde,
+                                    'hasta': hasta,
+                              },
                               context_instance=RequestContext(request))
 
 

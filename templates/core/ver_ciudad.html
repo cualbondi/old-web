@@ -17,6 +17,16 @@
 
     <h1>Ciudad de {{ciudad_actual.nombre}}</h1>
 
+    <div class="well" align="center">
+        <form method="GET" action="/mapa/{{ciudad_actual.slug}}/" class="form-inline" style="margin: 0px; font-size: 14px;">
+            <span style="margin-right: 5px;">Buscar transporte en <strong>{{ciudad_actual.nombre}}</strong> desde</span>
+            <input type="text" name="desde" class="input-medium" placeholder="ingrese origen...">
+            <span style="margin-left: 5px; margin-right: 5px;">hasta</span>
+            <input type="text" name="hasta" class="input-medium" placeholder="ingrese destino...">
+            <button type="submit" class="btn btn-primary"><i class="icon-search icon-white"></i> Buscar »</button>
+        </form>
+    </div>
+
     {% if imagenes|length > 1 %}
     <div id="ciudad_carousel" class="carousel slide">
         <div class="carousel-inner">

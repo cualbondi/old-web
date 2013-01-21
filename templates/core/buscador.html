@@ -48,8 +48,8 @@
             <div class="tab-content">
                 <div class="tab-pane active" id="1">
                     <form>
-                        <input type="text" id="inputDesde" class="input-block-level" placeholder="Desde">
-                        <input type="text" id="inputHasta" class="input-block-level" placeholder="Hasta">
+                        <input type="text" id="inputDesde" class="input-block-level" placeholder="Desde" {% if desde %}value="{{desde}}"{% endif %}>
+                        <input type="text" id="inputHasta" class="input-block-level" placeholder="Hasta" {% if hasta %}value="{{hasta}}"{% endif %}>
                         <p><small>Ejemplos: {{ ciudad_actual.sugerencia }}</small></p>
                         <div class="btn-toolbar">
                             <div class="btn-group">
@@ -547,6 +547,10 @@
                     console.log($(this))
                     $(this).addClass("binded");
                 })
+            }
+
+            if ($("#inputDesde").val() != "" && $("#inputHasta").val() != ""){
+                buscar_por_inputs();
             }
 
         })
