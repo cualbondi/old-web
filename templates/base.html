@@ -12,13 +12,14 @@
         <meta name="google-site-verification" content="NVSk_0zcZdYua2ILJ4L0DvspOCmHujouihZPlo3mDco">
         <link href="https://plus.google.com/117455886911192315188" rel="publisher">
 
+        {% block custom_styles %}{% endblock %}
+
         <!--[if lt IE 9]>
             <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+            <script src="/media/js/respond.min.js"></script>
         <![endif]-->
 
-		{% block custom_styles %}{% endblock %}
-
-		{% block custom_top_scripts %}{% endblock %}
+        {% block custom_top_scripts %}{% endblock %}
 
         <!-- DISQUS Code -->
         <script type="text/javascript">
