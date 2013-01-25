@@ -534,20 +534,25 @@
         </script>
 
         <script id="ajaxLoader" type="text/x-jquery-tmpl">
-        <center>
-            <img src="/media/img/ajax-loader.gif" />
-        </center>
+            <center>
+                <img src="/media/img/ajax-loader.gif" />
+            </center>
         </script>
 
         <script id="listTempl" type="text/x-jquery-tmpl">
-        <div><small>Página ${data['p']}</small><small class="pull-right">${data['cant']} resultados</small></div>
-        <div>
-        <ul class="nav nav-pills nav-stacked">
-            {% templatetag openvariable %}tmpl(data['resultados']) "#itemTempl"{% templatetag closevariable %}
-        </ul>
-        {% templatetag openvariable %}tmpl(data) "#paginacionTempl"{% templatetag closevariable %}
-        </div>
+            <div>
+                <div style="float:left;"><small>Página ${data['p']}</small></div>
+                <div style="float:right;"><small class="pull-right">${data['cant']} resultados</small></div>
+                <div style="clear:both;"></div>
+            </div>
+            <div>
+                <ul class="nav nav-pills nav-stacked">
+                    {% templatetag openvariable %}tmpl(data['resultados']) "#itemTempl"{% templatetag closevariable %}
+                </ul>
+                {% templatetag openvariable %}tmpl(data) "#paginacionTempl"{% templatetag closevariable %}
+            </div>
         </script>
+
         <script id="itemTempl" type="text/x-jquery-tmpl">
             <li id="res${id}">
                 <a href="#" id="${id}">
