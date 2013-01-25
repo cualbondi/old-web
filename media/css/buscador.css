@@ -9,6 +9,7 @@ div.tab-pane { overflow: hidden; }
         margin-right: 5px;
         padding: 10px;
         overflow: auto;
+        position: relative;
     }
     #bloque_derecha {
         float: left;
