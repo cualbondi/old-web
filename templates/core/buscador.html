@@ -49,8 +49,7 @@
                 </div>
             </div>
             <hr>
-            <div id="sidebarContenido">
-            </div>
+            <div id="sidebarContenido"></div>
         </div>
     </div>
     <div id="bloque_derecha"></div>
@@ -369,7 +368,8 @@
             // n = -1: pagina anterior
             //      x: pagina x
             //      0: pagina siguiente
-            function pasarPagina(n) {
+            function pasarPagina(n, combinar) {
+                n = parseInt(n);
                 if ( n < 0 )
                     pagina = ( pagina > 1 ) ? pagina - 1 : 1;
                 else if ( n == 0 )
@@ -378,9 +378,9 @@
                     pagina = n;
 
                 if ( buscar )
-                    buscarporclick(markerA.centro, markerB.centro)
+                    buscarporclick(markerA.centro, markerB.centro, combinar);
                 else
-                    inputLinea()
+                    inputLinea();
             }
 
             // envia peticion al server para buscar por latlng
@@ -402,14 +402,16 @@
                         p: pagina,
                         combinar: combinar
                     },
-                    mostrarResultados
+                    function (data){
+                        mostrarResultados(data, combinar);
+                    }
                 );
                 lla = lla.transform(proj, map.getProjectionObject())
                 llb = llb.transform(proj, map.getProjectionObject())
             }
 
             // muestra los resultados devueltos por el server usando un template
-            function mostrarResultados(data){
+            function mostrarResultados(data, combinar){
                 res = data['resultados']
                 if ( res.length === 0 )
                     if ( pagina == 1 ) {
@@ -423,6 +425,20 @@
                     $.each(res, function(key, value) {
                         resultados[value.id] = value.itinerario
                     });
+
+                    data['combinar'] = combinar;
+
+                    // calcular lista de paginas a mostrar
+                    data['cant_paginas'] = Math.ceil(data['cant']/data['long_pagina']);
+                    data['page_list'] = new Array();
+                    for (var i=0; i<data['cant_paginas']; i++){
+                        data['page_list'].push(i+1);
+                    }
+                    var index = data['page_list'].indexOf(data['p']);
+                    var desde = index - 3 > 0 ? index - 3 : 0;
+                    var hasta = index + 3 < data['cant_paginas'] ? index + 3 : data['cant_paginas'];
+                    data['page_list'] = data['page_list'].slice(desde, hasta);
+
                     $("#listTempl").tmpl( [{ data: data }] ).appendTo($("#sidebarContenido").empty());
                     bindearEventos();
                     $("[id^=res]").each( function(i) {
@@ -521,9 +537,7 @@
 
                 $("div.pagination a[href]:not(binded)").bind("click", function(e) {
                     e.preventDefault();
-                    pasarPagina($(this).attr("data_pagina"));
-                    console.log($(this).attr("data_pagina"))
-                    console.log($(this))
+                    pasarPagina($(this).attr("data_pagina"), $(this).attr("combinar"));
                     $(this).addClass("binded");
                 })
             }
@@ -543,7 +557,7 @@
 
         <script id="listTempl" type="text/x-jquery-tmpl">
             <div>
-                <div style="float:left;"><small>Página ${data['p']}</small></div>
+                <div style="float:left;"><small>Página ${data['p']} de ${data['cant_paginas']}</small></div>
                 <div style="float:right;"><small class="pull-right">${data['cant']} resultados</small></div>
                 <div style="clear:both;"></div>
             </div>
@@ -573,15 +587,23 @@
         </script>
 
         <script id="paginacionTempl" type="text/x-jquery-tmpl">
+        {% templatetag openvariable %}if Math.ceil(cant/long_pagina) > 1{% templatetag closevariable %}
             <div class="pagination pagination-centered">
                 <ul>
-                    <li><a href="#" data_pagina="-1">«</a></li>
-                    <li><a href="#" data_pagina="1">1</a></li>
-                    <li class="disabled"><a>...</a></li>
-                    <li><a href="#" data_pagina="${Math.ceil(cant/long_pagina)}">${Math.ceil(cant/long_pagina)}</a></li>
-                    <li><a href="#" data_pagina="0">»</a></li>
+                    {% templatetag openvariable %}if p > 1{% templatetag closevariable %}
+                        <li><a href="#" data_pagina="-1" combinar="${combinar}">«</a></li>
+                    {% templatetag openvariable %}/if{% templatetag closevariable %}
+
+                    {% templatetag openvariable %}each page_list{% templatetag closevariable %}
+                        <li><a href="#" data_pagina="${$value}" combinar="${combinar}">${$value}</a></li>
+                    {% templatetag openvariable %}/each{% templatetag closevariable %}
+
+                    {% templatetag openvariable %}if p < Math.ceil(cant/long_pagina){% templatetag closevariable %}
+                        <li><a href="#" data_pagina="0" combinar="${combinar}">»</a></li>
+                    {% templatetag openvariable %}/if{% templatetag closevariable %}
                 </ul>
             </div>
+        {% templatetag openvariable %}/if{% templatetag closevariable %}
         </script>
 
         <script id="listSuggest" type="text/x-jquery-tmpl">

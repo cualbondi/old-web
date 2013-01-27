@@ -18,7 +18,7 @@ BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 DATABASES = loadDbParameters()
 
-USE_CACHE = False
+USE_CACHE = True
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
