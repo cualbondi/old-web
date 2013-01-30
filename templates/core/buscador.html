@@ -179,11 +179,13 @@
                         if ( !markerA.listo ) {
                             markerA.setPoint(point)
                             markerA.confirmado = true
+                            piwikLog("/click/mapa/marker/A")
                         }
                         else
                             if ( !markerB.listo ) {
                                 markerB.setPoint(point)
                                 markerB.confirmado = true
+                                piwikLog("/click/mapa/marker/B")
                                 clickHandler.deactivate();
                                 pagina = 1
                                 buscarporclick(markerA.centro, markerB.centro)
@@ -202,8 +204,14 @@
                         t = feature.attributes.tipo.split(":")
                         feature.attributes.tipo=t[0]+":true:false"
                         markers.redraw()
-                        if ( feature == markerA.punto ) markerA.confirmado = true
-                        if ( feature == markerB.punto ) markerB.confirmado = true
+                        if ( feature == markerA.punto ) {
+                            markerA.confirmado = true
+                            piwikLog("/click/mapa/drag/A")
+                        }
+                        if ( feature == markerB.punto ) {
+                            markerB.confirmado = true
+                            piwikLog("/click/mapa/drag/B")
+                        }
                         pagina = 1
                         buscarporclick(markerA.centro, markerB.centro)
                     },
@@ -446,6 +454,7 @@
                             id = $(this).attr("id")
                             mostrar_resultado(id)
                             e.preventDefault()
+                            piwikLog("/click/resultado/"+$.map(resultados[id], function(e){ e.name } ).join("+"))
                         })
                         $(this).children().bind("mouseenter", function(e) {
                             id = $(this).attr("id")
@@ -475,6 +484,7 @@
             $("#button-ayuda").bind("click", function(e) {
                 e.preventDefault()
                 $("#ayudaTempl").tmpl().appendTo($("#sidebarContenido").empty());
+                piwikLog("/click/botonera/ayuda")
             })
 
             function invalidarMarkers() {
@@ -486,11 +496,16 @@
 
             $("#button-buscarinputs").bind("click", function(e) {
                 e.preventDefault();
+                piwikLog("/click/buscar/button/"+$("#inputDesde").val()+"/"+$("#inputHasta").val())
                 buscar_por_inputs();
+                //podria poner el contador si envio este track cuando llega el resultado, sino desde la api python
+                piwikTracker.trackSiteSearch( $("#inputDesde").val(), "Desde", 0 )
+                piwikTracker.trackSiteSearch( $("#inputHasta").val(), "Hasta", 0 )
             })
 
             $("#button-origendestino").bind("click", function(e) {
                 e.preventDefault()
+                piwikLog("/click/botonera/darVuelta")
                 desde = $("#inputDesde").val()
                 hasta = $("#inputHasta").val()
                 if ( $.trim(desde) != '' && $.trim(hasta) != '' ) {
@@ -515,12 +530,15 @@
             function bindearEventos() {
                 $("#button_buscar_transbordo:not(binded)").bind("click", function(e) {
                     e.preventDefault();
+                    piwikLog("/click/buscar/transbordo")
                     buscarTransbordo();
                     $(this).addClass("binded");
                 })
 
                 $("#button-seleccionarSugerencias:not(binded)").bind("click", function(e) {
                     e.preventDefault();
+                    //trackear nombre de seleccionadas
+                    piwikLog("/click/buscar/suggest/")
                     seleccionarSugerencias();
                     $(this).addClass("binded");
                 })
@@ -537,6 +555,11 @@
 
                 $("div.pagination a[href]:not(binded)").bind("click", function(e) {
                     e.preventDefault();
+                    n = $(this).attr("data_pagina");
+                    if      ( n <  0 ) pps = "ant";
+                    else if ( n == 0 ) pps="sig";
+                    else if ( n >  0 ) pps = n;
+                    piwikLog("/click/pagina/"+pps)
                     pasarPagina($(this).attr("data_pagina"), $(this).attr("combinar"));
                     $(this).addClass("binded");
                 })
