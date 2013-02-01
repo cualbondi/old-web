@@ -302,6 +302,7 @@
                     markerA.setPoint(polylinea[0].geometry.getVertices()[0]);
                     markerB.setPoint(polylinea[polylinea.length-1].geometry.getVertices()[polylinea[polylinea.length-1].geometry.getVertices().length-1]);
                 }
+                map.zoomToExtent(recorridos.getDataExtent());
             }
 
             function buscar_por_inputs() {
