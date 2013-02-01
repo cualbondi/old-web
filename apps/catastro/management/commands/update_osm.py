@@ -74,10 +74,10 @@ class Command(BaseCommand):
             box = ",".join([l[2], l[3], l[0], l[1]])
 
             if primera:
-                prog = ["osm2pgsql"      , "-l", "-S"+os.path.join(os.path.abspath(os.path.dirname(__file__)),"update-osm.style"), "-d"+dbname, "-U"+dbuser, "-H"+dbhost, "-b"+box, inputfile ]
+                prog = ["osm2pgsql"      , "-l", "-S"+os.path.join(os.path.abspath(os.path.dirname(__file__)),"update-osm.style"), "-d"+dbname, "-U"+dbuser, "-b"+box, inputfile ]
                 primera = False
             else:
-                prog = ["osm2pgsql", "-a", "-l", "-S"+os.path.join(os.path.abspath(os.path.dirname(__file__)),"update-osm.style"), "-d"+dbname, "-U"+dbuser, "-H"+dbhost, "-b"+box, inputfile ]
+                prog = ["osm2pgsql", "-a", "-l", "-S"+os.path.join(os.path.abspath(os.path.dirname(__file__)),"update-osm.style"), "-d"+dbname, "-U"+dbuser, "-b"+box, inputfile ]
             print "ejecutando:",
             print prog
             p = subprocess.Popen(prog, env={"PGPASSWORD": dbpass} )
@@ -87,7 +87,8 @@ class Command(BaseCommand):
         #POST PROCESAMIENTO
         print "POSTPROCESO"
         print " => Dando nombres alternativos a los objetos sin nombre"
-        superCu = connect(user="postgres", database="geocualbondidb").cursor()
+        print " => NOTA: si esto no se puede completar es porque el usuario 'postgres' debe tener 'trust' en el archivo 'pg_hba.conf' para 'local'"
+        superCu = connect(user="postgres", database=dbname).cursor()
         superCu.execute("update planet_osm_line    set name=ref where name is null;")
         superCu.execute("update planet_osm_point   set name=ref where name is null;")
         superCu.execute("update planet_osm_polygon set name=ref where name is null;")
