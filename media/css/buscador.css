@@ -1,5 +1,6 @@
 div {  }
 div.tab-pane { overflow: hidden; }
+div#mapa { width: 100%; height: 100%; }
 
 @media (min-width: 980px) {
     body { padding-top: 40px; overflow: hidden; }
@@ -14,6 +15,22 @@ div.tab-pane { overflow: hidden; }
     #bloque_derecha {
         float: left;
         overflow: hidden;
+        position: relative;
+        border-left: solid 1px #BBB;
+    }
+
+    /*sombra izquierda en el mapa*/
+    div.shadowbox::before {
+        -moz-box-shadow: 2px 2px 30px 2px rgba(0, 0, 0, 0.3) inset;
+        -webkit-box-shadow: 2px 2px 30px 2px rgba(0, 0, 0, 0.3) inset;
+        box-shadow: 2px 2px 30px 2px rgba(0, 0, 0, 0.3) inset;
+        z-index: 10;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        content: "";
     }
 }
 
@@ -21,5 +38,19 @@ div.tab-pane { overflow: hidden; }
     body { padding-left: 20px; padding-right: 20px; }
     div.navbar-fixed-top { margin-left: -20px; margin-right: -20px; }
     #bloque_izquierda { margin-bottom: 5px; height: auto; }
-    #bloque_derecha { width: 100%; height: 600px; }
+    #bloque_derecha { width: 100%; height: 600px; border: solid 1px #BBB; position: relative;}
+
+    /*sombra en el mapa*/
+    div.shadowbox::before {
+        -moz-box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.3) inset;
+        -webkit-box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.3) inset;
+        box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.3) inset;
+        z-index: 10;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        content: "";
+    }
 }

@@ -48,7 +48,9 @@
             <div id="sidebarContenido"></div>
         </div>
     </div>
-    <div id="bloque_derecha"></div>
+    <div id="bloque_derecha">
+        <div id="mapa" class="shadowbox"></div>
+    </div>
 {% endblock %}
 
 {% block custom_ready_function %}
@@ -71,7 +73,7 @@
                 // bootstrap 100% height (similar googlemaps)
                 $("#bloque_derecha").height($(window).height()-40+"px");
                 $("#bloque_izquierda").height($(window).height()-60+"px");
-                $("#bloque_derecha").width($(window).width()-$("#bloque_izquierda").width()-25+"px");
+                $("#bloque_derecha").width($(window).width()-$("#bloque_izquierda").width()-26+"px");
             }else{
                 // para tables y celulares, mapa abajo de los resultados
                 $("#bloque_derecha").width("100%");
@@ -83,7 +85,7 @@
         $(function() {
             // definicion inicial del mapa
             OpenLayers.ImgPath = "/media/css/openlayers/"
-            var map = new OpenLayers.Map("bloque_derecha", {theme: null})
+            var map = new OpenLayers.Map("mapa", {theme: null})
             var gmap = new OpenLayers.Layer.Google(
                 "Google Streets", {numZoomLevels: 20}
             );
