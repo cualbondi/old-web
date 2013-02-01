@@ -76,11 +76,7 @@ class PuntoBusquedaManager(models.Manager):
             areas = []
 
             # ciudad actual, en la que esta el mapa, deberia ser pasada por parametro
-            try:
-                # No puedo importar ciudad. Un workaround sería siempre esperar que me pasen una ciudad, pero igualmente voy a tener que buscar ciudad despues. (si viene algo en token[1], lo voy a buscar en ciudades y zonas)
-                areas.append(ciudad_model.objects.get(slug=ciudad_actual_slug).poligono)
-            except:
-                pass
+            ciudad_actual = ciudad_model.objects.get(slug=ciudad_actual_slug).poligono
 
             # zona o ciudad ingresada (tokens>1)
             for token in tokens[1:]:
@@ -92,16 +88,22 @@ class PuntoBusquedaManager(models.Manager):
                     areas += [GEOSGeometry(i.poligono) for i in ciudad_model.objects.fuzzy_like_query(token)]
                 except:
                     pass
-
-            # para cada resultado aplicar la subida o bajada de puntaje segun el area en la que se encuentra
-            for r in res:
-                # para cada area en la que este resultado intersecta, sumar o restar
-                for area in areas:
-                    if area.intersects(GEOSGeometry(r.geom)):
-                        # sumar un 20% a la precision, sino restar un 20%
-                        r.precision *= 1.2
-                    else:
-                        r.precision *= 0.8
+            
+            if areas:
+                # para cada resultado aplicar la subida o bajada de puntaje segun el area en la que se encuentra
+                for r in res:
+                    # para cada area en la que este resultado intersecta, sumar o restar
+                    for area in areas:
+                        if area.intersects(GEOSGeometry(r.geom)):
+                            # sumar un 20% a la precision, sino restar un 20%
+                            r.precision *= 1.8
+                        else:
+                            r.precision *= 0.4
+                    if ciudad_actual.intersects(GEOSGeometry(r.geom)):
+                        r.precision *= 1.8
+            else:
+                # El punto tiene que estar si o si en la ciudad actual
+                res = [r for r in res if ciudad_actual.intersects(GEOSGeometry(r.geom))]
 
             # ordenar
             res.sort(key=attrgetter("precision"), reverse=True)
