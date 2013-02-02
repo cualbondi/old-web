@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="http://openlayers.org/dev/theme/default/style.css" type="text/css" />
 {% endblock %}
 
+{% block custom_scripts %}
+    <script type="text/javascript" src="/media/js/jquery.base64.min.js"></script>
+{% endblock %}
+
 {% block bloque_izquierda %}
     <ul class="breadcrumb">
         <li><a href="/">Inicio</a> <span class="divider">></span></li>
@@ -79,7 +83,7 @@
 
     $.get("/api/recorridos/{{recorrido_actual.id}}/",
         function(data) {
-            path_recorrido = new OpenLayers.Format.WKT().read(data.ruta);
+            path_recorrido = new OpenLayers.Format.WKT().read($.base64.decode(data.ruta));
             path_recorrido.geometry.transform(proj, map.getProjectionObject())
             layer_recorrido.addFeatures([path_recorrido]);
 

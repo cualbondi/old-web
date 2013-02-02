@@ -1,9 +1,12 @@
 from hashlib import sha1
+from base64 import b64encode
+
 from piston.handler import BaseHandler
 from piston.utils import rc
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.gis.geos import Point
 from django.core.cache import cache
+
 from apps.core.models import Linea, Recorrido
 from apps.catastro.models import Ciudad, PuntoBusqueda
 from settings import (RADIO_ORIGEN_DEFAULT, RADIO_DESTINO_DEFAULT,
@@ -108,6 +111,12 @@ class RecorridoHandler(BaseHandler):
         hasta = desde + LONGITUD_PAGINA
         return recorridos[desde:hasta]
 
+    def _encriptar(self, response):
+        for res in response.get('resultados'):
+            for it in res.get('itinerario'):
+                it['ruta_corta'] = b64encode(it['ruta_corta'])
+        return response
+
     def read(self, request, id_recorrido=None):
         response = {'long_pagina': LONGITUD_PAGINA, 'cached': True}
 
@@ -153,7 +162,18 @@ class RecorridoHandler(BaseHandler):
         elif id_recorrido is not None:
             # Me mandaron "id_recorrido", tengo que devolver ese solo recorrido.
             try:
-                return Recorrido.objects.get(id=id_recorrido)
+                recorrido = Recorrido.objects.get(id=id_recorrido)
+                return {
+                    'id': recorrido.id,
+                    'nombre': recorrido.nombre,
+                    'nombre_linea': recorrido.linea.nombre,
+                    'color_polilinea': recorrido.color_polilinea,
+                    'sentido': recorrido.sentido,
+                    'descripcion': recorrido.descripcion,
+                    'inicio': recorrido.inicio,
+                    'fin': recorrido.fin,
+                    'ruta': b64encode(recorrido.ruta.wkt),
+                }
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND
 
@@ -258,7 +278,7 @@ class RecorridoHandler(BaseHandler):
                 #    return rc.BAD_REQUEST
                 # Filtrar todos los recorridos y devolver solo la pagina pedida
                 response['resultados'] = self._paginar(recorridos, pagina)
-                return response
+                return self._encriptar(response)
 
 
 class CatastroHandler(BaseHandler):
