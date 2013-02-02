@@ -37,11 +37,12 @@
                     <div style="float:right;">
                         <button id="button-buscarinputs" class="btn btn-primary" title="Buscar recorridos" type="submit"><i class="icon-search icon-white"></i> Buscar</button>
                     </div>
-                    <div style="clear:both;"></div>
+                    <div id="sidebarResultados" style="clear:both;"></div>
                 </div>
                 <div class="tab-pane" id="2">
                     <input type="text" id="inputLinea" class="input-block-level" placeholder="Linea, ramal, recorrido" data-provide="typeahead">
                     <button class="btn btn-primary" type="submit"><i class="icon-search icon-white"></i> Buscar</button>
+                    <div id="sidebarResultadosPorNombre"></div>
                 </div>
             </div>
             <hr>
@@ -252,7 +253,7 @@
                 buscar = false
                 ajaxInputLinea = $.ajax({
                     url: "/api/recorridos/?c="+GLOBAL_ci+"&q="+$('#inputLinea').val()+"&p="+pagina,
-                    success: mostrarResultados
+                    success: function(data) {mostrarResultados(data, false, true)}
                 })
             }
 
@@ -268,6 +269,8 @@
 
             // variables "globales"
             var resultados = new Object()
+            resultados[true] = new Object()
+            resultados[false] = new Object()
             var polylinea  = new Array()
             var polyhover  = new Array()
             var pagina     = 1
@@ -275,19 +278,22 @@
             var buscar     = true //false si busca de A a B, true si busca por nombre de recorrido (es para llamar la funcion correcta al paginar)
 
             // handler para mostrar resultados, usa el template de listado de results
-            function mostrar_resultado(id) {
+            function mostrar_resultado(id, porNombre) {
                 var moverMarkers = false;
                 if ( typeof(id)==='undefined' )
-                    id = $("#sidebarContenido li:first").attr("id").slice(3)
+                    if (porNombre)
+                        id = $("#sidebarResultadosPorNombre li:first").attr("id").slice(3)
+                    else
+                        id = $("#sidebarResultados li:first").attr("id").slice(3)
                 else
-                    moverMarkers = true;
+                    if (porNombre) moverMarkers = true;
 
-                $("#sidebarContenido li").removeClass("active")
-                $("#res"+id).addClass("active")
+                $("#sidebarResultados li, #sidebarResultadosPorNombre li").removeClass("active")
+                $("#res"+id+porNombre).addClass("active")
                 recorridos.removeAllFeatures()
 
                 var polylinea = new Array()
-                $.each(resultados[id], function(key, value) {
+                $.each(resultados[porNombre][id], function(key, value) {
                     var poly = new OpenLayers.Format.WKT().read(value.ruta_corta);
                     poly.geometry.transform(proj, map.getProjectionObject())
                     var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
@@ -418,22 +424,36 @@
             }
 
             // muestra los resultados devueltos por el server usando un template
-            function mostrarResultados(data, combinar){
+            function mostrarResultados(data, combinar, porNombre){
+                if ( typeof(porNombre)==='undefined' ) porNombre = false
+                if ( typeof(combinar) ==='undefined' ) combinar  = 'false'
+                
                 res = data['resultados']
                 if ( res.length === 0 )
                     if ( pagina == 1 ) {
-                        $("#vacioTempl").tmpl().appendTo($("#sidebarContenido").empty());
+                        if (porNombre)
+                            $("#vacioTempl").tmpl().appendTo($("#sidebarContenido").empty());
+                        else
+                            if (combinar == 'true')
+                                $("#vacio2Templ").tmpl().appendTo($("#sidebarContenido").empty());
+                            else
+                                $("#vacio1Templ").tmpl().appendTo($("#sidebarContenido").empty());                        
                         bindearEventos();
                     }
                     else
                         pagina -= 1
                 else {
-                    resultados = new Object()
+                    resultados[porNombre] = new Object()
                     $.each(res, function(key, value) {
-                        resultados[value.id] = value.itinerario
+                        resultados[porNombre][value.id] = value.itinerario
                     });
 
                     data['combinar'] = combinar;
+                    data['porNombre'] = porNombre
+                    if (porNombre)
+                        divResultados = $("#sidebarResultadosPorNombre")
+                    else
+                        divResultados = $("#sidebarResultados")
 
                     // calcular lista de paginas a mostrar
                     data['cant_paginas'] = Math.ceil(data['cant']/data['long_pagina']);
@@ -446,20 +466,23 @@
                     var hasta = index + 3 < data['cant_paginas'] ? index + 3 : data['cant_paginas'];
                     data['page_list'] = data['page_list'].slice(desde, hasta);
 
-                    $("#listTempl").tmpl( [{ data: data }] ).appendTo($("#sidebarContenido").empty());
+                    $("#listTempl").tmpl( [{ data: data }] ).appendTo(divResultados.empty());
                     bindearEventos();
-                    $("[id^=res]").each( function(i) {
+                    divResultados.find("[id^=res]").each( function(i) {
                         $(this).children().bind("click", function(e) {
                             id = $(this).attr("id")
-                            mostrar_resultado(id)
+                            mostrar_resultado(id, porNombre)
                             e.preventDefault()
-                            piwikLog("/click/resultado/"+$.map(resultados[id], function(e){ e.name } ).join("+"))
+                            if (porNombre)
+                                piwikLog("/click/resultado/porNombre/"+$.map(resultados[porNombre][id], function(e){ e.name } ).join("+"))
+                            else
+                                piwikLog("/click/resultado/busqueda/"+$.map(resultados[porNombre][id], function(e){ e.name } ).join("+"))
                         })
                         $(this).children().bind("mouseenter", function(e) {
                             id = $(this).attr("id")
                             recorridos.removeFeatures(polyhover)
                             polyhover = new Array();
-                            $.each(resultados[id], function(key, value) {
+                            $.each(resultados[porNombre][id], function(key, value) {
                                 var poly = new OpenLayers.Format.WKT().read(value.ruta_corta)
                                 poly.geometry.transform(proj, map.getProjectionObject())
                                 var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
@@ -475,7 +498,7 @@
                             recorridos.removeFeatures(polyhover)
                         })
                     })
-                    mostrar_resultado()
+                    mostrar_resultado(undefined, porNombre)
                 }
             }
 
@@ -675,9 +698,17 @@
            <p>Para buscar un recorrido completo de una linea de colectivo en particular, consulte la sección "Recorridos" aqui arriba.</p>
         </script>
 
-        <script id="vacioTempl" type="text/x-jquery-tmpl">
+        <script id="vacio1Templ" type="text/x-jquery-tmpl">
            <h3>No se encontraron resultados sin transbordo</h3>
-           <p>Si igualmente desea buscar con transbordo, presione el siguiente botón</p>
+           <p>Si igualmente desea buscar con transbordo, presione el siguiente botón.</p>
            <button id="button_buscar_transbordo" class="btn btn-primary">Buscar con Transbordo</button>
+        </script>
+        <script id="vacio2Templ" type="text/x-jquery-tmpl">
+           <h3>No se encontraron resultados con transbordo</h3>
+           <p>Puede intentar haciendo click en el mapa para posicionar marcadores de inicio y fin de recorrido o bien mover los marcadores si ya se encuentran en el mapa.</p>
+        </script>
+        <script id="vacioTempl" type="text/x-jquery-tmpl">
+           <h3>No se encontraron resultados</h3>
+           <p>Puede intentar nuevamente modificando el nombre de la línea que está buscando por algo mas genérico.</p>
         </script>
 {% endblock %}
