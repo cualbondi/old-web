@@ -37,15 +37,17 @@
                     <div style="float:right;">
                         <button id="button-buscarinputs" class="btn btn-primary" title="Buscar recorridos" type="submit"><i class="icon-search icon-white"></i> Buscar</button>
                     </div>
-                    <div id="sidebarResultados" style="clear:both;"></div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                    <div id="sidebarResultados"></div>
                 </div>
                 <div class="tab-pane" id="2">
                     <input type="text" id="inputLinea" class="input-block-level" placeholder="Linea, ramal, recorrido" data-provide="typeahead">
                     <button class="btn btn-primary" type="submit"><i class="icon-search icon-white"></i> Buscar</button>
+                    <hr>
                     <div id="sidebarResultadosPorNombre"></div>
                 </div>
             </div>
-            <hr>
             <div id="sidebarContenido"></div>
         </div>
     </div>
@@ -131,7 +133,9 @@
             var proj = new OpenLayers.Projection("EPSG:4326");
 
             // clase Marker (para manejar el markerA y marerB mas facil)
-            function Marker(layer, id) {
+            function Marker(layer, id, visible) {
+                if (typeof(visible)=='undefined') this.visible = true
+                else this.visible = visible
                 this.listo  = false
                 this.point  = null
                 this.layer  = layer
@@ -142,9 +146,9 @@
             Marker.prototype.setPoint = function(point) {
                 // setea el punto con latlng y lo pone en el mapa
                 // point = new OpenLayers.Geometry.Point(lon, lat);
-                if (this.listo) {
-                    this.layer.removeFeatures(this.point)
-                }
+                if (this.visible)
+                    if (this.listo)
+                        this.layer.removeFeatures(this.point)
 
                 this.centro = point
                 this.point = new OpenLayers.Feature.Vector(
@@ -156,15 +160,20 @@
                     ),
                     {tipo:this.id+":false:false"}
                 )
-                this.layer.addFeatures([this.point])
-                this.listo = true
-                this.layer.map.moveTo(this.point)
-                this.layer.drawFeature(this.point)
+                
+                if (this.visible) {
+                    this.layer.addFeatures([this.point])
+                    this.listo = true
+                    this.layer.map.moveTo(this.point)
+                    this.layer.drawFeature(this.point)
+                }
             }
 
             // dos objetos de la clase marker
             var markerA = new Marker(markers, "A")
             var markerB = new Marker(markers, "B")
+            var markerAaux = new Marker(markers, "A", false)
+            var markerBaux = new Marker(markers, "B", false)
 
             // manejo de clicks en el mapa
             //      creacion de los markers A y B
@@ -177,12 +186,14 @@
                         point = new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat);
                         if ( !markerA.listo ) {
                             markerA.setPoint(point)
+                            markerAaux.setPoint(point)
                             markerA.confirmado = true
                             piwikLog("/click/mapa/marker/A")
                         }
                         else
                             if ( !markerB.listo ) {
                                 markerB.setPoint(point)
+                                markerBaux.setPoint(point)
                                 markerB.confirmado = true
                                 piwikLog("/click/mapa/marker/B")
                                 clickHandler.deactivate();
@@ -243,7 +254,7 @@
             $('#inputLinea').keyup(function (e) {
                 e.preventDefault();
                 recorridos.removeAllFeatures()
-                $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
+                $("#ajaxLoader").tmpl().appendTo($("#sidebarResultadosPorNombre").empty())
                 if ( ajaxInputLinea ) ajaxInputLinea.abort()
                 pagina = 1
                 inputLinea()
@@ -288,8 +299,14 @@
                 else
                     if (porNombre) moverMarkers = true;
 
-                $("#sidebarResultados li, #sidebarResultadosPorNombre li").removeClass("active")
-                $("#res"+id+porNombre).addClass("active")
+                if (porNombre) {
+                    $("#sidebarResultadosPorNombre li").removeClass("active")
+                    $("#sidebarResultadosPorNombre #res"+id).addClass("active")
+                }
+                else {
+                    $("#sidebarResultados li").removeClass("active")
+                    $("#sidebarResultados #res"+id).addClass("active")
+                }
                 recorridos.removeAllFeatures()
 
                 var polylinea = new Array()
@@ -308,12 +325,16 @@
                     markerA.setPoint(polylinea[0].geometry.getVertices()[0]);
                     markerB.setPoint(polylinea[polylinea.length-1].geometry.getVertices()[polylinea[polylinea.length-1].geometry.getVertices().length-1]);
                 }
+                else {
+                    markerA.setPoint(markerAaux.centro);
+                    markerB.setPoint(markerBaux.centro);
+                }
                 map.zoomToExtent(recorridos.getDataExtent());
             }
 
             function buscar_por_inputs() {
                 recorridos.removeAllFeatures()
-                $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
+                $("#ajaxLoader").tmpl().appendTo($("#sidebarResultados").empty())
                 var data1 = null
                 var data2 = null
                 // muestra los resultados de la busqueda como sugerencia
@@ -323,7 +344,9 @@
                     if ( id == 1 ) data1=data
                     else data2=data
                     if ( data1 !== null && data2 !== null ) {
-                        $("#listSuggest").tmpl([{ data1: data1, data2: data2 }]).appendTo($("#sidebarContenido").empty())
+                        piwikTracker.trackSiteSearch( $("#inputDesde").val(), "Desde", data1.length )
+                        piwikTracker.trackSiteSearch( $("#inputHasta").val(), "Hasta", data2.length )
+                        $("#listSuggest").tmpl([{ data1: data1, data2: data2 }]).appendTo($("#sidebarResultados").empty())
                         bindearEventos();
                     }
                 }
@@ -348,10 +371,14 @@
                 var point = new OpenLayers.Format.WKT().read(pointWKT).geometry
                 point.transform(proj, map.getProjectionObject())
                 point = new OpenLayers.Geometry.Point(point.x, point.y);
-                if ( id == 1 )
+                if ( id == 1 ) {
                     markerA.setPoint(point)
-                else if ( id == 2 )
+                    markerAaux.setPoint(point)
+                }
+                else if ( id == 2 ) {
                     markerB.setPoint(point)
+                    markerBaux.setPoint(point)
+                }
                 map.panTo(new OpenLayers.LonLat(point.x, point.y))
                 $("#sug" + domId).siblings().removeClass("active")
                 $("#sug" + domId).addClass("active")
@@ -401,7 +428,7 @@
                 if ( typeof(combinar) === 'undefined' ) combinar = 'false';
                 buscar     = true
                 recorridos.removeAllFeatures()
-                $("#ajaxLoader").tmpl().appendTo($("#sidebarContenido").empty())
+                $("#ajaxLoader").tmpl().appendTo($("#sidebarResultados").empty())
                 lla = lla.transform(map.getProjectionObject(), proj)
                 llb = llb.transform(map.getProjectionObject(), proj)
                 $.get(
@@ -432,12 +459,12 @@
                 if ( res.length === 0 )
                     if ( pagina == 1 ) {
                         if (porNombre)
-                            $("#vacioTempl").tmpl().appendTo($("#sidebarContenido").empty());
+                            $("#vacioTempl").tmpl().appendTo($("#sidebarResultadosPorNombre").empty());
                         else
                             if (combinar == 'true')
-                                $("#vacio2Templ").tmpl().appendTo($("#sidebarContenido").empty());
+                                $("#vacio2Templ").tmpl().appendTo($("#sidebarResultados").empty());
                             else
-                                $("#vacio1Templ").tmpl().appendTo($("#sidebarContenido").empty());                        
+                                $("#vacio1Templ").tmpl().appendTo($("#sidebarResultados").empty());                        
                         bindearEventos();
                     }
                     else
@@ -449,7 +476,7 @@
                     });
 
                     data['combinar'] = combinar;
-                    data['porNombre'] = porNombre
+                    data['porNombre'] = porNombre;
                     if (porNombre)
                         divResultados = $("#sidebarResultadosPorNombre")
                     else
@@ -505,7 +532,7 @@
             // bind eventos click partes estaticas de la pagina (bind unico)
             $("#button-ayuda").bind("click", function(e) {
                 e.preventDefault()
-                $("#ayudaTempl").tmpl().appendTo($("#sidebarContenido").empty());
+                $("#ayudaTempl").tmpl().appendTo($("#sidebarResultados").empty());
                 piwikLog("/click/botonera/ayuda")
             })
 
@@ -530,9 +557,6 @@
                 e.preventDefault();
                 piwikLog("/click/buscar/button/"+$("#inputDesde").val()+"/"+$("#inputHasta").val())
                 buscar_por_inputs();
-                //podria poner el contador si envio este track cuando llega el resultado, sino desde la api python
-                piwikTracker.trackSiteSearch( $("#inputDesde").val(), "Desde", 0 )
-                piwikTracker.trackSiteSearch( $("#inputHasta").val(), "Hasta", 0 )
             })
 
             $("#button-origendestino").bind("click", function(e) {
@@ -548,7 +572,9 @@
                     ma = new OpenLayers.Geometry.Point(markerA.centro.x, markerA.centro.y)
                     mb = new OpenLayers.Geometry.Point(markerB.centro.x, markerB.centro.y)
                     markerA.setPoint(mb)
+                    markerAaux.setPoint(mb)
                     markerB.setPoint(ma)
+                    markerBaux.setPoint(ma)
                     // buscar sobre los markers
                     buscarporclick(markerA.centro, markerB.centro)
                 }
@@ -589,7 +615,7 @@
                     e.preventDefault();
                     n = $(this).attr("data_pagina");
                     if      ( n <  0 ) pps = "ant";
-                    else if ( n == 0 ) pps="sig";
+                    else if ( n == 0 ) pps = "sig";
                     else if ( n >  0 ) pps = n;
                     piwikLog("/click/pagina/"+pps)
                     pasarPagina($(this).attr("data_pagina"), $(this).attr("combinar"));
@@ -683,7 +709,7 @@
         </ul>
         </script>
         <script id="itemSuggest" type="text/x-jquery-tmpl">
-            <li id="sug${domId}">
+            <li id="sug${domId}{porNombre}">
                 <a class="marcarSuggest" href="#" data_geom="${geom}" data_id="${id}" data_domId="${domId}">${nombre} <span class="distancia">(${(precision*100).toFixed(2)}%)</span></a>
             </li>
         </script>
