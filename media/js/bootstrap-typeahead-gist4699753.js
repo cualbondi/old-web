@@ -17,6 +17,14 @@
  * limitations under the License.
  * ============================================================ */
 
+/* =============================================================
+ * Whitetruffle
+ * 
+ * - adding minLength option
+ * - adjusting defaults for autowidth, autoselect, timeout
+ * - adding 'render' override option
+ * ============================================================ */
+
 !function ($) {
 
     "use strict"
@@ -27,6 +35,7 @@
         this.matcher = this.options.matcher || this.matcher
         this.sorter = this.options.sorter || this.sorter
         this.highlighter = this.options.highlighter || this.highlighter
+        this.render = this.options.render || this.render
         this.$menu = $(this.options.menu).appendTo('body')
         this.source = this.options.source
         this.onselect = this.options.onselect
@@ -34,7 +43,7 @@
         this.autowidth = this.options.autowidth
         this.strings = true
         this.shown = false
-        this.timeout = this.options.timeout || 10
+        this.timeout = this.options.timeout || 100
         this.listen()
     }
 
@@ -124,7 +133,14 @@
       items = this.sorter(items)
 
       if (!items.length) {
-          return this.shown ? this.hide() : this
+          if (this.options.noresults) {
+            var i = {};
+            i[that.options.property] = this.query
+            i['noresults'] = true
+            items = [i]
+          }
+          else
+            return this.shown ? this.hide() : this
       }
 
       return this.render(items.slice(0, this.options.items)).show()
@@ -163,10 +179,15 @@
       var that = this
 
       items = $(items).map(function (i, item) {
-          i = $(that.options.item).attr('data-value', JSON.stringify(item))
+          var i = $(that.options.item).attr('data-value', JSON.stringify(item))
+          var str = item
           if (!that.strings)
-              item = item[that.options.property]
-          i.find('a').html(that.highlighter(item))
+              str = item[that.options.property]
+          i.find('a').html( that.highlighter(str) )
+          
+          if( !that.strings && item.noresults )
+            i.addClass('active').find('a').prepend( that.options.noresults )
+          
           return i[0]
       })
 
@@ -201,12 +222,8 @@
   , listen: function () {
       this.$element
         .on('blur', $.proxy(this.blur, this))
-        .on('keypress', $.proxy(this.keypress, this))
         .on('keyup', $.proxy(this.keyup, this))
-
-      if ($.browser.webkit || $.browser.msie) {
-          this.$element.on('keydown', $.proxy(this.keypress, this))
-      }
+        .on('keydown', $.proxy(this.keypress, this))
 
       this.$menu
         .on('click', $.proxy(this.click, this))
@@ -239,6 +256,13 @@
               break
 
           default:
+              // add minLength
+              if( !this.shown && $(this.$element).val().length < this.options.minLength ) {
+                this.hide()
+                return
+              }
+
+              // timeout
               if (this.timer) clearTimeout(this.timer);
               var self = this;
               this.timer = setTimeout(function () { self.lookup(); }, this.timeout);
@@ -309,9 +333,11 @@
   , menu: '<ul class="typeahead dropdown-menu"></ul>'
   , item: '<li><a href="#"></a></li>'
   , onselect: null
-  , autoselect: true
-  , autowidth: true
-  , timeout: 10
+  , noresults: null
+  , autoselect: false
+  , autowidth: false
+  , timeout: 100
+  , minLength: 2
   , property: 'value'
     }
 
