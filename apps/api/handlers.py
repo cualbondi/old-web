@@ -157,7 +157,7 @@ class RecorridoHandler(BaseHandler):
             # Filtrar todos los recorridos y devolver solo la pagina pedida
             response['resultados'] = self._paginar(recorridos, pagina)
             response['q'] = query
-            return response
+            return self._encriptar(response)
 
         elif id_recorrido is not None:
             # Me mandaron "id_recorrido", tengo que devolver ese solo recorrido.
