@@ -311,7 +311,8 @@
                     markerA.setPoint(markerAaux.centro);
                     markerB.setPoint(markerBaux.centro);
                 }
-                map.zoomToExtent(recorridos.getDataExtent());
+                map.panTo(recorridos.getDataExtent().getCenterLonLat());
+                map.zoomTo(map.getZoomForExtent(recorridos.getDataExtent())-1);
             }
 
             function buscar_por_inputs() {
