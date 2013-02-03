@@ -748,15 +748,23 @@
             <ul class="nav nav-list">
                 <li class="nav-header">Origen:</li>
             </ul>
-            <ul id="#sug1" class="nav nav-list">
-                {% templatetag openvariable %}tmpl(data1) "#itemSuggest"{% templatetag closevariable %}
-            </ul>
+            {% templatetag openvariable %}if (data1.length>0){% templatetag closevariable %}
+                <ul id="#sug1" class="nav nav-list">
+                    {% templatetag openvariable %}tmpl(data1) "#itemSuggest"{% templatetag closevariable %}
+                </ul>
+            {% templatetag openvariable %}else{% templatetag closevariable %}
+                {% templatetag openvariable %}tmpl() "#itemSuggestVacio"{% templatetag closevariable %}
+            {% templatetag openvariable %}/if{% templatetag closevariable %}
             <ul class="nav nav-list">
                 <li class="nav-header">Destino:</li>
             </ul>
-            <ul id="#sug2" class="nav nav-list">
-                {% templatetag openvariable %}tmpl(data2) "#itemSuggest"{% templatetag closevariable %}
-            </ul>
+            {% templatetag openvariable %}if (data2.length>0){% templatetag closevariable %}
+                <ul id="#sug2" class="nav nav-list">
+                    {% templatetag openvariable %}tmpl(data2) "#itemSuggest"{% templatetag closevariable %}
+                </ul>
+            {% templatetag openvariable %}else{% templatetag closevariable %}
+                {% templatetag openvariable %}tmpl() "#itemSuggestVacio"{% templatetag closevariable %}
+            {% templatetag openvariable %}/if{% templatetag closevariable %}
             <div>
                 &nbsp;
                 <button id="button-seleccionarSugerencias" class="btn btn-primary pull-right" type="submit">Aceptar</button>
@@ -767,6 +775,13 @@
             <li id="sug${domId}{porNombre}">
                 <a class="marcarSuggest" href="#" data_geom="${geom}" data_id="${id}" data_domId="${domId}">${nombre} <span class="distancia">(${(precision*100).toFixed(2)}%)</span></a>
             </li>
+        </script>
+        <script id="itemSuggestVacio" type="text/x-jquery-tmpl">
+            <ul class="nav nav-list">
+                <li class="disabled">
+                    No se encontraron resultados para esta búsqueda, por favor inténtelo nuevamente modificando las palabras de búsqueda por algo mas sencillo.
+                </li>
+            </ul>
         </script>
 
         <script id="ayudaTempl" type="text/x-jquery-tmpl">
