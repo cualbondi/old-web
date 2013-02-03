@@ -109,8 +109,8 @@ class Ciudad(models.Model):
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.nombre)
-        if self.poligono:
-            self.centro = self.poligono.centroid
+        #if self.poligono:
+        #    self.centro = self.poligono.centroid
         super(Ciudad, self).save(*args, **kwargs)
 
     def __unicode__(self):
