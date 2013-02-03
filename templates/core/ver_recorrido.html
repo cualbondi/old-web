@@ -26,6 +26,12 @@
     <div class="thumbnail"><div id="map" style="background:lightblue; height:300px;"></div></div>
     <br />
 
+    {% if recorrido_actual.descripcion %}
+        <h3>Lugares por donde pasa</h3>
+        <div>{{recorrido_actual.descripcion}}</div>
+        <br />
+    {% endif %}
+
     <h3>Dejanos un comentario sobre el recorrido "{{linea_actual.nombre}} {{recorrido_actual.nombre}}"</h3>
     <div id="disqus_thread"></div>
     <script type="text/javascript">

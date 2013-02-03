@@ -72,6 +72,24 @@
     </table>
     <br />
 
+    {% if tarifas %}
+        <h3>Precio del boleto</h3>
+        <table class="table table-striped table-bordered table-condensed">
+            <thead>
+                <th>Tipo de boleto</th>
+                <th>Precio</th>
+            </thead>
+            <tbody>
+            {% for tarifa in tarifas %}
+                <tr>
+                    <td>{{tarifa.tipo}}</td>
+                    <td>${{tarifa.precio}}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
     <!--[if gt IE 7]>
         <h3>Dejanos un comentario sobre "{{ciudad_actual.nombre}}"</h3>
         <div id="disqus_thread"></div>

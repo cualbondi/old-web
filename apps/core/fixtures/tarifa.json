@@ -1,0 +1,38 @@
+[
+    {
+        "pk": 1, 
+        "model": "core.tarifa", 
+        "fields": {
+            "ciudad": 1, 
+            "precio": "1.50", 
+            "tipo": "Con SUBE - Primera secci\u00f3n (hasta 3km)"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "core.tarifa", 
+        "fields": {
+            "ciudad": 1, 
+            "precio": "2.55", 
+            "tipo": "Con SUBE - Segunda secci\u00f3n (m\u00e1s de 3km)"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "core.tarifa", 
+        "fields": {
+            "ciudad": 1, 
+            "precio": "2.10", 
+            "tipo": "Boleto nocturno"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "core.tarifa", 
+        "fields": {
+            "ciudad": 1, 
+            "precio": "5.00", 
+            "tipo": "Sin SUBE - Segunda secci\u00f3n (m\u00e1s de 3km)"
+        }
+    }
+]
