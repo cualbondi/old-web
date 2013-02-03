@@ -274,7 +274,7 @@
             var buscar     = true //false si busca de A a B, true si busca por nombre de recorrido (es para llamar la funcion correcta al paginar)
 
             // handler para mostrar resultados, usa el template de listado de results
-            function mostrar_resultado(id, porNombre) {
+            function mostrar_resultado(id, porNombre, forzarPanZoom) {
                 try {
                     if ( typeof(id)==='undefined' )
                         if (porNombre)
@@ -317,8 +317,10 @@
                     markerA.setPoint(markerAaux.centro);
                     markerB.setPoint(markerBaux.centro);
                 }
-                map.panTo(recorridos.getDataExtent().getCenterLonLat());
-                map.zoomTo(map.getZoomForExtent(recorridos.getDataExtent())-1);
+                if (porNombre || forzarPanZoom) {
+                    map.panTo(recorridos.getDataExtent().getCenterLonLat());
+                    map.zoomTo(map.getZoomForExtent(recorridos.getDataExtent())-1);
+                }
             }
 
             function buscar_por_inputs() {
@@ -379,7 +381,7 @@
                 markerB.confirmado = true
                 if ( markerA.listo && markerB.listo ) {
                     pagina_input = 1
-                    buscarporclick(markerA.centro, markerB.centro)
+                    buscarporclick(markerA.centro, markerB.centro, 'false', true)
                 }
             }
 
@@ -423,7 +425,7 @@
             }
 
             // envia peticion al server para buscar por latlng
-            function buscarporclick(lla, llb, combinar) {
+            function buscarporclick(lla, llb, combinar, forzarPanZoom) {
                 if ( typeof(combinar) === 'undefined' ) combinar = 'false';
                 buscar     = true
                 recorridos.removeAllFeatures()
@@ -442,7 +444,7 @@
                         combinar: combinar
                     },
                     function (data){
-                        mostrarResultados(data, combinar);
+                        mostrarResultados(data, combinar, false, forzarPanZoom);
                     }
                 );
                 lla = lla.transform(proj, map.getProjectionObject())
@@ -450,7 +452,7 @@
             }
 
             // muestra los resultados devueltos por el server usando un template
-            function mostrarResultados(data, combinar, porNombre){
+            function mostrarResultados(data, combinar, porNombre, forzarPanZoom){
                 if ( typeof(porNombre)==='undefined' ) porNombre = false
                 if ( typeof(combinar) ==='undefined' ) combinar  = 'false'
 
@@ -503,7 +505,7 @@
                             id = $(this).attr("id")
                             //console.log(this)
                             //console.log(porNombre)
-                            mostrar_resultado(id, porNombre)
+                            mostrar_resultado(id, porNombre, true)
                             e.preventDefault()
                             if (porNombre)
                                 piwikLog("/click/resultado/porNombre/"+$.map(resultados[porNombre][id], function(e){ e.name } ).join("+"))
@@ -530,7 +532,7 @@
                             recorridos.removeFeatures(polyhover)
                         })
                     })
-                    mostrar_resultado(undefined, porNombre)
+                    mostrar_resultado(undefined, porNombre, forzarPanZoom)
                 }
             }
 
