@@ -15,7 +15,7 @@ from django.contrib.comments.views.comments import CommentPostBadRequest
 from django.utils import simplejson
 from olwidget.widgets import InfoMap
 
-from apps.core.models import Linea, Recorrido
+from apps.core.models import Linea, Recorrido, Tarifa
 from apps.catastro.models import Ciudad, ImagenCiudad
 from apps.core.forms import LineaForm, RecorridoForm
 
@@ -66,6 +66,7 @@ def ver_ciudad(request, nombre_ciudad):
     ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
 
     lineas = natural_sort_qs(ciudad_actual.lineas.all(), 'slug')
+    tarifas = Tarifa.objects.filter(ciudad=ciudad_actual)
 
     mapa = InfoMap([
         [ciudad_actual.poligono, {
@@ -83,7 +84,8 @@ def ver_ciudad(request, nombre_ciudad):
     return render_to_response('core/ver_ciudad.html',
                               {'mapa': mapa,
                                'imagenes': imagenes,
-                               'lineas': lineas},
+                               'lineas': lineas,
+                               'tarifas': tarifas},
                               context_instance=RequestContext(request))
 
 

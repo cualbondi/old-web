@@ -101,3 +101,12 @@ class Terminal(models.Model):
     telefono = models.CharField(max_length=150)
     latlng = models.PointField()
     objects = models.GeoManager()
+
+
+class Tarifa(models.Model):
+    tipo = models.CharField(max_length=150)
+    precio = models.DecimalField(max_digits=5, decimal_places=2)
+    ciudad = models.ForeignKey(Ciudad)
+
+    def __unicode__(self):
+        return u'{0} - {1} - ${2}'.format(self.ciudad, self.tipo, self.precio)
