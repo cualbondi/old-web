@@ -42,7 +42,7 @@ class PuntoBusquedaManager(models.Manager):
 
         ciudad_model = get_model("catastro", "Ciudad")
         zona_model = get_model("catastro", "Zona")
-        if query is not None:
+        if query:
             tokens = filter(None, map(unicode.strip, query.split(',')))
 
             calles = tokens[0].upper()[:]
@@ -111,7 +111,7 @@ class PuntoBusquedaManager(models.Manager):
             # generar alguna otra regla heuristica similar para filtrar
             return res
         else:
-            pass
+            return []
 
     def interseccion(self, calle1, calle2):
         params = {'calle1': calle1, 'calle2': calle2}
