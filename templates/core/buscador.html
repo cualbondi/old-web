@@ -211,16 +211,23 @@
                         t = feature.attributes.tipo.split(":")
                         feature.attributes.tipo=t[0]+":true:false"
                         markers.redraw()
-                        if ( feature == markerA.punto ) {
+                        if ( feature == markerA.point ) {
                             markerA.confirmado = true
+                            markerAaux.setPoint(markerA.centro)
+                            markerBaux.setPoint(markerB.centro)
                             piwikLog("/click/mapa/drag/A")
                         }
-                        if ( feature == markerB.punto ) {
+                        if ( feature == markerB.point ) {
                             markerB.confirmado = true
+                            markerAaux.setPoint(markerA.centro)
+                            markerBaux.setPoint(markerB.centro)
                             piwikLog("/click/mapa/drag/B")
                         }
-                        pagina_input = 1
-                        buscarporclick(markerA.centro, markerB.centro)
+                        if (markerA.centro !== null && markerB.centro !== null) {
+                            $('a[data-toggle="tab"]').first().tab('show')
+                            pagina_input = 1
+                            buscarporclick(markerA.centro, markerB.centro)
+                        }
                     },
                     onEnter: function(feature, pixel) {
                         t = feature.attributes.tipo.split(":")
@@ -268,15 +275,17 @@
 
             // handler para mostrar resultados, usa el template de listado de results
             function mostrar_resultado(id, porNombre) {
-                //console.log(id)
-                var moverMarkers = false;
-                if ( typeof(id)==='undefined' )
-                    if (porNombre)
-                        id = $("#sidebarResultadosPorNombre li:first").attr("id").slice(3)
-                    else
-                        id = $("#sidebarResultados li:first").attr("id").slice(3)
-                else
-                    if (porNombre) moverMarkers = true;
+                try {
+                    if ( typeof(id)==='undefined' )
+                        if (porNombre)
+                            id = $("#sidebarResultadosPorNombre li:first").attr("id").slice(3)
+                        else
+                            id = $("#sidebarResultados li:first").attr("id").slice(3)
+                }
+                catch (err) {
+                    console.log(err)
+                    return 1
+                }
 
                 if (porNombre) {
                     $("#sidebarResultadosPorNombre li").removeClass("active")
@@ -300,7 +309,7 @@
                     polylinea.push(poly);
                 });
                 recorridos.addFeatures(polylinea);
-                if (moverMarkers) {
+                if (porNombre) {
                     markerA.setPoint(polylinea[0].geometry.getVertices()[0]);
                     markerB.setPoint(polylinea[polylinea.length-1].geometry.getVertices()[polylinea[polylinea.length-1].geometry.getVertices().length-1]);
                 }
@@ -665,6 +674,13 @@
             if ($("#inputDesde").val() != "" && $("#inputHasta").val() != ""){
                 buscar_por_inputs();
             }
+            
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                if ( $(e.target).attr('href')=='#1' )
+                    mostrar_resultado(undefined, false)
+                else
+                    mostrar_resultado(undefined, true);
+            })
 
         })
         </script>
