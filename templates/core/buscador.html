@@ -28,22 +28,19 @@
                     <input type="text" id="inputDesde" class="input-block-level" placeholder="Desde" {% if desde %}value="{{desde}}"{% endif %}>
                     <input type="text" id="inputHasta" class="input-block-level" placeholder="Hasta" {% if hasta %}value="{{hasta}}"{% endif %}>
                     <p><small>Ejemplos: {{ ciudad_actual.sugerencia }}</small></p>
-                    <div style="float:left;">
-                        <div class="btn-group">
-                            <a id="button-origendestino" class="btn" title="Cambiar origen por destino"><i class="icon-refresh"></i></a>
-                            <a id="button-ayuda" class="btn" title="Ayuda"><i class="icon-question-sign"></i></a>
-                        </div>
+                    <div class="btn-group">
+                        <a id="button-origendestino" class="btn" title="Cambiar origen por destino"><i class="icon-refresh"></i></a>
+                        <a id="button-ayuda" class="btn" title="Ayuda"><i class="icon-question-sign"></i></a>
                     </div>
-                    <div style="float:right;">
-                        <button id="button-buscarinputs" class="btn btn-primary" title="Buscar recorridos" type="submit"><i class="icon-search icon-white"></i> Buscar</button>
-                    </div>
+                    <button id="button-buscarinputs" class="btn btn-primary pull-right" title="Buscar recorridos" type="submit"><i class="icon-search icon-white"></i> Buscar</button>
                     <div style="clear:both;"></div>
                     <hr>
                     <div id="sidebarResultados"></div>
                 </div>
                 <div class="tab-pane" id="2">
                     <input type="text" id="inputLinea" class="input-block-level" placeholder="Linea, ramal o recorrido">
-                    <button id="button-buscarnombre" class="btn btn-primary" type="submit"><i class="icon-search icon-white"></i> Buscar</button>
+                    <button id="button-buscarnombre" class="btn btn-primary pull-right" type="submit"><i class="icon-search icon-white"></i> Buscar</button>
+                    <div style="clear:both;"></div>
                     <hr>
                     <div id="sidebarResultadosPorNombre"></div>
                 </div>
