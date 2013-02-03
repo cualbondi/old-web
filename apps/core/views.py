@@ -32,7 +32,6 @@ def natural_sort_qs(qs, key):
     op = operator.attrgetter(key)
     return sorted(qs, key=lambda a:natural_key(op(a)) )
 
-
 def index(request):
     """ TODO: Aca hay que checkear si tiene seteada una
         cookie con la ciudad predeterminada.
@@ -41,13 +40,8 @@ def index(request):
     id_ciudad = request.COOKIES.get('default_city', None)
     if id_ciudad:
         ciudad = get_object_or_404(Ciudad, id=id_ciudad)
-        url = '/{0}/'.format(ciudad.slug)
-    else:
-        url = '/seleccionar-ciudad/'
-    return redirect(url)
+        return redirect('/{0}/'.format(ciudad.slug))
 
-
-def seleccionar_ciudad(request):
     if request.method == 'GET':
         return render_to_response('core/seleccionar_ciudad.html',
                                   {'ciudad_actual': None},

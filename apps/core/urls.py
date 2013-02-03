@@ -3,7 +3,6 @@ from django.conf.urls.defaults import patterns, url
 
 urlpatterns = patterns('',
     url(r'^$', 'apps.core.views.index', name='index'),
-    url(r'^seleccionar-ciudad/$', 'apps.core.views.seleccionar_ciudad', name='seleccionar_ciudad'),
 
     # Agregar contenido
 #    url(r'^lineas/agregar/$', 'apps.core.views.agregar_linea', name='agregar_linea'),
