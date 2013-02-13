@@ -90,26 +90,32 @@
             Marker.prototype.setPoint = function(point) {
                 // setea el punto con latlng y lo pone en el mapa
                 // point = new OpenLayers.Geometry.Point(lon, lat);
-                if (this.visible)
-                    if (this.listo)
-                        this.layer.removeFeatures(this.point)
+                if (this.point == null || !this.point.attributes.dragging) {
+                    try {
+                        this.layer.removeFeatures([this.point])
+                    }
+                    catch(err) {}
 
-                this.centro = point
-                this.point = new OpenLayers.Feature.Vector(
-                    new OpenLayers.Geometry.Collection(
-                        [
-                        OpenLayers.Geometry.Polygon.createRegularPolygon(point, 600, 20, 0),
-                        point
-                        ]
-                    ),
-                    {tipo:this.id+":false:false"}
-                )
+                    this.centro = point
+                    this.point = new OpenLayers.Feature.Vector(
+                        new OpenLayers.Geometry.Collection(
+                            [
+                            OpenLayers.Geometry.Polygon.createRegularPolygon(point, 600, 20, 0),
+                            point
+                            ]
+                        ),
+                        {
+                            tipo:this.id+":false:false",
+                            dragging: false
+                        }
+                    )
 
-                if (this.visible) {
-                    this.layer.addFeatures([this.point])
-                    this.listo = true
-                    this.layer.map.moveTo(this.point)
-                    this.layer.drawFeature(this.point)
+                    if (this.visible) {
+                        this.layer.addFeatures([this.point])
+                        this.listo = true
+                        //this.layer.map.moveTo(this.point)
+                        this.layer.drawFeature(this.point)
+                    }
                 }
             }
 
@@ -155,6 +161,7 @@
                 markers,
                 {
                     onComplete: function(feature, pixel) {
+                        feature.attributes.dragging = true
                         t = feature.attributes.tipo.split(":")
                         feature.attributes.tipo=t[0]+":true:false"
                         markers.redraw()
@@ -177,16 +184,19 @@
                         }
                     },
                     onEnter: function(feature, pixel) {
+                        feature.attributes.dragging = true
                         t = feature.attributes.tipo.split(":")
                         feature.attributes.tipo=t[0]+":true:false"
                         markers.redraw()
                     },
                     onLeave: function(feature, pixel) {
+                        feature.attributes.dragging = false
                         t = feature.attributes.tipo.split(":")
                         feature.attributes.tipo=t[0]+":false:false"
                         markers.redraw()
                     },
                     onStart: function(feature, pixel) {
+                        feature.attributes.dragging = true
                         t = feature.attributes.tipo.split(":")
                         feature.attributes.tipo=t[0]+":true:true"
                         markers.redraw()
