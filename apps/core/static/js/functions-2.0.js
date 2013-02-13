@@ -22,16 +22,16 @@
             };
 
             preload([
-                "/media/css/openlayers/markerA.png"      ,
-                "/media/css/openlayers/markerA-hover.png",
-                "/media/css/openlayers/markerA-drag.png" ,
-                "/media/css/openlayers/markerB.png"      ,
-                "/media/css/openlayers/markerB-hover.png",
-                "/media/css/openlayers/markerB-drag.png"
+                STATIC_URL+"css/openlayers/markerA.png"      ,
+                STATIC_URL+"css/openlayers/markerA-hover.png",
+                STATIC_URL+"css/openlayers/markerA-drag.png" ,
+                STATIC_URL+"css/openlayers/markerB.png"      ,
+                STATIC_URL+"css/openlayers/markerB-hover.png",
+                STATIC_URL+"css/openlayers/markerB-drag.png"
             ]);
 
             // definicion inicial del mapa
-            OpenLayers.ImgPath = "/media/css/openlayers/"
+            OpenLayers.ImgPath = STATIC_URL+"css/openlayers/"
             var map = new OpenLayers.Map("mapa", {theme: null})
             var gmap = new OpenLayers.Layer.Google(
                 "Google Streets", {numZoomLevels: 20}
@@ -53,14 +53,14 @@
             var styleMap = new OpenLayers.StyleMap({fillColor: '#1166EE', fillOpacity: 0.2, strokeColor: '#1166EE', strokeOpacity: 0.3, strokeWidth: 2});
             lookup = {
                 // nombre:hovering:dragging
-                "A:false:false": { externalGraphic: "/media/css/openlayers/markerA.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -50, graphicOpacity: 1 },
-                "A:true:false" : { externalGraphic: "/media/css/openlayers/markerA-hover.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -50, graphicOpacity: 1 },
-                "A:false:true" : { externalGraphic: "/media/css/openlayers/markerA-drag.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -41, graphicOpacity: 1 },
-                "A:true:true"  : { externalGraphic: "/media/css/openlayers/markerA-drag.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -41, graphicOpacity: 1 },
-                "B:false:false": { externalGraphic: "/media/css/openlayers/markerB.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -50, graphicOpacity: 1 },
-                "B:true:false" : { externalGraphic: "/media/css/openlayers/markerB-hover.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -50, graphicOpacity: 1 },
-                "B:false:true" : { externalGraphic: "/media/css/openlayers/markerB-drag.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -41, graphicOpacity: 1 },
-                "B:true:true"  : { externalGraphic: "/media/css/openlayers/markerB-drag.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -41, graphicOpacity: 1 }
+                "A:false:false": { externalGraphic: STATIC_URL+"css/openlayers/markerA.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -50, graphicOpacity: 1 },
+                "A:true:false" : { externalGraphic: STATIC_URL+"css/openlayers/markerA-hover.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -50, graphicOpacity: 1 },
+                "A:false:true" : { externalGraphic: STATIC_URL+"css/openlayers/markerA-drag.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -41, graphicOpacity: 1 },
+                "A:true:true"  : { externalGraphic: STATIC_URL+"css/openlayers/markerA-drag.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -41, graphicOpacity: 1 },
+                "B:false:false": { externalGraphic: STATIC_URL+"css/openlayers/markerB.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -50, graphicOpacity: 1 },
+                "B:true:false" : { externalGraphic: STATIC_URL+"css/openlayers/markerB-hover.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -50, graphicOpacity: 1 },
+                "B:false:true" : { externalGraphic: STATIC_URL+"css/openlayers/markerB-drag.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -41, graphicOpacity: 1 },
+                "B:true:true"  : { externalGraphic: STATIC_URL+"css/openlayers/markerB-drag.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -41, graphicOpacity: 1 }
             }
             styleMap.addUniqueValueRules("default", "tipo", lookup);
 

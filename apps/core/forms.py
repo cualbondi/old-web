@@ -1,5 +1,6 @@
 import floppyforms as floppyforms
 from django import forms
+from django.conf import settings
 
 from apps.core.models import Linea
 
@@ -29,7 +30,7 @@ class BaseGMapWidget(floppyforms.gis.BaseGeometryWidget):
     class Media:
         js = (
             'http://openlayers.org/dev/OpenLayers.js',
-            '/media/js/floppyforms/MapWidget.js',
+            settings.STATIC_URL+'js/floppyforms/MapWidget.js',
             'http://maps.google.com/maps/api/js?sensor=false',
         )
 

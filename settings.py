@@ -27,9 +27,6 @@ CACHES = {
 }
 CACHE_TIMEOUT = 60*60
 
-OLWIDGET_STATIC_URL = "/media/olwidget"
-GOOGLE_API = "//maps.google.com/maps/api/js?v=3.6&sensor=false"
-
 # Variables personalizadas
 RADIO_ORIGEN_DEFAULT = 200
 RADIO_DESTINO_DEFAULT = 200
@@ -61,7 +58,7 @@ USE_L10N = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = os.path.join(BASE_PATH, 'media')
+MEDIA_ROOT = os.path.join(BASE_PATH, os.path.pardir, 'media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -72,7 +69,7 @@ MEDIA_URL = 'media/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = os.path.join(BASE_PATH, 'static')
+STATIC_ROOT = os.path.join(BASE_PATH, os.path.pardir, 'static')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -120,6 +117,7 @@ TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
 "django.core.context_processors.debug",
 "django.core.context_processors.i18n",
 "django.core.context_processors.media",
+"django.core.context_processors.static",
 "django.contrib.messages.context_processors.messages",
 "django.core.context_processors.request",
 "apps.core.context_processors.lista_ciudades",
@@ -133,6 +131,9 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
     os.path.join(os.path.dirname(__file__),'templates')
 )
+
+OLWIDGET_STATIC_URL = STATIC_URL+"olwidget"
+GOOGLE_API = "//maps.google.com/maps/api/js?v=3.6&sensor=false"
 
 INSTALLED_APPS = (
     'django.contrib.auth',

@@ -23,8 +23,8 @@ map.addLayer(markers);
 
 var size = new OpenLayers.Size(20,50);
 var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-var iconA = new OpenLayers.Icon('/media/css/openlayers/markerA.png',size,offset);
-var iconB = new OpenLayers.Icon('/media/css/openlayers/markerB.png',size,offset);
+var iconA = new OpenLayers.Icon(STATIC_URL+'css/openlayers/markerA.png',size,offset);
+var iconB = new OpenLayers.Icon(STATIC_URL+'css/openlayers/markerB.png',size,offset);
 
 var lonlat_inicio = new OpenLayers.LonLat(lonlat_ini_coord1, lonlat_ini_coord2);
 var lonlat_fin = new OpenLayers.LonLat(lonlat_fin_coord1, lonlat_fin_coord2);

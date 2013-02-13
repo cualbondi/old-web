@@ -3,7 +3,7 @@
 {% block title %}Cualbondi - Selección de ciudad{% endblock %}
 
 {% block custom_styles %}
-    <link href="/media/css/seleccionar_ciudad.css" rel="stylesheet" type="text/css" />
+    <link href="{{ STATIC_URL }}css/seleccionar_ciudad.css" rel="stylesheet" type="text/css" />
 {% endblock %}
 
 <!--Este es un template distinto a todos, por eso redefine el blocke "content" -->
@@ -14,7 +14,7 @@
             <p class="lead"><em>Seleccioná tu ciudad para comenzar a buscar</em></p>
         </div>
         <div class="block-wrapper">
-            <div class="floated-left" align="center" style="min-width: 300px; margin-top: 20px;"><img style="min" src="/media/img/isologo.png"></div>
+            <div class="floated-left" align="center" style="min-width: 300px; margin-top: 20px;"><img style="min" src="{{ STATIC_URL }}img/isologo.png"></div>
             <div class="floated-left bs-docs-sidebar" style="min-width: 300px; margin-top: 20px;">
                 <ul class="nav nav-list bs-docs-sidenav">
                     {% for ciudad in ciudades %}
