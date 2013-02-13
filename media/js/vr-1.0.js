@@ -37,7 +37,7 @@ markers.addMarker(new OpenLayers.Marker(lonlat_fin, iconB));
 
 $.get("/api/recorridos/"+recorrido_actual_id+"/",
     function(data) {
-        path_recorrido = new OpenLayers.Format.WKT().read($.base64.decode(data.ruta));
+        path_recorrido = new OpenLayers.Format.WKT().read($.RC4.decode(data.ruta));
         path_recorrido.geometry.transform(proj, map.getProjectionObject())
         layer_recorrido.addFeatures([path_recorrido]);
 

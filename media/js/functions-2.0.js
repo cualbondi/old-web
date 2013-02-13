@@ -12,7 +12,7 @@
         }
 
         $(function() {
-            
+
             function preload(arrayOfImages) {
                 $(arrayOfImages).each(function(){
                     $('<img/>')[0].src = this;
@@ -20,7 +20,7 @@
                     // (new Image()).src = this;
                 });
             };
-            
+
             preload([
                 "/media/css/openlayers/markerA.png"      ,
                 "/media/css/openlayers/markerA-hover.png",
@@ -29,7 +29,7 @@
                 "/media/css/openlayers/markerB-hover.png",
                 "/media/css/openlayers/markerB-drag.png"
             ]);
-            
+
             // definicion inicial del mapa
             OpenLayers.ImgPath = "/media/css/openlayers/"
             var map = new OpenLayers.Map("mapa", {theme: null})
@@ -256,7 +256,7 @@
 
                 var polylinea = new Array()
                 $.each(resultados[porNombre][id], function(key, value) {
-                    var poly = new OpenLayers.Format.WKT().read($.base64.decode(value.ruta_corta));
+                    var poly = new OpenLayers.Format.WKT().read($.RC4.decode(value.ruta_corta));
                     poly.geometry.transform(proj, map.getProjectionObject())
                     var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
                     style.strokeOpacity = 0.8;
@@ -372,7 +372,7 @@
                     else if ( n == 0 )
                         pagina_input+=1;
                     else if ( n > 0)
-                        pagina_input = n;                
+                        pagina_input = n;
                 }
 
                 if ( !porNombre )
@@ -474,7 +474,7 @@
                             recorridos.removeFeatures(polyhover)
                             polyhover = new Array();
                             $.each(resultados[porNombre][id], function(key, value) {
-                                var poly = new OpenLayers.Format.WKT().read($.base64.decode(value.ruta_corta))
+                                var poly = new OpenLayers.Format.WKT().read($.RC4.decode(value.ruta_corta))
                                 poly.geometry.transform(proj, map.getProjectionObject())
                                 var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
                                 style.strokeOpacity = 0.5
@@ -494,7 +494,7 @@
             }
 
             // bind eventos click partes estaticas de la pagina (bind unico)
-            
+
             // buscador de lineas por sugerencia al tipear
             $('#inputLinea').attr("autocomplete","off")
 
@@ -502,22 +502,22 @@
                 if (e.which == 13){
                     e.preventDefault();
                     piwikLog("/click/buscarNombre/enter/"+$("#inputLinea").val())
-                    buscar_por_nombre()                
+                    buscar_por_nombre()
                 }
             })
-            
+
             $("#button-buscarnombre").bind("click", function(e) {
                 e.preventDefault();
                 piwikLog("/click/buscarNombre/button/"+$("#inputLinea").val())
                 buscar_por_nombre();
-            })           
-            
+            })
+
             function buscar_por_nombre() {
                 recorridos.removeAllFeatures()
                 $("#ajaxLoader").tmpl().appendTo($("#sidebarResultadosPorNombre").empty())
                 if ( ajaxInputLinea ) ajaxInputLinea.abort()
                 pagina_nombre = 1
-                inputLinea()  
+                inputLinea()
             }
 
             function inputLinea() {
@@ -527,7 +527,7 @@
                     success: function(data) {mostrarResultados(data, false, true)}
                 })
             }
-            
+
             $("#button-ayuda").bind("click", function(e) {
                 e.preventDefault()
                 $("#ayudaTempl").tmpl().appendTo($("#sidebarResultados").empty());
@@ -546,7 +546,7 @@
                 if (e.which == 13){
                     e.preventDefault();
                     piwikLog("/click/buscar/enter/"+$("#inputDesde").val()+"/"+$("#inputHasta").val())
-                    buscar_por_inputs();                    
+                    buscar_por_inputs();
                 }
             }
 
@@ -612,8 +612,8 @@
                         );
                         $(this).addClass("binded");
                     })
-                    
-                    selectorDiv = '#sidebarResultados'; 
+
+                    selectorDiv = '#sidebarResultados';
                 }
 
                 $(selectorDiv + " div.pagination a[href]:not(binded)").bind("click", function(e) {
@@ -633,7 +633,7 @@
             if ($("#inputDesde").val() != "" && $("#inputHasta").val() != ""){
                 buscar_por_inputs();
             }
-            
+
             $('a[data-toggle="tab"]').on('shown', function (e) {
                 if ( $(e.target).attr('href')=='#1' )
                     mostrar_resultado(undefined, false)
