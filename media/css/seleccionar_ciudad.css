@@ -1,54 +1,82 @@
-body { background-color: #42bfe5; padding-top: 60px;}
+* {
+    font-family: 'opensans_bold';
+    font-weight: normal;
+}
+
+body {
+    background-color: #42bfe5;
+    padding-top: 60px;
+    color: rgb(0, 59, 92);
+}
+
+em {
+    font-style: normal;
+}
 
 .bs-docs-sidenav .icon-chevron-right {
     float: right;
-    margin-top: 2px;
+    margin-top: 5px;
     margin-right: -6px;
     opacity: .25;
 }
 
-.bs-docs-sidenav > li > a:hover { background-color: #f5f5f5; }
+.bs-docs-sidenav > li > a:hover {
+    background-color: rgb(92, 197, 237);
+    background-color: rgb(66,191,229);
+    color: rgb(230, 246, 255);
+}
 
-.bs-docs-sidenav a:hover .icon-chevron-right { opacity: .5; }
+.lead {
+    font-size: 16px;
+}
+
+.bs-docs-sidenav a:hover .icon-chevron-right {
+    opacity: .5;
+}
 
 .bs-docs-sidenav > li > a {
     display: block;
-    width: 190px 9;
+    width: 170px;
     margin: 0 0 -1px;
     padding: 8px 14px;
-    border: 1px solid #E5E5E5;
-    background-color: white;
+    background-color: rgb(66,191,229);
+    color: rgb(0, 59, 92);
+    text-shadow: none;
+    line-height: 27px;
 }
 
 .bs-docs-sidenav {
-    width: 300px;
+    width: 170px;
     padding: 0;
     position: relative;
     left: 50%;
     margin-left: -150px;
     background-color: #fff;
-        -webkit-border-radius: 6px;
-        -moz-border-radius: 6px;
-    border-radius: 6px;
-        -webkit-box-shadow: 0 1px 4px rgba(0,0,0,.065);
-        -moz-box-shadow: 0 1px 4px rgba(0,0,0,.065);
-    box-shadow: 0 1px 4px rgba(0,0,0,.065);
 }
 
-.bs-docs-sidenav > li:first-child > a {
-    -webkit-border-radius: 6px 6px 0 0;
-    -moz-border-radius: 6px 6px 0 0;
-    border-radius: 6px 6px 0 0;
-}
-
-.bs-docs-sidenav > li:last-child > a {
-    -webkit-border-radius: 0 0 6px 6px;
-    -moz-border-radius: 0 0 6px 6px;
-    border-radius: 0 0 6px 6px;
+h1 {
+    font-size: 47px !important;
+    letter-spacing: -0.03em;
+    font-family: 'opensans_bold';
+    font-weight: normal;
 }
 
 @media (min-width: 650px) {
-    .floated-left { float:left; }
-    .block-wrapper { position: absolute; left: 50%; margin-left: -315px; }
-    .bs-docs-sidebar { margin-left: 30px; }
+    .floated-left {
+        float:left;
+    }
+    .block-wrapper {
+        position: absolute;
+        left: 50%;
+        margin-left: -285px; 
+    }
+    .bs-docs-sidebar {
+        margin-left: 50px;
+    }
+}
+
+@media (max-width: 650px) {
+    .bs-docs-sidenav {
+        margin-left: -100px;
+    }
 }
