@@ -132,7 +132,7 @@ class RecorridoHandler(BaseHandler):
         response['c'] = ciudad_slug
 
         if query is not None:
-            qs = Recorrido.objects.fuzzy_like_query(query, ciudad_slug)
+            qs = Recorrido.objects.fuzzy_like_trgm_query(query, ciudad_slug)
             recorridos = [
                 {"id": r.id,
                   "itinerario": [
