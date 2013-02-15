@@ -7,8 +7,7 @@ The loadDbParameters() function is imported from settings.py to set the
 DATABASE parameters
 """
 
-def loadDbParameters():
-    return {
+DATABASES = {
                 'default': {
                     'ENGINE': 'django.contrib.gis.db.backends.postgis', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
                     'NAME': 'geocb',                      # Or path to database file if using sqlite3.

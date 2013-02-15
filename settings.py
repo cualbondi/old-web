@@ -1,6 +1,5 @@
 # Django settings for cualbondi project.
 import os
-from settings_local import loadDbParameters
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -16,7 +15,7 @@ MANAGERS = ADMINS
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
-DATABASES = loadDbParameters()
+DATABASES = {}
 
 USE_CACHE = True
 CACHES = {
@@ -181,3 +180,9 @@ LOGGING = {
         },
     }
 }
+
+
+try:
+    from settings_local import *
+except ImportError:
+    pass
