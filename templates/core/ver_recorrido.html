@@ -11,7 +11,7 @@
 {% block custom_scripts %}
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.RC4.min.js"></script>
     <script>
-        var recorrido_actual_id = {{recorrido_actual.id}}
+        var recorrido_actual_id = {{recorrido_actual.id}};
         var GLOBAL_ci = "{{ ciudad_actual.slug }}";
         var ciudad_actual_coord1 = new Array{{ ciudad_actual.centro.coords }}[0];
         var ciudad_actual_coord2 = new Array{{ ciudad_actual.centro.coords }}[1];
@@ -20,6 +20,7 @@
         var lonlat_ini_coord2 = new Array{{recorrido_actual.ruta|first}}[1];
         var lonlat_fin_coord1 = new Array{{recorrido_actual.ruta|last}}[0];
         var lonlat_fin_coord2 = new Array{{recorrido_actual.ruta|last}}[1];
+        var STATIC_URL = {{ STATIC_URL }};
     </script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/vr-1.0.js"></script>
 {% endblock %}
