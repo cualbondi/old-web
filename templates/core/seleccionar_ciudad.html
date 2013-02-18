@@ -100,7 +100,7 @@
             .bs-docs-sidenav {
             background-color:#FFF;
             left:50%;
-            margin-left:-150px;
+            margin-left:-125px;
             position:relative;
             width:170px;
             padding:0;
@@ -112,6 +112,7 @@
 
             .nav {
             list-style:none outside none;
+            margin-top:0;
             }
 
             li {
@@ -188,8 +189,8 @@
                 <p class="lead"><em>Seleccioná tu ciudad para comenzar a buscar</em></p>
             </div>
             <div class="block-wrapper">
-                <div class="floated-left" align="center" style="min-width: 300px; margin-top: 20px;"><img style="min" src="{{ STATIC_URL }}img/isologo.png"></div>
-                <div class="floated-left bs-docs-sidebar" style="min-width: 300px; margin-top: 20px;">
+                <div class="floated-left" align="center" style="width: 300px; margin-top: 20px;"><img style="min" src="{{ STATIC_URL }}img/isologo.png"></div>
+                <div class="floated-left bs-docs-sidebar" style="width: 250px; margin-top: 20px;">
                     <ul class="nav nav-list bs-docs-sidenav">
                         {% for ciudad in ciudades %}
                         <li><a href="/mapa/{{ciudad.slug}}/"><i class="icon-chevron-right"></i> {{ciudad.nombre}}</a></li>
