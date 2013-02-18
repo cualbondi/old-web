@@ -185,5 +185,5 @@ LOGGING = {
 try:
     from settings_local import *
     INSTALLED_APPS += LOCAL_INSTALLED_APPS
-except ImportError:
+except:
     pass
