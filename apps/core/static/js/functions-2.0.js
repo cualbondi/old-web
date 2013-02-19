@@ -450,7 +450,7 @@
                     for (var i=0; i<data['cant_paginas']; i++){
                         data['page_list'].push(i+1);
                     }
-                    var index = data['page_list'].indexOf(data['p']);
+                    var index = $.inArray(data['p'], data['page_list']); 
                     var desde = index - 3 > 0 ? index - 3 : 0;
                     var hasta = index + 3 < data['cant_paginas'] ? index + 3 : data['cant_paginas'];
                     data['page_list'] = data['page_list'].slice(desde, hasta);
