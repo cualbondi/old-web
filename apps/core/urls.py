@@ -10,13 +10,13 @@ urlpatterns = patterns('',
 
     # Redirects para las URLs viejas
     url(r'^recorridos/$', 'apps.core.views.redirect_nuevas_urls', name='redirect_nuevas_urls'),
-    url(r'^recorridos/(?P<linea>[\w-]+)/$', 'apps.core.views.redirect_nuevas_urls', name='redirect_nuevas_urls'),
-    url(r'^recorridos/(?P<linea>[\w-]+)/(?P<ramal>[\w-]+)/$', 'apps.core.views.redirect_nuevas_urls', name='redirect_nuevas_urls'),
-    url(r'^recorridos/(?P<linea>[\w-]+)/(?P<ramal>[\w-]+)/(?P<recorrido>[\w-]+)/$', 'apps.core.views.redirect_nuevas_urls', name='redirect_nuevas_urls'),
-    url(r'^(?P<ciudad>[\w-]+)/recorridos/$', 'apps.core.views.redirect_nuevas_urls', name='redirect_nuevas_urls'),
-    url(r'^(?P<ciudad>[\w-]+)/recorridos/(?P<linea>[\w-]+)/$', 'apps.core.views.redirect_nuevas_urls', name='redirect_nuevas_urls'),
-    url(r'^(?P<ciudad>[\w-]+)/recorridos/(?P<linea>[\w-]+)/(?P<ramal>[\w-]+)/$', 'apps.core.views.redirect_nuevas_urls', name='redirect_nuevas_urls'),
-    url(r'^(?P<ciudad>[\w-]+)/recorridos/(?P<linea>[\w-]+)/(?P<ramal>[\w-]+)/(?P<recorrido>[\w-]+)/$', 'apps.core.views.redirect_nuevas_urls', name='redirect_nuevas_urls'),
+    url(r'^recorridos/(?P<linea>[^/]+)/$', 'apps.core.views.redirect_nuevas_urls', name='redirect_nuevas_urls'),
+    url(r'^recorridos/(?P<linea>[^/]+)/(?P<ramal>[^/]+)/$', 'apps.core.views.redirect_nuevas_urls', name='redirect_nuevas_urls'),
+    url(r'^recorridos/(?P<linea>[^/]+)/(?P<ramal>[^/]+)/(?P<recorrido>[^/]+)/$', 'apps.core.views.redirect_nuevas_urls', name='redirect_nuevas_urls'),
+    url(r'^(?P<ciudad>[^/]+)/recorridos/$', 'apps.core.views.redirect_nuevas_urls', name='redirect_nuevas_urls'),
+    url(r'^(?P<ciudad>[^/]+)/recorridos/(?P<linea>[^/]+)/$', 'apps.core.views.redirect_nuevas_urls', name='redirect_nuevas_urls'),
+    url(r'^(?P<ciudad>[^/]+)/recorridos/(?P<linea>[^/]+)/(?P<ramal>[^/]+)/$', 'apps.core.views.redirect_nuevas_urls', name='redirect_nuevas_urls'),
+    url(r'^(?P<ciudad>[^/]+)/recorridos/(?P<linea>[^/]+)/(?P<ramal>[^/]+)/(?P<recorrido>[^/]+)/$', 'apps.core.views.redirect_nuevas_urls', name='redirect_nuevas_urls'),
 
     # Ciudades
     url(r'^(?P<nombre_ciudad>[\w-]+)/$', 'apps.core.views.ver_ciudad', name='ver_ciudad'),

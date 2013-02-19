@@ -158,13 +158,11 @@ def redirect_nuevas_urls(request, ciudad=None, linea=None, ramal=None, recorrido
     """
     cualbondi.com.ar/la-plata/recorridos/Norte/10/IDA/ (ANTES)
     cualbondi.com.ar/la-plata/norte/10-desde-x-hasta-y (DESPUES)
-    cualbondi.com.ar/cordoba/recorridos/T%20(Transversal)/Central/IDA/ (NO ANDA, CHECKEAR REGEXP URLs)
+    cualbondi.com.ar/cordoba/recorridos/T%20(Transversal)/Central/IDA/
     """
     url = '/'
     if not ciudad:
         ciudad = 'la-plata'
-    if ciudad == 'buenos-aires':
-        ciudad = 'capital-federal'
     url += slugify(ciudad) + '/'
     if linea:
         url += slugify(linea) + '/'
