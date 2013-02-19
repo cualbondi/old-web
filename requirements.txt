@@ -8,5 +8,7 @@ django-olwidget
 django-floppyforms
 django-piston
 django-imagekit
+pymongo
+django-sentry
 
 #django-moderation
