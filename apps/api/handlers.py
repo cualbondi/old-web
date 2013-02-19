@@ -12,6 +12,9 @@ from apps.catastro.models import Ciudad, PuntoBusqueda
 from settings import (RADIO_ORIGEN_DEFAULT, RADIO_DESTINO_DEFAULT,
                       CACHE_TIMEOUT, LONGITUD_PAGINA, USE_CACHE)
 
+from mongologger import MongoLog
+import json
+
 
 class CiudadHandler(BaseHandler):
     allowed_methods = ['GET']
@@ -67,7 +70,9 @@ class LineaHandler(BaseHandler):
             return Linea.objects.all()
         else:
             try:
-                return Linea.objects.get(id=id_linea)
+                response = Linea.objects.get(id=id_linea)
+                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "response":response})
+                return response
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND
 
@@ -82,7 +87,9 @@ class LineaRecorridoHandler(BaseHandler):
         else:
             try:
                 l = Linea.objects.get(id=id_linea)
-                return Recorrido.objects.filter(linea=l)
+                response = Recorrido.objects.filter(linea=l)
+                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "response":response})
+                return response
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND
 
@@ -157,13 +164,14 @@ class RecorridoHandler(BaseHandler):
             # Filtrar todos los recorridos y devolver solo la pagina pedida
             response['resultados'] = self._paginar(recorridos, pagina)
             response['q'] = query
+            MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "response":response})
             return self._encriptar(response)
 
         elif id_recorrido is not None:
             # Me mandaron "id_recorrido", tengo que devolver ese solo recorrido.
             try:
                 recorrido = Recorrido.objects.get(id=id_recorrido)
-                return {
+                response = {
                     'id': recorrido.id,
                     'nombre': recorrido.nombre,
                     'nombre_linea': recorrido.linea.nombre,
@@ -174,6 +182,8 @@ class RecorridoHandler(BaseHandler):
                     'fin': recorrido.fin,
                     'ruta': b64encode(recorrido.ruta.wkt),
                 }
+                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "response":response})
+                return response
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND
 
@@ -278,7 +288,10 @@ class RecorridoHandler(BaseHandler):
                 #    return rc.BAD_REQUEST
                 # Filtrar todos los recorridos y devolver solo la pagina pedida
                 response['resultados'] = self._paginar(recorridos, pagina)
+                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "response":response})
                 return self._encriptar(response)
+            else:
+                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET})
 
 
 class CatastroHandler(BaseHandler):
@@ -293,7 +306,9 @@ class CatastroHandler(BaseHandler):
             return rc.BAD_REQUEST
         else:
             try:
-                return PuntoBusqueda.objects.buscar(q, ciudad_actual_slug)
+                response = list(PuntoBusqueda.objects.buscar(q, ciudad_actual_slug))
+                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "response":response})
+                return response
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND
 
@@ -310,6 +325,8 @@ class CalleHandler(BaseHandler):
             return rc.BAD_REQUEST
         else:
             try:
-                return PuntoBusqueda.objects.interseccion(calle1, calle2)
+                response = PuntoBusqueda.objects.interseccion(calle1, calle2)
+                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "response":response})
+                return response
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND

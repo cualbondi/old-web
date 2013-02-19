@@ -165,5 +165,13 @@ class PuntoBusqueda(models.Model):
 
     objects = PuntoBusquedaManager()
 
+    def asDict(self):
+        return {
+                "nombre": self.nombre,
+                "precision": self.precision,
+                "geom": self.geom,
+                "tipo": self.tipo
+            }
+
     class Meta:
         abstract = True
