@@ -202,7 +202,7 @@ class PuntoBusquedaManager(models.Manager):
     def rawGeocoder(self, query):
         # http://stackoverflow.com/questions/9884475/using-google-maps-geocoder-from-python-with-urllib2
         add = query + ", Argentina"
-        add = urllib2.quote(add)
+        add = urllib2.quote(add.encode('utf8'))
         geocode_url = "http://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false" % add
         req = urllib2.urlopen(geocode_url)
         res = json.loads(req.read())
@@ -220,7 +220,7 @@ class PuntoBusquedaManager(models.Manager):
         import urllib2
         import json
         add = calle + " " + numero + ", " + ciudad_slug + ", Argentina"
-        add = urllib2.quote(add)
+        add = urllib2.quote(add.encode('utf8'))
         geocode_url = "http://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false" % add
         req = urllib2.urlopen(geocode_url)
         res = json.loads(req.read())
