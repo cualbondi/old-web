@@ -2,7 +2,7 @@ from apps.catastro.models import Ciudad
 
 
 def lista_ciudades(request):
-    ciudades = Ciudad.objects.filter(activa=True)
+    ciudades = Ciudad.objects.filter(activa=True).order_by('nombre')
     return {'ciudades': ciudades}
 
 
