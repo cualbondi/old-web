@@ -151,8 +151,8 @@ class Poi(models.Model):
     """ Un "Punto de interes" es algun lugar representativo
         de una "Ciudad". Por ej: la catedral de La Plata.
     """
-#    nom_normal = models.TextField()
-#    nom = models.TextField()
+    nom_normal = models.TextField()
+    nom = models.TextField()
     latlng = models.PointField()
     objects = models.GeoManager()
 

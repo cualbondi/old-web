@@ -60,9 +60,9 @@ class Command(BaseCommand):
             os.chmod(inputfile, S_IROTH | S_IRUSR | S_IROTH | S_IWOTH | S_IWUSR | S_IWOTH)
 
         dbname = connection.settings_dict['NAME']
-        dbuser = "postgres"#connection.settings_dict['USER']
-        dbpass = "postgres"#connection.settings_dict['PASSWORD']
-        dbhost = "localhost"#connection.settings_dict['HOST']
+        dbuser = "postgres"  # connection.settings_dict['USER']
+        dbpass = "postgres"  # connection.settings_dict['PASSWORD']
+        dbhost = "localhost"  # connection.settings_dict['HOST']
 
         cu = connection.cursor()
         cu.execute("SELECT slug, st_box(poligono::geometry) as box FROM catastro_ciudad;")
@@ -93,7 +93,7 @@ class Command(BaseCommand):
         superCu.execute("update planet_osm_point   set name=ref where name is null;")
         superCu.execute("update planet_osm_polygon set name=ref where name is null;")
         superCu.execute("update planet_osm_roads   set name=ref where name is null;")
-        superCu.close()        
+        superCu.close()
         print " => Juntando tablas de caminos, normalizando nombres"
         cu.execute("delete from catastro_calle")
         cu.execute("insert into catastro_calle(way, nom_normal, nom) select way, upper(translate(name, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), name from planet_osm_line where name is not null;")
@@ -104,9 +104,8 @@ class Command(BaseCommand):
         cu.execute("insert into catastro_poi(latlng, nom_normal, nom) select latlng, upper(translate(nom, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), nom||coalesce(', '||(select nom from catastro_zona zo where ST_Intersects(latlng, zo.geo)), '') from catastro_poi where nom is not null;")
         print " => Purgando nombres repetidos"
         cu.execute("delete from catastro_poi where id not in (select min(id) from catastro_poi group by nom_normal having count(*) > 1)")
+        transaction.commit_unless_managed()
 
         #print " => Eliminando tablas no usadas"
         #cu.execute("drop table planet_osm_roads;")
         #cu.execute("drop table planet_osm_polygon;")
-        #cx.commit()
-        #cx.close()
