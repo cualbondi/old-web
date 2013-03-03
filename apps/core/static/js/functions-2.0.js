@@ -13,6 +13,8 @@
 
         $(function() {
 
+            $("#ayudaTempl").tmpl().appendTo($("#sidebarResultados").empty());
+
             function preload(arrayOfImages) {
                 $(arrayOfImages).each(function(){
                     $('<img/>')[0].src = this;
