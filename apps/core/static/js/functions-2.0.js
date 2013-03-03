@@ -250,7 +250,7 @@
                             id = $("#sidebarResultados li:first").attr("id").slice(3)
                 }
                 catch (err) {
-                    console.log(err)
+                    //console.log(err)
                     return 1
                 }
 
