@@ -43,6 +43,13 @@ class Command(BaseCommand):
             default = False,
             help    = 'Use the cache of downloaded osm'
         ),
+        make_option(
+            '-s',
+            action  = 'store_true',
+            dest    = 'slim',
+            default = False,
+            help    = 'Set osm2pgsql slim mode (create raw tables: nodes, rels, ways)'
+        )
     )
 
     def handle(self, *args, **options):
@@ -60,9 +67,9 @@ class Command(BaseCommand):
             os.chmod(inputfile, S_IROTH | S_IRUSR | S_IROTH | S_IWOTH | S_IWUSR | S_IWOTH)
 
         dbname = connection.settings_dict['NAME']
-        dbuser = "postgres"  # connection.settings_dict['USER']
-        dbpass = "postgres"  # connection.settings_dict['PASSWORD']
-        dbhost = "localhost"  # connection.settings_dict['HOST']
+        dbuser = "postgres"#connection.settings_dict['USER']
+        dbpass = "postgres"#connection.settings_dict['PASSWORD']
+        dbhost = "localhost"#connection.settings_dict['HOST']
 
         cu = connection.cursor()
         cu.execute("SELECT slug, st_box(poligono::geometry) as box FROM catastro_ciudad;")
@@ -74,10 +81,10 @@ class Command(BaseCommand):
             box = ",".join([l[2], l[3], l[0], l[1]])
 
             if primera:
-                prog = ["osm2pgsql"      , "-l", "-S"+os.path.join(os.path.abspath(os.path.dirname(__file__)),"update-osm.style"), "-d"+dbname, "-U"+dbuser, "-b"+box, inputfile ]
+                prog = ["osm2pgsql"      , "-s" if options['slim'] else "", "-l", "-S"+os.path.join(os.path.abspath(os.path.dirname(__file__)),"update-osm.style"), "-d"+dbname, "-U"+dbuser, "-b"+box, inputfile ]
                 primera = False
             else:
-                prog = ["osm2pgsql", "-a", "-l", "-S"+os.path.join(os.path.abspath(os.path.dirname(__file__)),"update-osm.style"), "-d"+dbname, "-U"+dbuser, "-b"+box, inputfile ]
+                prog = ["osm2pgsql", "-a", "-s" if options['slim'] else "", "-l", "-S"+os.path.join(os.path.abspath(os.path.dirname(__file__)),"update-osm.style"), "-d"+dbname, "-U"+dbuser, "-b"+box, inputfile ]
             print "ejecutando:",
             print prog
             p = subprocess.Popen(prog, env={"PGPASSWORD": dbpass} )
@@ -109,3 +116,5 @@ class Command(BaseCommand):
         #print " => Eliminando tablas no usadas"
         #cu.execute("drop table planet_osm_roads;")
         #cu.execute("drop table planet_osm_polygon;")
+        #cx.commit()
+        #cx.close()

@@ -17,9 +17,9 @@ class Command(BaseCommand):
         cursor = connection.cursor()
         db = psycopg2.connect(
             host='127.0.0.1',
-            database='geocb',
-            user='postgres',
-            password='postgres'
+            database='colectivos',
+            user='web_colectivos',
+            password='soylawebcolectivos'
         )
         cursor = db.cursor(cursor_factory=RealDictCursor)
         stats = {'ciudades': 0, 'lineas': 0, 'recorridos': 0}
