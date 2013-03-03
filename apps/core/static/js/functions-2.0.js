@@ -209,26 +209,6 @@
             clickHandler.activate()
             dragControl.activate()
 
-            var adUnitDiv = document.createElement('div');
-            var adUnitOptions = {
-                format: google.maps.adsense.AdFormat.HALF_BANNER,
-                position: google.maps.ControlPosition.TOP,
-                map: map.baseLayer.mapObject,
-                visible: true,
-                publisherId: 'ca-pub-1193419141108967'
-            }
-            adUnit = new google.maps.adsense.AdUnit(adUnitDiv, adUnitOptions);
-
-            var adUnitDiv = document.createElement('div');
-            var adUnitOptions = {
-                format: google.maps.adsense.AdFormat.VERTICAL_BANNER,
-                position: google.maps.ControlPosition.RIGHT_BOTTOM,
-                map: map.baseLayer.mapObject,
-                visible: true,
-                publisherId: 'ca-pub-1193419141108967'
-            }
-            adUnit = new google.maps.adsense.AdUnit(adUnitDiv, adUnitOptions);
-
             // variables "globales"
             var resultados = new Object()
             resultados[true] = new Object()
