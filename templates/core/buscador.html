@@ -66,12 +66,15 @@
     </div>
 {% endblock %}
 
-{% block custom_ready_function %}
-    $(window).bind('resize', function() {
+{% block custom_scripts %}
+<script>
+    $(document).ready(function(){
+        $(window).bind('resize', function() {
+            check_layout();
+        })
         check_layout();
     })
-    check_layout();
-{% endblock %}
+</script>
 
 {% block custom_scripts %}
 <script src="http://openlayers.org/api/OpenLayers.js"></script>
