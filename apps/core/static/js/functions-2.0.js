@@ -219,6 +219,16 @@
             }
             adUnit = new google.maps.adsense.AdUnit(adUnitDiv, adUnitOptions);
 
+            var adUnitDiv = document.createElement('div');
+            var adUnitOptions = {
+                format: google.maps.adsense.AdFormat.VERTICAL_BANNER,
+                position: google.maps.ControlPosition.RIGHT_BOTTOM,
+                map: map.baseLayer.mapObject,
+                visible: true,
+                publisherId: 'ca-pub-1193419141108967'
+            }
+            adUnit = new google.maps.adsense.AdUnit(adUnitDiv, adUnitOptions);
+
             // variables "globales"
             var resultados = new Object()
             resultados[true] = new Object()
@@ -450,7 +460,7 @@
                     for (var i=0; i<data['cant_paginas']; i++){
                         data['page_list'].push(i+1);
                     }
-                    var index = $.inArray(data['p'], data['page_list']); 
+                    var index = $.inArray(data['p'], data['page_list']);
                     var desde = index - 3 > 0 ? index - 3 : 0;
                     var hasta = index + 3 < data['cant_paginas'] ? index + 3 : data['cant_paginas'];
                     data['page_list'] = data['page_list'].slice(desde, hasta);
