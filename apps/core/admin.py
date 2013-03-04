@@ -5,6 +5,7 @@ from apps.usuarios.models import RecorridoFavorito
 
 
 class CustomAdmin(admin.OSMGeoAdmin):
+    search_fields = ['nombre', 'linea__nombre']
     exclude = ()
 
 admin.site.register(Linea, CustomAdmin)
