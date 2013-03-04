@@ -163,6 +163,7 @@ INSTALLED_APPS = (
 # the site admins on every HTTP 500 error.
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
+here = lambda *x: os.path.join(os.path.dirname(os.path.realpath(__file__)), *x)
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -170,7 +171,12 @@ LOGGING = {
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
+#        'file': {
+#            'level': 'DEBUG',
+#            'class': 'logging.FileHandler',
+#            'filename': '/tmp/django.log',
+#        }
     },
     'loggers': {
         'django.request': {
@@ -178,7 +184,12 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-    }
+#        'apps': {
+#            'level': 'DEBUG',
+#            'handlers': ['file'],
+#            'propagate': True
+#        }
+    },
 }
 
 

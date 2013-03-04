@@ -44,40 +44,62 @@
                     <hr>
                     <div id="sidebarResultadosPorNombre"></div>
                 </div>
+                <div align="center">
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1193419141108967";
+                    /* Anuncio 234x60 n1 */
+                    google_ad_slot = "9820069640";
+                    google_ad_width = 234;
+                    google_ad_height = 60;
+                    //-->
+                    </script>
+                    <script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>
+                </div>
             </div>
             <div id="sidebarContenido"></div>
         </div>
-        <div align="center">
+    </div>
+    <div id="bloque_derecha">
+        <div align="center" style="position:absolute; z-index: 1000; top: 0; right: 0;">
             <script type="text/javascript"><!--
             google_ad_client = "ca-pub-1193419141108967";
             /* Anuncio 234x60 n1 */
-            google_ad_slot = "9820069640";
+            google_ad_slot = "0175038549";
             google_ad_width = 234;
             google_ad_height = 60;
             //-->
             </script>
-            <script type="text/javascript"
-            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+            <script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>
+        </div> 
+        <div align="center" style="position:absolute; z-index: 1000; bottom: 0; right: 0;">
+            <script type="text/javascript"><!--
+            google_ad_client = "ca-pub-1193419141108967";
+            /* Anuncio 234x60 n1 */
+            google_ad_slot = "6889578320";
+            google_ad_width = 234;
+            google_ad_height = 60;
+            //-->
             </script>
-        </div>
-    </div>
-    <div id="bloque_derecha">
+            <script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>
+        </div>        
         <div id="mapa" class="shadowbox"></div>
     </div>
 {% endblock %}
 
-{% block custom_ready_function %}
-    $(window).bind('resize', function() {
+{% block custom_scripts %}
+<script>
+    $(document).ready(function(){
+        $(window).bind('resize', function() {
+            check_layout();
+        })
         check_layout();
     })
-    check_layout();
-{% endblock %}
+</script>
 
-{% block custom_scripts %}
 <script src="http://openlayers.org/api/OpenLayers.js"></script>
 <script src="{{ STATIC_URL }}js/jquery.RC4.min.js"></script>
 <script src="http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
-<script src="http://maps.google.com/maps/api/js?v=3&amp;libraries=adsense&amp;sensor=false"></script>
+<script src="http://maps.google.com/maps/api/js?v=3&amp;sensor=false"></script>
 <link rel="stylesheet" href="{{ STATIC_URL }}css/openlayers/style.css" type="text/css" />
 
 <script>
@@ -190,13 +212,13 @@
         </script>
 
         <script id="ayudaTempl" type="text/x-jquery-tmpl">
-           <h3>¿Como busco recorridos?</h3>
+           <h3>¿Cómo busco recorridos?</h3>
            <h4>Campos de búsqueda</h4>
-           <p>Escriba directamente en los campos de texto del panel superior. Puede considerar interseccion de calles, calle y número o lugares de interes. Vea los ejemplos debajo de los campos de búsqueda.</p>
+           <p>Escriba directamente en los campos de texto del panel superior. Puede considerar intersección de calles, calle y número o lugares de interes. Vea los ejemplos debajo de los campos de búsqueda.</p>
            <h4>Click sobre el mapa</h4>
-           <p> hacer click directamente sobre el mapa para indicar el Origen y Destino de su búsqueda. Luego puede arrastrar los marcadores A o B para editar su ubicación.</p>
+           <p>Hacer click directamente sobre el mapa para indicar el Origen y Destino de su búsqueda. Luego puede arrastrar los marcadores A o B para editar su ubicación.</p>
            <h4>Lineas de micro</h4>
-           <p>Para buscar un recorrido completo de una linea de colectivo en particular, consulte la sección "Recorridos" aqui arriba.</p>
+           <p>Para buscar un recorrido completo de una linea de colectivo en particular, consulte la sección "Recorridos" aquí arriba.</p>
         </script>
 
         <script id="vacio1Templ" type="text/x-jquery-tmpl">

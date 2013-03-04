@@ -1,6 +1,21 @@
 {% extends "base.html" %}
 
+{% block custom_styles %}
+    <link href="{{ STATIC_URL }}css/fonts.css" rel="stylesheet" type="text/css" />
+    <link href="{{ STATIC_URL }}css/estilo.css" rel="stylesheet" type="text/css" />
+{% endblock %}
+
 {% block navbar %}
+    <!-- Incluir el SDK de Facebook -->
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "//connect.facebook.net/es_LA/all.js#xfbml=1";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+        
     <div class="navbar navbar-fixed-top navbar-inverse">
         <div class="navbar-inner">
             <div class="container">
@@ -85,8 +100,50 @@
 {% endblock %}
 
 {% block custom_scripts %}
-    <!-- DISQUS Code -->
+
+    <script src="{{ STATIC_URL }}js/date.format.js"></script>
+    <script src="{{ STATIC_URL }}js/scripts.js"></script>
+
     <script type="text/javascript">
+        $(document).ready(function(){
+            $.ajaxSetup({
+                 beforeSend: function(xhr, settings) {
+                     function getCookie(name) {
+                         var cookieValue = null;
+                         if (document.cookie && document.cookie != '') {
+                             var cookies = document.cookie.split(';');
+                             for (var i = 0; i < cookies.length; i++) {
+                                 var cookie = jQuery.trim(cookies[i]);
+                                 // Does this cookie string begin with the name we want?
+                             if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                 break;
+                             }
+                         }
+                     }
+                     return cookieValue;
+                     }
+                     if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                         // Only send the token to relative URLs i.e. locally.
+                         xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                     }
+                 }
+            });
+            
+            $('.dropdown-toggle').dropdown();
+            $('#submit_button').click(function(){
+                $('#login_form').submit();
+            })
+            $(".navbar-search input.search-query").keypress(function(event){
+                if (event.which==13){
+                    $('#login_form').submit();
+                }
+            })
+            $(".alert-message").alert()
+        
+        })
+            
+    <!-- DISQUS Code -->
     /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
     var disqus_shortname = 'cualbondi'; // required: replace example with your forum shortname
 

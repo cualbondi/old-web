@@ -111,38 +111,43 @@
     <![endif]>
 {% endblock %}
 
-{% block custom_ready_function %}
-    //CAROUSEL
-    $('.carousel').carousel()
+{% block custom_scripts %}
+{{ block.super }}
+<script type="text/javascript">
+    $(document).ready(function(){
+        //CAROUSEL
+        $('.carousel').carousel()
 
-    //Proyeccion que se necesita para transformar proyecciones mas adelante
-    var proj = new OpenLayers.Projection("EPSG:4326");
+        //Proyeccion que se necesita para transformar proyecciones mas adelante
+        var proj = new OpenLayers.Projection("EPSG:4326");
 
-    //Creamos el mapa
-    var map = new OpenLayers.Map('map', {theme: null});
-    var gmap = new OpenLayers.Layer.Google(
-        "Google Streets", {numZoomLevels: 20}
-    );
-    map.addLayers([gmap]);
-    map.setCenter(new OpenLayers.LonLat{{ ciudad_actual.centro.coords }}.transform(
-        new OpenLayers.Projection("EPSG:4326"),
-        map.getProjectionObject()
-    ), {{ ciudad_actual.zoom }});
+        //Creamos el mapa
+        var map = new OpenLayers.Map('map', {theme: null});
+        var gmap = new OpenLayers.Layer.Google(
+            "Google Streets", {numZoomLevels: 20}
+        );
+        map.addLayers([gmap]);
+        map.setCenter(new OpenLayers.LonLat{{ ciudad_actual.centro.coords }}.transform(
+            new OpenLayers.Projection("EPSG:4326"),
+            map.getProjectionObject()
+        ), {{ ciudad_actual.zoom }});
 
-    //Le agregamos una capa para el poligono de la ciudad
-    var style = {'strokeWidth': 2, 'strokeColor': '#0033CC', fillColor: "#0066CC", fillOpacity: 0.5}
-    var layer_poligono = new OpenLayers.Layer.Vector("Poligono", {styleMap: new OpenLayers.StyleMap(style) });
-    map.addLayer(layer_poligono)
+        //Le agregamos una capa para el poligono de la ciudad
+        var style = {'strokeWidth': 2, 'strokeColor': '#0033CC', fillColor: "#0066CC", fillOpacity: 0.5}
+        var layer_poligono = new OpenLayers.Layer.Vector("Poligono", {styleMap: new OpenLayers.StyleMap(style) });
+        map.addLayer(layer_poligono)
 
-    //Insertamos el poligono en la nueva capa
-    poligono_ciudad = new OpenLayers.Format.WKT().read("{{ciudad_actual.envolvente}}");
+        //Insertamos el poligono en la nueva capa
+        poligono_ciudad = new OpenLayers.Format.WKT().read("{{ciudad_actual.envolvente}}");
 
-    poligono_ciudad.geometry.transform(proj, map.getProjectionObject())
-    layer_poligono.addFeatures([poligono_ciudad]);
+        poligono_ciudad.geometry.transform(proj, map.getProjectionObject())
+        layer_poligono.addFeatures([poligono_ciudad]);
 
-    //Acomodar el zoom al poligono
-    var extent = new OpenLayers.Bounds();
-    extent.extend(poligono_ciudad.geometry.getBounds())
-    map.zoomToExtent(extent);
+        //Acomodar el zoom al poligono
+        var extent = new OpenLayers.Bounds();
+        extent.extend(poligono_ciudad.geometry.getBounds())
+        map.zoomToExtent(extent);
+    });
+</script>
 {% endblock %}
 

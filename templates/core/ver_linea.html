@@ -61,34 +61,39 @@
     <![endif]>
 {% endblock %}
 
-{% block custom_ready_function %}
-    //Proyeccion que se necesita para transformar proyecciones mas adelante
-    var proj = new OpenLayers.Projection("EPSG:4326");
+{% block custom_scripts %}
+{{ block.super }}
+<script type="text/javascript">
+    $(document).ready(function(){
+        //Proyeccion que se necesita para transformar proyecciones mas adelante
+        var proj = new OpenLayers.Projection("EPSG:4326");
 
-    //Creamos el mapa
-    map = new OpenLayers.Map("map", {theme: null})
-    var gmap = new OpenLayers.Layer.Google(
-        "Google Streets", {numZoomLevels: 20}
-    );
-    map.addLayers([gmap]);
-    map.setCenter(new OpenLayers.LonLat{{ ciudad_actual.centro.coords }}.transform(
-        new OpenLayers.Projection("EPSG:4326"),
-        map.getProjectionObject()
-    ), {{ ciudad_actual.zoom }});
+        //Creamos el mapa
+        map = new OpenLayers.Map("map", {theme: null})
+        var gmap = new OpenLayers.Layer.Google(
+            "Google Streets", {numZoomLevels: 20}
+        );
+        map.addLayers([gmap]);
+        map.setCenter(new OpenLayers.LonLat{{ ciudad_actual.centro.coords }}.transform(
+            new OpenLayers.Projection("EPSG:4326"),
+            map.getProjectionObject()
+        ), {{ ciudad_actual.zoom }});
 
-    //Le agregamos una capa para el poligono de la ciudad
-    var style = {'strokeWidth': 2, 'strokeColor': '#0033CC', fillColor: "#0066CC", fillOpacity: 0.5}
-    var layer_recorridos = new OpenLayers.Layer.Vector("Recorridos", {styleMap: new OpenLayers.StyleMap(style) });
-    map.addLayer(layer_recorridos)
-
-
-        path_recorrido = new OpenLayers.Format.WKT().read("{{linea_actual.envolvente}}");
-        path_recorrido.geometry.transform(proj, map.getProjectionObject())
-        layer_recorridos.addFeatures([path_recorrido]);
+        //Le agregamos una capa para el poligono de la ciudad
+        var style = {'strokeWidth': 2, 'strokeColor': '#0033CC', fillColor: "#0066CC", fillOpacity: 0.5}
+        var layer_recorridos = new OpenLayers.Layer.Vector("Recorridos", {styleMap: new OpenLayers.StyleMap(style) });
+        map.addLayer(layer_recorridos)
 
 
-    //Acomodar el zoom al poligono
-    var extent = new OpenLayers.Bounds();
-    extent.extend(path_recorrido.geometry.getBounds())
-    map.zoomToExtent(extent);
+            path_recorrido = new OpenLayers.Format.WKT().read("{{linea_actual.envolvente}}");
+            path_recorrido.geometry.transform(proj, map.getProjectionObject())
+            layer_recorridos.addFeatures([path_recorrido]);
+
+
+        //Acomodar el zoom al poligono
+        var extent = new OpenLayers.Bounds();
+        extent.extend(path_recorrido.geometry.getBounds())
+        map.zoomToExtent(extent);
+    });
+</script>
 {% endblock %}
