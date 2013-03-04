@@ -17,3 +17,16 @@ DATABASES = {
                     'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
                 }
             }
+
+DEBUG = False
+
+# Set your DSN value
+SENTRY_DSN = ''
+
+LOCAL_INSTALLED_APPS = (
+    'raven.contrib.django.raven_compat',
+)
+
+PYMONGOLOG_URI = "mongodb://stats.cualbondi.com.ar/cualbondi?w=0"
+
+PISTON_DISPLAY_ERRORS = False
