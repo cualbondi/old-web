@@ -88,6 +88,7 @@
                 this.id     = id
                 this.centro = null
                 this.confirmado = false
+                this.rad=300/Math.cos(-34.9)/Math.cos(50*(Math.PI/180));
             }
             Marker.prototype.setPoint = function(point) {
                 // setea el punto con latlng y lo pone en el mapa
@@ -102,7 +103,7 @@
                     this.point = new OpenLayers.Feature.Vector(
                         new OpenLayers.Geometry.Collection(
                             [
-                            OpenLayers.Geometry.Polygon.createRegularPolygon(point, 600, 20, 0),
+                            OpenLayers.Geometry.Polygon.createRegularPolygon(point, this.rad, 20, 0),
                             point
                             ]
                         ),
@@ -120,7 +121,11 @@
                     }
                 }
             }
-
+            Marker.prototype.setRadius = function(rad) {
+                this.centro.transform(map.getProjectionObject(), proj)
+                this.rad=rad/Math.cos(this.centro.y)/Math.cos(50*(Math.PI/180));
+                this.setPoint(this.centro.transform(proj,map.getProjectionObject()))
+            }
             // dos objetos de la clase marker
             var markerA = new Marker(markers, "A")
             var markerB = new Marker(markers, "B")
@@ -386,8 +391,8 @@
                     {
                         origen: lla.x+","+lla.y,
                         destino: llb.x+","+llb.y,
-                        radio_origen: "500",
-                        radio_destino: "500",
+                        radio_origen: $('#button-radio').val(),
+                        radio_destino: $('#button-radio').val(),
                         c: GLOBAL_ci,
                         p: pagina_input,
                         combinar: combinar
@@ -486,6 +491,11 @@
             }
 
             // bind eventos click partes estaticas de la pagina (bind unico)
+
+            $("[data-slider]").bind("slider:ready slider:changed", function (event, data) {
+                markerA.setRadius(data.value);
+                markerB.setRadius(data.value);                
+            });
 
             // buscador de lineas por sugerencia al tipear
             $('#inputLinea').attr("autocomplete","off")

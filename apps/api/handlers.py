@@ -278,7 +278,7 @@ class RecorridoHandler(BaseHandler):
                                     }
                                 ]
                             }
-                            for r in Recorrido.objects.get_recorridos_combinados(origen, destino, radio_origen, radio_destino, radio_origen)
+                            for r in Recorrido.objects.get_recorridos_combinados(origen, destino, radio_origen, radio_destino, 100)
                         ]
                     # Guardar los resultados calculados en memcached
                     if USE_CACHE:
