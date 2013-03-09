@@ -492,9 +492,14 @@
 
             // bind eventos click partes estaticas de la pagina (bind unico)
 
-            $("[data-slider]").bind("slider:ready slider:changed", function (event, data) {
+            $("[data-slider]").bind("slider:release", function (event, data) {
+                piwikLog("/click/buscarRadio/"+data.value);
+                buscarporclick(markerA.centro, markerB.centro, false, true);
+            });
+            
+            $("[data-slider]").bind("slider:changed", function (event, data) {
                 markerA.setRadius(data.value);
-                markerB.setRadius(data.value);                
+                markerB.setRadius(data.value);
             });
 
             // buscador de lineas por sugerencia al tipear
