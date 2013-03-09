@@ -2,6 +2,7 @@
 from django.db import DatabaseError
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Point
+import math
 
 
 class RecorridoManager(models.GeoManager):
@@ -109,6 +110,8 @@ class RecorridoManager(models.GeoManager):
             raise DatabaseError("get_recorridos: distanciaB Expected integer as parameter, %s given" % type(distanciaB))
         puntoA.set_srid(4326)
         puntoB.set_srid(4326)
+        distanciaA = 0.0000111 * float(distanciaA) 
+        distanciaB = 0.0000111 * float(distanciaB)
 
         params = {'puntoA': puntoA.ewkt, 'puntoB': puntoB.ewkt, 'rad1': distanciaA, 'rad2': distanciaB}
         query = """
@@ -116,8 +119,8 @@ class RecorridoManager(models.GeoManager):
                     re.id,
                     li.nombre || ' ' || re.nombre as nombre,
                     ruta_corta,
-                    long_ruta,
-                    long_pata,
+                    round(long_ruta::numeric, 2) as long_ruta,
+                    round(long_pata::numeric, 2) as long_pata,
                     coalesce(re.color_polilinea, li.color_polilinea, '#000') as color_polilinea,
                     coalesce(li.foto, 'default') as foto
                 FROM
@@ -127,8 +130,8 @@ class RecorridoManager(models.GeoManager):
                             id,
                             nombre,
                             ST_AsText(min_path(ruta_corta)) as ruta_corta,
-                            round(min(long_ruta)::numeric, 2) as long_ruta,
-                            round(min(long_pata)::numeric, 2) as long_pata,
+                            min(long_ruta) as long_ruta,
+                            min(long_pata) as long_pata,
                             linea_id,
                             color_polilinea
                         FROM
@@ -151,34 +154,34 @@ class RecorridoManager(models.GeoManager):
                                     FROM
                                         core_recorrido
                                     WHERE
-                                        ST_Distance_Sphere(ST_GeomFromText(%(puntoA)s), ST_Line_Substring(ruta, 0, 0.5)) < %(rad1)s and
-                                        ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s), ST_Line_Substring(ruta, 0, 0.5)) < %(rad2)s and
+                                        ST_DWithin(ST_GeomFromText(%(puntoA)s), ST_Line_Substring(ruta, 0, 0.5), %(rad1)s) and
+                                        ST_DWithin(ST_GeomFromText(%(puntoB)s), ST_Line_Substring(ruta, 0, 0.5), %(rad2)s) and
                                         ST_Line_Locate_Point(ST_Line_Substring(ruta, 0, 0.5), %(puntoA)s) <
                                             ST_Line_Locate_Point(ST_Line_Substring(ruta, 0, 0.5), %(puntoB)s)
                                 ) as primera_inner
                             )
-                        UNION
-                        (
-                            SELECT
-                                *,
-                                ST_Length(ruta_corta::Geography) as long_ruta,
-                                ST_Distance_Sphere(ST_GeomFromText(%(puntoA)s),ruta_corta) + ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s),ruta_corta) as long_pata
-                            FROM
+                            UNION
                             (
                                 SELECT
                                     *,
-                                    ST_Line_Substring(
-                                        ST_Line_Substring(ruta, 0.5, 1),
-                                        ST_Line_Locate_Point(ST_Line_Substring(ruta, 0.5, 1),	%(puntoA)s),
-                                        ST_Line_Locate_Point(ST_Line_Substring(ruta, 0.5, 1),	%(puntoB)s)
-                                    ) as ruta_corta
+                                    ST_Length(ruta_corta::Geography) as long_ruta,
+                                    ST_Distance_Sphere(ST_GeomFromText(%(puntoA)s),ruta_corta) + ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s),ruta_corta) as long_pata
                                 FROM
-                                    core_recorrido
-                                WHERE
-                                    ST_Distance_Sphere(ST_GeomFromText(%(puntoA)s), ST_Line_Substring(ruta, 0.5, 1)) < %(rad1)s and
-                                    ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s), ST_Line_Substring(ruta, 0.5, 1)) < %(rad2)s and
-                                    ST_Line_Locate_Point(ST_Line_Substring(ruta, 0.5, 1), %(puntoA)s) <
-                                    ST_Line_Locate_Point(ST_Line_Substring(ruta, 0.5, 1), %(puntoB)s)
+                                (
+                                    SELECT
+                                        *,
+                                        ST_Line_Substring(
+                                            ST_Line_Substring(ruta, 0.5, 1),
+                                            ST_Line_Locate_Point(ST_Line_Substring(ruta, 0.5, 1),	%(puntoA)s),
+                                            ST_Line_Locate_Point(ST_Line_Substring(ruta, 0.5, 1),	%(puntoB)s)
+                                        ) as ruta_corta
+                                    FROM
+                                        core_recorrido
+                                    WHERE
+                                        ST_DWithin(ST_GeomFromText(%(puntoA)s), ST_Line_Substring(ruta, 0.5, 1), %(rad1)s) and
+                                        ST_DWithin(ST_GeomFromText(%(puntoB)s), ST_Line_Substring(ruta, 0.5, 1), %(rad2)s) and
+                                        ST_Line_Locate_Point(ST_Line_Substring(ruta, 0.5, 1), %(puntoA)s) <
+                                        ST_Line_Locate_Point(ST_Line_Substring(ruta, 0.5, 1), %(puntoB)s)
                                 ) as segunda_inner
                             )
                             UNION
@@ -199,8 +202,8 @@ class RecorridoManager(models.GeoManager):
                                     FROM
                                         core_recorrido
                                     WHERE
-                                        ST_Distance_Sphere(ST_GeomFromText(%(puntoA)s), ruta) < %(rad1)s and
-                                        ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s), ruta) < %(rad2)s and
+                                        ST_DWithin(ST_GeomFromText(%(puntoA)s), ruta, %(rad1)s) and
+                                        ST_DWithin(ST_GeomFromText(%(puntoB)s), ruta, %(rad2)s) and
                                         ST_Line_Locate_Point(ruta, %(puntoA)s) <
                                         ST_Line_Locate_Point(ruta, %(puntoB)s)
                                 ) as completa_inner
@@ -211,13 +214,10 @@ class RecorridoManager(models.GeoManager):
                             linea_id,
                             nombre,
                             color_polilinea
-                        ORDER BY
-                        (
-                            cast(min(long_pata)  as integer)*10 +
-                            cast(min(long_ruta) as integer)
-                        ) ASC
                     ) as re
                     on li.id = re.linea_id
+                    ORDER BY
+                        long_pata*10 + long_ruta asc
             ;"""
 
         query_set = self.raw(query, params)
