@@ -171,7 +171,6 @@
                         feature.attributes.dragging = true
                         t = feature.attributes.tipo.split(":")
                         feature.attributes.tipo=t[0]+":true:false"
-                        markers.redraw()
                         if ( feature == markerA.point ) {
                             markerA.confirmado = true
                             markerAaux.setPoint(markerA.centro)
@@ -189,6 +188,7 @@
                             pagina_input = 1
                             buscarporclick(markerA.centro, markerB.centro)
                         }
+                        markers.redraw()
                     },
                     onEnter: function(feature, pixel) {
                         feature.attributes.dragging = true
