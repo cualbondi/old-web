@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-from django.db import DatabaseError
+from django.db import DatabaseError, connection
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Point
 import math
@@ -22,6 +22,11 @@ class RecorridoManager(models.GeoManager):
             raise DatabaseError("get_recorridos: gap Expected integer as parameter, %s given" % type(gap))
         puntoA.set_srid(4326)
         puntoB.set_srid(4326)
+        distanciaA = 0.0000111 * float(distanciaA) 
+        distanciaB = 0.0000111 * float(distanciaB)
+        gap = 0.0000111 * float(gap) 
+
+        connection.cursor().execute('SET STATEMENT_TIMEOUT=45000')
 
         params = {'puntoA': puntoA.ewkt, 'puntoB': puntoB.ewkt, 'rad1': distanciaA, 'rad2': distanciaB, 'gap': gap}
         query = """
@@ -95,7 +100,10 @@ class RecorridoManager(models.GeoManager):
             ORDER BY (cast(long_pata as integer)*10 + cast(long_ruta as integer) + cast(long_ruta2 as integer)) ASC
         ;"""
         query_set = self.raw(query, params)
-        return list(query_set)
+        try:
+            return list(query_set)
+        except DatabaseError:
+            return []
 
     def get_recorridos(self, puntoA, puntoB, distanciaA, distanciaB):
         distanciaA = int(distanciaA)
