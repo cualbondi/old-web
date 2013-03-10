@@ -122,9 +122,14 @@
                 }
             }
             Marker.prototype.setRadius = function(rad) {
-                this.centro.transform(map.getProjectionObject(), proj)
-                this.rad=rad/Math.cos(this.centro.y)/Math.cos(50*(Math.PI/180));
-                this.setPoint(this.centro.transform(proj,map.getProjectionObject()))
+                var lat = -34.9;
+                if ( this.centro !== null )
+                    lat =(new OpenLayers.Geometry.Point(this.centro.x, this.centro.y))
+                        .transform(map.getProjectionObject(), proj)
+                        .y;
+                this.rad=rad/Math.cos(lat)/Math.cos(50*(Math.PI/180));
+                if ( this.listo )
+                    this.setPoint(this.centro);
             }
             // dos objetos de la clase marker
             var markerA = new Marker(markers, "A")
@@ -493,8 +498,10 @@
             // bind eventos click partes estaticas de la pagina (bind unico)
 
             $("[data-slider]").bind("slider:release", function (event, data) {
-                piwikLog("/click/buscarRadio/"+data.value);
-                buscarporclick(markerA.centro, markerB.centro, false, true);
+                if (markerA.listo && markerB.listo) {
+                    piwikLog("/click/buscarRadio/"+data.value);
+                    buscarporclick(markerA.centro, markerB.centro, false, true);
+                }
             });
             
             $("[data-slider]").bind("slider:changed", function (event, data) {
