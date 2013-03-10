@@ -22,6 +22,10 @@ class RecorridoManager(models.GeoManager):
             raise DatabaseError("get_recorridos: gap Expected integer as parameter, %s given" % type(gap))
         puntoA.set_srid(4326)
         puntoB.set_srid(4326)
+        distanciaA = 0.0000111 * float(distanciaA) 
+        distanciaB = 0.0000111 * float(distanciaB)
+        gap = 0.0000111 * float(gap) 
+
         connection.cursor().execute('SET STATEMENT_TIMEOUT=45000')
 
         params = {'puntoA': puntoA.ewkt, 'puntoB': puntoB.ewkt, 'rad1': distanciaA, 'rad2': distanciaB, 'gap': gap}
@@ -79,11 +83,11 @@ class RecorridoManager(models.GeoManager):
                     join core_linea li1 on li1.id = re1.linea_id
                     join core_linea li2 on li2.id = re2.linea_id
                 WHERE
-                    ST_Distance_Sphere(ST_GeomFromText(%(puntoA)s), re1.ruta) < %(rad1)s
+                    ST_DWithin(ST_GeomFromText(%(puntoA)s), re1.ruta, %(rad1)s)
                     and
-                    ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s), re2.ruta) < %(rad2)s
+                    ST_DWithin(ST_GeomFromText(%(puntoB)s), re2.ruta, %(rad2)s)
                     and
-                        ST_Distance_Sphere(re1.ruta, re2.ruta) < %(gap)s
+                        ST_DWithin(re1.ruta, re2.ruta, %(gap)s)
                     and
                         ST_Line_Locate_Point(re1.ruta, %(puntoA)s)
                         <
@@ -93,7 +97,7 @@ class RecorridoManager(models.GeoManager):
                         <
                         ST_Line_Locate_Point(re2.ruta, %(puntoB)s)
                 ) as subquery
-            ORDER BY (cast(long_pata as integer)*10 + cast(long_ruta as integer) + cast(long_ruta2 as integer)) ASC
+            ORDER BY (cast(long_pata as integer)*100 + ( cast(long_ruta as integer) + cast(long_ruta2 as integer) ) ) ASC
         ;"""
         query_set = self.raw(query, params)
         try:
