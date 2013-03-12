@@ -505,6 +505,7 @@
             });
             
             $("[data-slider]").bind("slider:changed", function (event, data) {
+                $('#button-radio-value').html('Caminar max. ' + data.value + ' metros')
                 markerA.setRadius(data.value);
                 markerB.setRadius(data.value);
             });
