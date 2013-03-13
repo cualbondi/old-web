@@ -131,7 +131,7 @@
                 if ( this.listo )
                     this.setPoint(this.centro);
             }
-            // dos objetos de la clase marker
+            // dos objetos de la clase marker // cuidado, este código se repite mas abajo
             var markerA = new Marker(markers, "A")
             var markerB = new Marker(markers, "B")
             var markerAaux = new Marker(markers, "A", false)
@@ -495,7 +495,27 @@
                 }
             }
 
+            function limpiar() {
+                if ( confirm('¿Seguro que desea borrar todos los filtros del mapa?') ) {
+                    // cuidado, este código se repite mas arriba
+                    markerA = new Marker(markers, "A");
+                    markerB = new Marker(markers, "B");
+                    recorridos.removeAllFeatures();
+                    markers.removeAllFeatures();
+                    $('inputDesden').val('');
+                    $('inputHasta').val('');
+                    $("#ayudaTempl").tmpl().appendTo($("#sidebarResultados").empty());
+                    clickHandler.activate();
+                }
+            }
+
             // bind eventos click partes estaticas de la pagina (bind unico)
+
+            $("#button-limpiar").bind("click", function(e) {
+                e.preventDefault();
+                piwikLog("/click/limpiar/");
+                limpiar();
+            })
 
             $("[data-slider]").bind("slider:release", function (event, data) {
                 if (markerA.listo && markerB.listo) {
