@@ -175,10 +175,10 @@
         </script>
 
         <script id="listSuggest" type="text/x-jquery-tmpl">
-        <p>Seleccione la opción correcta</p>
+        <h4>Quiz&aacute;s quiso decir...</h4>
         <div class="well sidebar-nav">
             <ul class="nav nav-list">
-                <li class="nav-header">Origen:</li>
+                <li class="nav-header">Desde:</li>
             </ul>
             {% templatetag openvariable %}if (data1.length>0){% templatetag closevariable %}
                 <ul id="#sug1" class="nav nav-list">
@@ -188,7 +188,7 @@
                 {% templatetag openvariable %}tmpl() "#itemSuggestVacio"{% templatetag closevariable %}
             {% templatetag openvariable %}/if{% templatetag closevariable %}
             <ul class="nav nav-list">
-                <li class="nav-header">Destino:</li>
+                <li class="nav-header">Hasta:</li>
             </ul>
             {% templatetag openvariable %}if (data2.length>0){% templatetag closevariable %}
                 <ul id="#sug2" class="nav nav-list">
@@ -218,26 +218,26 @@
         </script>
 
         <script id="ayudaTempl" type="text/x-jquery-tmpl">
-           <h3>¿Cómo busco recorridos?</h3>
-           <h4>Campos de búsqueda</h4>
+           <h4>¿Cómo busco recorridos?</h4>
+           <h5>Campos de búsqueda</h5>
            <p>Escriba directamente en los campos de texto del panel superior. Puede considerar intersección de calles, calle y número o lugares de interes. Vea los ejemplos debajo de los campos de búsqueda.</p>
-           <h4>Click sobre el mapa</h4>
+           <h5>Click sobre el mapa</h5>
            <p>Hacer click directamente sobre el mapa para indicar el Origen y Destino de su búsqueda. Luego puede arrastrar los marcadores A o B para editar su ubicación.</p>
-           <h4>Lineas de micro</h4>
+           <h5>Lineas de micro</h5>
            <p>Para buscar un recorrido completo de una linea de colectivo en particular, consulte la sección "Recorridos" aquí arriba.</p>
         </script>
 
         <script id="vacio1Templ" type="text/x-jquery-tmpl">
-           <h3>No se encontraron resultados sin transbordo</h3>
+           <h4>No se encontraron resultados sin transbordo</h4>
            <p>Si igualmente desea buscar con transbordo, presione el siguiente botón.</p>
            <button id="button_buscar_transbordo" class="btn btn-primary">Buscar con Transbordo</button>
         </script>
         <script id="vacio2Templ" type="text/x-jquery-tmpl">
-           <h3>No se encontraron resultados con transbordo</h3>
+           <h4>No se encontraron resultados con transbordo</h4>
            <p>Puede intentar haciendo click en el mapa para posicionar marcadores de inicio y fin de recorrido o bien mover los marcadores si ya se encuentran en el mapa.</p>
         </script>
         <script id="vacioTempl" type="text/x-jquery-tmpl">
-           <h3>No se encontraron resultados</h3>
+           <h4>No se encontraron resultados</h4>
            <p>Puede intentar nuevamente modificando el nombre de la línea que está buscando por algo mas genérico.</p>
         </script>
 {% endblock %}
