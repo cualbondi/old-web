@@ -645,6 +645,8 @@
                             $(this).attr("data_id"),
                             $(this).attr("data_domId")
                         );
+                        $(this).parent().siblings().removeClass("active");
+                        $(this).parent().addClass("active");
                         $(this).addClass("binded");
                     })
 
