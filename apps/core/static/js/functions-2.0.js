@@ -496,17 +496,17 @@
             }
 
             function limpiar() {
-                if ( confirm('¿Seguro que desea borrar todos los filtros del mapa?') ) {
-                    // cuidado, este código se repite mas arriba
-                    markerA = new Marker(markers, "A");
-                    markerB = new Marker(markers, "B");
-                    recorridos.removeAllFeatures();
-                    markers.removeAllFeatures();
-                    $('inputDesden').val('');
-                    $('inputHasta').val('');
-                    $("#ayudaTempl").tmpl().appendTo($("#sidebarResultados").empty());
-                    clickHandler.activate();
-                }
+                // cuidado, este código se repite mas arriba
+                markerA = new Marker(markers, "A");
+                markerB = new Marker(markers, "B");
+                markerA.confirmado = true;
+                markerB.confirmado = true;
+                recorridos.removeAllFeatures();
+                markers.removeAllFeatures();
+                $('#inputDesde').val('');
+                $('#inputHasta').val('');
+                $("#ayudaTempl").tmpl().appendTo($("#sidebarResultados").empty());
+                clickHandler.activate();
             }
 
             // bind eventos click partes estaticas de la pagina (bind unico)
@@ -565,7 +565,8 @@
 
             $("#button-ayuda").bind("click", function(e) {
                 e.preventDefault()
-                $("#ayudaTempl").tmpl().appendTo($("#sidebarResultados").empty());
+                $("#ayudaTempl").tmpl().appendTo($("#modal-ayuda-content").empty());
+                $("#modal-ayuda").modal();
                 piwikLog("/click/botonera/ayuda")
             })
 
