@@ -289,6 +289,7 @@
                 markerB.confirmado = true;
                 recorridos.removeAllFeatures();
                 markers.removeAllFeatures();
+                clickHandler.activate();
                 $("#ajaxLoader").tmpl().appendTo($("#sidebarResultados").empty())
                 var data1 = null
                 var data2 = null
