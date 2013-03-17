@@ -289,6 +289,7 @@
                 markerB.confirmado = true;
                 recorridos.removeAllFeatures();
                 markers.removeAllFeatures();
+                $("[data-slider]").simpleSlider("setValue", 300);
                 clickHandler.activate();
                 $("#ajaxLoader").tmpl().appendTo($("#sidebarResultados").empty())
                 var data1 = null
@@ -509,6 +510,7 @@
                 markerB.confirmado = true;
                 recorridos.removeAllFeatures();
                 markers.removeAllFeatures();
+                $("[data-slider]").simpleSlider("setValue", 300);
                 $('#inputDesde').val('');
                 $('#inputHasta').val('');
                 $("#ayudaTempl").tmpl().appendTo($("#sidebarResultados").empty());
@@ -535,6 +537,7 @@
                 markerA.setRadius(data.value);
                 markerB.setRadius(data.value);
             });
+            $("[data-slider]").simpleSlider("setValue", 300);
 
             // buscador de lineas por sugerencia al tipear
             $('#inputLinea').attr("autocomplete","off")
