@@ -90,7 +90,7 @@
                 this.confirmado = false
                 this.rad=300/Math.cos(-34.9)/Math.cos(50*(Math.PI/180));
             }
-            Marker.prototype.setPoint = function(point) {
+            Marker.prototype.setPoint = function(point, style) {
                 // setea el punto con latlng y lo pone en el mapa
                 // point = new OpenLayers.Geometry.Point(lon, lat);
                 if (this.point == null || !this.point.attributes.dragging) {
@@ -112,6 +112,9 @@
                             dragging: false
                         }
                     )
+
+                    if ( typeof(style) !== 'undefined' )
+                        this.point.style = style;
 
                     if (this.visible) {
                         this.layer.addFeatures([this.point])
@@ -257,9 +260,13 @@
                 recorridos.removeAllFeatures()
 
                 var polylinea = new Array()
+                var trasbordos = new Array()
                 $.each(resultados[porNombre][id], function(key, value) {
-                    var poly = new OpenLayers.Format.WKT().read($.RC4.decode(value.ruta_corta));
+                    ruta = $.RC4.decode(value.ruta_corta)
+                    var poly = new OpenLayers.Format.WKT().read(ruta);
                     poly.geometry.transform(proj, map.getProjectionObject())
+                    trasbordos.push(poly.geometry.components[0]);
+                    trasbordos.push(poly.geometry.components[poly.geometry.components.length-1]);
                     var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
                     style.strokeOpacity = 0.8;
                     style.strokeWidth   = 5;
@@ -267,7 +274,24 @@
                     poly.style          = style;
                     polylinea.push(poly);
                 });
+
                 recorridos.addFeatures(polylinea);
+                
+                trasbordos.pop() //eliminar ultimo elemento (punto B)
+                trasbordos.splice(0,1) //eliminar primer elemento (punto A)
+                $.each(trasbordos, function(key, value) {
+                    markerT = new Marker(recorridos, "T");
+                    var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+                    style.externalGraphic = STATIC_URL+"css/openlayers/markerT.png";
+                    style.graphicWidth    = 15;
+                    style.graphicHeight   = 26;
+                    style.graphicYOffset  = -26;
+                    style.graphicOpacity  = 1;
+                    markerT.setRadius(0);
+                    markerT.setPoint(value, style);
+                })
+                
+
                 if (porNombre) {
                     markerA.setPoint(polylinea[0].geometry.getVertices()[0]);
                     markerB.setPoint(polylinea[polylinea.length-1].geometry.getVertices()[polylinea[polylinea.length-1].geometry.getVertices().length-1]);
@@ -480,19 +504,41 @@
                         })
                         $(this).children().bind("mouseenter", function(e) {
                             id = $(this).attr("id")
+
+                            // codigo repetido mas arriba (solo cambia la opacity)
                             recorridos.removeFeatures(polyhover)
                             polyhover = new Array();
+                            trasbordos = new Array();
                             $.each(resultados[porNombre][id], function(key, value) {
                                 var poly = new OpenLayers.Format.WKT().read($.RC4.decode(value.ruta_corta))
                                 poly.geometry.transform(proj, map.getProjectionObject())
+                                trasbordos.push(poly.geometry.components[0]);
+                                trasbordos.push(poly.geometry.components[poly.geometry.components.length-1]);
                                 var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
-                                style.strokeOpacity = 0.5
+                                style.strokeOpacity = 0.4
                                 style.strokeWidth   = 5
                                 style.strokeColor   = value.color_polilinea ? value.color_polilinea : "#000000"
                                 poly.style          = style
                                 polyhover.push(poly);
                             });
+
                             recorridos.addFeatures(polyhover)
+
+                            trasbordos.pop() //eliminar ultimo elemento (punto B)
+                            trasbordos.splice(0,1) //eliminar primer elemento (punto A)
+                            $.each(trasbordos, function(key, value) {
+                                markerT = new Marker(recorridos, "T");
+                                var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+                                style.externalGraphic = STATIC_URL+"css/openlayers/markerT.png";
+                                style.graphicWidth    = 15;
+                                style.graphicHeight   = 26;
+                                style.graphicYOffset  = -26;
+                                style.graphicOpacity  = 0.5;
+                                markerT.setRadius(0);
+                                markerT.setPoint(value, style);
+                                polyhover.push(markerT.point)
+                            })
+
                         })
                         $(this).children().bind("mouseleave", function(e) {
                             recorridos.removeFeatures(polyhover)
