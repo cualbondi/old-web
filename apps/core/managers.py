@@ -97,7 +97,7 @@ class RecorridoManager(models.GeoManager):
                         <
                         ST_Line_Locate_Point(re2.ruta, %(puntoB)s)
                 ) as subquery
-            ORDER BY (cast(long_pata as integer)*100 + ( cast(long_ruta as integer) + cast(long_ruta2 as integer) ) ) ASC
+            ORDER BY (cast(long_pata+long_pata2+long_pata_transbordo as integer)*100 + ( cast(long_ruta as integer) + cast(long_ruta2 as integer) ) ) ASC
         ;"""
         query_set = self.raw(query, params)
         try:
