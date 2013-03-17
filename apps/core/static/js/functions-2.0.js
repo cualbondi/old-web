@@ -283,7 +283,12 @@
             }
 
             function buscar_por_inputs() {
-                recorridos.removeAllFeatures()
+                markerA = new Marker(markers, "A");
+                markerB = new Marker(markers, "B");
+                markerA.confirmado = true;
+                markerB.confirmado = true;
+                recorridos.removeAllFeatures();
+                markers.removeAllFeatures();
                 $("#ajaxLoader").tmpl().appendTo($("#sidebarResultados").empty())
                 var data1 = null
                 var data2 = null
