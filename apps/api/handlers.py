@@ -7,13 +7,17 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.gis.geos import Point
 from django.core.cache import cache
 
-from apps.core.models import Linea, Recorrido
+from apps.core.models import Linea, Recorrido, Parada
 from apps.catastro.models import Ciudad, PuntoBusqueda
 from settings import (RADIO_ORIGEN_DEFAULT, RADIO_DESTINO_DEFAULT,
                       CACHE_TIMEOUT, LONGITUD_PAGINA, USE_CACHE)
 
 from mongologger import MongoLog
-import json
+try:
+    import json
+except ImportError:
+    from django.utils import simplejson as json
+
 
 
 class CiudadHandler(BaseHandler):
@@ -243,7 +247,9 @@ class RecorridoHandler(BaseHandler):
                                         "inicio": r.inicio,
                                         "fin": r.fin,
                                         "nombre": r.nombre,
-                                        "foto": r.foto
+                                        "foto": r.foto,
+                                        "p1": None if r.p1 == None else (lambda p:{"latlng": p.latlng.wkt, "codigo": p.codigo, "nombre": p.nombre } ) (Parada.objects.get(pk=r.p1)),
+                                        "p2": None if r.p1 == None else (lambda p:{"latlng": p.latlng.wkt, "codigo": p.codigo, "nombre": p.nombre } ) (Parada.objects.get(pk=r.p2))
                                     }
                                 ]
                             }
@@ -263,7 +269,9 @@ class RecorridoHandler(BaseHandler):
                                         "inicio": r.inicio,
                                         "fin": r.fin,
                                         "nombre": r.nombre,
-                                        "foto": r.foto
+                                        "foto": r.foto,
+                                        "p1": None if r.p11ll == None else (lambda p:{"latlng": p.latlng.wkt, "codigo": p.codigo, "nombre": p.nombre } ) (Parada.objects.get(pk=r.p11ll)),
+                                        "p2": None if r.p12ll == None else (lambda p:{"latlng": p.latlng.wkt, "codigo": p.codigo, "nombre": p.nombre } ) (Parada.objects.get(pk=r.p12ll))
                                     },
                                     {
                                         "id": r.id2,
@@ -274,7 +282,9 @@ class RecorridoHandler(BaseHandler):
                                         "inicio": r.inicio2,
                                         "fin": r.fin2,
                                         "nombre": r.nombre2,
-                                        "foto": r.foto2
+                                        "foto": r.foto2,
+                                        "p1": None if r.p21ll == None else (lambda p:{"latlng": p.latlng.wkt, "codigo": p.codigo, "nombre": p.nombre } ) (Parada.objects.get(pk=r.p21ll)),
+                                        "p2": None if r.p22ll == None else (lambda p:{"latlng": p.latlng.wkt, "codigo": p.codigo, "nombre": p.nombre } ) (Parada.objects.get(pk=r.p22ll))
                                     }
                                 ]
                             }
