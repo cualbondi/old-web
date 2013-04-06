@@ -71,13 +71,13 @@
                 eventListeners: {
                     'featureselected':function(evt){
                         var feature = evt.feature;
-                        var popup = new OpenLayers.Popup.FramedCloud("popup",
+                        var popup = new OpenLayers.Popup.FramedCloud(
+                            null,
                             OpenLayers.LonLat.fromString(feature.geometry.toShortString()),
                             null,
                             feature.data['content'],
                             null,
-                            true,
-                            null
+                            false
                         );
                         popup.autoSize = true;
                         popup.maxSize = new OpenLayers.Size(400,800);
@@ -96,12 +96,13 @@
                     "default": new OpenLayers.Style({
                         externalGraphic : STATIC_URL+"css/openlayers/markerP.png",
                         graphicWidth    : 15,
-                        graphicHeight   : 26,
-                        graphicYOffset  : -26,
+                        graphicHeight   : 16,
+                        graphicYOffset  : -8,
                         graphicOpacity  : 1,
+                        cursor: "pointer"
                     }),
-                    "select": new OpenLayers.Style({
-                        externalGraphic : STATIC_URL+"css/openlayers/markerT.png",
+                    "hover": new OpenLayers.Style({
+                        externalGraphic : STATIC_URL+"css/openlayers/markerP-hover.png"
                     })
                 })
             });
@@ -264,9 +265,21 @@
             clickHandler.activate()
             dragControl.activate()
 
+            // hover en las paradas
+            var hoverControl = new OpenLayers.Control.SelectFeature([paradas, markers], {
+                hover: true,
+                click: false,
+                highlightOnly: true,
+                renderIntent: "hover"
+            });
+            map.addControl(hoverControl);
+            hoverControl.activate()
+            
             // click en las paradas
             var selectorControl = new OpenLayers.Control.SelectFeature([paradas, markers], {
-                hover:true
+                click: true,
+                hover: false,
+                toggle: true
             });
             map.addControl(selectorControl);
             selectorControl.activate()
@@ -304,20 +317,29 @@
                     $("#sidebarResultados li").removeClass("active")
                     $("#sidebarResultados #res"+id).addClass("active")
                 }
-                recorridos.removeAllFeatures()
-                paradas.removeAllFeatures()
+                recorridos.removeAllFeatures();
+                paradas.removeAllFeatures();
+                while( map.popups.length )
+                    map.removePopup(map.popups[0]);
 
                 var polylinea = new Array()
                 var trasbordos = new Array()
                 var stops = new Array()
+                var cant = resultados[porNombre][id].length
                 $.each(resultados[porNombre][id], function(key, value) {
                     ruta = $.RC4.decode(value.ruta_corta)
                     var poly = new OpenLayers.Format.WKT().read(ruta);
                     poly.geometry.transform(proj, map.getProjectionObject())
-                    trasbordos.push(poly.geometry.components[0]);
-                    trasbordos.push(poly.geometry.components[poly.geometry.components.length-1]);
-                    if (value.p1 !== null) stops.push(value.p1)
-                    if (value.p2 !== null) stops.push(value.p2)
+                    if (value.p1 !== null)
+                        stops.push(value.p1)
+                    else
+                        if (key != 0) // not first (punto A)
+                            trasbordos.push(poly.geometry.components[0]);
+                    if (value.p2 !== null)
+                        stops.push(value.p2)
+                    else
+                        if (key != cant-1) // not last (punto B)
+                            trasbordos.push(poly.geometry.components[poly.geometry.components.length-1]);
                     var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
                     style.strokeOpacity = 0.8;
                     style.strokeWidth   = 5;
@@ -328,8 +350,6 @@
 
                 recorridos.addFeatures(polylinea);
                 
-                trasbordos.pop() //eliminar ultimo elemento (punto B)
-                trasbordos.splice(0,1) //eliminar primer elemento (punto A)
                 $.each(trasbordos, function(key, value) {
                     markerT = new Marker(recorridos, "T");
                     var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
@@ -344,7 +364,16 @@
                 
                 $.each(stops, function(key, value) {
                     p = new OpenLayers.Feature.Vector(new OpenLayers.Format.WKT().read(value.latlng).geometry.transform(proj, map.getProjectionObject()))
-                    p.data['content'] = "<p>Código: "+value.codigo+"</p>"+"<p>Nombre: "+value.nombre+"</p>"
+                    //var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+                    //style.label = "P\n\n"+value.codigo;
+                    //style.labelYOffset = -4;
+                    //style.externalGraphic = STATIC_URL+"css/openlayers/markerP.png"
+                    //style.graphicWidth    = 15
+                    //style.graphicHeight   = 16
+                    //style.graphicYOffset  = -16
+                    //style.graphicOpacity  = 1
+                    //p.style = style
+                    p.data['content'] = "<p><strong>Parada "+value.codigo+"</strong><br>"+value.nombre+"</p>"
                     paradas.addFeatures([p]);
                 })
                                 
@@ -369,6 +398,8 @@
                 markerB.confirmado = true;
                 recorridos.removeAllFeatures();
                 paradas.removeAllFeatures();
+                while( map.popups.length )
+                    map.removePopup(map.popups[0]);
                 markers.removeAllFeatures();
                 $("[data-slider]").simpleSlider("setValue", 300);
                 clickHandler.activate();
@@ -477,6 +508,8 @@
                 buscar     = true
                 recorridos.removeAllFeatures();
                 paradas.removeAllFeatures();
+                while( map.popups.length )
+                    map.removePopup(map.popups[0]);
                 $("#ajaxLoader").tmpl().appendTo($("#sidebarResultados").empty())
                 lla = lla.transform(map.getProjectionObject(), proj)
                 llb = llb.transform(map.getProjectionObject(), proj)
@@ -614,6 +647,8 @@
                 markerB.confirmado = true;
                 recorridos.removeAllFeatures();
                 paradas.removeAllFeatures();
+                while( map.popups.length )
+                    map.removePopup(map.popups[0]);
                 markers.removeAllFeatures();
                 $("[data-slider]").simpleSlider("setValue", 300);
                 $('#inputDesde').val('');
@@ -664,6 +699,8 @@
             function buscar_por_nombre() {
                 recorridos.removeAllFeatures();
                 paradas.removeAllFeatures();
+                while( map.popups.length )
+                    map.removePopup(map.popups[0]);
                 $("#ajaxLoader").tmpl().appendTo($("#sidebarResultadosPorNombre").empty())
                 if ( ajaxInputLinea ) ajaxInputLinea.abort()
                 pagina_nombre = 1
