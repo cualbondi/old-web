@@ -7,8 +7,9 @@ from django.db.models import get_model
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import GEOSGeometry
 
+from django.db import connection
 
-class PuntoBusquedaManager(models.Manager):
+class PuntoBusquedaManager:
     """ Este manager se encarga de convertir una query tipo texto
     en una lista de puntos geográficos que pueden ser usados como origen
     o destino de una búsqueda. Los datos tenidos en cuenta son:
@@ -22,6 +23,14 @@ class PuntoBusquedaManager(models.Manager):
     **Paradas
 
     """
+
+    def _dictfetchall(cursor): 
+        "Returns all rows from a cursor as a dict" 
+        desc = cursor.description 
+        return [
+                dict(zip([col[0] for col in desc], row)) 
+                for row in cursor.fetchall() 
+        ]
 
     def buscar(self, query, ciudad_actual_slug=None):
         # podria reemplazar todo esto por un lucene/solr/elasticsearch
@@ -154,11 +163,9 @@ class PuntoBusquedaManager(models.Manager):
                     precision DESC
                 LIMIT 5
         ;"""
-        query_set = self.raw(query, params)
-        try:
-            l = list(query_set)
-        except Exception, e:
-            print e
+        cursor = connection.cursor()
+        query_set = cursor.execute(query, params)
+        l = self._dictfetchall(cursor)
         return l
 
     def poi(self, nombre):
@@ -177,8 +184,10 @@ class PuntoBusquedaManager(models.Manager):
                 precision DESC
             LIMIT 5
         ;"""
-        query_set = self.raw(query, params)
-        return list(query_set)
+        cursor = connection.cursor()
+        query_set = cursor.execute(query, params)
+        l = self._dictfetchall(cursor)
+        return l
 
     def zona(self, nombre):
         params = {'nombre': nombre}
@@ -196,8 +205,10 @@ class PuntoBusquedaManager(models.Manager):
                 precision DESC
             LIMIT 5
         ;"""
-        query_set = self.raw(query, params)
-        return list(query_set)
+        cursor = connection.cursor()
+        query_set = cursor.execute(query, params)
+        l = self._dictfetchall(cursor)
+        return l
 
     def rawGeocoder(self, query):
         # http://stackoverflow.com/questions/9884475/using-google-maps-geocoder-from-python-with-urllib2
@@ -234,23 +245,6 @@ class PuntoBusquedaManager(models.Manager):
               ]
         return ret
 
-    def _buscar_calles(self, query):
-        calle_model = get_model('catastro', 'Calle')
-        return calle_model.objects.all()
-
-    def _buscar_comercios(self, query):
-        comercio_model = get_model('core', 'Comercio')
-        return comercio_model.objects.all()
-
-    def _buscar_pois(self, query):
-        pass
-
-    def _buscar_custom_pois(self, query):
-        pass
-
-    def _buscar_google_geocoder(self, query):
-        pass
-
 
 class ZonaManager(models.GeoManager):
     def fuzzy_like_query(self, q):
@@ -266,6 +260,7 @@ class ZonaManager(models.GeoManager):
                 name %% %(q)s
             ORDER BY
                 similarity(name, %(q)s) DESC
+            LIMIT
             LIMIT
                 1
             ;
