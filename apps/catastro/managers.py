@@ -7,6 +7,7 @@ from django.db.models import get_model
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import GEOSGeometry
 
+from collections import namedtuple
 from django.db import connection
 
 class PuntoBusquedaManager:
@@ -24,13 +25,17 @@ class PuntoBusquedaManager:
 
     """
 
-    def _dictfetchall(cursor): 
+    def _objfetchall(self, cursor): 
         "Returns all rows from a cursor as a dict" 
         desc = cursor.description 
-        return [
-                dict(zip([col[0] for col in desc], row)) 
-                for row in cursor.fetchall() 
-        ]
+        l = []
+        class Struct:
+            def __init__(self, **entries): 
+                self.__dict__.update(entries)
+        for row in cursor.fetchall():
+            d=dict(zip([col[0] for col in desc], row))
+            l.append(Struct(**d))
+        return l
 
     def buscar(self, query, ciudad_actual_slug=None):
         # podria reemplazar todo esto por un lucene/solr/elasticsearch
@@ -165,7 +170,7 @@ class PuntoBusquedaManager:
         ;"""
         cursor = connection.cursor()
         query_set = cursor.execute(query, params)
-        l = self._dictfetchall(cursor)
+        l = self._objfetchall(cursor)
         return l
 
     def poi(self, nombre):
@@ -186,7 +191,7 @@ class PuntoBusquedaManager:
         ;"""
         cursor = connection.cursor()
         query_set = cursor.execute(query, params)
-        l = self._dictfetchall(cursor)
+        l = self._objfetchall(cursor)
         return l
 
     def zona(self, nombre):
@@ -207,21 +212,23 @@ class PuntoBusquedaManager:
         ;"""
         cursor = connection.cursor()
         query_set = cursor.execute(query, params)
-        l = self._dictfetchall(cursor)
+        l = self._objfetchall(cursor)
         return l
 
     def rawGeocoder(self, query):
         # http://stackoverflow.com/questions/9884475/using-google-maps-geocoder-from-python-with-urllib2
         add = query + ", Argentina"
         add = urllib2.quote(add.encode('utf8'))
-        geocode_url = "http://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false" % add
+        geocode_url = "http://maps.googleapis.com/maps/api/geocode/json?language=es&address=%s&sensor=false" % add
         req = urllib2.urlopen(geocode_url)
         res = json.loads(req.read())
         # comprehension para parsear lo devuelto por el google geocoder
-        ret = [self.model(nombre=i["formatted_address"],
-                  precision=len(i["address_components"]) / 6,
-                  geom="POINT(" + str(i["geometry"]["location"]["lng"]) + " " + str(i["geometry"]["location"]["lat"]) + ")",
-                  tipo="rawGeocoder")
+        ret = [namedtuple('literal', 'nombre precision geom tipo')(
+                nombre  = i["formatted_address"],
+                precision= len(i["address_components"]) / 6,
+                geom     = "POINT(" + str(i["geometry"]["location"]["lng"]) + " " + str(i["geometry"]["location"]["lat"]) + ")",
+                tipo     = "rawGeocoder"
+                )
                 for i in res["results"]
               ]
         return ret
@@ -232,11 +239,11 @@ class PuntoBusquedaManager:
         import json
         add = calle + " " + numero + ", " + ciudad_slug + ", Argentina"
         add = urllib2.quote(add.encode('utf8'))
-        geocode_url = "http://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false" % add
+        geocode_url = "http://maps.googleapis.com/maps/api/geocode/json?language=es&address=%s&sensor=false" % add
         req = urllib2.urlopen(geocode_url)
         res = json.loads(req.read())
         # comprehension para parsear lo devuelto por el google geocoder
-        ret = [self.model(nombre=i["formatted_address"],
+        ret = [namedtuple('literal', 'nombre precision geom tipo')(nombre=i["formatted_address"],
                   precision=1,
                   geom="POINT(" + str(i["geometry"]["location"]["lng"]) + " " + str(i["geometry"]["location"]["lat"]) + ")",
                   tipo="direccionPostal")
@@ -260,7 +267,6 @@ class ZonaManager(models.GeoManager):
                 name %% %(q)s
             ORDER BY
                 similarity(name, %(q)s) DESC
-            LIMIT
             LIMIT
                 1
             ;

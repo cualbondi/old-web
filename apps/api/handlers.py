@@ -316,7 +316,15 @@ class CatastroHandler(BaseHandler):
             return rc.BAD_REQUEST
         else:
             try:
-                response = list(PuntoBusqueda.objects.buscar(q, ciudad_actual_slug))
+                response = [ 
+                    {
+                        'nombre'    : r.nombre,
+                        'precision' : r.precision,
+                        'geom'      : r.geom,
+                        'tipo'      : r.tipo,
+                    }
+                    for r in PuntoBusqueda.objects.buscar(q, ciudad_actual_slug)
+                ]
                 MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "response":response})
                 return response
             except ObjectDoesNotExist:
