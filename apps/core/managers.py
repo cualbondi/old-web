@@ -461,7 +461,7 @@ class RecorridoManager(models.GeoManager):
                                 color_polilinea,
                                 ruta_corta,
                                 ST_Length(ruta_corta::Geography) as long_ruta,
-                                ST_Distance_Sphere(ST_GeomFromText(%(puntoA)s),ruta_corta) + ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s),ruta_corta) as long_pata,
+                                ST_Distance_Sphere(ST_GeomFromText(%(puntoA)s),coalesce(p1, ruta_corta)) + ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s),coalesce(p2, ruta_corta)) as long_pata,
                                 p1,
                                 p2
                             FROM
