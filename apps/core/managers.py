@@ -461,7 +461,7 @@ class RecorridoManager(models.GeoManager):
                                 color_polilinea,
                                 ruta_corta,
                                 ST_Length(ruta_corta::Geography) as long_ruta,
-                                ST_Distance_Sphere(ST_GeomFromText(%(puntoA)s),coalesce(p1, ruta_corta)) + ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s),coalesce(p2, ruta_corta)) as long_pata,
+                                ST_Distance_Sphere(ST_GeomFromText(%(puntoA)s),coalesce(p1ll, ruta_corta)) + ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s),coalesce(p2ll, ruta_corta)) as long_pata,
                                 p1,
                                 p2
                             FROM
@@ -477,7 +477,9 @@ class RecorridoManager(models.GeoManager):
                                             ST_Line_Locate_Point(ST_Line_Substring(ruta, 0, 0.5),	%(puntoB)s)
                                         ) as ruta_corta,
                                         null::integer as p1,
-                                        null::integer as p2
+                                        null::integer as p2,
+                                        null::geometry as p1ll,
+                                        null::geometry as p2ll
                                     FROM
                                         core_recorrido
                                     WHERE
@@ -500,7 +502,9 @@ class RecorridoManager(models.GeoManager):
                                             ST_Line_Locate_Point(ST_Line_Substring(ruta, 0.5, 1),	%(puntoB)s)
                                         ) as ruta_corta,
                                         null::integer as p1,
-                                        null::integer as p2
+                                        null::integer as p2,
+                                        null::geometry as p1ll,
+                                        null::geometry as p2ll
                                     FROM
                                         core_recorrido
                                     WHERE
@@ -523,7 +527,9 @@ class RecorridoManager(models.GeoManager):
                                             ST_Line_Locate_Point(ruta, %(puntoB)s)
                                         ) as ruta_corta,
                                         null::integer as p1,
-                                        null::integer as p2
+                                        null::integer as p2,
+                                        null::geometry as p1ll,
+                                        null::geometry as p2ll
                                     FROM
                                         core_recorrido
                                     WHERE
@@ -546,7 +552,9 @@ class RecorridoManager(models.GeoManager):
                                             ST_Line_Locate_Point(ruta, rec.p2ll)
                                         ) as ruta_corta,
                                         rec.p1id as p1,
-                                        rec.p2id as p2
+                                        rec.p2id as p2,
+                                        rec.p1ll as p1ll,
+                                        rec.p2ll as p2ll
                                     FROM
                                         core_recorrido as cr
                                         JOIN (
