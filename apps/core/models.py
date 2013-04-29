@@ -42,11 +42,13 @@ class Recorrido(models.Model):
     horarios = models.TextField(blank=True, null=True)
     pois = models.TextField(blank=True, null=True)
     descripcion = models.TextField(blank=True, null=True)
+    paradas_completas = models.BooleanField(default=False) #si tiene las paradas completas es porque tiene todas las paradas de este recorrido en la tabla paradas+horarios (horarios puede ser null), y se puede utilizar en la busqueda usando solo las paradas.
 
     objects = RecorridoManager()
 
     def __unicode__(self):
-        return str(self.linea) + " " + self.nombre
+        #return str(self.ciudad_set.all()[0]) + " - " + str(self.linea) + " - " + self.nombre
+        return str(self.linea) + " - " + self.nombre
 
     def es_favorito(self, usuario):
         """ Verificar si este recorrido esta marcado como favorito para <usuario> """
@@ -70,6 +72,8 @@ class Recorrido(models.Model):
                 ciudad.recorridos.add(self)
                 ciudad.lineas.add(self.linea)
 
+    class Meta:
+        ordering = ['linea__nombre', 'nombre']
 
 class Comercio(models.Model):
     nombre = models.CharField(max_length=100)
@@ -79,10 +83,13 @@ class Comercio(models.Model):
 
 
 class Parada(models.Model):
-    nombre = models.CharField(max_length=100)
+    codigo = models.CharField(max_length=15, blank=True, null=True)
+    nombre = models.CharField(max_length=100, blank=True, null=True)
     latlng = models.PointField()
     objects = models.GeoManager()
-
+    
+    def __unicode__(self):
+        return self.nombre
 
 class Horario(models.Model):
     """ Un "Recorrido" pasa por una "Parada" a
@@ -91,8 +98,10 @@ class Horario(models.Model):
     """
     recorrido = models.ForeignKey(Recorrido)
     parada = models.ForeignKey(Parada)
-    hora = models.CharField(max_length=5)
+    hora = models.CharField(max_length=5, blank=True, null=True)
 
+    def __unicode__(self):
+        return str(self.recorrido) + " - " + str(self.parada) + " - " + str(self.hora)
 
 class Terminal(models.Model):
     linea = models.ForeignKey(Linea)

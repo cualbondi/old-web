@@ -35,20 +35,20 @@ catastro_handler = Resource(CatastroHandler, authentication=None)
 urlpatterns = patterns('',
     url(r'^$', api_welcome),
 
-    url(r'^ciudades/$', ciudades_handler),
-    url(r'^ciudades/(?P<id_ciudad>\d+)/$', ciudades_handler),
-    url(r'^ciudades/(?P<id_ciudad>\d+)/lineas/$', ciudades_lineas_handler),
-    url(r'^ciudades/(?P<id_ciudad>\d+)/recorridos/$', ciudades_recorridos_handler),
+    url(r'^ciudades/$', ciudades_handler, { 'emitter_format': 'json' }),
+    url(r'^ciudades/(?P<id_ciudad>\d+)/$', ciudades_handler, { 'emitter_format': 'json' }),
+    url(r'^ciudades/(?P<id_ciudad>\d+)/lineas/$', ciudades_lineas_handler, { 'emitter_format': 'json' }),
+    url(r'^ciudades/(?P<id_ciudad>\d+)/recorridos/$', ciudades_recorridos_handler, { 'emitter_format': 'json' }),
 
-    url(r'^lineas/$', lineas_handler),
-    url(r'^lineas/(?P<id_linea>\d+)/$', lineas_handler),
-    url(r'^lineas/(?P<id_linea>\d+)/recorridos/$', lineas_recorridos_handler),
+    url(r'^lineas/$', lineas_handler, { 'emitter_format': 'json' }),
+    url(r'^lineas/(?P<id_linea>\d+)/$', lineas_handler, { 'emitter_format': 'json' }),
+    url(r'^lineas/(?P<id_linea>\d+)/recorridos/$', lineas_recorridos_handler, { 'emitter_format': 'json' }),
 
-    url(r'^recorridos/$', recorridos_handler),
-    url(r'^recorridos/(?P<id_recorrido>\d+)/$', recorridos_handler),
+    url(r'^recorridos/$', recorridos_handler, { 'emitter_format': 'json' }),
+    url(r'^recorridos/(?P<id_recorrido>\d+)/$', recorridos_handler, { 'emitter_format': 'json' }),
 
-    url(r'^catastro/$', catastro_handler),
-    url(r'^catastro/calles/$', calles_handler),
+    url(r'^catastro/$', catastro_handler, { 'emitter_format': 'json' }),
+    url(r'^catastro/calles/$', calles_handler, { 'emitter_format': 'json' }),
 )
 
 
