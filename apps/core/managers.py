@@ -547,9 +547,9 @@ class RecorridoManager(models.GeoManager):
                                         cr.linea_id,
                                         cr.color_polilinea,
                                         ST_Line_Substring(
-                                            ruta,
-                                            ST_Line_Locate_Point(ruta, rec.p1ll),
-                                            ST_Line_Locate_Point(ruta, rec.p2ll)
+                                            rec.ruta,
+                                            ST_Line_Locate_Point(rec.ruta, rec.p1ll),
+                                            ST_Line_Locate_Point(rec.ruta, rec.p2ll)
                                         ) as ruta_corta,
                                         rec.p1id as p1,
                                         rec.p2id as p2,
@@ -558,12 +558,17 @@ class RecorridoManager(models.GeoManager):
                                     FROM
                                         core_recorrido as cr
                                         JOIN (
-                                            SELECT DISTINCT
+                                            SELECT
                                                 r.id as rid,
                                                 p1.id as p1id,
                                                 p2.id as p2id,
+                                                r.ruta,
                                                 p1.latlng as p1ll,
-                                                p2.latlng as p2ll
+                                                p2.latlng as p2ll,
+                                                min(ST_Distance(p1.latlng,%(puntoA)s)) OVER (PARTITION BY r.id) as min_d1,
+                                                min(ST_Distance(p2.latlng,%(puntoB)s)) OVER (PARTITION BY r.id) as min_d2,
+                                                ST_Distance(p1.latlng,%(puntoA)s) as d1,
+                                                ST_Distance(p2.latlng,%(puntoB)s) as d2
                                             FROM
                                                 core_recorrido    as r
                                                 JOIN core_horario as h1 on (h1.recorrido_id = r.id)
@@ -577,6 +582,8 @@ class RecorridoManager(models.GeoManager):
                                                 ST_Line_Locate_Point(r.ruta, p2.latlng) and
                                                 r.paradas_completas
                                         ) as rec on (rec.rid = cr.id)
+                                    WHERE
+                                        min_d1 = d1 and min_d2 = d2
                                 ) as busquedas
                         ) as agrupar
                         GROUP BY
