@@ -11,7 +11,6 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from django.contrib.gis.geos import WKTReader
 
-#
 # antes de ejecutar esto, hacer un dump
 #   pg_dump -a --inserts -t core_linea -t core_recorrido -t core_parada -t core_horario geocualbondidb > dump.sql
 #
@@ -22,6 +21,7 @@ from django.contrib.gis.geos import WKTReader
 #   SELECT setval('core_horario_id_seq', (SELECT max(id) FROM core_horario));
 # 
 # comando para restorear
+#   echo "DELETE FROM core_linea; DELETE FROM core_parada; DELETE FROM core_horario; DELETE FROM core_recorrido;" | psql geocualbondidb
 #   psql geocualbondidb < dump.sql
 #
 
@@ -37,15 +37,13 @@ class Command(BaseCommand):
         for l in lineas:
             li = Linea(nombre=l)
             li.save()
-            ci.lineas.add(li)
-            ci.save()
             ls.append(li)
 
 
         for o in obj:
             for l in ls:
                 if o['linea'].startswith(l.nombre):
-                    print "Agregando recorrido " + l.nombre
+                    print "Agregando recorrido " + o['linea']
                     print "IDA: ",
                     sys.stdout.flush()
                     
@@ -61,8 +59,6 @@ class Command(BaseCommand):
                         paradas_completas=True
                     )
                     recorrido.save()
-                    ci.recorridos.add(recorrido)
-                    ci.save()
                     for p in o['paradas']:
                         if WKTReader().read(p['point']).distance(recorrido.ruta) < 0.0005555: # ~50 metros
                             print p['codigo'],
@@ -90,8 +86,6 @@ class Command(BaseCommand):
                         paradas_completas=True
                     )
                     recorrido.save()
-                    ci.recorridos.add(recorrido)
-                    ci.save()
                     for p in o['paradas']:
                         print p['codigo'],
                         sys.stdout.flush()
