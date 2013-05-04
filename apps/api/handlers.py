@@ -318,10 +318,10 @@ class CatastroHandler(BaseHandler):
             try:
                 response = [ 
                     {
-                        'nombre'    : r.nombre,
-                        'precision' : r.precision,
-                        'geom'      : r.geom,
-                        'tipo'      : r.tipo,
+                        'nombre'    : r['nombre'],
+                        'precision' : r['precision'],
+                        'geom'      : r['geom'],
+                        'tipo'      : r['tipo'],
                     }
                     for r in PuntoBusqueda.objects.buscar(q, ciudad_actual_slug)
                 ]

@@ -1,13 +1,12 @@
 # -*- coding: UTF-8 -*-
 import json
 import urllib2
-from operator import attrgetter
+from operator import itemgetter
 
 from django.db.models import get_model
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import GEOSGeometry
 
-from collections import namedtuple
 from django.db import connection
 
 class PuntoBusquedaManager:
@@ -25,8 +24,16 @@ class PuntoBusquedaManager:
 
     """
 
+    def dictfetchall(self, cursor):
+        "Returns all rows from a cursor as a dict"
+        desc = cursor.description
+        return [
+            dict(zip([col[0] for col in desc], row))
+            for row in cursor.fetchall()
+        ]
+    
     def _objfetchall(self, cursor): 
-        "Returns all rows from a cursor as a dict" 
+        "Returns all rows from a cursor as an object, but it's not editable (no setters)" 
         desc = cursor.description 
         l = []
         class Struct:
@@ -106,21 +113,22 @@ class PuntoBusquedaManager:
             if areas:
                 # para cada resultado aplicar la subida o bajada de puntaje segun el area en la que se encuentra
                 for r in res:
+                    print r['precision']
                     # para cada area en la que este resultado intersecta, sumar o restar
                     for area in areas:
-                        if area.intersects(GEOSGeometry(r.geom)):
+                        if area.intersects(GEOSGeometry(r['geom'])):
                             # sumar un 20% a la precision, sino restar un 20%
-                            r.precision *= 1.8
+                            r['precision'] *= 1.8
                         else:
-                            r.precision *= 0.4
-                    if ciudad_actual.intersects(GEOSGeometry(r.geom)):
-                        r.precision *= 1.8
+                            r['precision'] *= 0.4
+                    if ciudad_actual.intersects(GEOSGeometry(r['geom'])):
+                        r['precision'] *= 1.8
             else:
                 # El punto tiene que estar si o si en la ciudad actual
-                res = [r for r in res if ciudad_actual.intersects(GEOSGeometry(r.geom))]
+                res = [r for r in res if ciudad_actual.intersects(GEOSGeometry(r['geom']))]
 
             # ordenar
-            res.sort(key=attrgetter("precision"), reverse=True)
+            res.sort(key=itemgetter("precision"), reverse=True)
             # si el mejor tiene diferencia de .5 o mas con el segundo y esta sobre el .5 de precision, listo, gano
             # generar alguna otra regla heuristica similar para filtrar
             return res
@@ -170,7 +178,7 @@ class PuntoBusquedaManager:
         ;"""
         cursor = connection.cursor()
         query_set = cursor.execute(query, params)
-        l = self._objfetchall(cursor)
+        l = self.dictfetchall(cursor)
         return l
 
     def poi(self, nombre):
@@ -191,7 +199,7 @@ class PuntoBusquedaManager:
         ;"""
         cursor = connection.cursor()
         query_set = cursor.execute(query, params)
-        l = self._objfetchall(cursor)
+        l = self.dictfetchall(cursor)
         return l
 
     def zona(self, nombre):
@@ -212,7 +220,7 @@ class PuntoBusquedaManager:
         ;"""
         cursor = connection.cursor()
         query_set = cursor.execute(query, params)
-        l = self._objfetchall(cursor)
+        l = self.dictfetchall(cursor)
         return l
 
     def rawGeocoder(self, query):
@@ -223,12 +231,13 @@ class PuntoBusquedaManager:
         req = urllib2.urlopen(geocode_url)
         res = json.loads(req.read())
         # comprehension para parsear lo devuelto por el google geocoder
-        ret = [namedtuple('literal', 'nombre precision geom tipo')(
-                nombre  = i["formatted_address"],
-                precision= len(i["address_components"]) / 6,
-                geom     = "POINT(" + str(i["geometry"]["location"]["lng"]) + " " + str(i["geometry"]["location"]["lat"]) + ")",
-                tipo     = "rawGeocoder"
-                )
+        ret = [
+                {
+                    'nombre'   : i["formatted_address"],
+                    'precision': len(i["address_components"]) / 6,
+                    'geom'     : "POINT(" + str(i["geometry"]["location"]["lng"]) + " " + str(i["geometry"]["location"]["lat"]) + ")",
+                    'tipo'     : "rawGeocoder"
+                }
                 for i in res["results"]
               ]
         return ret
@@ -243,12 +252,15 @@ class PuntoBusquedaManager:
         req = urllib2.urlopen(geocode_url)
         res = json.loads(req.read())
         # comprehension para parsear lo devuelto por el google geocoder
-        ret = [namedtuple('literal', 'nombre precision geom tipo')(nombre=i["formatted_address"],
-                  precision=1,
-                  geom="POINT(" + str(i["geometry"]["location"]["lng"]) + " " + str(i["geometry"]["location"]["lat"]) + ")",
-                  tipo="direccionPostal")
+        ret = [
+                {
+                    'nombre'   : i["formatted_address"],
+                    'precision': 1,
+                    'geom'     : "POINT(" + str(i["geometry"]["location"]["lng"]) + " " + str(i["geometry"]["location"]["lat"]) + ")",
+                    'tipo'     : "direccionPostal"
+                }
                 for i in res["results"]
-                    if "street_address" in i["types"]
+                if "street_address" in i["types"]
               ]
         return ret
 
