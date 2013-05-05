@@ -2,17 +2,25 @@ $(document).on("mobileinit", function(){
     $.allowCrossDomainPages = true;
 });
 $(document).ready(function(){
+    var CIUDAD = null;
+
+    $('#lista-ciudades a').on('click', function(e){
+        e.preventDefault();
+        CIUDAD = $(this).attr('data-name');
+        $.mobile.changePage("#opciones");
+    });
+
     $("#boton_buscar").click(function(event){
         event.preventDefault();
 
-        var origen = $("#origen").val()
-        var destino = $("#destino").val()
-        var slider = $("#slider").val()
+        var origen = $("#origen").val();
+        var destino = $("#destino").val();
+        var slider = $("#slider").val();
 
-        if (origen != '' && destino != ''){
-            var base_url = "http://beta.cualbondi.com.ar/api/";
+        if (origen !== '' && destino !== ''){
+            var base_url = "http://cualbondi.com.ar/api/";
             $.ajax({
-                 url: base_url + "catastro/?query=" + origen + "&ciudad=la-plata",
+                 url: base_url + "catastro/?query=" + origen + "&ciudad=" + CIUDAD,
                  dataType: 'jsonp',
                  success:function(data){
                     var suggestOrigen = $("#suggest_origen");
@@ -22,10 +30,10 @@ $(document).ready(function(){
                  },
                  error:function(){
                      alert("Error");
-                 },
+                 }
             });
             $.ajax({
-                 url: base_url + "catastro/?query=" + destino + "&ciudad=la-plata",
+                 url: base_url + "catastro/?query=" + destino + "&ciudad=" + CIUDAD,
                  dataType: 'jsonp',
                  success:function(data){
                     var suggestDestino = $("#suggest_destino");
@@ -35,13 +43,14 @@ $(document).ready(function(){
                  },
                  error:function(){
                      alert("Error");
-                 },
+                 }
             });
             $.mobile.changePage("#sugerencias");
         }else{
             $("#errorSuggest").tmpl({'msg': 'Origen y Destino no deben ser vacios.'}).appendTo($("#opciones_errors").empty());
         }
-    })
+    });
+
     $("#boton_aceptar_sugg").click(function(event){
         event.preventDefault();
         var origen = $("#controlgroup_origen input:checked");
@@ -51,9 +60,9 @@ $(document).ready(function(){
             destino = destino.val().replace("POINT(", "").replace(")","").replace(" ", ",");
             var radio = $("#slider").val();
 
-            var base_url = "http://beta.cualbondi.com.ar/api/";
+            var base_url = "http://cualbondi.com.ar/api/";
             $.ajax({
-                 url: base_url + "recorridos/?origen=" + origen + "&destino=" + destino + "&radio_origen=" + radio + "&radio_destino=" + radio + "&c=la-plata&combinar=false",
+                 url: base_url + "recorridos/?origen=" + origen + "&destino=" + destino + "&radio_origen=" + radio + "&radio_destino=" + radio + "&c=" + CIUDAD + "&combinar=false",
                  dataType: 'jsonp',
                  success:function(data){
                     $("#listResultados").tmpl(data).appendTo($("#resultados_content").empty());
@@ -61,12 +70,12 @@ $(document).ready(function(){
                  },
                  error:function(){
                      alert("Error");
-                 },
+                 }
             });
 
             $.mobile.changePage("#resultados");
         }else{
             $("#errorSuggest").tmpl({'msg': 'Debe seleccionar origen y destion'}).appendTo($("#suggest_errors").empty());
         }
-    })
-})
+    });
+});
