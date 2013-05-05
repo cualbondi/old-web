@@ -169,3 +169,7 @@ div#mapa { width: 100%; height: 100%; }
         content: "";
     }
 }
+
+div.pagination-centered {
+    margin-bottom: 0px;
+}
