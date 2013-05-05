@@ -18,14 +18,15 @@ $(document).ready(function(){
         var slider = $("#slider").val();
 
         if (origen !== '' && destino !== ''){
+            var suggestOrigen = $("#suggest_origen");
+            var suggestDestino = $("#suggest_destino");
+
             var base_url = "http://cualbondi.com.ar/api/";
             $.ajax({
                  url: base_url + "catastro/?query=" + origen + "&ciudad=" + CIUDAD,
                  dataType: 'jsonp',
                  success:function(data){
-                    var suggestOrigen = $("#suggest_origen");
-                    suggestOrigen.empty();
-                    $("#listSuggest").tmpl({'data': data, 'punto': 'origen'}).appendTo(suggestOrigen);
+                    $("#listSuggest").tmpl({'data': data, 'punto': 'origen'}).appendTo(suggestOrigen.empty());
                     suggestOrigen.trigger("create");
                  },
                  error:function(){
@@ -36,15 +37,15 @@ $(document).ready(function(){
                  url: base_url + "catastro/?query=" + destino + "&ciudad=" + CIUDAD,
                  dataType: 'jsonp',
                  success:function(data){
-                    var suggestDestino = $("#suggest_destino");
-                    suggestDestino.empty();
-                    $("#listSuggest").tmpl({'data': data, 'punto': 'destino'}).appendTo(suggestDestino);
+                    $("#listSuggest").tmpl({'data': data, 'punto': 'destino'}).appendTo(suggestDestino.empty());
                     suggestDestino.trigger("create");
                  },
                  error:function(){
                      alert("Error");
                  }
             });
+            suggestOrigen.empty();
+            suggestDestino.empty();
             $.mobile.changePage("#sugerencias");
         }else{
             $("#errorSuggest").tmpl({'msg': 'Origen y Destino no deben ser vacios.'}).appendTo($("#opciones_errors").empty());
@@ -65,14 +66,18 @@ $(document).ready(function(){
                  url: base_url + "recorridos/?origen=" + origen + "&destino=" + destino + "&radio_origen=" + radio + "&radio_destino=" + radio + "&c=" + CIUDAD + "&combinar=false",
                  dataType: 'jsonp',
                  success:function(data){
-                    $("#listResultados").tmpl(data).appendTo($("#resultados_content").empty());
-                    $("#resultados_content").trigger("create");
+                    if (data.resultados.length > 0){
+                        $("#listResultados").tmpl(data).appendTo($("#resultados_content").empty());
+                        $("#resultados_content").trigger("create");
+                    }else{
+                        $("#resultados_content").html("<p>No se han encontrado resultados...</p>");
+                    }
                  },
                  error:function(){
                      alert("Error");
                  }
             });
-
+            $("#resultados_content").empty();
             $.mobile.changePage("#resultados");
         }else{
             $("#errorSuggest").tmpl({'msg': 'Debe seleccionar origen y destion'}).appendTo($("#suggest_errors").empty());
