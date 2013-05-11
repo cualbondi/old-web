@@ -77,8 +77,10 @@ class Command(BaseCommand):
         primera = True
         for c in cu.fetchall():
             print ">>- ACTUALIZANDO " + c[0]
-            l = c[1][4:-1].replace(")", "").replace("(", "").split(",")
+            print "st_box: " + c[1]
+            l = c[1][1:-1].replace(")", "").replace("(", "").split(",")
             box = ",".join([l[2], l[3], l[0], l[1]])
+            print "box: " + box
 
             if primera:
                 prog = ["osm2pgsql"      , "-s" if options['slim'] else "", "-l", "-S"+os.path.join(os.path.abspath(os.path.dirname(__file__)),"update-osm.style"), "-d"+dbname, "-U"+dbuser, "-b"+box, inputfile ]
