@@ -82,13 +82,23 @@ class Command(BaseCommand):
             box = ",".join([l[2], l[3], l[0], l[1]])
             print "box: " + box
 
+            prog = [
+                "osm2pgsql",
+                "-l",
+                "-S"+os.path.join(os.path.abspath(os.path.dirname(__file__)),"update-osm.style"),
+                "-d"+dbname,
+                "-U"+dbuser,
+                "-b"+box,
+                inputfile
+            ]
             if primera:
-                prog = ["osm2pgsql"      , "-s" if options['slim'] else "", "-l", "-S"+os.path.join(os.path.abspath(os.path.dirname(__file__)),"update-osm.style"), "-d"+dbname, "-U"+dbuser, "-b"+box, inputfile ]
                 primera = False
             else:
-                prog = ["osm2pgsql", "-a", "-s" if options['slim'] else "", "-l", "-S"+os.path.join(os.path.abspath(os.path.dirname(__file__)),"update-osm.style"), "-d"+dbname, "-U"+dbuser, "-b"+box, inputfile ]
+                prog.append("-a")
+            if options['slim']:
+                prog.append("-s")
             print "ejecutando:",
-            print prog
+            print " ".join(prog)
             p = subprocess.Popen(prog, env={"PGPASSWORD": dbpass} )
             p.wait()
 
