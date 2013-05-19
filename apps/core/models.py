@@ -42,7 +42,11 @@ class Recorrido(models.Model):
     horarios = models.TextField(blank=True, null=True)
     pois = models.TextField(blank=True, null=True)
     descripcion = models.TextField(blank=True, null=True)
-    paradas_completas = models.BooleanField(default=False) #si tiene las paradas completas es porque tiene todas las paradas de este recorrido en la tabla paradas+horarios (horarios puede ser null), y se puede utilizar en la busqueda usando solo las paradas.
+
+    # Si tiene las paradas completas es porque tiene todas las paradas de
+    # este recorrido en la tabla paradas+horarios (horarios puede ser null),
+    # y se puede utilizar en la busqueda usando solo las paradas.
+    paradas_completas = models.BooleanField(default=False)
 
     objects = RecorridoManager()
 
@@ -62,6 +66,13 @@ class Recorrido(models.Model):
         # Generar el SLUG a partir del origen y destino del recorrido
         self.slug = slugify(self.nombre + " desde " + self.inicio + " hasta " + self.fin)
 
+        # Asegurarse de que no haya 'inicio' y/o 'fin' invalidos
+        assert (
+            self.inicio != self.fin
+            and self.inicio != ''
+            and self.fin != ''
+        ), "Los campos 'inicio' y 'fin' no pueden ser vacios y/o iguales"
+
         # Ejecutar el SAVE original
         super(Recorrido, self).save(*args, **kwargs)
 
@@ -75,6 +86,7 @@ class Recorrido(models.Model):
     class Meta:
         ordering = ['linea__nombre', 'nombre']
 
+
 class Comercio(models.Model):
     nombre = models.CharField(max_length=100)
     latlng = models.PointField()
@@ -87,9 +99,10 @@ class Parada(models.Model):
     nombre = models.CharField(max_length=100, blank=True, null=True)
     latlng = models.PointField()
     objects = models.GeoManager()
-    
+
     def __unicode__(self):
         return self.nombre
+
 
 class Horario(models.Model):
     """ Un "Recorrido" pasa por una "Parada" a
@@ -102,6 +115,7 @@ class Horario(models.Model):
 
     def __unicode__(self):
         return str(self.recorrido) + " - " + str(self.parada) + " - " + str(self.hora)
+
 
 class Terminal(models.Model):
     linea = models.ForeignKey(Linea)
