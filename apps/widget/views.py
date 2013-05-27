@@ -32,7 +32,7 @@ def v1_busqueda(request, extension):
                         { 'current_site': current_site,
                           'ciudad_arg'  : ciudad_arg  },
                         context_instance=RequestContext(request), 
-                        content_type="application/x-javascript")                
+                        content_type="application/x-JavaScript")                
         else:
             return HttpResponse(status=403)
     else:
@@ -42,4 +42,5 @@ def not_found(request):
     return HttpResponse(status=404)
 
 def test(request):
-    return render_to_response('widget/test.html')
+    return render_to_response('widget/test.html',
+                        { 'current_site': Site.objects.get_current()})
