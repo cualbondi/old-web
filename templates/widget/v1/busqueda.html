@@ -1,0 +1,19 @@
+<form target="_parent" method="GET" action="/mapa{% if ciudad %}/{{ ciudad.slug }}/{% endif %}" name="cb_form">
+    <span style="margin-right: 5px;">Buscar transporte en <strong>{{ciudad_actual.nombre}}</strong> desde</span>
+    <input type="text" name="desde" class="input-medium" placeholder="ingrese origen...">
+    <span style="margin-left: 5px; margin-right: 5px;">hasta</span>
+    <input type="text" name="hasta" class="input-medium" placeholder="ingrese destino...">
+    {% if ciudades %}
+        <select onChange="change(this.value)">
+        {% for c in ciudades %}
+            <option value="{{ c.slug }}">{{ c.nombre }}</option>
+        {% endfor %}
+        </select>
+        <script>
+            change(val) {
+                document.cb_form.action = "/mapa/"+val+"/";
+            }
+        </script>
+    {% endif %}
+    <button type="submit" class="btn btn-primary"><i class="icon-search icon-white"></i> Buscar »</button>
+</form>

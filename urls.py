@@ -18,5 +18,6 @@ urlpatterns = patterns('',
     url(r'^api/', include('apps.api.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^usuarios/', include('apps.usuarios.urls')),
+    url(r'^widget/', include('apps.widget.urls')),
     url(r'^', include('apps.core.urls')),
 )
