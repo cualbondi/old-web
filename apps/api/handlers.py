@@ -75,7 +75,7 @@ class LineaHandler(BaseHandler):
         else:
             try:
                 response = Linea.objects.get(id=id_linea)
-                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "response":response})
+                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "responseLen":len(response), "responseFirst10":response[:10]})
                 return response
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND
@@ -92,7 +92,7 @@ class LineaRecorridoHandler(BaseHandler):
             try:
                 l = Linea.objects.get(id=id_linea)
                 response = Recorrido.objects.filter(linea=l)
-                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "response":response})
+                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "responseLen":len(response), "responseFirst10":response[:10]})
                 return response
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND
@@ -168,7 +168,7 @@ class RecorridoHandler(BaseHandler):
             # Filtrar todos los recorridos y devolver solo la pagina pedida
             response['resultados'] = self._paginar(recorridos, pagina)
             response['q'] = query
-            MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "response":response})
+            MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "responseLen":len(response), "responseFirst10":response[:10]})
             return self._encriptar(response)
 
         elif id_recorrido is not None:
@@ -186,7 +186,7 @@ class RecorridoHandler(BaseHandler):
                     'fin': recorrido.fin,
                     'ruta': b64encode(recorrido.ruta.wkt),
                 }
-                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "response":response})
+                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "responseLen":len(response), "responseFirst10":response[:10]})
                 return response
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND
@@ -298,7 +298,7 @@ class RecorridoHandler(BaseHandler):
                 #    return rc.BAD_REQUEST
                 # Filtrar todos los recorridos y devolver solo la pagina pedida
                 response['resultados'] = self._paginar(recorridos, pagina)
-                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "response":response})
+                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "responseLen":len(response), "responseFirst10":response[:10]})
                 return self._encriptar(response)
             else:
                 MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET})
@@ -325,7 +325,7 @@ class CatastroHandler(BaseHandler):
                     }
                     for r in PuntoBusqueda.objects.buscar(q, ciudad_actual_slug)
                 ]
-                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "response":response})
+                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "responseLen":len(response), "responseFirst10":response[:10]})
                 return response
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND
@@ -344,7 +344,7 @@ class CalleHandler(BaseHandler):
         else:
             try:
                 response = PuntoBusqueda.objects.interseccion(calle1, calle2)
-                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "response":response})
+                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "responseLen":len(response), "responseFirst10":response[:10]})
                 return response
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND
