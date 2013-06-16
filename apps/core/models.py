@@ -101,7 +101,7 @@ class Parada(models.Model):
     objects = models.GeoManager()
 
     def __unicode__(self):
-        return self.nombre
+        return self.nombre or self.codigo or ' '
 
 
 class Horario(models.Model):
@@ -114,7 +114,7 @@ class Horario(models.Model):
     hora = models.CharField(max_length=5, blank=True, null=True)
 
     def __unicode__(self):
-        return str(self.recorrido) + " - " + str(self.parada) + " - " + str(self.hora)
+        return str(self.recorrido) + " - " + str(self.parada) + " - " + str(self.hora or ' ')
 
 
 class Terminal(models.Model):
