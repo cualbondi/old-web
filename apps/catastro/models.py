@@ -138,7 +138,9 @@ class Zona(models.Model):
     geo = models.GeometryField(srid=4326, geography=True)
 
     objects = ZonaManager()
-
+    
+    def __unicode__(self):
+        return self.name
 
 class Calle(models.Model):
     way = models.GeometryField(srid=4326, geography=True)
