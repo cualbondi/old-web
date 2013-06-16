@@ -774,6 +774,13 @@
 
             // bind eventos click partes dinamicas de la pagina (bind multiple)
             function bindearEventos(porNombre) {
+                
+                $('span[href]').not('.binded').bind('click', function(e) {
+                    e.preventDefault();
+                    piwikLog("/click/verMasInfo/"+$(this).parent().parent().attr('id'))
+                    window.open($(this).attr('href'));
+                }).addClass("binded");
+                
                 var selectorDiv = '#sidebarResultadosPorNombre'
                 if (!porNombre) {
                     $("#button_buscar_transbordo:not(binded)").bind("click", function(e) {
