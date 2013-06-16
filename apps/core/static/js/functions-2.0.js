@@ -776,22 +776,20 @@
             function bindearEventos(porNombre) {
                 var selectorDiv = '#sidebarResultadosPorNombre'
                 if (!porNombre) {
-                    $("#button_buscar_transbordo:not(binded)").bind("click", function(e) {
+                    $("#button_buscar_transbordo").not('.binded').bind("click", function(e) {
                         e.preventDefault();
                         piwikLog("/click/buscar/transbordo")
                         buscarTransbordo();
-                        $(this).addClass("binded");
-                    })
+                    }).addClass("binded")
 
-                    $("#button-seleccionarSugerencias:not(binded)").bind("click", function(e) {
+                    $("#button-seleccionarSugerencias").not('.binded').bind("click", function(e) {
                         e.preventDefault();
                         //trackear nombre de seleccionadas
                         piwikLog("/click/buscar/suggest/")
                         seleccionarSugerencias();
-                        $(this).addClass("binded");
-                    })
+                    }).addClass("binded")
 
-                    $(".marcarSuggest:not(binded)").bind("click", function(e) {
+                    $(".marcarSuggest").not('.binded').bind("click", function(e) {
                         e.preventDefault();
                         marcarPunto(
                             $(this).attr("data_geom"),
@@ -800,13 +798,12 @@
                         );
                         $(this).parent().siblings().removeClass("active");
                         $(this).parent().addClass("active");
-                        $(this).addClass("binded");
-                    })
+                    }).addClass("binded");
 
                     selectorDiv = '#sidebarResultados';
                 }
 
-                $(selectorDiv + " div.pagination a[href]:not(binded)").bind("click", function(e) {
+                $(selectorDiv + " div.pagination a[href]").not('.binded').bind("click", function(e) {
                     e.preventDefault();
                     n = $(this).attr("data_pagina");
                     if      ( n <  0 ) pps = "ant";
@@ -816,8 +813,7 @@
                     pasarPagina($(this).attr("data_pagina"), $(this).attr("combinar"), porNombre);
                     //console.log("porNombre="+porNombre)
                     //console.log("n="+n)
-                    $(this).addClass("binded");
-                })
+                }).addClass("binded");
             }
 
             if ($("#inputDesde").val() != "" && $("#inputHasta").val() != ""){
