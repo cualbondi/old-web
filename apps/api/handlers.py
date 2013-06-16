@@ -168,7 +168,7 @@ class RecorridoHandler(BaseHandler):
             # Filtrar todos los recorridos y devolver solo la pagina pedida
             response['resultados'] = self._paginar(recorridos, pagina)
             response['q'] = query
-            MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "responseLen":len(response), "responseFirst10":response[:10]})
+            MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "responseLen":len(response['resultados']), "responseFirst10":response['resultados'][:10]})
             return self._encriptar(response)
 
         elif id_recorrido is not None:
@@ -186,7 +186,7 @@ class RecorridoHandler(BaseHandler):
                     'fin': recorrido.fin,
                     'ruta': b64encode(recorrido.ruta.wkt),
                 }
-                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "responseLen":len(response), "responseFirst10":response[:10]})
+                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "responseLen":1, "responseFirst10":[response]})
                 return response
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND
@@ -298,7 +298,7 @@ class RecorridoHandler(BaseHandler):
                 #    return rc.BAD_REQUEST
                 # Filtrar todos los recorridos y devolver solo la pagina pedida
                 response['resultados'] = self._paginar(recorridos, pagina)
-                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "responseLen":len(response), "responseFirst10":response[:10]})
+                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "responseLen":len(response['resultados']), "responseFirst10":response['resultados'][:10]})
                 return self._encriptar(response)
             else:
                 MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET})
