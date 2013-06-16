@@ -363,18 +363,20 @@
                 })
                 
                 $.each(stops, function(key, value) {
-                    p = new OpenLayers.Feature.Vector(new OpenLayers.Format.WKT().read(value.latlng).geometry.transform(proj, map.getProjectionObject()))
-                    //var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
-                    //style.label = "P\n\n"+value.codigo;
-                    //style.labelYOffset = -4;
-                    //style.externalGraphic = STATIC_URL+"css/openlayers/markerP.png"
-                    //style.graphicWidth    = 15
-                    //style.graphicHeight   = 16
-                    //style.graphicYOffset  = -16
-                    //style.graphicOpacity  = 1
-                    //p.style = style
-                    p.data['content'] = "<p><strong>Parada "+value.codigo+"</strong><br>"+value.nombre+"</p>"
-                    paradas.addFeatures([p]);
+                    if (typeof value !== 'undefined') {
+                        p = new OpenLayers.Feature.Vector(new OpenLayers.Format.WKT().read(value.latlng).geometry.transform(proj, map.getProjectionObject()))
+                        //var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+                        //style.label = "P\n\n"+value.codigo;
+                        //style.labelYOffset = -4;
+                        //style.externalGraphic = STATIC_URL+"css/openlayers/markerP.png"
+                        //style.graphicWidth    = 15
+                        //style.graphicHeight   = 16
+                        //style.graphicYOffset  = -16
+                        //style.graphicOpacity  = 1
+                        //p.style = style
+                        p.data['content'] = "<p><strong>Parada "+value.codigo+"</strong><br>"+value.nombre+"</p>"
+                        paradas.addFeatures([p]);
+                    }
                 })
                                 
                 if (porNombre) {
