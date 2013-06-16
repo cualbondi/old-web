@@ -24,7 +24,7 @@ class RecorridoCustomAdmin(admin.OSMGeoAdmin):
 class ParadaCustomAdmin(admin.OSMGeoAdmin):
     default_lon = -6428013
     default_lat = -4177742
-    search_fields = ['nombre']
+    search_fields = ['nombre', 'codigo']
     #inlines = (HorarioAdminInline,)
     readonly_fields = ('horarios',)
     
