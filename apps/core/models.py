@@ -89,7 +89,7 @@ class Recorrido(models.Model):
     
     def get_absolute_url(self, ciudad_slug):
         # chequear si la linea/recorrido está en esta ciudad, sino tirar excepcion
-        print Ciudad.objects.get(slug=ciudad_slug, lineas=self.linea)
+        # if Ciudad.objects.get(slug=ciudad_slug, lineas=self.linea)
         return reverse('ver_recorrido',
             kwargs={
                 'nombre_ciudad'   : ciudad_slug,
