@@ -78,7 +78,7 @@
         {% for columna in lineas|dividir_columnas:5 %}
             <tr>
             {% for linea in columna %}
-                <td><a href={{linea.slug}}/>Linea {{linea.nombre}}<a></td>
+                <td><a href={{linea.slug}}/>Linea {{linea.nombre}}</a></td>
             {% endfor %}
             </tr>
         {% endfor %}

@@ -35,7 +35,7 @@
         {% for columna in recorridos|dividir_columnas:2 %}
             <tr>
             {% for recorrido in columna %}
-                <td><a href={{recorrido.slug}}/>Recorrido {{recorrido.nombre}} {% if recorrido.inicio and recorrido.fin %}(de {{recorrido.inicio}} a {{recorrido.fin}}){% endif %}<a></td>
+                <td><a href={{recorrido.slug}}/>Recorrido {{recorrido.nombre}} {% if recorrido.inicio and recorrido.fin %}(de {{recorrido.inicio}} a {{recorrido.fin}}){% endif %}</a></td>
             {% endfor %}
             </tr>
         {% endfor %}
