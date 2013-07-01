@@ -28,9 +28,9 @@
 
 {% block bloque_izquierda %}
     <ul class="breadcrumb">
-        <li><a href="/">Inicio</a> <span class="divider">></span></li>
-        <li><a href="/{{ciudad_actual.slug}}">{{ciudad_actual.nombre}}</a> <span class="divider">></span></li>
-        <li><a href="/{{ciudad_actual.slug}}/{{linea_actual.slug}}">{{linea_actual.nombre}}</a> <span class="divider">></span></li>
+        <li><a href="/">Inicio</a> <span class="divider">&gt;</span></li>
+        <li><a href="/{{ciudad_actual.slug}}">{{ciudad_actual.nombre}}</a> <span class="divider">&gt;</span></li>
+        <li><a href="/{{ciudad_actual.slug}}/{{linea_actual.slug}}">{{linea_actual.nombre}}</a> <span class="divider">&gt;</span></li>
         <li class="active">{{recorrido_actual.nombre}} {% if recorrido_actual.inicio and recorrido_actual.fin %}(de {{recorrido_actual.inicio}} a {{recorrido_actual.fin}}){% endif %}</li>
     </ul>
 
