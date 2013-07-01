@@ -1,7 +1,8 @@
 {% extends "contenido.html" %}
 {% load bootstrap_tags %}
 
-{% block title %}Cualbondi - Linea {{linea_actual.nombre|title}} en {{ciudad_actual.nombre|title}}: Listado de recorridos de colectivos, micros, buses{% endblock %}
+{% block title %}Línea {{linea_actual.nombre|title}} en {{ciudad_actual.nombre|title}} - Cualbondi{% endblock %}
+{% block meta_description %}Toda la información sobre ramales, recorridos, paradas, horarios y tarifas de la línea {{linea_actual.nombre|title}} que pasa por la ciudad de {{ciudad_actual.nombre|title}}.{% endblock %}
 
 {% block custom_top_scripts %}
     <script src="http://openlayers.org/api/OpenLayers.js"></script>

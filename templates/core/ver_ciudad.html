@@ -3,7 +3,8 @@
 {% load comments %}
 {% load bootstrap_tags %}
 
-{% block title %}Cualbondi - Información general sobre transporte público en la ciudad de {{ciudad_actual.nombre|title}}{% endblock %}
+{% block title %}Ciudad de {{ciudad_actual.nombre|title}} - Cualbondi{% endblock %}
+{% block meta_description %}Toda la información sobre líneas, ramales, recorridos, paradas, horarios y tarifas de transporte público local que pasa por la ciudad de {{ciudad_actual.nombre|title}}, incluyendo bondis, micros, colectivos, trenes y subtes.{% endblock %}
 
 {% block custom_top_scripts %}
     <script src="http://openlayers.org/api/OpenLayers.js"></script>
