@@ -3,7 +3,8 @@
 {% load comments %}
 {% load bootstrap_tags %}
 
-{% block title %}Cualbondi - Información general sobre transporte público en la ciudad de {{ciudad_actual.nombre|title}}{% endblock %}
+{% block title %}Ciudad de {{ciudad_actual.nombre|title}} - Cualbondi{% endblock %}
+{% block meta_description %}Toda la información sobre líneas, ramales, recorridos, paradas, horarios y tarifas de transporte público local que pasa por la ciudad de {{ciudad_actual.nombre|title}}, incluyendo bondis, micros, colectivos, trenes y subtes.{% endblock %}
 
 {% block custom_top_scripts %}
     <script src="http://openlayers.org/api/OpenLayers.js"></script>
@@ -13,13 +14,13 @@
 
 {% block bloque_izquierda %}
     <ul class="breadcrumb">
-        <li><a href="/">Inicio</a> <span class="divider">></span></li>
+        <li><a href="/">Inicio</a> <span class="divider">&gt;</span></li>
         <li class="active">{{ciudad_actual.nombre}}</li>
     </ul>
 
     <h1>Ciudad de {{ciudad_actual.nombre}}</h1>
 
-    <div class="well" align="center">
+    <div class="well">
         <form method="GET" action="/mapa/{{ciudad_actual.slug}}/" class="form-inline" style="margin: 0px; font-size: 14px;">
             <span style="margin-right: 5px;">Buscar transporte en <strong>{{ciudad_actual.nombre}}</strong> desde</span>
             <input type="text" name="desde" class="input-medium" placeholder="ingrese origen...">
@@ -77,7 +78,7 @@
         {% for columna in lineas|dividir_columnas:5 %}
             <tr>
             {% for linea in columna %}
-                <td><a href={{linea.slug}}/>Linea {{linea.nombre}}<a></td>
+                <td><a href={{linea.slug}}/>Linea {{linea.nombre}}</a></td>
             {% endfor %}
             </tr>
         {% endfor %}
@@ -104,7 +105,7 @@
         <br />
     {% endif %}
 
-    <![if (!IE)|(gt IE 7)]>
+    <!--[if (!IE)|(gt IE 7)]-->
         <h3>Dejanos un comentario sobre "{{ciudad_actual.nombre}}"</h3>
         <div id="disqus_thread"></div>
         <script type="text/javascript">
@@ -121,7 +122,7 @@
 
         <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-    <![endif]>
+    <!--[endif]-->
 {% endblock %}
 
 {% block custom_scripts %}
