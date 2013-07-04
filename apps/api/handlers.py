@@ -288,8 +288,14 @@ class RecorridoHandler(BaseHandler):
                                     }
                                 ]
                             }
-                            for r in Recorrido.objects.get_recorridos_combinados(origen, destino, radio_origen, radio_destino, 500)
+                            for r in Recorrido.objects.get_recorridos_combinados_sin_paradas(origen, destino, radio_origen, radio_destino, 500)
                         ]
+                        #for rec in recorridos
+						#	rec["itinerario"][0]["p1"] = rec["itinerario"][0]["ruta_corta"] #parada mas cercana que se encuentre a menos de 100 metros del ultimo punto del recorrido 1
+						#	rec["itinerario"][0]["p2"]
+						#	rec["itinerario"][1]["p1"]
+						#	rec["itinerario"][2]["p2"]
+							
                     # Guardar los resultados calculados en memcached
                     if USE_CACHE:
                         self._save_in_cache(origen, destino, radio_origen, radio_destino, combinar, recorridos)
