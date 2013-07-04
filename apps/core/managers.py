@@ -698,3 +698,422 @@ class RecorridoManager(models.GeoManager):
         """
         query_set = self.raw(query, params)
         return query_set
+
+    def get_recorridos_combinados_con_paradas(self, puntoA, puntoB, distanciaA, distanciaB, gap):
+        distanciaA = int(distanciaA)
+        distanciaB = int(distanciaB)
+        gap = int(gap)
+        if not isinstance(puntoA, Point):
+            raise DatabaseError("get_recorridos: PuntoA Expected GEOS Point instance as parameter, %s given" % type(puntoA))
+        if not isinstance(puntoB, Point):
+            raise DatabaseError("get_recorridos: PuntoB Expected GEOS Point instance as parameter, %s given" % type(puntoB))
+        if not isinstance(distanciaA, (int, long)):
+            raise DatabaseError("get_recorridos: distanciaA Expected integer as parameter, %s given" % type(distanciaA))
+        if not isinstance(distanciaB, (int, long)):
+            raise DatabaseError("get_recorridos: distanciaB Expected integer as parameter, %s given" % type(distanciaB))
+        if not isinstance(gap, (int, long)):
+            raise DatabaseError("get_recorridos: gap Expected integer as parameter, %s given" % type(gap))
+        puntoA.set_srid(4326)
+        puntoB.set_srid(4326)
+        distanciaA = 0.0000111 * float(distanciaA) 
+        distanciaB = 0.0000111 * float(distanciaB)
+        gap = 0.0000111 * float(gap) 
+
+        connection.cursor().execute('SET STATEMENT_TIMEOUT=45000')
+
+        params = {'puntoA': puntoA.ewkt, 'puntoB': puntoB.ewkt, 'rad1': distanciaA, 'rad2': distanciaB, 'gap': gap}
+        query = """
+            SELECT
+                id,
+                nombre,
+                nombre2,
+                id2,
+                color_polilinea,
+                color_polilinea2,
+                foto,
+                foto2,
+                inicio,
+                inicio2,
+                fin,
+                fin2,
+                ST_AsText(ruta_corta) as ruta_corta,
+                ST_AsText(ruta_corta2) as ruta_corta2,
+                long_ruta,
+                long_ruta2,
+                long_pata,
+                long_pata2,
+                long_pata_transbordo,
+                (
+                    SELECT
+                        p.id
+                    FROM
+                        core_horario     as h
+                        JOIN core_parada as p on (p.id = h.parada_id)
+                    WHERE
+                        ST_Distance_Sphere(setsrid(p.latlng,4326), setsrid(ST_PointN(subquery.ruta_corta::Geometry, 1),4326)) < 100
+                        AND h.recorrido_id = subquery.id
+                    ORDER BY
+                        ST_Distance_Sphere(setsrid(p.latlng,4326), setsrid(ST_PointN(subquery.ruta_corta::Geometry, 1),4326)) ASC
+                    LIMIT 1
+                    ) as p11ll,
+                (
+                    SELECT
+                        p.id
+                    FROM
+                        core_horario     as h
+                        JOIN core_parada as p on (p.id = h.parada_id)
+                    WHERE
+                        ST_Distance_Sphere(setsrid(p.latlng,4326), setsrid(ST_PointN(subquery.ruta_corta::Geometry, ST_NPoints(subquery.ruta_corta::Geometry)),4326)) < 100
+                        AND h.recorrido_id = subquery.id
+                    ORDER BY
+                        ST_Distance_Sphere(setsrid(p.latlng,4326), setsrid(ST_PointN(subquery.ruta_corta::Geometry, ST_NPoints(subquery.ruta_corta::Geometry)),4326)) ASC
+                    LIMIT 1
+                    ) as p12ll,
+                (
+                    SELECT
+                        p.id
+                    FROM
+                        core_horario     as h
+                        JOIN core_parada as p on (p.id = h.parada_id)
+                    WHERE
+                        ST_Distance_Sphere(setsrid(p.latlng,4326), setsrid(ST_PointN(subquery.ruta_corta2::Geometry, 1),4326)) < 100
+                        AND h.recorrido_id = subquery.id2
+                    ORDER BY
+                        ST_Distance_Sphere(setsrid(p.latlng,4326), setsrid(ST_PointN(subquery.ruta_corta2::Geometry, 1),4326)) ASC
+                    LIMIT 1
+                    ) as p21ll,
+                (
+                    SELECT
+                        p.id
+                    FROM
+                        core_horario     as h
+                        JOIN core_parada as p on (p.id = h.parada_id)
+                    WHERE
+                        ST_Distance_Sphere(setsrid(p.latlng,4326), setsrid(ST_PointN(subquery.ruta_corta2::Geometry, ST_NPoints(subquery.ruta_corta2::Geometry)),4326)) < 100
+                        AND h.recorrido_id = subquery.id2
+                    ORDER BY
+                        ST_Distance_Sphere(setsrid(p.latlng,4326), setsrid(ST_PointN(subquery.ruta_corta2::Geometry, ST_NPoints(subquery.ruta_corta2::Geometry)),4326)) ASC
+                    LIMIT 1
+                    ) as p22ll
+            FROM (
+                SELECT
+                    re1.id as id,
+                    li1.nombre || ' ' || re1.nombre as nombre,
+                    li2.nombre || ' ' || re2.nombre as nombre2,
+                    re2.id as id2,
+                    coalesce(re1.color_polilinea, li1.color_polilinea, '#000') as color_polilinea,
+                    coalesce(re2.color_polilinea, li2.color_polilinea, '#000') as color_polilinea2,
+                    coalesce(li1.foto, 'default') as foto,
+                    coalesce(li2.foto, 'default') as foto2,
+                    re1.inicio as inicio,
+                    re2.inicio as inicio2,
+                    re1.fin as fin,
+                    re2.fin as fin2,
+                    ST_AsText(
+                        ST_Line_Substring(
+                            re1.ruta,
+                            ST_Line_Locate_Point(re1.ruta, %(puntoA)s),
+                            ST_Line_Locate_Point(re1.ruta, ST_ClosestPoint(re1.ruta, re2.ruta))
+                            )::Geography
+                        ) as ruta_corta,
+                    ST_AsText(
+                        ST_Line_Substring(
+                            re2.ruta,
+                            ST_Line_Locate_Point(re2.ruta, ST_ClosestPoint(re1.ruta, re2.ruta)),
+                            ST_Line_Locate_Point(re2.ruta, %(puntoB)s)
+                            )::Geography
+                        ) as ruta_corta2,
+                    ST_Length(
+                        ST_Line_Substring(
+                            re1.ruta,
+                            ST_Line_Locate_Point(re1.ruta, %(puntoA)s),
+                            ST_Line_Locate_Point(re1.ruta, ST_ClosestPoint(re1.ruta, re2.ruta))
+                            )::Geography
+                        ) as long_ruta,
+                    ST_Length(
+                        ST_Line_Substring(
+                            re2.ruta,
+                            ST_Line_Locate_Point(re2.ruta, ST_ClosestPoint(re1.ruta, re2.ruta)),
+                            ST_Line_Locate_Point(re2.ruta, %(puntoB)s)
+                            )::Geography
+                        ) as long_ruta2,
+                    ST_Distance_Sphere(ST_GeomFromText(%(puntoA)s), re1.ruta) as long_pata,
+                    ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s), re2.ruta) as long_pata2,
+                    ST_Distance_Sphere(re1.ruta, re2.ruta) as long_pata_transbordo
+
+                FROM
+                    core_recorrido as re1
+                    join core_recorrido as re2 on (re1.id <> re2.id)
+                    join core_linea li1 on li1.id = re1.linea_id
+                    join core_linea li2 on li2.id = re2.linea_id
+                WHERE
+                    ST_DWithin(ST_GeomFromText(%(puntoA)s), re1.ruta, %(rad1)s)
+                    and
+                    ST_DWithin(ST_GeomFromText(%(puntoB)s), re2.ruta, %(rad2)s)
+                    and
+                        ST_DWithin(re1.ruta, re2.ruta, %(gap)s)
+                    and
+                        ST_Line_Locate_Point(re1.ruta, %(puntoA)s)
+                        <
+                        ST_Line_Locate_Point(re1.ruta, ST_ClosestPoint(re1.ruta, re2.ruta) )
+                    and
+                        ST_Line_Locate_Point(re2.ruta, ST_ClosestPoint(re1.ruta, re2.ruta) )
+                        <
+                        ST_Line_Locate_Point(re2.ruta, %(puntoB)s)
+                ) as subquery
+            ORDER BY (cast(long_pata+long_pata2+long_pata_transbordo as integer)*100 + ( cast(long_ruta as integer) + cast(long_ruta2 as integer) ) ) ASC
+        ;"""
+        query_set = self.raw(query, params)
+        try:
+            return list(query_set)
+        except DatabaseError:
+            return []
+
+    def get_recorridos_sin_paradas(self, puntoA, puntoB, distanciaA, distanciaB):
+        distanciaA = int(distanciaA)
+        distanciaB = int(distanciaB)
+        if not isinstance(puntoA, Point):
+            raise DatabaseError("get_recorridos: PuntoA Expected GEOS Point instance as parameter, %s given" % type(puntoA))
+        if not isinstance(puntoB, Point):
+            raise DatabaseError("get_recorridos: PuntoB Expected GEOS Point instance as parameter, %s given" % type(puntoB))
+        if not isinstance(distanciaA, (int, long)):
+            raise DatabaseError("get_recorridos: distanciaA Expected integer as parameter, %s given" % type(distanciaA))
+        if not isinstance(distanciaB, (int, long)):
+            raise DatabaseError("get_recorridos: distanciaB Expected integer as parameter, %s given" % type(distanciaB))
+        puntoA.set_srid(4326)
+        puntoB.set_srid(4326)
+        distanciaA = 0.0000111 * float(distanciaA) 
+        distanciaB = 0.0000111 * float(distanciaB)
+
+        params = {'puntoA': puntoA.ewkt, 'puntoB': puntoB.ewkt, 'rad1': distanciaA, 'rad2': distanciaB}
+        query = """
+                SELECT
+                    re.id,
+                    li.nombre || ' ' || re.nombre as nombre,
+                    ruta_corta,
+                    round(long_ruta::numeric, 2) as long_ruta,
+                    round(long_pata::numeric, 2) as long_pata,
+                    coalesce(re.color_polilinea, li.color_polilinea, '#000') as color_polilinea,
+                    coalesce(li.foto, 'default') as foto
+                FROM
+                    core_linea as li join
+                    (
+                        SELECT
+                            id,
+                            nombre,
+                            ST_AsText(min_path(ruta_corta)) as ruta_corta,
+                            min(long_ruta) as long_ruta,
+                            min(long_pata) as long_pata,
+                            linea_id,
+                            color_polilinea
+                        FROM
+                        (
+                            (
+                                SELECT
+                                    *,
+                                    ST_Length(ruta_corta::Geography) as long_ruta,
+                                    ST_Distance_Sphere(ST_GeomFromText(%(puntoA)s),ruta_corta) +
+                                    ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s),ruta_corta) as long_pata
+                                FROM
+                                (
+                                    SELECT
+                                        *,
+                                        ST_Line_Substring(
+                                            ST_Line_Substring(ruta, 0, 0.5),
+                                            ST_Line_Locate_Point(ST_Line_Substring(ruta, 0, 0.5),       %(puntoA)s),
+                                            ST_Line_Locate_Point(ST_Line_Substring(ruta, 0, 0.5),       %(puntoB)s)
+                                        ) as ruta_corta
+                                    FROM
+                                        core_recorrido
+                                    WHERE
+                                        ST_DWithin(ST_GeomFromText(%(puntoA)s), ST_Line_Substring(ruta, 0, 0.5), %(rad1)s) and
+                                        ST_DWithin(ST_GeomFromText(%(puntoB)s), ST_Line_Substring(ruta, 0, 0.5), %(rad2)s) and
+                                        ST_Line_Locate_Point(ST_Line_Substring(ruta, 0, 0.5), %(puntoA)s) <
+                                            ST_Line_Locate_Point(ST_Line_Substring(ruta, 0, 0.5), %(puntoB)s)
+                                ) as primera_inner
+                            )
+                            UNION
+                            (
+                                SELECT
+                                    *,
+                                    ST_Length(ruta_corta::Geography) as long_ruta,
+                                    ST_Distance_Sphere(ST_GeomFromText(%(puntoA)s),ruta_corta) + ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s),ruta_corta) as long_pata
+                                FROM
+                                (
+                                    SELECT
+                                        *,
+                                        ST_Line_Substring(
+                                            ST_Line_Substring(ruta, 0.5, 1),
+                                            ST_Line_Locate_Point(ST_Line_Substring(ruta, 0.5, 1),       %(puntoA)s),
+                                            ST_Line_Locate_Point(ST_Line_Substring(ruta, 0.5, 1),       %(puntoB)s)
+                                        ) as ruta_corta
+                                    FROM
+                                        core_recorrido
+                                    WHERE
+                                        ST_DWithin(ST_GeomFromText(%(puntoA)s), ST_Line_Substring(ruta, 0.5, 1), %(rad1)s) and
+                                        ST_DWithin(ST_GeomFromText(%(puntoB)s), ST_Line_Substring(ruta, 0.5, 1), %(rad2)s) and
+                                        ST_Line_Locate_Point(ST_Line_Substring(ruta, 0.5, 1), %(puntoA)s) <
+                                        ST_Line_Locate_Point(ST_Line_Substring(ruta, 0.5, 1), %(puntoB)s)
+                                ) as segunda_inner
+                            )
+                            UNION
+                            (
+                                SELECT
+                                    *,
+                                    ST_Length(ruta_corta::Geography) as long_ruta,
+                                    ST_Distance_Sphere(ST_GeomFromText(%(puntoA)s),ruta_corta) + ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s),ruta_corta) as long_pata
+                                FROM
+                                (
+                                    SELECT
+                                        *,
+                                        ST_Line_Substring(
+                                            ruta,
+                                            ST_Line_Locate_Point(ruta, %(puntoA)s),
+                                            ST_Line_Locate_Point(ruta, %(puntoB)s)
+                                        ) as ruta_corta
+                                    FROM
+                                        core_recorrido
+                                    WHERE
+                                        ST_DWithin(ST_GeomFromText(%(puntoA)s), ruta, %(rad1)s) and
+                                        ST_DWithin(ST_GeomFromText(%(puntoB)s), ruta, %(rad2)s) and
+                                        ST_Line_Locate_Point(ruta, %(puntoA)s) <
+                                        ST_Line_Locate_Point(ruta, %(puntoB)s)
+                                ) as completa_inner
+                            )
+                        ) as interior
+                        GROUP BY
+                            id,
+                            linea_id,
+                            nombre,
+                            color_polilinea
+                    ) as re
+                    on li.id = re.linea_id
+                    ORDER BY
+                        long_pata*10 + long_ruta asc
+            ;"""
+
+        query_set = self.raw(query, params)
+        return list(query_set)
+
+
+    def get_recorridos_combinados_sin_paradas(self, puntoA, puntoB, distanciaA, distanciaB, gap):
+        distanciaA = int(distanciaA)
+        distanciaB = int(distanciaB)
+        gap = int(gap)
+        if not isinstance(puntoA, Point):
+            raise DatabaseError("get_recorridos: PuntoA Expected GEOS Point instance as parameter, %s given" % type(puntoA))
+        if not isinstance(puntoB, Point):
+            raise DatabaseError("get_recorridos: PuntoB Expected GEOS Point instance as parameter, %s given" % type(puntoB))
+        if not isinstance(distanciaA, (int, long)):
+            raise DatabaseError("get_recorridos: distanciaA Expected integer as parameter, %s given" % type(distanciaA))
+        if not isinstance(distanciaB, (int, long)):
+            raise DatabaseError("get_recorridos: distanciaB Expected integer as parameter, %s given" % type(distanciaB))
+        if not isinstance(gap, (int, long)):
+            raise DatabaseError("get_recorridos: gap Expected integer as parameter, %s given" % type(gap))
+        puntoA.set_srid(4326)
+        puntoB.set_srid(4326)
+        distanciaA = 0.0000111 * float(distanciaA) 
+        distanciaB = 0.0000111 * float(distanciaB)
+        gap = 0.0000111 * float(gap) 
+
+        connection.cursor().execute('SET STATEMENT_TIMEOUT=45000')
+
+        params = {'puntoA': puntoA.ewkt, 'puntoB': puntoB.ewkt, 'rad1': distanciaA, 'rad2': distanciaB, 'gap': gap}
+        query = """
+            SELECT
+                id,
+                nombre,
+                nombre2,
+                id2,
+                color_polilinea,
+                color_polilinea2,
+                foto,
+                foto2,
+                inicio,
+                inicio2,
+                fin,
+                fin2,
+                ST_AsText(ruta_corta) as ruta_corta,
+                ST_AsText(ruta_corta2) as ruta_corta2,
+                long_ruta,
+                long_ruta2,
+                long_pata,
+                long_pata2,
+                long_pata_transbordo,
+                null as p11ll,
+                null as p12ll,
+                null as p21ll,
+                null as p22ll
+            FROM (
+                SELECT
+                    re1.id as id,
+                    li1.nombre || ' ' || re1.nombre as nombre,
+                    li2.nombre || ' ' || re2.nombre as nombre2,
+                    re2.id as id2,
+                    coalesce(re1.color_polilinea, li1.color_polilinea, '#000') as color_polilinea,
+                    coalesce(re2.color_polilinea, li2.color_polilinea, '#000') as color_polilinea2,
+                    coalesce(li1.foto, 'default') as foto,
+                    coalesce(li2.foto, 'default') as foto2,
+                    re1.inicio as inicio,
+                    re2.inicio as inicio2,
+                    re1.fin as fin,
+                    re2.fin as fin2,
+                    ST_AsText(
+                        ST_Line_Substring(
+                            re1.ruta,
+                            ST_Line_Locate_Point(re1.ruta, %(puntoA)s),
+                            ST_Line_Locate_Point(re1.ruta, ST_ClosestPoint(re1.ruta, re2.ruta))
+                            )::Geography
+                        ) as ruta_corta,
+                    ST_AsText(
+                        ST_Line_Substring(
+                            re2.ruta,
+                            ST_Line_Locate_Point(re2.ruta, ST_ClosestPoint(re1.ruta, re2.ruta)),
+                            ST_Line_Locate_Point(re2.ruta, %(puntoB)s)
+                            )::Geography
+                        ) as ruta_corta2,
+                    ST_Length(
+                        ST_Line_Substring(
+                            re1.ruta,
+                            ST_Line_Locate_Point(re1.ruta, %(puntoA)s),
+                            ST_Line_Locate_Point(re1.ruta, ST_ClosestPoint(re1.ruta, re2.ruta))
+                            )::Geography
+                        ) as long_ruta,
+                    ST_Length(
+                        ST_Line_Substring(
+                            re2.ruta,
+                            ST_Line_Locate_Point(re2.ruta, ST_ClosestPoint(re1.ruta, re2.ruta)),
+                            ST_Line_Locate_Point(re2.ruta, %(puntoB)s)
+                            )::Geography
+                        ) as long_ruta2,
+                    ST_Distance_Sphere(ST_GeomFromText(%(puntoA)s), re1.ruta) as long_pata,
+                    ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s), re2.ruta) as long_pata2,
+                    ST_Distance_Sphere(re1.ruta, re2.ruta) as long_pata_transbordo
+
+                FROM
+                    core_recorrido as re1
+                    join core_recorrido as re2 on (re1.id <> re2.id)
+                    join core_linea li1 on li1.id = re1.linea_id
+                    join core_linea li2 on li2.id = re2.linea_id
+                WHERE
+                    ST_DWithin(ST_GeomFromText(%(puntoA)s), re1.ruta, %(rad1)s)
+                    and
+                    ST_DWithin(ST_GeomFromText(%(puntoB)s), re2.ruta, %(rad2)s)
+                    and
+                        ST_DWithin(re1.ruta, re2.ruta, %(gap)s)
+                    and
+                        ST_Line_Locate_Point(re1.ruta, %(puntoA)s)
+                        <
+                        ST_Line_Locate_Point(re1.ruta, ST_ClosestPoint(re1.ruta, re2.ruta) )
+                    and
+                        ST_Line_Locate_Point(re2.ruta, ST_ClosestPoint(re1.ruta, re2.ruta) )
+                        <
+                        ST_Line_Locate_Point(re2.ruta, %(puntoB)s)
+                ) as subquery
+            ORDER BY (cast(long_pata+long_pata2+long_pata_transbordo as integer)*100 + ( cast(long_ruta as integer) + cast(long_ruta2 as integer) ) ) ASC
+        ;"""
+        query_set = self.raw(query, params)
+        try:
+            return list(query_set)
+        except DatabaseError:
+            return []
