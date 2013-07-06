@@ -415,8 +415,8 @@
                     if ( id == 1 ) data1=data
                     else data2=data
                     if ( data1 !== null && data2 !== null ) {
-                        piwikTracker.trackSiteSearch( $("#inputDesde").val(), "Desde", data1.length )
-                        piwikTracker.trackSiteSearch( $("#inputHasta").val(), "Hasta", data2.length )
+                        try { piwikTracker.trackSiteSearch( $("#inputDesde").val(), "Desde", data1.length ) } catch(err) {}
+                        try { piwikTracker.trackSiteSearch( $("#inputHasta").val(), "Hasta", data2.length ) } catch(err) {}
                         $("#listSuggest").tmpl([{ data1: data1, data2: data2 }]).appendTo($("#sidebarResultados").empty())
                         bindearEventos(false);
                     }
