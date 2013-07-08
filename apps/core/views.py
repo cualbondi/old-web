@@ -4,7 +4,7 @@ from django.template import RequestContext
 from django.template.defaultfilters import slugify
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
@@ -15,8 +15,10 @@ from django.contrib.comments.views.comments import CommentPostBadRequest
 from django.utils import simplejson
 from olwidget.widgets import InfoMap
 from django.http import HttpResponse
+import sys
+from django.contrib.gis.geos import GEOSGeometry
 
-from apps.core.models import Linea, Recorrido, Tarifa
+from apps.core.models import Linea, Recorrido, Tarifa, RecorridoProposed
 from apps.catastro.models import Ciudad, ImagenCiudad
 from apps.core.forms import LineaForm, RecorridoForm
 
@@ -190,7 +192,8 @@ def redirect_nuevas_urls(request, ciudad=None, linea=None, ramal=None, recorrido
     else:
         return HttpResponse(status=501)
 
-
+@ensure_csrf_cookie
+@csrf_protect
 def editor_recorrido(request, id_recorrido):
     if request.method == 'GET':
         recorrido = get_object_or_404(Recorrido, pk=id_recorrido)
@@ -200,15 +203,21 @@ def editor_recorrido(request, id_recorrido):
             context_instance=RequestContext(request)
         )
     elif request.method == 'POST':
-        if request.POST.get("mode") == 'draft':
-            pass
-        elif request.POST.get("mode") == 'save':
-            pass
+        if request.POST.get("mode") == 'save':
+            mode = "save"
+        else:
+            mode = "draft"
         # request.POST.get("id")
         recorrido = get_object_or_404(Recorrido, pk=id_recorrido)
-        newR = RecorridoProposal(recorrido)
-        print(newR)
-
+        # sys.stderr.write(str(GEOSGeometry(request.POST.get("geojson"))))
+        newR = RecorridoProposed(
+            recorrido = recorrido,
+            nombre = recorrido.nombre,
+            linea = recorrido.linea,
+            ruta = GEOSGeometry(request.POST.get("geojson"))
+        )
+        # TODO: newR.save()
+        return HttpResponse('')
 
 @login_required(login_url="/usuarios/login/")
 def agregar_linea(request):
