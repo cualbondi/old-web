@@ -191,6 +191,25 @@ def redirect_nuevas_urls(request, ciudad=None, linea=None, ramal=None, recorrido
         return HttpResponse(status=501)
 
 
+def editor_recorrido(request, id_recorrido):
+    if request.method == 'GET':
+        recorrido = get_object_or_404(Recorrido, pk=id_recorrido)
+        return render_to_response(
+            'core/editor_recorrido.html',
+            {'recorrido': recorrido},
+            context_instance=RequestContext(request)
+        )
+    elif request.method == 'POST':
+        if request.POST.get("mode") == 'draft':
+            pass
+        elif request.POST.get("mode") == 'save':
+            pass
+        # request.POST.get("id")
+        recorrido = get_object_or_404(Recorrido, pk=id_recorrido)
+        newR = RecorridoProposal(recorrido)
+        print(newR)
+
+
 @login_required(login_url="/usuarios/login/")
 def agregar_linea(request):
     if request.method == 'POST':
