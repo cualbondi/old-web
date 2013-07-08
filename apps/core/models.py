@@ -123,7 +123,7 @@ class RecorridoProposed(models.Model):
     
     date_create = models.DateField(auto_now_add=True)
     date_update = models.DateField(auto_now=True)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User,blank=True, null=True)
 
     # Si tiene las paradas completas es porque tiene todas las paradas de
     # este recorrido en la tabla paradas+horarios (horarios puede ser null),
