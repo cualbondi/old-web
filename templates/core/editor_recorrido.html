@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Editor de Cualbondi</title>
+	
+	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.2/leaflet.css" />
+	<link rel="stylesheet" href="http://leaflet.github.com/Leaflet.draw/leaflet.draw.css" />
+	<!--[if lte IE 8]>
+		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.2/leaflet.ie.css" />
+		<link rel="stylesheet" href="http://leaflet.github.com/Leaflet.draw/leaflet.draw.ie.css" />
+	<![endif]-->
+
+	<script src="http://cdn.leafletjs.com/leaflet-0.6.2/leaflet.js"></script>
+	<script src="http://leaflet.github.com/Leaflet.draw/leaflet.draw.js"></script>
+</head>
+<body>
+	<div id="map" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
+	
+	<script>
+		
+		// Load map and base layer
+		var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/997/256/{z}/{x}/{y}.png',
+			cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18}),
+			map = new L.Map('map', {layers: [cloudmade], center: new L.LatLng(-37.7772, 175.2756), zoom: 15 });
+
+		// Create layer to edition
+		var drawnItems = new L.FeatureGroup();
+		map.addLayer(drawnItems);
+
+		// Load the linestring
+		linestring = L.GeoJSON.geometryToLayer({{ recorrido.ruta.geojson|safe }})
+		linestring.setStyle({opacity: 1})
+		drawnItems.addLayer(linestring);
+
+		// Draw control options
+		var drawControl = new L.Control.Draw({
+			draw: {
+				position: 'topleft',
+				polyline: {
+					guidelineDistance: 20,
+					shapeOptions: {
+						stroke: true,
+						color: '#4444EE',
+						weight: 4,
+						opacity: 1,
+						clickable: true
+						}
+					},
+				polygon: false,
+				rectangle: false,
+				circle: false,
+				marker: false,
+			},
+			edit: {
+				featureGroup: drawnItems,
+				edit: {
+					selectedPathOptions: {
+						stroke: true,
+						color: '#0000AA',
+						weight: 5,
+						opacity: 0.5,
+						dashArray: "10,10"
+						}
+					},
+				remove: false
+			}
+		});
+
+		// Linestring singleton, delete all other linestrings when adding new linestring.
+		map.on('draw:created', function (e) {
+			drawnItems.clearLayers();
+			drawnItems.addLayer(e.layer);
+		});
+
+		// Guardar con estado saved en la base de datos via POST ajax
+		map.on('draw:edited', function (e) {
+			// TODO
+		});
+
+		// Add draw control to map
+		map.addControl(drawControl);
+		
+		// Enable edit handler hack from https://github.com/Leaflet/Leaflet.draw/issues/129
+		for (var i in drawControl._toolbars)
+			if (typeof drawControl._toolbars[i]._modes.edit != 'undefined')
+				editHandler = drawControl._toolbars[i]._modes.edit.handler;
+		editHandler.enable();
+
+		// Move map to actual linestring
+		map.fitBounds(drawnItems.getBounds());
+
+	</script>
+</body>
+</html>

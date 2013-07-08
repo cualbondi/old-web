@@ -8,6 +8,9 @@ urlpatterns = patterns('',
 #    url(r'^lineas/agregar/$', 'apps.core.views.agregar_linea', name='agregar_linea'),
 #    url(r'^recorridos/agregar/$', 'apps.core.views.agregar_recorrido', name='agregar_recorrido'),
 
+    # Editor
+    url(r'^editor/(?P<id_recorrido>\d+)/$', 'apps.core.views.editor_recorrido', name='editor_recorrido'),
+
     # Redirects para las URLs viejas
     url(r'^recorridos/$', 'apps.core.views.redirect_nuevas_urls', name='redirect_nuevas_urls'),
     url(r'^recorridos/(?P<linea>[^/]+)/$', 'apps.core.views.redirect_nuevas_urls', name='redirect_nuevas_urls'),
@@ -27,6 +30,7 @@ urlpatterns = patterns('',
 
     # Recorridos
     url(r'^(?P<nombre_ciudad>[\w-]+)/(?P<nombre_linea>[\w-]+)/(?P<nombre_recorrido>[\w-]+)/$', 'apps.core.views.ver_recorrido', name='ver_recorrido'),
+
 )
 
 #cualbondi.com.ar/la-plata/recorridos/Norte/10/IDA/

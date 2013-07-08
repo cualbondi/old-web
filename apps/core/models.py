@@ -8,6 +8,8 @@ from apps.catastro.models import Ciudad
 from apps.usuarios.models import RecorridoFavorito
 
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
+
 
 class Linea(models.Model):
     nombre = models.CharField(max_length=100)
@@ -96,6 +98,57 @@ class Recorrido(models.Model):
                 'nombre_linea'    : self.linea.slug,
                 'nombre_recorrido': self.slug                
             })
+
+import uuid
+class UUIDField(models.CharField) :
+    
+    def __init__(self, *args, **kwargs):
+        kwargs['max_length'] = kwargs.get('max_length', 64 )
+        kwargs['blank'] = True
+        models.CharField.__init__(self, *args, **kwargs)
+    
+    def pre_save(self, model_instance, add):
+        if add :
+            value = str(uuid.uuid4())
+            setattr(model_instance, self.attname, value)
+            return value
+        else:
+            return super(models.CharField, self).pre_save(model_instance, add)
+            
+            
+class RecorridoProposed(models.Model):
+    recorrido = models.ForeignKey(Recorrido)
+    uuid = UUIDField(editable=False)
+    nombre = models.CharField(max_length=100)
+    linea = models.ForeignKey(Linea)
+    ruta = models.LineStringField()
+    sentido = models.CharField(max_length=100, blank=True, null=True)
+    slug = models.SlugField(max_length=200, blank=True, null=True)
+    inicio = models.CharField(max_length=100, blank=True, null=True)
+    fin = models.CharField(max_length=100, blank=True, null=True)
+    semirrapido = models.BooleanField(default=False)
+    color_polilinea = models.CharField(max_length=20, blank=True, null=True)
+    horarios = models.TextField(blank=True, null=True)
+    pois = models.TextField(blank=True, null=True)
+    descripcion = models.TextField(blank=True, null=True)
+    
+    date_create = models.DateField(auto_now_add=True)
+    date_update = models.DateField(auto_now=True)
+    user = models.ForeignKey(User)
+
+    # Si tiene las paradas completas es porque tiene todas las paradas de
+    # este recorrido en la tabla paradas+horarios (horarios puede ser null),
+    # y se puede utilizar en la busqueda usando solo las paradas.
+    paradas_completas = models.BooleanField(default=False)
+
+    objects = RecorridoManager()
+
+    def __unicode__(self):
+        #return str(self.ciudad_set.all()[0]) + " - " + str(self.linea) + " - " + self.nombre
+        return str(self.linea) + " - " + self.nombre
+
+    class Meta:
+        ordering = ['linea__nombre', 'nombre']
 
 
 class Comercio(models.Model):
