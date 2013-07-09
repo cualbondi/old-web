@@ -203,22 +203,27 @@ def editor_recorrido(request, id_recorrido):
             context_instance=RequestContext(request)
         )
     elif request.method == 'POST':
-        if request.POST.get("mode") == 'save':
-            mode = "save"
-        else:
-            mode = "draft"
-        # request.POST.get("id")
-        recorrido = get_object_or_404(Recorrido, pk=id_recorrido)
-        # sys.stderr.write(str(GEOSGeometry(request.POST.get("geojson"))))
-        newR = RecorridoProposed(
-            recorrido = recorrido,
-            nombre = recorrido.nombre,
-            linea = recorrido.linea,
-            ruta = GEOSGeometry(request.POST.get("geojson")),
-            user = request.user
-        )
-        newR.save()
-        return HttpResponse('')
+		# save anyway! all info is useful
+		if request.POST.get("mode") == 'save':
+			mode = "save"
+		else:
+			mode = "draft"
+		# request.POST.get("id")
+		recorrido = get_object_or_404(Recorrido, pk=id_recorrido)
+		# sys.stderr.write(str(GEOSGeometry(request.POST.get("geojson"))))
+		newR = RecorridoProposed(
+			recorrido = recorrido,
+			nombre = recorrido.nombre,
+			linea = recorrido.linea,
+			ruta = GEOSGeometry(request.POST.get("geojson")),
+			user = request.user if request.user.is_authenticated() else None
+		)
+		newR.save()
+		# save anyway, but respond as forbidden ;)
+		if request.user.is_authenticated():
+			return HttpResponse('')
+		else:
+			return HttpResponse('Forbidden', status=403)
 
 @login_required(login_url="/usuarios/login/")
 def agregar_linea(request):
