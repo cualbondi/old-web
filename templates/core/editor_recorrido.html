@@ -17,6 +17,34 @@
 	<div id="map" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
 	
 	<script>
+
+		L.drawLocal.draw.toolbar.actions.title="Cancelar Dibujo"
+		L.drawLocal.draw.toolbar.actions.text="Cancelar"
+		L.drawLocal.draw.toolbar.buttons.polyline="Trazar un recorrido desde cero"
+		//L.drawLocal.draw.toolbar.buttons.polygon="Draw a polygon"
+		//L.drawLocal.draw.toolbar.buttons.rectangle="Draw a rectangle"
+		//L.drawLocal.draw.toolbar.buttons.circle="Draw a circle"
+		//L.drawLocal.draw.toolbar.buttons.marker="Draw a marker"
+		//L.drawLocal.draw.handlers.circle.tooltip.start="Click and drag to draw circle."
+		//L.drawLocal.draw.handlers.marker.tooltip.start="Click map to place marker."
+		//L.drawLocal.draw.handlers.polygon.tooltip.start="Click to start drawing shape."
+		//L.drawLocal.draw.handlers.polygon.tooltip.cont="Click to continue drawing shape."
+		//L.drawLocal.draw.handlers.polygon.tooltip.end="Click first point to close this shape."
+		L.drawLocal.draw.handlers.polyline.error="<strong>Error:</strong> La figura no puede tener partes que se crucen!"
+		L.drawLocal.draw.handlers.polyline.tooltip.start="Haz click para comenzar un nuevo trazado desde cero."
+		L.drawLocal.draw.handlers.polyline.tooltip.cont="Haz click para continuar el trazado."
+		L.drawLocal.draw.handlers.polyline.tooltip.end="Haz click en el ultimo punto para finalizar el trazado."
+		//L.drawLocal.draw.handlers.rectangle.tooltip.start="Click and drag to draw rectangle."
+		//L.drawLocal.draw.handlers.simpleshape.tooltip.end="Release mouse to finish drawing."
+		L.drawLocal.edit.toolbar.actions.save.title="Guardar Cambios."
+		L.drawLocal.edit.toolbar.actions.save.text="Guardar"
+		L.drawLocal.edit.toolbar.actions.cancel.title="Cancelar edición, descarta los cambios realizados."
+		L.drawLocal.edit.toolbar.actions.cancel.text="Cancelar"
+		L.drawLocal.edit.toolbar.buttons.edit="Editar trazado"
+		//L.drawLocal.edit.toolbar.buttons.remove="Delete layers"
+		L.drawLocal.edit.handlers.edit.tooltip.text="Arrastra los nodos para modificar el trazado."
+		L.drawLocal.edit.handlers.edit.tooltip.subtext="Haz click en cancelar para deshacer los cambios.";
+		//L.drawLocal.edit.handlers.remove.tooltip.text="Click on a feature to remove"
 		
 		// jquery.cookie.js
 		(function(d){"function"===typeof define&&define.amd?define(["jquery"],d):d(jQuery)})(function(d){function n(a){return a}function p(a){return decodeURIComponent(a.replace(k," "))}function l(a){0===a.indexOf('"')&&(a=a.slice(1,-1).replace(/\\"/g,'"').replace(/\\\\/g,"\\"));try{return e.json?JSON.parse(a):a}catch(c){}}var k=/\+/g,e=d.cookie=function(a,c,b){if(void 0!==c){b=d.extend({},e.defaults,b);if("number"===typeof b.expires){var g=b.expires,f=b.expires=new Date;f.setDate(f.getDate()+g)}c=e.json?JSON.stringify(c):String(c);return document.cookie=[e.raw?a:encodeURIComponent(a),"=",e.raw?c:encodeURIComponent(c),b.expires?"; expires="+b.expires.toUTCString():"",b.path?"; path="+b.path:"",b.domain?"; domain="+b.domain:"",b.secure?"; secure":""].join("")}c=e.raw?n:p;b=document.cookie.split("; ");for(var g=a?void 0:{},f=0,k=b.length;f<k;f++){var h=b[f].split("="),m=c(h.shift()),h=c(h.join("="));if(a&&a===m){g=l(h);break}a||(g[m]=l(h))}return g};e.defaults={};d.removeCookie=function(a,c){return void 0!==d.cookie(a)?(d.cookie(a,"",d.extend({},c,{expires:-1})),!0):!1}});
@@ -105,7 +133,10 @@
 
 		// Move map to actual linestring
 		map.fitBounds(drawnItems.getBounds());
+		
+		
 
+		
 	</script>
 </body>
 </html>
