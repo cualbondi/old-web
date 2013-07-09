@@ -7,6 +7,7 @@ from apps.core.managers import RecorridoManager
 from apps.catastro.models import Ciudad
 from apps.usuarios.models import RecorridoFavorito
 
+from django.core.urlresolvers import reverse
 
 class Linea(models.Model):
     nombre = models.CharField(max_length=100)
@@ -85,6 +86,16 @@ class Recorrido(models.Model):
 
     class Meta:
         ordering = ['linea__nombre', 'nombre']
+    
+    def get_absolute_url(self, ciudad_slug):
+        # chequear si la linea/recorrido está en esta ciudad, sino tirar excepcion
+        # if Ciudad.objects.get(slug=ciudad_slug, lineas=self.linea)
+        return reverse('ver_recorrido',
+            kwargs={
+                'nombre_ciudad'   : ciudad_slug,
+                'nombre_linea'    : self.linea.slug,
+                'nombre_recorrido': self.slug                
+            })
 
 
 class Comercio(models.Model):
