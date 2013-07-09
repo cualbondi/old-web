@@ -214,9 +214,10 @@ def editor_recorrido(request, id_recorrido):
             recorrido = recorrido,
             nombre = recorrido.nombre,
             linea = recorrido.linea,
-            ruta = GEOSGeometry(request.POST.get("geojson"))
+            ruta = GEOSGeometry(request.POST.get("geojson")),
+            user = request.user
         )
-        # TODO: newR.save()
+        newR.save()
         return HttpResponse('')
 
 @login_required(login_url="/usuarios/login/")
