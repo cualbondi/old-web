@@ -1,140 +1,150 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Editor de Cualbondi</title>
-	
-	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.2/leaflet.css" />
-	<link rel="stylesheet" href="http://leaflet.github.com/Leaflet.draw/leaflet.draw.css" />
-	<!--[if lte IE 8]>
-		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.2/leaflet.ie.css" />
-		<link rel="stylesheet" href="http://leaflet.github.com/Leaflet.draw/leaflet.draw.ie.css" />
-	<![endif]-->
-	<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
-	<script src="http://cdn.leafletjs.com/leaflet-0.6.2/leaflet.js"></script>
-	<script src="http://leaflet.github.com/Leaflet.draw/leaflet.draw.js"></script>
+    <title>Editor de Cualbondi</title>
+
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.2/leaflet.css" />
+    <link rel="stylesheet" href="http://leaflet.github.com/Leaflet.draw/leaflet.draw.css" />
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.2/leaflet.ie.css" />
+        <link rel="stylesheet" href="http://leaflet.github.com/Leaflet.draw/leaflet.draw.ie.css" />
+    <![endif]-->
+    <script src="http://cdn.leafletjs.com/leaflet-0.6.2/leaflet.js"></script>
+    <script src="http://leaflet.github.com/Leaflet.draw/leaflet.draw.js"></script>
+
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.pack.js"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.css" type="text/css" media="screen" />
 </head>
 <body>
-	<div id="map" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
-	
-	<script>
+    <div id="map" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
 
-		L.drawLocal.draw.toolbar.actions.title="Cancelar Dibujo"
-		L.drawLocal.draw.toolbar.actions.text="Cancelar"
-		L.drawLocal.draw.toolbar.buttons.polyline="Trazar un recorrido desde cero"
-		//L.drawLocal.draw.toolbar.buttons.polygon="Draw a polygon"
-		//L.drawLocal.draw.toolbar.buttons.rectangle="Draw a rectangle"
-		//L.drawLocal.draw.toolbar.buttons.circle="Draw a circle"
-		//L.drawLocal.draw.toolbar.buttons.marker="Draw a marker"
-		//L.drawLocal.draw.handlers.circle.tooltip.start="Click and drag to draw circle."
-		//L.drawLocal.draw.handlers.marker.tooltip.start="Click map to place marker."
-		//L.drawLocal.draw.handlers.polygon.tooltip.start="Click to start drawing shape."
-		//L.drawLocal.draw.handlers.polygon.tooltip.cont="Click to continue drawing shape."
-		//L.drawLocal.draw.handlers.polygon.tooltip.end="Click first point to close this shape."
-		L.drawLocal.draw.handlers.polyline.error="<strong>Error:</strong> La figura no puede tener partes que se crucen!"
-		L.drawLocal.draw.handlers.polyline.tooltip.start="Haz click para comenzar un nuevo trazado desde cero."
-		L.drawLocal.draw.handlers.polyline.tooltip.cont="Haz click para continuar el trazado."
-		L.drawLocal.draw.handlers.polyline.tooltip.end="Haz click en el ultimo punto para finalizar el trazado."
-		//L.drawLocal.draw.handlers.rectangle.tooltip.start="Click and drag to draw rectangle."
-		//L.drawLocal.draw.handlers.simpleshape.tooltip.end="Release mouse to finish drawing."
-		L.drawLocal.edit.toolbar.actions.save.title="Guardar Cambios."
-		L.drawLocal.edit.toolbar.actions.save.text="Guardar"
-		L.drawLocal.edit.toolbar.actions.cancel.title="Cancelar edición, descarta los cambios realizados."
-		L.drawLocal.edit.toolbar.actions.cancel.text="Cancelar"
-		L.drawLocal.edit.toolbar.buttons.edit="Editar trazado"
-		//L.drawLocal.edit.toolbar.buttons.remove="Delete layers"
-		L.drawLocal.edit.handlers.edit.tooltip.text="Arrastra los nodos para modificar el trazado."
-		L.drawLocal.edit.handlers.edit.tooltip.subtext="Haz click en cancelar para deshacer los cambios.";
-		//L.drawLocal.edit.handlers.remove.tooltip.text="Click on a feature to remove"
-		
-		// jquery.cookie.js
-		(function(d){"function"===typeof define&&define.amd?define(["jquery"],d):d(jQuery)})(function(d){function n(a){return a}function p(a){return decodeURIComponent(a.replace(k," "))}function l(a){0===a.indexOf('"')&&(a=a.slice(1,-1).replace(/\\"/g,'"').replace(/\\\\/g,"\\"));try{return e.json?JSON.parse(a):a}catch(c){}}var k=/\+/g,e=d.cookie=function(a,c,b){if(void 0!==c){b=d.extend({},e.defaults,b);if("number"===typeof b.expires){var g=b.expires,f=b.expires=new Date;f.setDate(f.getDate()+g)}c=e.json?JSON.stringify(c):String(c);return document.cookie=[e.raw?a:encodeURIComponent(a),"=",e.raw?c:encodeURIComponent(c),b.expires?"; expires="+b.expires.toUTCString():"",b.path?"; path="+b.path:"",b.domain?"; domain="+b.domain:"",b.secure?"; secure":""].join("")}c=e.raw?n:p;b=document.cookie.split("; ");for(var g=a?void 0:{},f=0,k=b.length;f<k;f++){var h=b[f].split("="),m=c(h.shift()),h=c(h.join("="));if(a&&a===m){g=l(h);break}a||(g[m]=l(h))}return g};e.defaults={};d.removeCookie=function(a,c){return void 0!==d.cookie(a)?(d.cookie(a,"",d.extend({},c,{expires:-1})),!0):!1}});
-		
-		// Load map and base layer
-		var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/997/256/{z}/{x}/{y}.png',
-			cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18}),
-			map = new L.Map('map', {layers: [cloudmade], center: new L.LatLng(-37.7772, 175.2756), zoom: 15 });
+    <script>
 
-		// Create layer to edition
-		var drawnItems = new L.FeatureGroup();
-		map.addLayer(drawnItems);
+        L.drawLocal.draw.toolbar.actions.title="Cancelar Dibujo"
+        L.drawLocal.draw.toolbar.actions.text="Cancelar"
+        L.drawLocal.draw.toolbar.buttons.polyline="Trazar un recorrido desde cero"
+        //L.drawLocal.draw.toolbar.buttons.polygon="Draw a polygon"
+        //L.drawLocal.draw.toolbar.buttons.rectangle="Draw a rectangle"
+        //L.drawLocal.draw.toolbar.buttons.circle="Draw a circle"
+        //L.drawLocal.draw.toolbar.buttons.marker="Draw a marker"
+        //L.drawLocal.draw.handlers.circle.tooltip.start="Click and drag to draw circle."
+        //L.drawLocal.draw.handlers.marker.tooltip.start="Click map to place marker."
+        //L.drawLocal.draw.handlers.polygon.tooltip.start="Click to start drawing shape."
+        //L.drawLocal.draw.handlers.polygon.tooltip.cont="Click to continue drawing shape."
+        //L.drawLocal.draw.handlers.polygon.tooltip.end="Click first point to close this shape."
+        L.drawLocal.draw.handlers.polyline.error="<strong>Error:</strong> La figura no puede tener partes que se crucen!"
+        L.drawLocal.draw.handlers.polyline.tooltip.start="Haz click para comenzar un nuevo trazado desde cero."
+        L.drawLocal.draw.handlers.polyline.tooltip.cont="Haz click para continuar el trazado."
+        L.drawLocal.draw.handlers.polyline.tooltip.end="Haz click en el ultimo punto para finalizar el trazado."
+        //L.drawLocal.draw.handlers.rectangle.tooltip.start="Click and drag to draw rectangle."
+        //L.drawLocal.draw.handlers.simpleshape.tooltip.end="Release mouse to finish drawing."
+        L.drawLocal.edit.toolbar.actions.save.title="Guardar Cambios."
+        L.drawLocal.edit.toolbar.actions.save.text="Guardar"
+        L.drawLocal.edit.toolbar.actions.cancel.title="Cancelar edición, descarta los cambios realizados."
+        L.drawLocal.edit.toolbar.actions.cancel.text="Cancelar"
+        L.drawLocal.edit.toolbar.buttons.edit="Editar trazado"
+        //L.drawLocal.edit.toolbar.buttons.remove="Delete layers"
+        L.drawLocal.edit.handlers.edit.tooltip.text="Arrastra los nodos para modificar el trazado."
+        L.drawLocal.edit.handlers.edit.tooltip.subtext="Haz click en cancelar para deshacer los cambios.";
+        //L.drawLocal.edit.handlers.remove.tooltip.text="Click on a feature to remove"
 
-		// Load the linestring
-		linestring = L.GeoJSON.geometryToLayer({{ recorrido.ruta.geojson|safe }})
-		linestring.setStyle({opacity: 1})
-		drawnItems.addLayer(linestring);
+        // jquery.cookie.js
+        (function(d){"function"===typeof define&&define.amd?define(["jquery"],d):d(jQuery)})(function(d){function n(a){return a}function p(a){return decodeURIComponent(a.replace(k," "))}function l(a){0===a.indexOf('"')&&(a=a.slice(1,-1).replace(/\\"/g,'"').replace(/\\\\/g,"\\"));try{return e.json?JSON.parse(a):a}catch(c){}}var k=/\+/g,e=d.cookie=function(a,c,b){if(void 0!==c){b=d.extend({},e.defaults,b);if("number"===typeof b.expires){var g=b.expires,f=b.expires=new Date;f.setDate(f.getDate()+g)}c=e.json?JSON.stringify(c):String(c);return document.cookie=[e.raw?a:encodeURIComponent(a),"=",e.raw?c:encodeURIComponent(c),b.expires?"; expires="+b.expires.toUTCString():"",b.path?"; path="+b.path:"",b.domain?"; domain="+b.domain:"",b.secure?"; secure":""].join("")}c=e.raw?n:p;b=document.cookie.split("; ");for(var g=a?void 0:{},f=0,k=b.length;f<k;f++){var h=b[f].split("="),m=c(h.shift()),h=c(h.join("="));if(a&&a===m){g=l(h);break}a||(g[m]=l(h))}return g};e.defaults={};d.removeCookie=function(a,c){return void 0!==d.cookie(a)?(d.cookie(a,"",d.extend({},c,{expires:-1})),!0):!1}});
 
-		// Draw control options
-		var drawControl = new L.Control.Draw({
-			draw: {
-				position: 'topleft',
-				polyline: {
-					guidelineDistance: 20,
-					shapeOptions: {
-						stroke: true,
-						color: '#4444EE',
-						weight: 4,
-						opacity: 1,
-						clickable: true
-						}
-					},
-				polygon: false,
-				rectangle: false,
-				circle: false,
-				marker: false,
-			},
-			edit: {
-				featureGroup: drawnItems,
-				edit: {
-					selectedPathOptions: {
-						stroke: true,
-						color: '#0000AA',
-						weight: 5,
-						opacity: 0.5,
-						dashArray: "10,10"
-						}
-					},
-				remove: false
-			}
-		});
+        // Load map and base layer
+        var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/997/256/{z}/{x}/{y}.png',
+            cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18}),
+            map = new L.Map('map', {layers: [cloudmade], center: new L.LatLng(-37.7772, 175.2756), zoom: 15 });
 
-		// Linestring singleton, delete all other linestrings when adding new linestring.
-		map.on('draw:created', function (e) {
-			drawnItems.clearLayers();
-			drawnItems.addLayer(e.layer);
-		});
+        // Create layer to edition
+        var drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
 
-		var jqxhrSave
-		// Guardar con estado saved en la base de datos via POST ajax
-		map.on('draw:edited', function (e) {
-			try { jqxhrSave.cancel() } catch(err) {}
-			jqxhrSave = $.ajax({
-				"method": "POST",
-				"url":"",
-				"data": {
-					"mode": "save",
-					"geojson": JSON.stringify(drawnItems.getLayers()[0].toGeoJSON().geometry)
-					},
-				"beforeSend": function(xhr, settings) { 
-					xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken') ); 
-					}
-			})
-			.done(function() { console.log("success"); })
-			.fail(function() { console.log("error"); })
-		});
+        // Load the linestring
+        linestring = L.GeoJSON.geometryToLayer({{ recorrido.ruta.geojson|safe }})
+        linestring.setStyle({opacity: 1})
+        drawnItems.addLayer(linestring);
 
-		// Add draw control to map
-		map.addControl(drawControl);
-		
-		// Enable edit handler hack from https://github.com/Leaflet/Leaflet.draw/issues/129
-		for (var i in drawControl._toolbars)
-			if (typeof drawControl._toolbars[i]._modes.edit != 'undefined')
-				editHandler = drawControl._toolbars[i]._modes.edit.handler;
-		editHandler.enable();
+        // Draw control options
+        var drawControl = new L.Control.Draw({
+            draw: {
+                position: 'topleft',
+                polyline: {
+                    guidelineDistance: 20,
+                    shapeOptions: {
+                        stroke: true,
+                        color: '#4444EE',
+                        weight: 4,
+                        opacity: 1,
+                        clickable: true
+                        }
+                    },
+                polygon: false,
+                rectangle: false,
+                circle: false,
+                marker: false,
+            },
+            edit: {
+                featureGroup: drawnItems,
+                edit: {
+                    selectedPathOptions: {
+                        stroke: true,
+                        color: '#0000AA',
+                        weight: 5,
+                        opacity: 0.5,
+                        dashArray: "10,10"
+                        }
+                    },
+                remove: false
+            }
+        });
 
-		// Move map to actual linestring
-		map.fitBounds(drawnItems.getBounds());
+        // Linestring singleton, delete all other linestrings when adding new linestring.
+        map.on('draw:created', function (e) {
+            drawnItems.clearLayers();
+            drawnItems.addLayer(e.layer);
+        });
+
+        var jqxhrSave
+        // Guardar con estado saved en la base de datos via POST ajax
+        map.on('draw:edited', function (e) {
+            // loguear antes de esto
+            var auth={{ user.is_authenticated|lower }}
+            if ( !auth )
+                $.fancybox({
+                    content: 'Sólo este último paso: Login con facebook<br><button onclick="$.fancybox.close()">Cerrar!</button>'
+                });
+            try { jqxhrSave.cancel() } catch(err) {}
+            jqxhrSave = $.ajax({
+                "method": "POST",
+                "url":"",
+                "data": {
+                    "mode": "save",
+                    "geojson": JSON.stringify(drawnItems.getLayers()[0].toGeoJSON().geometry)
+                    },
+                "beforeSend": function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken') );
+                    }
+            })
+            .done(function() { console.log("success"); })
+            .fail(function() { console.log("error"); })
+        });
+
+        // Add draw control to map
+        map.addControl(drawControl);
+
+        // Enable edit handler hack from https://github.com/Leaflet/Leaflet.draw/issues/129
+        for (var i in drawControl._toolbars)
+            if (typeof drawControl._toolbars[i]._modes.edit != 'undefined')
+                editHandler = drawControl._toolbars[i]._modes.edit.handler;
+        editHandler.enable();
+
+        // Move map to actual linestring
+        map.fitBounds(drawnItems.getBounds());
 
 
-	</script>
+    </script>
 </body>
 </html>
