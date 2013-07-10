@@ -12,7 +12,7 @@ from django.views.decorators.cache import never_cache
 from django.contrib.auth import REDIRECT_FIELD_NAME, login as auth_login
 from django.contrib.sites.models import get_current_site
 from django.template import RequestContext
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 from django.utils.hashcompat import sha_constructor
@@ -58,7 +58,11 @@ def iniciar_sesion(request, template_name='registration/login.html',
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
 
-            return HttpResponseRedirect(redirect_to)
+            if request.is_ajax():
+                return HttpResponse()
+            else:
+                return HttpResponseRedirect(redirect_to)
+
     elif request.method == 'GET':
         if request.user.is_authenticated():
             return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
@@ -78,7 +82,10 @@ def iniciar_sesion(request, template_name='registration/login.html',
         'referer': url_referer
     }
     context.update(extra_context or {})
-    return render_to_response(template_name, context,
+    if request.is_ajax():
+        return HttpResponseForbidden()
+    else:
+        return render_to_response(template_name, context,
                               context_instance=RequestContext(request, current_app=current_app))
 
 
