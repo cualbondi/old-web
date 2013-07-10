@@ -16,6 +16,11 @@
 
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.pack.js"></script>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.css" type="text/css" media="screen" />
+
+    <style media="screen" type="text/css">
+        invalid-data { border: 1px solid red; }
+    </style>
+
 </head>
 <body>
     <div id="map" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
@@ -107,15 +112,41 @@
             drawnItems.addLayer(e.layer);
         });
 
-        var jqxhrSave
-        // Guardar con estado saved en la base de datos via POST ajax
-        map.on('draw:edited', function (e) {
-            // loguear antes de esto
-            var auth={{ user.is_authenticated|lower }}
-            if ( !auth )
-                $.fancybox({
-                    content: 'Sólo este último paso: Login con facebook<br><button onclick="$.fancybox.close()">Cerrar!</button>'
-                });
+        var authenticated={{ user.is_authenticated|lower }}
+
+        function login(){
+            var u = $("#user").val();
+            var p = $("#pass").val();
+            $.ajax({
+                "method": "POST",
+                "url":"{% url 'apps.usuarios.views.iniciar_sesion' %}",
+                "data": {
+                    "username": u,
+                    "password": p
+                    },
+                "headers": {"X-CSRFToken": $.cookie('csrftoken') }
+            }).done(function(data, textStatus, jqXHR){
+                console.log(200)
+                // login success
+                authenticated = true
+                $.fancybox.close();
+                guardarRecorrido()
+            }).fail(function(data, textStatus, jqXHR){
+                console.log("otro" )
+                // error login
+                $("#user").addClass("invalid-data");
+                $("#pass").addClass("invalid-data");
+                authenticated = false
+            })
+        }
+
+        function openLogin() {
+            $.fancybox({
+                content: '<input id="user" placeholder="User"><br><input id="pass" placeholder="Password" type="password"><br><button onclick="$.fancybox.close()">Cerrar!</button><button onclick="login()">Login!</button>'
+            });        
+        }
+
+        function guardarRecorrido() {
             try { jqxhrSave.cancel() } catch(err) {}
             jqxhrSave = $.ajax({
                 "method": "POST",
@@ -128,8 +159,18 @@
                     xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken') );
                     }
             })
-            .done(function() { console.log("success"); })
-            .fail(function() { console.log("error"); })
+            .done(function() {  })
+            .fail(function() { if(!$.fancybox.isOpen) openLogin() })
+        }
+
+        var jqxhrSave
+        // Guardar con estado saved en la base de datos via POST ajax
+        map.on('draw:edited', function (e) {
+            guardarRecorrido()
+            if ( !authenticated ) {
+                openLogin()            
+                throw "not auth"
+            }
         });
 
         // Add draw control to map
