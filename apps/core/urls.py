@@ -9,6 +9,9 @@ urlpatterns = patterns('',
 #    url(r'^recorridos/agregar/$', 'apps.core.views.agregar_recorrido', name='agregar_recorrido'),
 
     # Editor
+    url(r'^editor/moderar/$', 'apps.core.views.mostrar_ediciones', name='mostrar_ediciones'),
+    url(r'^editor/moderar/id:(?P<id>\d+)/$', 'apps.core.views.moderar_ediciones_id', name='moderar_ediciones_id'),
+    url(r'^editor/moderar/uuid:(?P<uuid>[-\w]+)/$', 'apps.core.views.moderar_ediciones_uuid', name='moderar_ediciones_uuid'),
     url(r'^editor/(?P<id_recorrido>\d+)/$', 'apps.core.views.editor_recorrido', name='editor_recorrido'),
 
     # Redirects para las URLs viejas

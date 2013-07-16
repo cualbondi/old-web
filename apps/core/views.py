@@ -232,6 +232,68 @@ def editor_recorrido(request, id_recorrido):
         return HttpResponse(status=501)
 
 @login_required(login_url="/usuarios/login/")
+@ensure_csrf_cookie
+@csrf_protect
+def mostrar_ediciones(request):
+    # chequear capability moderar_ediciones
+    # por get, sin id: mostrar ultimos recorridos en la tabla de ediciones
+    # por get con uuid: mostrar ese recorrido con diff con el parent o con el que esta publicado (recorrido_id)
+    # por post con uuid: aceptar ese recorrido: mover de la tabla ediciones a la tabla posta con el recorrido_id
+    if request.method == 'GET':
+        ediciones = RecorridoProposed.objects.all().order_by('-date_update')[:50]
+        return render_to_response(
+            'core/moderacion_listado.html',
+            {'ediciones': ediciones},
+            context_instance=RequestContext(request)
+        )
+    else:
+        return HttpResponse(status=501)
+
+@login_required(login_url="/usuarios/login/")
+@ensure_csrf_cookie
+@csrf_protect
+def moderar_ediciones_id(request, id=None):
+    # chequear capability moderar_ediciones
+    # por get, sin id: mostrar ultimos recorridos en la tabla de ediciones
+    # por get con uuid: mostrar ese recorrido con diff con el parent o con el que esta publicado (recorrido_id)
+    # por post con uuid: aceptar ese recorrido: mover de la tabla ediciones a la tabla posta con el recorrido_id
+    if request.method == 'GET':
+        ediciones = RecorridoProposed.objects.filter(recorrido__id=id).order_by('-date_update')[:50]
+        original = Recorrido.objects.get(id=id)
+        return render_to_response(
+            'core/moderacion_id.html',
+            {
+                'ediciones': ediciones,
+                'original': original
+            },
+            context_instance=RequestContext(request)
+        )
+    else:
+        return HttpResponse(status=501)
+
+@login_required(login_url="/usuarios/login/")
+@ensure_csrf_cookie
+@csrf_protect
+def moderar_ediciones_uuid(request, uuid=None):
+    # chequear capability moderar_ediciones
+    # por get, sin id: mostrar ultimos recorridos en la tabla de ediciones
+    # por get con uuid: mostrar ese recorrido con diff con el parent o con el que esta publicado (recorrido_id)
+    # por post con uuid: aceptar ese recorrido: mover de la tabla ediciones a la tabla posta con el recorrido_id
+    if request.method == 'GET':
+        ediciones = RecorridoProposed.objects.filter(uuid=uuid).order_by('-date_update')[:50]
+        original = Recorrido.objects.get(id=ediciones[0].recorrido.id)
+        return render_to_response(
+            'core/moderacion_id.html',
+            {
+                'ediciones': ediciones,
+                'original': original
+            },
+            context_instance=RequestContext(request)
+        )
+    else:
+        return HttpResponse(status=501)
+
+@login_required(login_url="/usuarios/login/")
 def agregar_linea(request):
     if request.method == 'POST':
         form = LineaForm(request.POST)
