@@ -203,27 +203,33 @@ def editor_recorrido(request, id_recorrido):
             context_instance=RequestContext(request)
         )
     elif request.method == 'POST':
-		# save anyway! all info is useful
-		if request.POST.get("mode") == 'save':
-			mode = "save"
-		else:
-			mode = "draft"
-		# request.POST.get("id")
-		recorrido = get_object_or_404(Recorrido, pk=id_recorrido)
-		# sys.stderr.write(str(GEOSGeometry(request.POST.get("geojson"))))
-		newR = RecorridoProposed(
-			recorrido = recorrido,
-			nombre = recorrido.nombre,
-			linea = recorrido.linea,
-			ruta = GEOSGeometry(request.POST.get("geojson")),
-			user = request.user if request.user.is_authenticated() else None
-		)
-		newR.save()
-		# save anyway, but respond as forbidden ;)
-		if request.user.is_authenticated():
-			return HttpResponse('')
-		else:
-			return HttpResponse('Forbidden', status=403)
+        # save anyway! all info is useful
+        if request.POST.get("mode") == 'save':
+            mode = "save"
+        else:
+            mode = "draft"
+        # request.POST.get("id")
+        recorrido = get_object_or_404(Recorrido, pk=id_recorrido)
+        # sys.stderr.write(str(GEOSGeometry(request.POST.get("geojson"))))
+        if ( request.POST.get("uuid") ):
+            r = RecorridoProposed.objects.get(uuid=request.POST.get("uuid"))
+        else:
+            r = RecorridoProposed()
+        r.recorrido = recorrido
+        r.nombre = recorrido.nombre
+        r.linea = recorrido.linea
+        r.ruta = GEOSGeometry(request.POST.get("geojson"))
+        r.user = request.user if request.user.is_authenticated() else None
+        r.parent = recorrido.uuid
+        # save anyway, but respond as forbidden if not auth ;)
+        r.save()
+        data = '{"uuid":"'+r.uuid+'"}'
+        if request.user.is_authenticated():
+            return HttpResponse(data)
+        else:
+            return HttpResponse(data, status=403)
+    else:
+        return HttpResponse(status=501)
 
 @login_required(login_url="/usuarios/login/")
 def agregar_linea(request):

@@ -146,13 +146,21 @@
             });        
         }
 
-        function guardarRecorrido() {
+        uuid = '';
+        function guardarRecorrido(draft) {
+            if (typeof draft === 'undefined')
+                draft = true
+            if (draft)
+                mode = "draft"
+            else
+                mode = "save"
             try { jqxhrSave.cancel() } catch(err) {}
             jqxhrSave = $.ajax({
                 "method": "POST",
                 "url":"",
                 "data": {
-                    "mode": "save",
+                    "mode": draft,
+                    "uuid": uuid,
                     "geojson": JSON.stringify(drawnItems.getLayers()[0].toGeoJSON().geometry)
                     },
                 "beforeSend": function(xhr, settings) {
@@ -161,16 +169,20 @@
             })
             .done(function() {  })
             .fail(function() { if(!$.fancybox.isOpen) openLogin() })
+            .always(function(data) { uuid = JSON.parse(data).uuid; console.log(uuid) })
         }
 
         var jqxhrSave
         // Guardar con estado saved en la base de datos via POST ajax
         map.on('draw:edited', function (e) {
-            guardarRecorrido()
             if ( !authenticated ) {
+                guardarRecorrido(true)
                 openLogin()            
                 throw "not auth"
             }
+            else
+                guardarRecorrido()
+
         });
 
         // Add draw control to map
