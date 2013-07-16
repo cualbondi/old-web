@@ -6,6 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from apps.core.managers import RecorridoManager
 from apps.catastro.models import Ciudad
 from apps.usuarios.models import RecorridoFavorito
+from apps.core.fields import UUIDField
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -33,6 +34,7 @@ class Linea(models.Model):
 
 
 class Recorrido(models.Model):
+    uuid = UUIDField()
     nombre = models.CharField(max_length=100)
     linea = models.ForeignKey(Linea)
     ruta = models.LineStringField()
@@ -98,27 +100,12 @@ class Recorrido(models.Model):
                 'nombre_linea'    : self.linea.slug,
                 'nombre_recorrido': self.slug                
             })
-
-import uuid
-class UUIDField(models.CharField) :
-    
-    def __init__(self, *args, **kwargs):
-        kwargs['max_length'] = kwargs.get('max_length', 64 )
-        kwargs['blank'] = True
-        models.CharField.__init__(self, *args, **kwargs)
-    
-    def pre_save(self, model_instance, add):
-        if add :
-            value = str(uuid.uuid4())
-            setattr(model_instance, self.attname, value)
-            return value
-        else:
-            return super(models.CharField, self).pre_save(model_instance, add)
             
             
 class RecorridoProposed(models.Model):
     recorrido = models.ForeignKey(Recorrido)
-    uuid = UUIDField(editable=False)
+    parent = UUIDField()
+    uuid = UUIDField()
     nombre = models.CharField(max_length=100)
     linea = models.ForeignKey(Linea)
     ruta = models.LineStringField()
