@@ -136,7 +136,9 @@ class RecorridoProposed(models.Model):
 
     class Meta:
         ordering = ['linea__nombre', 'nombre']
-
+        permissions = (
+            ("moderate_recorridos", "Can moderate (accept/decline) recorridos"),
+        )
 
 class Comercio(models.Model):
     nombre = models.CharField(max_length=100)

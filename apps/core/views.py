@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.template import RequestContext
 from django.template.defaultfilters import slugify
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -234,6 +234,7 @@ def editor_recorrido(request, id_recorrido):
 @login_required(login_url="/usuarios/login/")
 @ensure_csrf_cookie
 @csrf_protect
+@permission_required('core.moderate_recorridos')
 def mostrar_ediciones(request):
     # chequear capability moderar_ediciones
     # por get, sin id: mostrar ultimos recorridos en la tabla de ediciones
@@ -252,6 +253,7 @@ def mostrar_ediciones(request):
 @login_required(login_url="/usuarios/login/")
 @ensure_csrf_cookie
 @csrf_protect
+@permission_required('core.moderate_recorridos')
 def moderar_ediciones_id(request, id=None):
     # chequear capability moderar_ediciones
     # por get, sin id: mostrar ultimos recorridos en la tabla de ediciones
@@ -274,6 +276,7 @@ def moderar_ediciones_id(request, id=None):
 @login_required(login_url="/usuarios/login/")
 @ensure_csrf_cookie
 @csrf_protect
+@permission_required('core.moderate_recorridos')
 def moderar_ediciones_uuid(request, uuid=None):
     # chequear capability moderar_ediciones
     # por get, sin id: mostrar ultimos recorridos en la tabla de ediciones
@@ -292,6 +295,8 @@ def moderar_ediciones_uuid(request, uuid=None):
         )
     else:
         return HttpResponse(status=501)
+
+#### HASTA ACA EDITOR FEEDBACKER ####
 
 @login_required(login_url="/usuarios/login/")
 def agregar_linea(request):
