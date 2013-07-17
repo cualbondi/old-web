@@ -1,0 +1,11 @@
+<table>
+    {% for e in ediciones %}
+    <tr>
+        <td>{{ e.linea.nombre }} - {{ e.nombre }}</td>
+        <td><a href="{% url 'apps.core.views.moderar_ediciones_id' id=e.recorrido.id %}">id</a></td>
+        <td><a href="{% url 'apps.core.views.moderar_ediciones_uuid' uuid=e.uuid %}">uuid</a></td>
+    </tr>
+    {% endfor %}
+</table>
+
+
