@@ -78,7 +78,7 @@
         {% with original as e %}
         <tr>
             <td>{{ e.linea.nombre }} - {{ e.nombre }}</td>
-            <td><a href="">id</a></td>
+            <td><a href="{% url 'apps.core.views.moderar_ediciones_id' id=e.id %}">id</a></td>
             <td><a href="">uuid</a></td>
         </tr>
         {% endwith %}

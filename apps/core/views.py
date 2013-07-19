@@ -241,7 +241,7 @@ def mostrar_ediciones(request):
     # por get con uuid: mostrar ese recorrido con diff con el parent o con el que esta publicado (recorrido_id)
     # por post con uuid: aceptar ese recorrido: mover de la tabla ediciones a la tabla posta con el recorrido_id
     if request.method == 'GET':
-        ediciones = RecorridoProposed.objects.all().order_by('-date_update')[:50]
+        ediciones = RecorridoProposed.objects.order_by('-date_update')[:50]
         return render_to_response(
             'core/moderacion_listado.html',
             {'ediciones': ediciones},
