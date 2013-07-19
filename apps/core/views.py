@@ -14,7 +14,7 @@ from django.contrib.comments.views.utils import next_redirect, confirmation_view
 from django.contrib.comments.views.comments import CommentPostBadRequest
 from django.utils import simplejson
 from olwidget.widgets import InfoMap
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 import sys
 from django.contrib.gis.geos import GEOSGeometry
 
@@ -218,6 +218,13 @@ def editor_recorrido(request, id_recorrido):
         r.recorrido = recorrido
         r.nombre = recorrido.nombre
         r.linea = recorrido.linea
+        r.sentido         = recorrido.sentido
+        r.inicio          = recorrido.inicio
+        r.fin             = recorrido.fin
+        r.semirrapido     = recorrido.semirrapido
+        r.color_polilinea = recorrido.color_polilinea
+        r.pois            = recorrido.pois
+        r.descripcion     = recorrido.descripcion
         r.ruta = GEOSGeometry(request.POST.get("geojson"))
         r.user = request.user if request.user.is_authenticated() else None
         r.parent = recorrido.uuid
@@ -232,8 +239,6 @@ def editor_recorrido(request, id_recorrido):
         return HttpResponse(status=501)
 
 @login_required(login_url="/usuarios/login/")
-@ensure_csrf_cookie
-@csrf_protect
 @permission_required('core.moderate_recorridos')
 def mostrar_ediciones(request):
     # chequear capability moderar_ediciones
@@ -251,8 +256,6 @@ def mostrar_ediciones(request):
         return HttpResponse(status=501)
 
 @login_required(login_url="/usuarios/login/")
-@ensure_csrf_cookie
-@csrf_protect
 @permission_required('core.moderate_recorridos')
 def moderar_ediciones_id(request, id=None):
     # chequear capability moderar_ediciones
@@ -274,8 +277,6 @@ def moderar_ediciones_id(request, id=None):
         return HttpResponse(status=501)
 
 @login_required(login_url="/usuarios/login/")
-@ensure_csrf_cookie
-@csrf_protect
 @permission_required('core.moderate_recorridos')
 def moderar_ediciones_uuid(request, uuid=None):
     # chequear capability moderar_ediciones
@@ -295,6 +296,62 @@ def moderar_ediciones_uuid(request, uuid=None):
         )
     else:
         return HttpResponse(status=501)
+
+@login_required(login_url="/usuarios/login/")
+@permission_required('core.moderate_recorridos')
+def moderar_ediciones_uuid_rechazar(request, uuid=None):
+    RecorridoProposed.objects.get(uuid=uuid).logmoderacion_set.create(newStatus='N')
+    #redirect('moderar_ediciones_uuid', uuid=uuid)
+    return HttpResponseRedirect(request.GET.get("next"))
+    
+@login_required(login_url="/usuarios/login/")
+@permission_required('core.moderate_recorridos')
+def moderar_ediciones_uuid_aprobar(request, uuid=None):
+    proposed=RecorridoProposed.objects.get(uuid=uuid)
+    r = proposed.recorrido
+    if not r.uuid:
+        rp = RecorridoProposed(
+            recorrido       = r,
+            nombre          = r.nombre,
+            linea           = r.linea,
+            ruta            = r.ruta,
+            sentido         = r.sentido,
+            slug            = r.slug,
+            inicio          = r.inicio,
+            fin             = r.fin,
+            semirrapido     = r.semirrapido,
+            color_polilinea = r.color_polilinea,
+            pois            = r.pois,
+            descripcion     = r.descripcion
+        )
+        rp.save()
+        proposed.parent=rp.uuid
+        proposed.save()
+    
+    r.recorrido       = proposed.recorrido
+    r.nombre          = proposed.nombre
+    r.linea           = proposed.linea
+    r.ruta            = proposed.ruta
+    r.sentido         = proposed.sentido
+    r.inicio          = proposed.inicio
+    r.fin             = proposed.fin
+    r.semirrapido     = proposed.semirrapido
+    r.color_polilinea = proposed.color_polilinea
+    r.pois            = proposed.pois
+    r.descripcion     = proposed.descripcion
+    r.save()
+    
+    try:
+        parent = RecorridoProposed.objects.get(uuid=proposed.parent)
+        if parent:
+            parent.logmoderacion_set.create(newStatus='R')
+    except ObjectDoesNotExist:
+        pass
+    for rp in RecorridoProposed.objects.filter(current_status='S', recorrido=r.recorrido).exclude(uuid=uuid):
+        rp.logmoderacion_set.create(newStatus='R')
+    proposed.logmoderacion_set.create(newStatus='S')
+    return HttpResponseRedirect(request.GET.get("next"))
+ 
 
 #### HASTA ACA EDITOR FEEDBACKER ####
 

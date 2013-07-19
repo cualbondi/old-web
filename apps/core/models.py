@@ -104,9 +104,9 @@ class Recorrido(models.Model):
 
 MODERATION_CHOICES = (
     ('E', 'Esperando Moderación'),
-    ('A', 'Aceptado'),
-    ('C', 'Rechazado'),
-    ('S', 'Retirado'),
+    ('S', 'Aceptado'),
+    ('N', 'Rechazado'),
+    ('R', 'Retirado'),
 )
 
 class RecorridoProposed(models.Model):
@@ -125,6 +125,7 @@ class RecorridoProposed(models.Model):
     horarios = models.TextField(blank=True, null=True)
     pois = models.TextField(blank=True, null=True)
     descripcion = models.TextField(blank=True, null=True)
+    current_status = models.CharField(max_length=1, choices=MODERATION_CHOICES, default='E')
     
     date_create = models.DateTimeField(auto_now_add=True)
     date_update = models.DateTimeField(auto_now=True)
@@ -138,15 +139,8 @@ class RecorridoProposed(models.Model):
     
     def save(self, *args, **kwargs):
         super(RecorridoProposed, self).save(*args, **kwargs)
-        self.logmoderacion_set.create()
-        
-    def _get_current_status(self):
-        status_list = self.logmoderacion_set.all().order_by('-date_create')
-        if status_list:
-            return status_list[0].newStatus
-        else:
-            return None
-    current_status = property(_get_current_status)
+        if not self.logmoderacion_set:
+            self.logmoderacion_set.create()
     
     def get_current_status_display(self):
         status_list = self.logmoderacion_set.all().order_by('-date_create')
@@ -170,6 +164,12 @@ class LogModeracion(models.Model):
     date_create = models.DateTimeField(auto_now_add=True)
     # Nuevo Estado de la moderación
     newStatus = models.CharField( max_length=1, choices=MODERATION_CHOICES, default='E')
+    
+    def save(self, *args, **kwargs):
+        super(LogModeracion, self).save(*args, **kwargs)
+        if self.recorridoProposed.current_status != self.newStatus:
+            self.recorridoProposed.current_status = self.newStatus
+            self.recorridoProposed.save()
 
 class Comercio(models.Model):
     nombre = models.CharField(max_length=100)

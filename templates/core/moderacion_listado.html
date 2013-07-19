@@ -9,6 +9,8 @@
         <td><a href="{% url 'apps.core.views.moderar_ediciones_uuid' uuid=e.uuid %}">{{ e.date_update }}</a></td>
         <td><a href="{% url 'apps.core.views.moderar_ediciones_id' id=e.recorrido.id %}">{{ e.linea.nombre }} - {{ e.nombre }}</a></td>
         <td>{{ e.get_current_status_display }}</td>
+        <td><a href="{% url 'apps.core.views.moderar_ediciones_uuid_aprobar' uuid=e.uuid %}?next={{ request.path }}">Aprobar</a></td>
+        <td><a href="{% url 'apps.core.views.moderar_ediciones_uuid_rechazar' uuid=e.uuid %}?next={{ request.path }}">Rechazar</a></td>
     </tr>
     {% endfor %}
 </table>

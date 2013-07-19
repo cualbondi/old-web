@@ -28,15 +28,15 @@
         map.addLayer(drawnItems);
 
         // Load the linestring
-        linestring = L.GeoJSON.geometryToLayer({{ original.ruta.geojson|safe }})
-        linestring.setStyle({opacity: 1, color: '#666'})
-        drawnItems.addLayer(linestring);
-
         {% for e in ediciones %}
             linestring = L.GeoJSON.geometryToLayer({{ e.ruta.geojson|safe }})
-            linestring.setStyle({opacity: 1, color: '#606'})
+            linestring.setStyle({opacity: 0.5, color: '#606'})
             drawnItems.addLayer(linestring);
         {% endfor %}
+        
+        linestring = L.GeoJSON.geometryToLayer({{ original.ruta.geojson|safe }})
+        linestring.setStyle({opacity: 0.5, color: '#666'})
+        drawnItems.addLayer(linestring);
 
         function guardarRecorrido() {
             try { jqxhrSave.cancel() } catch(err) {}
