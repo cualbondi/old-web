@@ -8,7 +8,7 @@ init = function() {
         else
             history.back()
     }
-    
+    /*
     document.addEventListener("backbutton", function(e){
         if($.mobile.activePage.is('#inicio')){
             e.preventDefault();
@@ -21,8 +21,10 @@ init = function() {
             atras()
         }
     }, false);
-    
-    $(".back").click(function(e) {
+    */
+    $(".back").bind("click", function(e, ui) {
+        e.preventDefault();
+        event.stopPropagation();
         atras()
         if ($.mobile.activePage.is("#form-busqueda"))
             {}
@@ -49,9 +51,10 @@ init = function() {
                 {"slug":"santa-fe",      "nombre":"Santa Fé"}
             ]}).appendTo($("#listCiudades").empty());
             $("#listCiudades").trigger('create')
-            $('#listCiudades a').on('click', function(e){
+            $('#listCiudades a').bind('click', function(e, ui){
                 e.preventDefault();
-                CIUDAD = $(this).attr('data-slug');
+                event.stopPropagation();
+                CIUDAD = $(this).attr('data-slug');               
                 $.mobile.changePage("#form-busqueda");
             });
           /*      
@@ -74,8 +77,9 @@ init = function() {
         */
 
 
-        $("#boton_buscar").click(function(event) {
+        $("#boton_buscar").bind("click", function(event, ui) {
             event.preventDefault();
+            event.stopPropagation();
             
             $("#tmpl-loader").tmpl().appendTo($("#suggest_Origen_list").empty());
             $("#tmpl-loader").tmpl().appendTo($("#suggest_Destino_list").empty());
@@ -84,14 +88,20 @@ init = function() {
             var slider = $("#slider").val();
 
             if (origen !== '' && destino !== '') {
-
+                $("#opciones_errors").empty()
+                $("#suggest_errors").empty()
                 $.mobile.changePage("#sugerencias");
                 
                 $.ajax({
                     url: API_ENDPOINT  + "catastro/?query=" + origen + "&ciudad=" + CIUDAD,
                     dataType: 'jsonp'
                 }).done(function(data, textStatus, jqXHR){
-                    $("#listSuggest").tmpl({'data': data, 'punto': 'Origen'}).appendTo($("#suggest_Origen_list").empty());
+                    if (data.length > 0) {
+                        $("#listSuggest").tmpl({'data': data, 'punto': 'Origen'}).appendTo($("#suggest_Origen_list").empty());
+                    }
+                    else {
+                        $("#tmpl-errorSuggest").tmpl({'msg': 'No se ha encontrado el origen ingresado"'+origen+'". Por favor, intente volver atrás y modificar la búsuqeda por algo mas genérico u otra localización cercana.'}).appendTo($("#suggest_Origen_list").empty());
+                    }
                     $("#suggest_Origen").listview()
                     $("#suggest_Origen").trigger("create")
                 }).fail(function(jqXHR, textStatus, errorThrown){
@@ -102,7 +112,12 @@ init = function() {
                     url: API_ENDPOINT  + "catastro/?query=" + destino + "&ciudad=" + CIUDAD,
                     dataType: 'jsonp'
                 }).done(function(data, textStatus, jqXHR){
-                    $("#listSuggest").tmpl({'data': data, 'punto': 'Destino'}).appendTo($("#suggest_Destino_list").empty());
+                    if (data.length > 0) {
+                        $("#listSuggest").tmpl({'data': data, 'punto': 'Destino'}).appendTo($("#suggest_Destino_list").empty());
+                    }
+                    else {
+                        $("#tmpl-errorSuggest").tmpl({'msg': 'No se ha encontrado el origen ingresado"'+destino+'". Por favor, intente volver atrás y modificar la búsuqeda por algo mas genérico u otra localización cercana.'}).appendTo($("#suggest_Destino_list").empty());
+                    }
                     $("#suggest_Destino").listview()
                     $("#suggest_Destino").trigger("create")
                 }).fail(function(jqXHR, textStatus, errorThrown){
@@ -114,25 +129,60 @@ init = function() {
             }
         });
 
-        $("#boton_aceptar_sugg").click(function(event) {
+
+        var page_resultados = 1;
+        
+        $("#boton_aceptar_sugg").bind("click", function(event, ui) {
             event.preventDefault();
+            event.stopPropagation();
             var origen = $("#controlgroup_Origen input:checked");
             var destino = $("#controlgroup_Destino input:checked");
             if (origen.length > 0 && destino.length > 0){
+                $("#suggest_errors").empty()
                 origen = origen.val().replace("POINT(", "").replace(")","").replace(" ", ",");
                 destino = destino.val().replace("POINT(", "").replace(")","").replace(" ", ",");
                 var radio = $("#slider").val();
+                
+                page_resultados = 1
+
+                $("#tmpl-loader").tmpl().appendTo($("#resultados_content").empty());
 
                 $.ajax({
-                     url: API_ENDPOINT + "recorridos/?origen=" + origen + "&destino=" + destino + "&radio_origen=" + radio + "&radio_destino=" + radio + "&c=" + CIUDAD + "&combinar=false",
+                     url: API_ENDPOINT + "recorridos/?origen=" + origen + "&destino=" + destino + "&radio_origen=" + radio + "&radio_destino=" + radio + "&c=" + CIUDAD + "&combinar=false" + "&p=" + page_resultados,
                      dataType: 'jsonp',
                      success:function(data){
                         if (data.resultados.length > 0){
                             $("#listResultados").tmpl(data).appendTo($("#resultados_content").empty());
                             $("#resultados_content").trigger("create");
                         }else{
-                            $("#resultados_content").html("<p>No se han encontrado resultados...</p>");
+                            $("#resultados_content").html("<div style='text-align:center'>No se han encontrado resultados. Por favor, vuelva a la pantalla anterior e intente aumentar el radio de búsqueda (metros a caminar) o bien modificar los nombres de los lugares a buscar para que sean mas fáciles de encontrar. Gracias!<div>");
                         }
+                        $("#resultados .iscroll-wrapper").iscrollview("refresh");
+
+
+                        $("#resultados .iscroll-wrapper").bind({
+                            "iscroll_onpullup" : function(e) {
+                                page_resultados = page_resultados + 1;
+                                $.ajax({
+                                     url: API_ENDPOINT + "recorridos/?origen=" + origen + "&destino=" + destino + "&radio_origen=" + radio + "&radio_destino=" + radio + "&c=" + CIUDAD + "&combinar=false" + "&p=" + page_resultados,
+                                     dataType: 'jsonp',
+                                     success:function(data){
+                                        if (data.resultados.length > 0){
+                                            $("#listResultados").tmpl(data).appendTo($("#resultados_content"));
+                                            $("#resultados_content").trigger("create");
+                                        }else{
+                                            $("#resultados .iscroll-wrapper .iscroll-pull-label").html("No se han encontrado mas resultados...");
+                                        }
+                                        $("#resultados .iscroll-wrapper").iscrollview("refresh");
+                                     },
+                                     error:function(){
+                                         alert("Error");
+                                     }
+                                });
+                            }
+                        });
+
+
                      },
                      error:function(){
                          alert("Error");
@@ -144,7 +194,6 @@ init = function() {
                 $("#tmpl-errorSuggest").tmpl({'msg': 'Debe seleccionar origen y destino'}).appendTo($("#suggest_errors").empty());
             }
         });
-
 
         $(document).bind( "pagebeforechange", function( e, data ) {
             if ( typeof data.toPage === "string" ) {
@@ -197,6 +246,8 @@ init = function() {
                     })
 
                     e.preventDefault();
+                    event.stopPropagation();
+
                 }
             }
         })

@@ -30,3 +30,7 @@ html, body {
     width    : 100%;
     height   : 30px;
 }​
+
+.ui-icon-geolocation {
+	background-image: url(img/location-icon.png);
+}
