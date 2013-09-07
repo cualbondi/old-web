@@ -33,6 +33,14 @@ RADIO_ORIGEN_DEFAULT = 200
 RADIO_DESTINO_DEFAULT = 200
 LONGITUD_PAGINA = 5
 
+REQUEST_LOGGING_BACKEND = {
+    'name': 'MongoDB',
+    'host': 'localhost',
+    'port': 27017,
+    'db': 'cualbondi',
+    'collection': 'requests'
+}
+
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -112,6 +120,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'apps.api.middlewares.APIRequestLoggingMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
