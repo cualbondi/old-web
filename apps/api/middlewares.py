@@ -47,6 +47,7 @@ class APIRequestLoggingMiddleware(object):
                 'duration_in_seconds': time.time() - request._start,
                 'code': response.status_code,
                 'url': smart_str(request.path_info),
+                'full_url': smart_str(request.get_full_path()),
                 'ip': request.META.get('REMOTE_ADDR'),
                 'get_params': request.GET.dict(),
                 'user_agent': request.META.get('HTTP_USER_AGENT'),
