@@ -12,7 +12,6 @@ from apps.catastro.models import Ciudad, PuntoBusqueda
 from settings import (RADIO_ORIGEN_DEFAULT, RADIO_DESTINO_DEFAULT,
                       CACHE_TIMEOUT, LONGITUD_PAGINA, USE_CACHE)
 
-from mongologger import MongoLog
 try:
     import json
 except ImportError:
@@ -75,7 +74,6 @@ class LineaHandler(BaseHandler):
         else:
             try:
                 response = Linea.objects.get(id=id_linea)
-                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "responseLen":len(response), "responseFirst10":response[:10]})
                 return response
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND
@@ -92,7 +90,6 @@ class LineaRecorridoHandler(BaseHandler):
             try:
                 l = Linea.objects.get(id=id_linea)
                 response = Recorrido.objects.filter(linea=l)
-                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "responseLen":len(response), "responseFirst10":response[:10]})
                 return response
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND
@@ -129,7 +126,7 @@ class RecorridoHandler(BaseHandler):
         return response
 
     def read(self, request, id_recorrido=None):
-        response = {'long_pagina': LONGITUD_PAGINA, 'cached': True}
+        response = {'long_pagina': LONGITUD_PAGINA, 'cached': False}
 
         pagina = request.GET.get('p', 1)
         try:
@@ -169,7 +166,6 @@ class RecorridoHandler(BaseHandler):
             # Filtrar todos los recorridos y devolver solo la pagina pedida
             response['resultados'] = self._paginar(recorridos, pagina)
             response['q'] = query
-            MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "responseLen":len(response['resultados']), "responseFirst10":response['resultados'][:10]})
             return self._encriptar(response)
 
         elif id_recorrido is not None:
@@ -187,7 +183,6 @@ class RecorridoHandler(BaseHandler):
                     'fin': recorrido.fin,
                     'ruta': b64encode(recorrido.ruta.wkt),
                 }
-                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "responseLen":1, "responseFirst10":[response]})
                 return response
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND
@@ -231,9 +226,10 @@ class RecorridoHandler(BaseHandler):
                 else:
                     recorridos = None
 
-                if recorridos is None:
+                if recorridos is not None:
+                    response['cached'] = True
+                else:
                     # No se encontro en la cache, hay que buscarlo en la DB.
-                    response['cached'] = False
                     if not combinar:
                         # Buscar SIN transbordo
                         recorridos = [
@@ -299,7 +295,7 @@ class RecorridoHandler(BaseHandler):
 						#	rec["itinerario"][0]["p2"]
 						#	rec["itinerario"][1]["p1"]
 						#	rec["itinerario"][2]["p2"]
-							
+
                     # Guardar los resultados calculados en memcached
                     if USE_CACHE:
                         self._save_in_cache(origen, destino, radio_origen, radio_destino, combinar, recorridos)
@@ -308,10 +304,7 @@ class RecorridoHandler(BaseHandler):
                 #    return rc.BAD_REQUEST
                 # Filtrar todos los recorridos y devolver solo la pagina pedida
                 response['resultados'] = self._paginar(recorridos, pagina)
-                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "responseLen":len(response['resultados']), "responseFirst10":response['resultados'][:10]})
                 return self._encriptar(response)
-            else:
-                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET})
 
 
 class CatastroHandler(BaseHandler):
@@ -326,7 +319,7 @@ class CatastroHandler(BaseHandler):
             return rc.BAD_REQUEST
         else:
             try:
-                response = [ 
+                response = [
                     {
                         'nombre'    : r['nombre'],
                         'precision' : r['precision'],
@@ -335,7 +328,6 @@ class CatastroHandler(BaseHandler):
                     }
                     for r in PuntoBusqueda.objects.buscar(q, ciudad_actual_slug)
                 ]
-                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "responseLen":len(response), "responseFirst10":response[:10]})
                 return response
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND
@@ -354,7 +346,6 @@ class CalleHandler(BaseHandler):
         else:
             try:
                 response = PuntoBusqueda.objects.interseccion(calle1, calle2)
-                MongoLog({"meta":request.META, "cookies":request.COOKIES, "params":request.GET, "responseLen":len(response), "responseFirst10":response[:10]})
                 return response
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND
