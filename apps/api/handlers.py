@@ -126,7 +126,7 @@ class RecorridoHandler(BaseHandler):
         return response
 
     def read(self, request, id_recorrido=None):
-        response = {'long_pagina': LONGITUD_PAGINA, 'cached': True}
+        response = {'long_pagina': LONGITUD_PAGINA, 'cached': False}
 
         pagina = request.GET.get('p', 1)
         try:
@@ -226,9 +226,10 @@ class RecorridoHandler(BaseHandler):
                 else:
                     recorridos = None
 
-                if recorridos is None:
+                if recorridos is not None:
+                    response['cached'] = True
+                else:
                     # No se encontro en la cache, hay que buscarlo en la DB.
-                    response['cached'] = False
                     if not combinar:
                         # Buscar SIN transbordo
                         recorridos = [
