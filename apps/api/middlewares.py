@@ -41,6 +41,18 @@ class APIRequestLoggingMiddleware(object):
         """
         return "get{0}info".format(request.path.replace('/', '_'))
 
+    def get_json_content(self, request, response):
+        """ Si la request es JSONP, el response content viene wrappeado
+            en una callback. para poder parsear el content como JSON, es
+            necesario eliminar la callback del string.
+        """
+        content = response.content
+        if ("callback" in request.GET and "_" in request.GET):
+            # is JSONP request, remove callback from content
+            callback = request.GET.dict()["callback"]
+            content = content.replace(callback + "(", "")[:-1]
+        return json.loads(content)
+
     def get_generic_info(self, request, response):
         return {
             'timestamp': request._start,
@@ -55,14 +67,13 @@ class APIRequestLoggingMiddleware(object):
             'query_count': len(connection.queries),
         }
 
-    def get_api_catastro_info(self, response):
-        return {'cant_resultados': len(json.loads(response.content))}
+    def get_api_catastro_info(self, json_content):
+        return {'cant_resultados': len(json_content)}
 
-    def get_api_recorridos_info(self, response):
-        data = json.loads(response.content)
+    def get_api_recorridos_info(self, json_content):
         return {
-            'cant_resultados': data['cant'],
-            'cached': data['cached']
+            'cant_resultados': json_content.get('cant'),
+            'cached': json_content.get('cached')
         }
 
     def process_request(self, request):
@@ -77,7 +88,8 @@ class APIRequestLoggingMiddleware(object):
 
             function_name = self.buid_function_name(request)
             if hasattr(self, function_name):
-                info.update(getattr(self, function_name)(response))
+                json_content = self.get_json_content(request, response)
+                info.update(getattr(self, function_name)(json_content))
 
             self.logger.log_request_info(info, request)
         except Exception as e:
