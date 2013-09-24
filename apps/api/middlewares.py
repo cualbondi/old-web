@@ -9,30 +9,38 @@ from settings import REQUEST_LOGGING_BACKEND
 
 
 class MongoDBLogger(object):
+    _connection = None
 
-    def __init__(self):
-        self.conn = pymongo.Connection(
-            "{0}:{1}".format(
-                REQUEST_LOGGING_BACKEND['host'],
-                REQUEST_LOGGING_BACKEND['port']
+    @classmethod
+    def get_mongodb_connection(cls):
+        if cls._connection is not None:
+            return cls._connection
+        try:
+            cls._connection = pymongo.Connection(
+                "{0}:{1}".format(
+                    REQUEST_LOGGING_BACKEND['host'],
+                    REQUEST_LOGGING_BACKEND['port']
+                )
             )
-        )
-        self.db = self.conn[REQUEST_LOGGING_BACKEND['db']]
-        self.collection = self.db[REQUEST_LOGGING_BACKEND['collection']]
-        self.filters = ['/api']
+            return cls._connection
+        except Exception as e:
+            # TODO: Add log here.
+            return None
 
-    def log_request_info(self, info, request):
-        for _filter in self.filters:
-            if not request.path_info.startswith(_filter):
-                return
-
-        self.collection.insert(info)
+    @classmethod
+    def save_document(cls, collection, document):
+        connection = cls.get_mongodb_connection()
+        if connection is None:
+            return
+        db = connection[REQUEST_LOGGING_BACKEND['db']]
+        collection = db[collection]
+        collection.insert(document)
 
 
 class APIRequestLoggingMiddleware(object):
 
     def __init__(self):
-        self.logger = MongoDBLogger()
+        self.filters = ['/api']
 
     def buid_function_name(self, request):
         """ Transforma la URL de la request en el nombre de una funcion
@@ -83,6 +91,10 @@ class APIRequestLoggingMiddleware(object):
         pass
 
     def process_response(self, request, response):
+        for _filter in self.filters:
+            if not request.path_info.startswith(_filter):
+                return response
+
         try:
             info = self.get_generic_info(request, response)
 
@@ -91,9 +103,9 @@ class APIRequestLoggingMiddleware(object):
                 json_content = self.get_json_content(request, response)
                 info.update(getattr(self, function_name)(json_content))
 
-            self.logger.log_request_info(info, request)
+            MongoDBLogger.save_document(REQUEST_LOGGING_BACKEND['collection'], info)
         except Exception as e:
-            # TODO: Mandar estos mensajes de error a archivos de LOG.
-            print "Got error while logging request info: {0}".format(e)
+            # TODO: Add log here.
+            pass
 
         return response
