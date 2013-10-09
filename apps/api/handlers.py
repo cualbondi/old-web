@@ -92,7 +92,7 @@ class PosicionHandler(BaseHandler):
             latlng=point
         )
 
-        return {"success": True}
+        return rc.ALL_OK
 
 
 class LineaHandler(BaseHandler):
