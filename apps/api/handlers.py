@@ -7,7 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.gis.geos import Point
 from django.core.cache import cache
 
-from apps.core.models import Linea, Recorrido, Parada
+from apps.core.models import Linea, Recorrido, Parada, Posicion
 from apps.catastro.models import Ciudad, PuntoBusqueda
 from settings import (RADIO_ORIGEN_DEFAULT, RADIO_DESTINO_DEFAULT,
                       CACHE_TIMEOUT, LONGITUD_PAGINA, USE_CACHE)
@@ -60,6 +60,39 @@ class CiudadRecorridoHandler(BaseHandler):
                 return Ciudad.objects.get(id=id_ciudad).recorridos.all()
             except ObjectDoesNotExist:
                 return rc.NOT_FOUND
+
+
+class PosicionHandler(BaseHandler):
+    allowed_methods = ['POST']
+
+    def create(self, request, id_recorrido):
+        try:
+            recorrido = Recorrido.objects.get(id=id_recorrido)
+        except Recorrido.DoesNotExist:
+            return rc.NOT_FOUND
+
+        lat = request.POST.get('lat')
+        lng = request.POST.get('lng')
+        if not all([lat, lng]):
+            return rc.BAD_REQUEST
+
+        try:
+            lat = float(lat)
+            lng = float(lng)
+        except ValueError:
+            return rc.BAD_REQUEST
+
+        point = 'POINT({lng} {lat})'.format(lat=lat, lng=lng)
+
+        uuid = request.POST.get('uuid')
+
+        Posicion.objects.create(
+            recorrido=recorrido,
+            dispositivo_uuid=uuid,
+            latlng=point
+        )
+
+        return {"success": True}
 
 
 class LineaHandler(BaseHandler):
