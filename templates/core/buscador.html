@@ -28,12 +28,44 @@
                     <input type="text" id="inputDesde" class="input-block-level" placeholder="Desde" {% if desde %}value="{{desde}}"{% endif %}>
                     <input type="text" id="inputHasta" class="input-block-level" placeholder="Hasta" {% if hasta %}value="{{hasta}}"{% endif %}>
                     <p><small>Ejemplos: {{ ciudad_actual.sugerencia }}</small></p>
+                    <div id="button-radio-container">
+                        <small id="button-radio-value">Caminar max. 300 metros</small>
+                        <input id="button-radio" type="text" size="5" value="300" data-slider="true" data-slider-range="200,800" data-slider-step="1">
+                    </div>
                     <div class="btn-group">
                         <a id="button-origendestino" class="btn" title="Cambiar origen por destino"><i class="icon-refresh"></i></a>
+                        <a class="btn" data-toggle="dropdown"><i class="icon-trash"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a id="button-limpiar" tabindex="-1">Limpiar todo</a></li>
+                        </ul>
                         <a id="button-ayuda" class="btn" title="Ayuda"><i class="icon-question-sign"></i></a>
+                    </div>
+                    <div id="modal-ayuda" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                            <h3>Ayuda</h3>
+                        </div>
+                        <div id="modal-ayuda-content" class="modal-body">
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn" data-dismiss="modal" aria-hidden="true">Cerrar</button>
+                        </div>
                     </div>
                     <button id="button-buscarinputs" class="btn btn-primary pull-right" title="Buscar recorridos" type="submit"><i class="icon-search icon-white"></i> Buscar</button>
                     <div style="clear:both;"></div>
+                    <div style="margin-top: 5px;">
+                        <script type="text/javascript"><!--
+                        google_ad_client = "ca-pub-1193419141108967";
+                        /* buscador_links_bajo_inputs_busqueda */
+                        google_ad_slot = "6244739547";
+                        google_ad_width = 468;
+                        google_ad_height = 15;
+                        //-->
+                        </script>
+                        <script type="text/javascript"
+                        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                        </script>
+                    </div>
                     <hr>
                     <div id="sidebarResultados"></div>
                 </div>
@@ -44,27 +76,52 @@
                     <hr>
                     <div id="sidebarResultadosPorNombre"></div>
                 </div>
+                <div>
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1193419141108967";
+                    /* Anuncio 234x60 n1 */
+                    google_ad_slot = "9820069640";
+                    google_ad_width = 234;
+                    google_ad_height = 60;
+                    //-->
+                    </script>
+                    <script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>
+                </div>
             </div>
             <div id="sidebarContenido"></div>
         </div>
     </div>
     <div id="bloque_derecha">
+        <div style="position:absolute; z-index: 1000; top: 0; right: 40%;">
+            <script type="text/javascript"><!--
+            google_ad_client = "ca-pub-1193419141108967";
+            /* Anuncio 234x60 n1 */
+            google_ad_slot = "0175038549";
+            google_ad_width = 234;
+            google_ad_height = 60;
+            //-->
+            </script>
+            <script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>
+        </div>        
         <div id="mapa" class="shadowbox"></div>
     </div>
 {% endblock %}
 
-{% block custom_ready_function %}
-    $(window).bind('resize', function() {
+{% block custom_scripts %}
+<script>
+    $(document).ready(function(){
+        $(window).bind('resize', function() {
+            check_layout();
+        })
         check_layout();
     })
-    check_layout();
-{% endblock %}
+</script>
 
-{% block custom_scripts %}
 <script src="http://openlayers.org/api/OpenLayers.js"></script>
 <script src="{{ STATIC_URL }}js/jquery.RC4.min.js"></script>
+<script src="{{ STATIC_URL }}js/simple-slider.min.js"></script>
 <script src="http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
-<script src="http://maps.google.com/maps/api/js?v=3&amp;libraries=adsense&amp;sensor=false"></script>
+<script src="http://maps.google.com/maps/api/js?v=3&amp;sensor=false"></script>
 <link rel="stylesheet" href="{{ STATIC_URL }}css/openlayers/style.css" type="text/css" />
 
 <script>
@@ -100,13 +157,14 @@
             <li id="res${id}">
                 <a href="#" id="${id}">
                     {% templatetag openvariable %}each itinerario{% templatetag closevariable %}
-                        <div style="margin:0; padding:0">
+                        <div style="margin:0; padding:0; position:relative">
                             <img src="{{ STATIC_URL }}img/micros/30x35/${foto}.png" style="float:left; margin-top: 4px; margin-right: 4px"/>
                             <strong>${nombre}</strong>
                             <br>
                             de ${inicio} a ${fin}
                             <br>
                             distancia: {% templatetag openvariable %}if long_pata{% templatetag closevariable %}${Math.round(long_pata)} m (pie) + {% templatetag openvariable %}/if{% templatetag closevariable %}${Math.round(long_bondi/100)/10} km (bondi)
+                            <span href="${url}" class="btn btn-mini" title="Ver información, horarios y paradas de la línea ${nombre}" target="_blank" style="position:absolute; top:0; right:0"><i class="icon-info-sign"></i></span>
                         </div>
                     {% templatetag openvariable %}/each{% templatetag closevariable %}
                 </a>
@@ -134,10 +192,10 @@
         </script>
 
         <script id="listSuggest" type="text/x-jquery-tmpl">
-        <p>Seleccione la opción correcta</p>
+        <h4>Quiz&aacute;s quiso decir...</h4>
         <div class="well sidebar-nav">
             <ul class="nav nav-list">
-                <li class="nav-header">Origen:</li>
+                <li class="nav-header">Desde:</li>
             </ul>
             {% templatetag openvariable %}if (data1.length>0){% templatetag closevariable %}
                 <ul id="#sug1" class="nav nav-list">
@@ -147,7 +205,7 @@
                 {% templatetag openvariable %}tmpl() "#itemSuggestVacio"{% templatetag closevariable %}
             {% templatetag openvariable %}/if{% templatetag closevariable %}
             <ul class="nav nav-list">
-                <li class="nav-header">Destino:</li>
+                <li class="nav-header">Hasta:</li>
             </ul>
             {% templatetag openvariable %}if (data2.length>0){% templatetag closevariable %}
                 <ul id="#sug2" class="nav nav-list">
@@ -165,7 +223,7 @@
 
         <script id="itemSuggest" type="text/x-jquery-tmpl">
             <li id="sug${domId}{porNombre}">
-                <a class="marcarSuggest" href="#" data_geom="${geom}" data_id="${id}" data_domId="${domId}">${nombre} <span class="distancia">(${(precision*100).toFixed(2)}%)</span></a>
+                <a class="marcarSuggest" href="#" data_geom="${geom}" data_id="${id}" data_domId="${domId}">${nombre}<!-- ${(precision*100).toFixed(2)}% !--></a>
             </li>
         </script>
         <script id="itemSuggestVacio" type="text/x-jquery-tmpl">
@@ -177,26 +235,26 @@
         </script>
 
         <script id="ayudaTempl" type="text/x-jquery-tmpl">
-           <h3>¿Como busco recorridos?</h3>
-           <h4>Campos de búsqueda</h4>
-           <p>Escriba directamente en los campos de texto del panel superior. Puede considerar interseccion de calles, calle y número o lugares de interes. Vea los ejemplos debajo de los campos de búsqueda.</p>
-           <h4>Click sobre el mapa</h4>
-           <p> hacer click directamente sobre el mapa para indicar el Origen y Destino de su búsqueda. Luego puede arrastrar los marcadores A o B para editar su ubicación.</p>
-           <h4>Lineas de micro</h4>
-           <p>Para buscar un recorrido completo de una linea de colectivo en particular, consulte la sección "Recorridos" aqui arriba.</p>
+           <h4>¿Cómo busco recorridos?</h4>
+           <h5>Campos de búsqueda</h5>
+           <p>Escriba directamente en los campos de texto del panel superior. Puede considerar intersección de calles, calle y número o lugares de interes. Vea los ejemplos debajo de los campos de búsqueda.</p>
+           <h5>Click sobre el mapa</h5>
+           <p>Hacer click directamente sobre el mapa para indicar el Origen y Destino de su búsqueda. Luego puede arrastrar los marcadores A o B para editar su ubicación.</p>
+           <h5>Lineas de micro</h5>
+           <p>Para buscar un recorrido completo de una linea de colectivo en particular, consulte la sección "Recorridos" aquí arriba.</p>
         </script>
 
         <script id="vacio1Templ" type="text/x-jquery-tmpl">
-           <h3>No se encontraron resultados sin transbordo</h3>
+           <h4>No se encontraron resultados sin transbordo</h4>
            <p>Si igualmente desea buscar con transbordo, presione el siguiente botón.</p>
            <button id="button_buscar_transbordo" class="btn btn-primary">Buscar con Transbordo</button>
         </script>
         <script id="vacio2Templ" type="text/x-jquery-tmpl">
-           <h3>No se encontraron resultados con transbordo</h3>
+           <h4>No se encontraron resultados con transbordo</h4>
            <p>Puede intentar haciendo click en el mapa para posicionar marcadores de inicio y fin de recorrido o bien mover los marcadores si ya se encuentran en el mapa.</p>
         </script>
         <script id="vacioTempl" type="text/x-jquery-tmpl">
-           <h3>No se encontraron resultados</h3>
+           <h4>No se encontraron resultados</h4>
            <p>Puede intentar nuevamente modificando el nombre de la línea que está buscando por algo mas genérico.</p>
         </script>
 {% endblock %}

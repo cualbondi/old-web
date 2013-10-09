@@ -1,6 +1,7 @@
 {% extends "contenido.html" %}
 
-{% block title %}Cualbondi - Linea {{linea_actual.nombre|title}}, Ramal {{recorrido_actual.nombre|title}}{% if recorrido_actual.inicio and recorrido_actual.fin %}, Recorrido desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}} {% endif %} en {{ciudad_actual.nombre|title}}: Descripción del recorrido de colectivo, micro, bus{% endblock %}
+{% block title %}Linea {{linea_actual.nombre|title}}, Ramal {{recorrido_actual.nombre|title}} en {{ciudad_actual.nombre|title}} - Cualbondi{% if recorrido_actual.inicio and recorrido_actual.fin %}, Recorrido desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}} {% endif %} en {{ciudad_actual.nombre|title}}: Descripción del recorrido de colectivo, micro, bus{% endblock %}
+{% block meta_description %}Toda la información sobre paradas, horarios y tarifas del recorrido {{recorrido_actual.nombre|title}} de la línea {{linea_actual.nombre|title}} que pasa por la ciudad de {{ciudad_actual.nombre|title}}.{% endblock %}
 
 {% block custom_top_scripts %}
     <script src="http://openlayers.org/api/OpenLayers.js"></script>
@@ -27,9 +28,9 @@
 
 {% block bloque_izquierda %}
     <ul class="breadcrumb">
-        <li><a href="/">Inicio</a> <span class="divider">></span></li>
-        <li><a href="/{{ciudad_actual.slug}}">{{ciudad_actual.nombre}}</a> <span class="divider">></span></li>
-        <li><a href="/{{ciudad_actual.slug}}/{{linea_actual.slug}}">{{linea_actual.nombre}}</a> <span class="divider">></span></li>
+        <li><a href="/">Inicio</a> <span class="divider">&gt;</span></li>
+        <li><a href="/{{ciudad_actual.slug}}">{{ciudad_actual.nombre}}</a> <span class="divider">&gt;</span></li>
+        <li><a href="/{{ciudad_actual.slug}}/{{linea_actual.slug}}">{{linea_actual.nombre}}</a> <span class="divider">&gt;</span></li>
         <li class="active">{{recorrido_actual.nombre}} {% if recorrido_actual.inicio and recorrido_actual.fin %}(de {{recorrido_actual.inicio}} a {{recorrido_actual.fin}}){% endif %}</li>
     </ul>
 
@@ -45,7 +46,7 @@
         <br />
     {% endif %}
 
-    <![if (!IE)|(gt IE 7)]>
+    <!--[if (!IE)|(gt IE 7)]-->
         <h3>Dejanos un comentario sobre el recorrido "{{linea_actual.nombre}} {{recorrido_actual.nombre}}"</h3>
         <div id="disqus_thread"></div>
         <script type="text/javascript">
@@ -61,5 +62,5 @@
         </script>
         <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-    <![endif]>
+    <!--[endif]-->
 {% endblock %}

@@ -14,6 +14,7 @@ from django.contrib.comments.views.utils import next_redirect, confirmation_view
 from django.contrib.comments.views.comments import CommentPostBadRequest
 from django.utils import simplejson
 from olwidget.widgets import InfoMap
+from django.http import HttpResponse
 
 from apps.core.models import Linea, Recorrido, Tarifa
 from apps.catastro.models import Ciudad, ImagenCiudad
@@ -59,120 +60,135 @@ def index(request):
         if predeterminada:
             response.set_cookie('default_city', ciudad.id)
         return response
-
+    else:
+        return HttpResponse(status=501)
+        
 
 def ver_ciudad(request, nombre_ciudad):
-    slug_ciudad = slugify(nombre_ciudad)
-    ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
+    if request.method == 'GET':
+        slug_ciudad = slugify(nombre_ciudad)
+        ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
 
-    lineas = natural_sort_qs(ciudad_actual.lineas.all(), 'slug')
-    tarifas = Tarifa.objects.filter(ciudad=ciudad_actual)
+        lineas = natural_sort_qs(ciudad_actual.lineas.all(), 'slug')
+        tarifas = Tarifa.objects.filter(ciudad=ciudad_actual)
 
-    mapa = InfoMap([
-        [ciudad_actual.poligono, {
-            'html': "<p>Special style for this point.</p>",
-            'style': {'fill_color': '#0099CC', 'strokeColor': "#0066CC"},
-        }]],
-        {
-            "map_div_style": {"width": '100%'},
-            "layers": ["google.streets", "osm.mapnik"]  # "google.streets", "google.hybrid", "ve.road", "ve.hybrid", "yahoo.map"]
-        }
-    )
+        mapa = InfoMap([
+            [ciudad_actual.poligono, {
+                'html': "<p>Special style for this point.</p>",
+                'style': {'fill_color': '#0099CC', 'strokeColor': "#0066CC"},
+            }]],
+            {
+                "map_div_style": {"width": '100%'},
+                "layers": ["google.streets", "osm.mapnik"]  # "google.streets", "google.hybrid", "ve.road", "ve.hybrid", "yahoo.map"]
+            }
+        )
 
-    imagenes = ImagenCiudad.objects.filter(ciudad=ciudad_actual)
+        imagenes = ImagenCiudad.objects.filter(ciudad=ciudad_actual)
 
-    return render_to_response('core/ver_ciudad.html',
-                              {'mapa': mapa,
-                               'imagenes': imagenes,
-                               'lineas': lineas,
-                               'tarifas': tarifas},
-                              context_instance=RequestContext(request))
+        return render_to_response('core/ver_ciudad.html',
+                                  {'mapa': mapa,
+                                   'imagenes': imagenes,
+                                   'lineas': lineas,
+                                   'tarifas': tarifas},
+                                  context_instance=RequestContext(request))
+    else:
+        return HttpResponse(status=501)
 
 
 def ver_mapa_ciudad(request, nombre_ciudad):
-    desde = request.GET.get("desde")
-    hasta = request.GET.get("hasta")
-    slug_ciudad = slugify(nombre_ciudad)
-    ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
-    #        "default_lat":ciudad_actual.centro.coords[1],
-    #        "default_lon":ciudad_actual.centro.coords[0],
-#    pois = Poi.objects.filter(ciudad=ciudad_actual)
-#    comercios = Comercio.objects.filter(ciudad=ciudad_actual)
+    if request.method == 'GET':
+        desde = request.GET.get("desde")
+        hasta = request.GET.get("hasta")
+        slug_ciudad = slugify(nombre_ciudad)
+        ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
+        #        "default_lat":ciudad_actual.centro.coords[1],
+        #        "default_lon":ciudad_actual.centro.coords[0],
+    #    pois = Poi.objects.filter(ciudad=ciudad_actual)
+    #    comercios = Comercio.objects.filter(ciudad=ciudad_actual)
 
-    return render_to_response('core/buscador.html', {
-                                    'es_vista_mapa': True,
-                                    'ciudad_actual': ciudad_actual,
-                                    'desde': desde,
-                                    'hasta': hasta,
-                              },
-                              context_instance=RequestContext(request))
-
+        return render_to_response('core/buscador.html', {
+                                        'es_vista_mapa': True,
+                                        'ciudad_actual': ciudad_actual,
+                                        'desde': desde,
+                                        'hasta': hasta,
+                                  },
+                                  context_instance=RequestContext(request))
+    else:
+        return HttpResponse(status=501)
 
 def ver_linea(request, nombre_ciudad, nombre_linea):
-    slug_ciudad = slugify(nombre_ciudad)
-    slug_linea = slugify(nombre_linea)
+    if request.method == 'GET':
+        slug_ciudad = slugify(nombre_ciudad)
+        slug_linea = slugify(nombre_linea)
 
-    ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
-    """ TODO: Buscar solo lineas activas """
-    linea_actual = get_object_or_404(Linea,
-                                     slug=slug_linea,
-                                     ciudad=ciudad_actual)
-    recorridos = natural_sort_qs(Recorrido.objects.filter(linea=linea_actual), 'slug')
+        ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
+        """ TODO: Buscar solo lineas activas """
+        linea_actual = get_object_or_404(Linea,
+                                         slug=slug_linea,
+                                         ciudad=ciudad_actual)
+        recorridos = natural_sort_qs(Recorrido.objects.filter(linea=linea_actual), 'slug')
 
-    return render_to_response('core/ver_linea.html',
-                              {'ciudad_actual': ciudad_actual,
-                               'linea_actual': linea_actual,
-                               'recorridos': recorridos
-                               },
-                              context_instance=RequestContext(request))
-
+        return render_to_response('core/ver_linea.html',
+                                  {'ciudad_actual': ciudad_actual,
+                                   'linea_actual': linea_actual,
+                                   'recorridos': recorridos
+                                   },
+                                  context_instance=RequestContext(request))
+    else:
+        return HttpResponse(status=501)
 
 def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
-    slug_ciudad = slugify(nombre_ciudad)
-    slug_linea = slugify(nombre_linea)
-    slug_recorrido = slugify(nombre_recorrido)
+    if request.method == 'GET':
+        slug_ciudad = slugify(nombre_ciudad)
+        slug_linea = slugify(nombre_linea)
+        slug_recorrido = slugify(nombre_recorrido)
 
-    ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
-    """ TODO: Buscar solo lineas activas """
-    linea_actual = get_object_or_404(Linea,
-                                     slug=slug_linea,
-                                     ciudad=ciudad_actual)
-    """ TODO: Buscar solo recorridos activos """
-    recorrido_actual = get_object_or_404(Recorrido,
-                                         slug=slug_recorrido,
-                                         linea=linea_actual)
+        ciudad_actual = get_object_or_404(Ciudad, slug=slug_ciudad, activa=True)
+        """ TODO: Buscar solo lineas activas """
+        linea_actual = get_object_or_404(Linea,
+                                         slug=slug_linea,
+                                         ciudad=ciudad_actual)
+        """ TODO: Buscar solo recorridos activos """
+        recorrido_actual = get_object_or_404(Recorrido,
+                                             slug=slug_recorrido,
+                                             linea=linea_actual)
 
-    favorito = False
-    if request.user.is_authenticated():
-        favorito = recorrido_actual.es_favorito(request.user)
+        favorito = False
+        if request.user.is_authenticated():
+            favorito = recorrido_actual.es_favorito(request.user)
 
-    return render_to_response('core/ver_recorrido.html',
-                              {'ciudad_actual': ciudad_actual,
-                               'linea_actual': linea_actual,
-                               'recorrido_actual': recorrido_actual,
-                               'favorito': favorito},
-                              context_instance=RequestContext(request))
+        return render_to_response('core/ver_recorrido.html',
+                                  {'ciudad_actual': ciudad_actual,
+                                   'linea_actual': linea_actual,
+                                   'recorrido_actual': recorrido_actual,
+                                   'favorito': favorito},
+                                  context_instance=RequestContext(request))
+    else:
+        return HttpResponse(status=501)
 
 
 def redirect_nuevas_urls(request, ciudad=None, linea=None, ramal=None, recorrido=None):
-    """
-    cualbondi.com.ar/la-plata/recorridos/Norte/10/IDA/ (ANTES)
-    cualbondi.com.ar/la-plata/norte/10-desde-x-hasta-y (DESPUES)
-    cualbondi.com.ar/cordoba/recorridos/T%20(Transversal)/Central/IDA/
-    """
-    url = '/'
-    if not ciudad:
-        ciudad = 'la-plata'
-    url += slugify(ciudad) + '/'
-    if linea:
-        url += slugify(linea) + '/'
-        if ramal and recorrido:
-            try:
-                recorrido = Recorrido.objects.get(linea__nombre=linea, nombre=ramal, sentido=recorrido)
-                url += slugify(recorrido.nombre) + '-desde-' + slugify(recorrido.inicio) + '-hasta-' + slugify(recorrido.fin)
-            except ObjectDoesNotExist:
-                pass
-    return redirect(url)
+    if request.method == 'GET':
+        """
+        cualbondi.com.ar/la-plata/recorridos/Norte/10/IDA/ (ANTES)
+        cualbondi.com.ar/la-plata/norte/10-desde-x-hasta-y (DESPUES)
+        cualbondi.com.ar/cordoba/recorridos/T%20(Transversal)/Central/IDA/
+        """
+        url = '/'
+        if not ciudad:
+            ciudad = 'la-plata'
+        url += slugify(ciudad) + '/'
+        if linea:
+            url += slugify(linea) + '/'
+            if ramal and recorrido:
+                try:
+                    recorrido = Recorrido.objects.get(linea__nombre=linea, nombre=ramal, sentido=recorrido)
+                    url += slugify(recorrido.nombre) + '-desde-' + slugify(recorrido.inicio) + '-hasta-' + slugify(recorrido.fin)
+                except ObjectDoesNotExist:
+                    pass
+        return redirect(url)
+    else:
+        return HttpResponse(status=501)
 
 
 @login_required(login_url="/usuarios/login/")

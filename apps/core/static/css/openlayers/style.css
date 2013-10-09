@@ -127,7 +127,8 @@ div.olControlMousePosition {
     font-family:sans-serif;
 }
 .olLayerGeoRSSTitle {
-    float:left;font-size:1.2em;
+    float:left;
+    font-size:1.2em;
 }
 
 .olPopupContent {
@@ -257,8 +258,15 @@ div.olControlSaveFeaturesItemInactive {
     font-size: 1px;
 }
 
+.olPopup {
+    margin-top: 9px;
+}
+.olPopup img {
+    max-width: none;
+}
+
 .olPopupCloseBox {
-  background: url("img/close.gif") no-repeat;
+  background: url("close.gif") no-repeat;
   cursor: pointer;
 }
 

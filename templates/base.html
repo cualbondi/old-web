@@ -4,10 +4,10 @@
 	    <meta charset="utf-8">
         <link rel="icon" type="image/x-icon" href="{{ STATIC_URL }}img/favicon.png" />
     	<title>{% block title %}Cualbondi{% endblock %}</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="{{ STATIC_URL }}css/fonts.css" rel="stylesheet" type="text/css" />
+		<meta name="description" content="{% block meta_description %}Buscador de recorridos de bondis, colectivos, micros en Argentina.{% endblock %}">
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link href="{{ STATIC_URL }}css/bootstrap.custom.min.css" rel="stylesheet" type="text/css" />
-		<link href="{{ STATIC_URL }}css/estilo.css" rel="stylesheet" type="text/css" />
 
         <meta name="google-site-verification" content="NVSk_0zcZdYua2ILJ4L0DvspOCmHujouihZPlo3mDco">
         <link href="https://plus.google.com/117455886911192315188" rel="publisher">
@@ -22,15 +22,6 @@
         {% block custom_top_scripts %}{% endblock %}
 	</head>
 	<body>
-        <!-- Incluir el SDK de Facebook -->
-        <div id="fb-root"></div>
-        <script>(function(d, s, id) {
-          var js, fjs = d.getElementsByTagName(s)[0];
-          if (d.getElementById(id)) return;
-          js = d.createElement(s); js.id = id;
-          js.src = "//connect.facebook.net/es_LA/all.js#xfbml=1";
-          fjs.parentNode.insertBefore(js, fjs);
-        }(document, 'script', 'facebook-jssdk'));</script>
 
         {% block navbar %}{% endblock %}
 
@@ -41,50 +32,6 @@
 	    <!-- Scripts -->
 	    <script src="{{ STATIC_URL }}js/jquery-1.9.0.min.js"></script>
 	    <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
-
-	    <script src="{{ STATIC_URL }}js/date.format.js"></script>
-
-	    <script src="{{ STATIC_URL }}js/scripts.js"></script>
-        <script type="text/javascript">
-            $.ajaxSetup({
-                 beforeSend: function(xhr, settings) {
-                     function getCookie(name) {
-                         var cookieValue = null;
-                         if (document.cookie && document.cookie != '') {
-                             var cookies = document.cookie.split(';');
-                             for (var i = 0; i < cookies.length; i++) {
-                                 var cookie = jQuery.trim(cookies[i]);
-                                 // Does this cookie string begin with the name we want?
-                             if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                                 break;
-                             }
-                         }
-                     }
-                     return cookieValue;
-                     }
-                     if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
-                         // Only send the token to relative URLs i.e. locally.
-                         xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-                     }
-                 }
-            });
-
-            $(document).ready(function(){
-                $('.dropdown-toggle').dropdown();
-                $('#submit_button').click(function(){
-                    $('#login_form').submit();
-                })
-                $(".navbar-search input.search-query").keypress(function(event){
-                    if (event.which==13){
-                        $('#login_form').submit();
-                    }
-                })
-                $(".alert-message").alert()
-
-                {% block custom_ready_function %}{% endblock %}
-            })
-        </script>
 
 		{% block custom_scripts %}{% endblock %}
 

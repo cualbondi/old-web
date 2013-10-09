@@ -1,14 +1,15 @@
 # -*- coding: UTF-8 -*-
 import json
 import urllib2
-from operator import attrgetter
+from operator import itemgetter
 
 from django.db.models import get_model
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import GEOSGeometry
 
+from django.db import connection
 
-class PuntoBusquedaManager(models.Manager):
+class PuntoBusquedaManager:
     """ Este manager se encarga de convertir una query tipo texto
     en una lista de puntos geográficos que pueden ser usados como origen
     o destino de una búsqueda. Los datos tenidos en cuenta son:
@@ -22,6 +23,26 @@ class PuntoBusquedaManager(models.Manager):
     **Paradas
 
     """
+
+    def dictfetchall(self, cursor):
+        "Returns all rows from a cursor as a dict"
+        desc = cursor.description
+        return [
+            dict(zip([col[0] for col in desc], row))
+            for row in cursor.fetchall()
+        ]
+    
+    def _objfetchall(self, cursor): 
+        "Returns all rows from a cursor as an object, but it's not editable (no setters)" 
+        desc = cursor.description 
+        l = []
+        class Struct:
+            def __init__(self, **entries): 
+                self.__dict__.update(entries)
+        for row in cursor.fetchall():
+            d=dict(zip([col[0] for col in desc], row))
+            l.append(Struct(**d))
+        return l
 
     def buscar(self, query, ciudad_actual_slug=None):
         # podria reemplazar todo esto por un lucene/solr/elasticsearch
@@ -92,21 +113,22 @@ class PuntoBusquedaManager(models.Manager):
             if areas:
                 # para cada resultado aplicar la subida o bajada de puntaje segun el area en la que se encuentra
                 for r in res:
+                    print r['precision']
                     # para cada area en la que este resultado intersecta, sumar o restar
                     for area in areas:
-                        if area.intersects(GEOSGeometry(r.geom)):
+                        if area.intersects(GEOSGeometry(r['geom'])):
                             # sumar un 20% a la precision, sino restar un 20%
-                            r.precision *= 1.8
+                            r['precision'] *= 1.8
                         else:
-                            r.precision *= 0.4
-                    if ciudad_actual.intersects(GEOSGeometry(r.geom)):
-                        r.precision *= 1.8
+                            r['precision'] *= 0.4
+                    if ciudad_actual.intersects(GEOSGeometry(r['geom'])):
+                        r['precision'] *= 1.8
             else:
                 # El punto tiene que estar si o si en la ciudad actual
-                res = [r for r in res if ciudad_actual.intersects(GEOSGeometry(r.geom))]
+                res = [r for r in res if ciudad_actual.intersects(GEOSGeometry(r['geom']))]
 
             # ordenar
-            res.sort(key=attrgetter("precision"), reverse=True)
+            res.sort(key=itemgetter("precision"), reverse=True)
             # si el mejor tiene diferencia de .5 o mas con el segundo y esta sobre el .5 de precision, listo, gano
             # generar alguna otra regla heuristica similar para filtrar
             return res
@@ -154,11 +176,9 @@ class PuntoBusquedaManager(models.Manager):
                     precision DESC
                 LIMIT 5
         ;"""
-        query_set = self.raw(query, params)
-        try:
-            l = list(query_set)
-        except Exception, e:
-            print e
+        cursor = connection.cursor()
+        query_set = cursor.execute(query, params)
+        l = self.dictfetchall(cursor)
         return l
 
     def poi(self, nombre):
@@ -177,8 +197,10 @@ class PuntoBusquedaManager(models.Manager):
                 precision DESC
             LIMIT 5
         ;"""
-        query_set = self.raw(query, params)
-        return list(query_set)
+        cursor = connection.cursor()
+        query_set = cursor.execute(query, params)
+        l = self.dictfetchall(cursor)
+        return l
 
     def zona(self, nombre):
         params = {'nombre': nombre}
@@ -196,21 +218,26 @@ class PuntoBusquedaManager(models.Manager):
                 precision DESC
             LIMIT 5
         ;"""
-        query_set = self.raw(query, params)
-        return list(query_set)
+        cursor = connection.cursor()
+        query_set = cursor.execute(query, params)
+        l = self.dictfetchall(cursor)
+        return l
 
     def rawGeocoder(self, query):
         # http://stackoverflow.com/questions/9884475/using-google-maps-geocoder-from-python-with-urllib2
         add = query + ", Argentina"
         add = urllib2.quote(add.encode('utf8'))
-        geocode_url = "http://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false" % add
+        geocode_url = "http://maps.googleapis.com/maps/api/geocode/json?language=es&address=%s&sensor=false" % add
         req = urllib2.urlopen(geocode_url)
         res = json.loads(req.read())
         # comprehension para parsear lo devuelto por el google geocoder
-        ret = [self.model(nombre=i["formatted_address"],
-                  precision=len(i["address_components"]) / 6,
-                  geom="POINT(" + str(i["geometry"]["location"]["lng"]) + " " + str(i["geometry"]["location"]["lat"]) + ")",
-                  tipo="rawGeocoder")
+        ret = [
+                {
+                    'nombre'   : i["formatted_address"],
+                    'precision': len(i["address_components"]) / 6,
+                    'geom'     : "POINT(" + str(i["geometry"]["location"]["lng"]) + " " + str(i["geometry"]["location"]["lat"]) + ")",
+                    'tipo'     : "rawGeocoder"
+                }
                 for i in res["results"]
               ]
         return ret
@@ -221,35 +248,21 @@ class PuntoBusquedaManager(models.Manager):
         import json
         add = calle + " " + numero + ", " + ciudad_slug + ", Argentina"
         add = urllib2.quote(add.encode('utf8'))
-        geocode_url = "http://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false" % add
+        geocode_url = "http://maps.googleapis.com/maps/api/geocode/json?language=es&address=%s&sensor=false" % add
         req = urllib2.urlopen(geocode_url)
         res = json.loads(req.read())
         # comprehension para parsear lo devuelto por el google geocoder
-        ret = [self.model(nombre=i["formatted_address"],
-                  precision=1,
-                  geom="POINT(" + str(i["geometry"]["location"]["lng"]) + " " + str(i["geometry"]["location"]["lat"]) + ")",
-                  tipo="direccionPostal")
+        ret = [
+                {
+                    'nombre'   : i["formatted_address"],
+                    'precision': 1,
+                    'geom'     : "POINT(" + str(i["geometry"]["location"]["lng"]) + " " + str(i["geometry"]["location"]["lat"]) + ")",
+                    'tipo'     : "direccionPostal"
+                }
                 for i in res["results"]
-                    if "street_address" in i["types"]
+                if "street_address" in i["types"]
               ]
         return ret
-
-    def _buscar_calles(self, query):
-        calle_model = get_model('catastro', 'Calle')
-        return calle_model.objects.all()
-
-    def _buscar_comercios(self, query):
-        comercio_model = get_model('core', 'Comercio')
-        return comercio_model.objects.all()
-
-    def _buscar_pois(self, query):
-        pass
-
-    def _buscar_custom_pois(self, query):
-        pass
-
-    def _buscar_google_geocoder(self, query):
-        pass
 
 
 class ZonaManager(models.GeoManager):

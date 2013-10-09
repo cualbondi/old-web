@@ -7,6 +7,7 @@ from apps.core.managers import RecorridoManager
 from apps.catastro.models import Ciudad
 from apps.usuarios.models import RecorridoFavorito
 
+from django.core.urlresolvers import reverse
 
 class Linea(models.Model):
     nombre = models.CharField(max_length=100)
@@ -43,10 +44,16 @@ class Recorrido(models.Model):
     pois = models.TextField(blank=True, null=True)
     descripcion = models.TextField(blank=True, null=True)
 
+    # Si tiene las paradas completas es porque tiene todas las paradas de
+    # este recorrido en la tabla paradas+horarios (horarios puede ser null),
+    # y se puede utilizar en la busqueda usando solo las paradas.
+    paradas_completas = models.BooleanField(default=False)
+
     objects = RecorridoManager()
 
     def __unicode__(self):
-        return str(self.linea) + " " + self.nombre
+        #return str(self.ciudad_set.all()[0]) + " - " + str(self.linea) + " - " + self.nombre
+        return str(self.linea) + " - " + self.nombre
 
     def es_favorito(self, usuario):
         """ Verificar si este recorrido esta marcado como favorito para <usuario> """
@@ -60,6 +67,13 @@ class Recorrido(models.Model):
         # Generar el SLUG a partir del origen y destino del recorrido
         self.slug = slugify(self.nombre + " desde " + self.inicio + " hasta " + self.fin)
 
+        # Asegurarse de que no haya 'inicio' y/o 'fin' invalidos
+        assert (
+            self.inicio != self.fin
+            and self.inicio != ''
+            and self.fin != ''
+        ), "Los campos 'inicio' y 'fin' no pueden ser vacios y/o iguales"
+
         # Ejecutar el SAVE original
         super(Recorrido, self).save(*args, **kwargs)
 
@@ -70,6 +84,19 @@ class Recorrido(models.Model):
                 ciudad.recorridos.add(self)
                 ciudad.lineas.add(self.linea)
 
+    class Meta:
+        ordering = ['linea__nombre', 'nombre']
+    
+    def get_absolute_url(self, ciudad_slug):
+        # chequear si la linea/recorrido está en esta ciudad, sino tirar excepcion
+        # if Ciudad.objects.get(slug=ciudad_slug, lineas=self.linea)
+        return reverse('ver_recorrido',
+            kwargs={
+                'nombre_ciudad'   : ciudad_slug,
+                'nombre_linea'    : self.linea.slug,
+                'nombre_recorrido': self.slug                
+            })
+
 
 class Comercio(models.Model):
     nombre = models.CharField(max_length=100)
@@ -79,9 +106,13 @@ class Comercio(models.Model):
 
 
 class Parada(models.Model):
-    nombre = models.CharField(max_length=100)
+    codigo = models.CharField(max_length=15, blank=True, null=True)
+    nombre = models.CharField(max_length=100, blank=True, null=True)
     latlng = models.PointField()
     objects = models.GeoManager()
+
+    def __unicode__(self):
+        return self.nombre or self.codigo or ' '
 
 
 class Horario(models.Model):
@@ -91,7 +122,10 @@ class Horario(models.Model):
     """
     recorrido = models.ForeignKey(Recorrido)
     parada = models.ForeignKey(Parada)
-    hora = models.CharField(max_length=5)
+    hora = models.CharField(max_length=5, blank=True, null=True)
+
+    def __unicode__(self):
+        return str(self.recorrido) + " - " + str(self.parada) + " - " + str(self.hora or ' ')
 
 
 class Terminal(models.Model):

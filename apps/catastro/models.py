@@ -138,7 +138,9 @@ class Zona(models.Model):
     geo = models.GeometryField(srid=4326, geography=True)
 
     objects = ZonaManager()
-
+    
+    def __unicode__(self):
+        return self.name
 
 class Calle(models.Model):
     way = models.GeometryField(srid=4326, geography=True)
@@ -151,8 +153,8 @@ class Poi(models.Model):
     """ Un "Punto de interes" es algun lugar representativo
         de una "Ciudad". Por ej: la catedral de La Plata.
     """
-#    nom_normal = models.TextField()
-#    nom = models.TextField()
+    nom_normal = models.TextField()
+    nom = models.TextField()
     latlng = models.PointField()
     objects = models.GeoManager()
 

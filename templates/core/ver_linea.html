@@ -1,7 +1,8 @@
 {% extends "contenido.html" %}
 {% load bootstrap_tags %}
 
-{% block title %}Cualbondi - Linea {{linea_actual.nombre|title}} en {{ciudad_actual.nombre|title}}: Listado de recorridos de colectivos, micros, buses{% endblock %}
+{% block title %}Línea {{linea_actual.nombre|title}} en {{ciudad_actual.nombre|title}} - Cualbondi{% endblock %}
+{% block meta_description %}Toda la información sobre ramales, recorridos, paradas, horarios y tarifas de la línea {{linea_actual.nombre|title}} que pasa por la ciudad de {{ciudad_actual.nombre|title}}.{% endblock %}
 
 {% block custom_top_scripts %}
     <script src="http://openlayers.org/api/OpenLayers.js"></script>
@@ -11,8 +12,8 @@
 
 {% block bloque_izquierda %}
     <ul class="breadcrumb">
-        <li><a href="/">Inicio</a> <span class="divider">></span></li>
-        <li><a href="/{{ciudad_actual.slug}}">{{ciudad_actual.nombre}}</a><span class="divider">></span></li>
+        <li><a href="/">Inicio</a> <span class="divider">&gt;</span></li>
+        <li><a href="/{{ciudad_actual.slug}}">{{ciudad_actual.nombre}}</a><span class="divider">&gt;</span></li>
         <li class="active">{{linea_actual.nombre}}</li>
     </ul>
 
@@ -34,7 +35,7 @@
         {% for columna in recorridos|dividir_columnas:2 %}
             <tr>
             {% for recorrido in columna %}
-                <td><a href={{recorrido.slug}}/>Recorrido {{recorrido.nombre}} {% if recorrido.inicio and recorrido.fin %}(de {{recorrido.inicio}} a {{recorrido.fin}}){% endif %}<a></td>
+                <td><a href={{recorrido.slug}}/>Recorrido {{recorrido.nombre}} {% if recorrido.inicio and recorrido.fin %}(de {{recorrido.inicio}} a {{recorrido.fin}}){% endif %}</a></td>
             {% endfor %}
             </tr>
         {% endfor %}
@@ -42,7 +43,7 @@
     </table>
     <br />
 
-    <![if (!IE)|(gt IE 7)]>
+    <!--[if (!IE)|(gt IE 7)]-->
         <h3>Dejanos un comentario sobre la linea "{{linea_actual.nombre}}"</h3>
         <div id="disqus_thread"></div>
         <script type="text/javascript">
@@ -58,37 +59,42 @@
         </script>
         <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-    <![endif]>
+    <!--[endif]-->
 {% endblock %}
 
-{% block custom_ready_function %}
-    //Proyeccion que se necesita para transformar proyecciones mas adelante
-    var proj = new OpenLayers.Projection("EPSG:4326");
+{% block custom_scripts %}
+{{ block.super }}
+<script type="text/javascript">
+    $(document).ready(function(){
+        //Proyeccion que se necesita para transformar proyecciones mas adelante
+        var proj = new OpenLayers.Projection("EPSG:4326");
 
-    //Creamos el mapa
-    map = new OpenLayers.Map("map", {theme: null})
-    var gmap = new OpenLayers.Layer.Google(
-        "Google Streets", {numZoomLevels: 20}
-    );
-    map.addLayers([gmap]);
-    map.setCenter(new OpenLayers.LonLat{{ ciudad_actual.centro.coords }}.transform(
-        new OpenLayers.Projection("EPSG:4326"),
-        map.getProjectionObject()
-    ), {{ ciudad_actual.zoom }});
+        //Creamos el mapa
+        map = new OpenLayers.Map("map", {theme: null})
+        var gmap = new OpenLayers.Layer.Google(
+            "Google Streets", {numZoomLevels: 20}
+        );
+        map.addLayers([gmap]);
+        map.setCenter(new OpenLayers.LonLat{{ ciudad_actual.centro.coords }}.transform(
+            new OpenLayers.Projection("EPSG:4326"),
+            map.getProjectionObject()
+        ), {{ ciudad_actual.zoom }});
 
-    //Le agregamos una capa para el poligono de la ciudad
-    var style = {'strokeWidth': 2, 'strokeColor': '#0033CC', fillColor: "#0066CC", fillOpacity: 0.5}
-    var layer_recorridos = new OpenLayers.Layer.Vector("Recorridos", {styleMap: new OpenLayers.StyleMap(style) });
-    map.addLayer(layer_recorridos)
-
-
-        path_recorrido = new OpenLayers.Format.WKT().read("{{linea_actual.envolvente}}");
-        path_recorrido.geometry.transform(proj, map.getProjectionObject())
-        layer_recorridos.addFeatures([path_recorrido]);
+        //Le agregamos una capa para el poligono de la ciudad
+        var style = {'strokeWidth': 2, 'strokeColor': '#0033CC', fillColor: "#0066CC", fillOpacity: 0.5}
+        var layer_recorridos = new OpenLayers.Layer.Vector("Recorridos", {styleMap: new OpenLayers.StyleMap(style) });
+        map.addLayer(layer_recorridos)
 
 
-    //Acomodar el zoom al poligono
-    var extent = new OpenLayers.Bounds();
-    extent.extend(path_recorrido.geometry.getBounds())
-    map.zoomToExtent(extent);
+            path_recorrido = new OpenLayers.Format.WKT().read("{{linea_actual.envolvente}}");
+            path_recorrido.geometry.transform(proj, map.getProjectionObject())
+            layer_recorridos.addFeatures([path_recorrido]);
+
+
+        //Acomodar el zoom al poligono
+        var extent = new OpenLayers.Bounds();
+        extent.extend(path_recorrido.geometry.getBounds())
+        map.zoomToExtent(extent);
+    });
+</script>
 {% endblock %}

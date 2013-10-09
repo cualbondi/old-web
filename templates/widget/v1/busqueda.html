@@ -1,0 +1,29 @@
+<html style="margin:0;padding:0;height:100px;width:200px">
+
+    <head>
+
+    </head>
+
+    <body style="margin:0;padding:0">
+
+        <form target="_parent" method="GET" action="/mapa/{% if ciudad %}{{ ciudad.slug }}{% else %}{{ ciudades.0.slug }}{% endif %}/" id="cb_form{% if ciudad %}_{{ ciudad.slug }}{% endif %}" style="margin:0;padding:0">
+            <input type="hidden" name="key" value="{{ key }}">
+            <input type="text" name="desde" placeholder="Desde" style="width:200px">
+            <br>
+            <input type="text" name="hasta" placeholder="Hasta" style="width:200px">
+            <br>
+            {% if ciudades %}
+                <select onChange='this.parentNode.action = "/mapa/"+this.value+"/"' style="width:120px;float:left">
+                {% for c in ciudades %}
+                    <option value="{{ c.slug }}">{{ c.nombre }}</option>
+                {% endfor %}
+                </select>
+            {% endif %}
+            <button type="submit" style="width:77px;float:right">Buscar</button>
+            <br>
+            <small style="float:right;font-size:10px;">Buscador cortesía de <a href="http://cualbondi.com.ar/">Cualbondi</a></small>
+        </form>
+
+    </body>
+
+</html>

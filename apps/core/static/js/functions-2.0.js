@@ -13,6 +13,8 @@
 
         $(function() {
 
+            $("#ayudaTempl").tmpl().appendTo($("#sidebarResultados").empty());
+
             function preload(arrayOfImages) {
                 $(arrayOfImages).each(function(){
                     $('<img/>')[0].src = this;
@@ -65,13 +67,54 @@
             styleMap.addUniqueValueRules("default", "tipo", lookup);
 
             // creacion de las diferentes capas
+            var paradas = new OpenLayers.Layer.Vector( "Paradas", {
+                eventListeners: {
+                    'featureselected':function(evt){
+                        var feature = evt.feature;
+                        var popup = new OpenLayers.Popup.FramedCloud(
+                            null,
+                            OpenLayers.LonLat.fromString(feature.geometry.toShortString()),
+                            null,
+                            feature.data['content'],
+                            null,
+                            false
+                        );
+                        popup.autoSize = true;
+                        popup.maxSize = new OpenLayers.Size(400,800);
+                        popup.fixedRelativePosition = true;
+                        feature.popup = popup;
+                        map.addPopup(popup);
+                    },
+                    'featureunselected':function(evt){
+                        var feature = evt.feature;
+                        map.removePopup(feature.popup);
+                        feature.popup.destroy();
+                        feature.popup = null;
+                    }
+                },
+                styleMap: new OpenLayers.StyleMap({
+                    "default": new OpenLayers.Style({
+                        externalGraphic : STATIC_URL+"css/openlayers/markerP.png",
+                        graphicWidth    : 15,
+                        graphicHeight   : 16,
+                        graphicYOffset  : -8,
+                        graphicOpacity  : 1,
+                        cursor: "pointer"
+                    }),
+                    "hover": new OpenLayers.Style({
+                        externalGraphic : STATIC_URL+"css/openlayers/markerP-hover.png"
+                    })
+                })
+            });
             var markers = new OpenLayers.Layer.Vector( "Markers", {
                 styleMap: styleMap
                 //,renderers: ["SVG2", "VML", "Canvas"] // allow render while panning when possible
             });
             var recorridos = new OpenLayers.Layer.Vector( "Recorridos", {styleMap: new OpenLayers.StyleMap({strokeWidth: 5})});
+            
             map.addLayer(recorridos)
             map.addLayer(markers)
+            map.addLayer(paradas)
 
             // proyeccion que se necesita para transformar proyecciones mas adelante
             var proj = new OpenLayers.Projection("EPSG:4326");
@@ -86,8 +129,9 @@
                 this.id     = id
                 this.centro = null
                 this.confirmado = false
+                this.rad=300/Math.cos(-34.9)/Math.cos(50*(Math.PI/180));
             }
-            Marker.prototype.setPoint = function(point) {
+            Marker.prototype.setPoint = function(point, style) {
                 // setea el punto con latlng y lo pone en el mapa
                 // point = new OpenLayers.Geometry.Point(lon, lat);
                 if (this.point == null || !this.point.attributes.dragging) {
@@ -100,7 +144,7 @@
                     this.point = new OpenLayers.Feature.Vector(
                         new OpenLayers.Geometry.Collection(
                             [
-                            OpenLayers.Geometry.Polygon.createRegularPolygon(point, 600, 20, 0),
+                            OpenLayers.Geometry.Polygon.createRegularPolygon(point, this.rad, 20, 0),
                             point
                             ]
                         ),
@@ -110,6 +154,9 @@
                         }
                     )
 
+                    if ( typeof(style) !== 'undefined' )
+                        this.point.style = style;
+
                     if (this.visible) {
                         this.layer.addFeatures([this.point])
                         this.listo = true
@@ -118,8 +165,17 @@
                     }
                 }
             }
-
-            // dos objetos de la clase marker
+            Marker.prototype.setRadius = function(rad) {
+                var lat = -34.9;
+                if ( this.centro !== null )
+                    lat =(new OpenLayers.Geometry.Point(this.centro.x, this.centro.y))
+                        .transform(map.getProjectionObject(), proj)
+                        .y;
+                this.rad=rad/Math.cos(lat)/Math.cos(50*(Math.PI/180));
+                if ( this.listo )
+                    this.setPoint(this.centro);
+            }
+            // dos objetos de la clase marker // cuidado, este código se repite mas abajo
             var markerA = new Marker(markers, "A")
             var markerB = new Marker(markers, "B")
             var markerAaux = new Marker(markers, "A", false)
@@ -153,7 +209,7 @@
                     }
                 }
             );
-
+            
             // manejo del drag de los markers
             //      cambio de imagenes al draggear y onhover
             //      busqueda por ondrag
@@ -164,7 +220,6 @@
                         feature.attributes.dragging = true
                         t = feature.attributes.tipo.split(":")
                         feature.attributes.tipo=t[0]+":true:false"
-                        markers.redraw()
                         if ( feature == markerA.point ) {
                             markerA.confirmado = true
                             markerAaux.setPoint(markerA.centro)
@@ -182,6 +237,7 @@
                             pagina_input = 1
                             buscarporclick(markerA.centro, markerB.centro)
                         }
+                        markers.redraw()
                     },
                     onEnter: function(feature, pixel) {
                         feature.attributes.dragging = true
@@ -209,15 +265,24 @@
             clickHandler.activate()
             dragControl.activate()
 
-            var adUnitDiv = document.createElement('div');
-            var adUnitOptions = {
-                format: google.maps.adsense.AdFormat.HALF_BANNER,
-                position: google.maps.ControlPosition.TOP,
-                map: map.baseLayer.mapObject,
-                visible: true,
-                publisherId: 'ca-pub-1193419141108967'
-            }
-            adUnit = new google.maps.adsense.AdUnit(adUnitDiv, adUnitOptions);
+            // hover en las paradas
+            var hoverControl = new OpenLayers.Control.SelectFeature([paradas, markers], {
+                hover: true,
+                click: false,
+                highlightOnly: true,
+                renderIntent: "hover"
+            });
+            map.addControl(hoverControl);
+            hoverControl.activate()
+            
+            // click en las paradas
+            var selectorControl = new OpenLayers.Control.SelectFeature([paradas, markers], {
+                click: true,
+                hover: false,
+                toggle: true
+            });
+            map.addControl(selectorControl);
+            selectorControl.activate()
 
             // variables "globales"
             var resultados = new Object()
@@ -240,7 +305,7 @@
                             id = $("#sidebarResultados li:first").attr("id").slice(3)
                 }
                 catch (err) {
-                    console.log(err)
+                    //console.log(err)
                     return 1
                 }
 
@@ -252,12 +317,29 @@
                     $("#sidebarResultados li").removeClass("active")
                     $("#sidebarResultados #res"+id).addClass("active")
                 }
-                recorridos.removeAllFeatures()
+                recorridos.removeAllFeatures();
+                paradas.removeAllFeatures();
+                while( map.popups.length )
+                    map.removePopup(map.popups[0]);
 
                 var polylinea = new Array()
+                var trasbordos = new Array()
+                var stops = new Array()
+                var cant = resultados[porNombre][id].length
                 $.each(resultados[porNombre][id], function(key, value) {
-                    var poly = new OpenLayers.Format.WKT().read($.RC4.decode(value.ruta_corta));
+                    ruta = $.RC4.decode(value.ruta_corta)
+                    var poly = new OpenLayers.Format.WKT().read(ruta);
                     poly.geometry.transform(proj, map.getProjectionObject())
+                    if (value.p1 !== null)
+                        stops.push(value.p1)
+                    else
+                        if (key != 0) // not first (punto A)
+                            trasbordos.push(poly.geometry.components[0]);
+                    if (value.p2 !== null)
+                        stops.push(value.p2)
+                    else
+                        if (key != cant-1) // not last (punto B)
+                            trasbordos.push(poly.geometry.components[poly.geometry.components.length-1]);
                     var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
                     style.strokeOpacity = 0.8;
                     style.strokeWidth   = 5;
@@ -265,7 +347,38 @@
                     poly.style          = style;
                     polylinea.push(poly);
                 });
+
                 recorridos.addFeatures(polylinea);
+                
+                $.each(trasbordos, function(key, value) {
+                    markerT = new Marker(recorridos, "T");
+                    var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+                    style.externalGraphic = STATIC_URL+"css/openlayers/markerT.png";
+                    style.graphicWidth    = 15;
+                    style.graphicHeight   = 26;
+                    style.graphicYOffset  = -26;
+                    style.graphicOpacity  = 1;
+                    markerT.setRadius(0);
+                    markerT.setPoint(value, style);
+                })
+                
+                $.each(stops, function(key, value) {
+                    if (typeof value !== 'undefined') {
+                        p = new OpenLayers.Feature.Vector(new OpenLayers.Format.WKT().read(value.latlng).geometry.transform(proj, map.getProjectionObject()))
+                        //var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+                        //style.label = "P\n\n"+value.codigo;
+                        //style.labelYOffset = -4;
+                        //style.externalGraphic = STATIC_URL+"css/openlayers/markerP.png"
+                        //style.graphicWidth    = 15
+                        //style.graphicHeight   = 16
+                        //style.graphicYOffset  = -16
+                        //style.graphicOpacity  = 1
+                        //p.style = style
+                        p.data['content'] = "<p><strong>Parada "+value.codigo+"</strong><br>"+value.nombre+"</p>"
+                        paradas.addFeatures([p]);
+                    }
+                })
+                                
                 if (porNombre) {
                     markerA.setPoint(polylinea[0].geometry.getVertices()[0]);
                     markerB.setPoint(polylinea[polylinea.length-1].geometry.getVertices()[polylinea[polylinea.length-1].geometry.getVertices().length-1]);
@@ -281,7 +394,17 @@
             }
 
             function buscar_por_inputs() {
-                recorridos.removeAllFeatures()
+                markerA = new Marker(markers, "A");
+                markerB = new Marker(markers, "B");
+                markerA.confirmado = true;
+                markerB.confirmado = true;
+                recorridos.removeAllFeatures();
+                paradas.removeAllFeatures();
+                while( map.popups.length )
+                    map.removePopup(map.popups[0]);
+                markers.removeAllFeatures();
+                $("[data-slider]").simpleSlider("setValue", 300);
+                clickHandler.activate();
                 $("#ajaxLoader").tmpl().appendTo($("#sidebarResultados").empty())
                 var data1 = null
                 var data2 = null
@@ -292,8 +415,8 @@
                     if ( id == 1 ) data1=data
                     else data2=data
                     if ( data1 !== null && data2 !== null ) {
-                        piwikTracker.trackSiteSearch( $("#inputDesde").val(), "Desde", data1.length )
-                        piwikTracker.trackSiteSearch( $("#inputHasta").val(), "Hasta", data2.length )
+                        try { piwikTracker.trackSiteSearch( $("#inputDesde").val(), "Desde", data1.length ) } catch(err) {}
+                        try { piwikTracker.trackSiteSearch( $("#inputHasta").val(), "Hasta", data2.length ) } catch(err) {}
                         $("#listSuggest").tmpl([{ data1: data1, data2: data2 }]).appendTo($("#sidebarResultados").empty())
                         bindearEventos(false);
                     }
@@ -385,7 +508,10 @@
             function buscarporclick(lla, llb, combinar, forzarPanZoom) {
                 if ( typeof(combinar) === 'undefined' ) combinar = 'false';
                 buscar     = true
-                recorridos.removeAllFeatures()
+                recorridos.removeAllFeatures();
+                paradas.removeAllFeatures();
+                while( map.popups.length )
+                    map.removePopup(map.popups[0]);
                 $("#ajaxLoader").tmpl().appendTo($("#sidebarResultados").empty())
                 lla = lla.transform(map.getProjectionObject(), proj)
                 llb = llb.transform(map.getProjectionObject(), proj)
@@ -394,8 +520,8 @@
                     {
                         origen: lla.x+","+lla.y,
                         destino: llb.x+","+llb.y,
-                        radio_origen: "500",
-                        radio_destino: "500",
+                        radio_origen: $('#button-radio').val(),
+                        radio_destino: $('#button-radio').val(),
                         c: GLOBAL_ci,
                         p: pagina_input,
                         combinar: combinar
@@ -450,7 +576,7 @@
                     for (var i=0; i<data['cant_paginas']; i++){
                         data['page_list'].push(i+1);
                     }
-                    var index = $.inArray(data['p'], data['page_list']); 
+                    var index = $.inArray(data['p'], data['page_list']);
                     var desde = index - 3 > 0 ? index - 3 : 0;
                     var hasta = index + 3 < data['cant_paginas'] ? index + 3 : data['cant_paginas'];
                     data['page_list'] = data['page_list'].slice(desde, hasta);
@@ -471,19 +597,41 @@
                         })
                         $(this).children().bind("mouseenter", function(e) {
                             id = $(this).attr("id")
+
+                            // codigo repetido mas arriba (solo cambia la opacity)
                             recorridos.removeFeatures(polyhover)
                             polyhover = new Array();
+                            trasbordos = new Array();
                             $.each(resultados[porNombre][id], function(key, value) {
                                 var poly = new OpenLayers.Format.WKT().read($.RC4.decode(value.ruta_corta))
                                 poly.geometry.transform(proj, map.getProjectionObject())
+                                trasbordos.push(poly.geometry.components[0]);
+                                trasbordos.push(poly.geometry.components[poly.geometry.components.length-1]);
                                 var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
-                                style.strokeOpacity = 0.5
+                                style.strokeOpacity = 0.4
                                 style.strokeWidth   = 5
                                 style.strokeColor   = value.color_polilinea ? value.color_polilinea : "#000000"
                                 poly.style          = style
                                 polyhover.push(poly);
                             });
+
                             recorridos.addFeatures(polyhover)
+
+                            trasbordos.pop() //eliminar ultimo elemento (punto B)
+                            trasbordos.splice(0,1) //eliminar primer elemento (punto A)
+                            $.each(trasbordos, function(key, value) {
+                                markerT = new Marker(recorridos, "T");
+                                var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+                                style.externalGraphic = STATIC_URL+"css/openlayers/markerT.png";
+                                style.graphicWidth    = 15;
+                                style.graphicHeight   = 26;
+                                style.graphicYOffset  = -26;
+                                style.graphicOpacity  = 0.5;
+                                markerT.setRadius(0);
+                                markerT.setPoint(value, style);
+                                polyhover.push(markerT.point)
+                            })
+
                         })
                         $(this).children().bind("mouseleave", function(e) {
                             recorridos.removeFeatures(polyhover)
@@ -493,7 +641,45 @@
                 }
             }
 
+            function limpiar() {
+                // cuidado, este código se repite mas arriba
+                markerA = new Marker(markers, "A");
+                markerB = new Marker(markers, "B");
+                markerA.confirmado = true;
+                markerB.confirmado = true;
+                recorridos.removeAllFeatures();
+                paradas.removeAllFeatures();
+                while( map.popups.length )
+                    map.removePopup(map.popups[0]);
+                markers.removeAllFeatures();
+                $("[data-slider]").simpleSlider("setValue", 300);
+                $('#inputDesde').val('');
+                $('#inputHasta').val('');
+                $("#ayudaTempl").tmpl().appendTo($("#sidebarResultados").empty());
+                clickHandler.activate();
+            }
+
             // bind eventos click partes estaticas de la pagina (bind unico)
+
+            $("#button-limpiar").bind("click", function(e) {
+                e.preventDefault();
+                piwikLog("/click/limpiar/");
+                limpiar();
+            })
+
+            $("[data-slider]").bind("slider:release", function (event, data) {
+                if (markerA.listo && markerB.listo) {
+                    piwikLog("/click/buscarRadio/"+data.value);
+                    buscarporclick(markerA.centro, markerB.centro, false, true);
+                }
+            });
+            
+            $("[data-slider]").bind("slider:changed", function (event, data) {
+                $('#button-radio-value').html('Caminar max. ' + data.value + ' metros')
+                markerA.setRadius(data.value);
+                markerB.setRadius(data.value);
+            });
+            $("[data-slider]").simpleSlider("setValue", 300);
 
             // buscador de lineas por sugerencia al tipear
             $('#inputLinea').attr("autocomplete","off")
@@ -513,7 +699,10 @@
             })
 
             function buscar_por_nombre() {
-                recorridos.removeAllFeatures()
+                recorridos.removeAllFeatures();
+                paradas.removeAllFeatures();
+                while( map.popups.length )
+                    map.removePopup(map.popups[0]);
                 $("#ajaxLoader").tmpl().appendTo($("#sidebarResultadosPorNombre").empty())
                 if ( ajaxInputLinea ) ajaxInputLinea.abort()
                 pagina_nombre = 1
@@ -530,7 +719,8 @@
 
             $("#button-ayuda").bind("click", function(e) {
                 e.preventDefault()
-                $("#ayudaTempl").tmpl().appendTo($("#sidebarResultados").empty());
+                $("#ayudaTempl").tmpl().appendTo($("#modal-ayuda-content").empty());
+                $("#modal-ayuda").modal();
                 piwikLog("/click/botonera/ayuda")
             })
 
@@ -586,37 +776,43 @@
 
             // bind eventos click partes dinamicas de la pagina (bind multiple)
             function bindearEventos(porNombre) {
+                
+                $('span[href]').not('.binded').bind('click', function(e) {
+                    e.preventDefault();
+                    piwikLog("/click/verMasInfo/"+$(this).parent().parent().attr('id'))
+                    window.open($(this).attr('href'));
+                }).addClass("binded");
+                
                 var selectorDiv = '#sidebarResultadosPorNombre'
                 if (!porNombre) {
-                    $("#button_buscar_transbordo:not(binded)").bind("click", function(e) {
+                    $("#button_buscar_transbordo").not('.binded').bind("click", function(e) {
                         e.preventDefault();
                         piwikLog("/click/buscar/transbordo")
                         buscarTransbordo();
-                        $(this).addClass("binded");
-                    })
+                    }).addClass("binded")
 
-                    $("#button-seleccionarSugerencias:not(binded)").bind("click", function(e) {
+                    $("#button-seleccionarSugerencias").not('.binded').bind("click", function(e) {
                         e.preventDefault();
                         //trackear nombre de seleccionadas
                         piwikLog("/click/buscar/suggest/")
                         seleccionarSugerencias();
-                        $(this).addClass("binded");
-                    })
+                    }).addClass("binded")
 
-                    $(".marcarSuggest:not(binded)").bind("click", function(e) {
+                    $(".marcarSuggest").not('.binded').bind("click", function(e) {
                         e.preventDefault();
                         marcarPunto(
                             $(this).attr("data_geom"),
                             $(this).attr("data_id"),
                             $(this).attr("data_domId")
                         );
-                        $(this).addClass("binded");
-                    })
+                        $(this).parent().siblings().removeClass("active");
+                        $(this).parent().addClass("active");
+                    }).addClass("binded");
 
                     selectorDiv = '#sidebarResultados';
                 }
 
-                $(selectorDiv + " div.pagination a[href]:not(binded)").bind("click", function(e) {
+                $(selectorDiv + " div.pagination a[href]").not('.binded').bind("click", function(e) {
                     e.preventDefault();
                     n = $(this).attr("data_pagina");
                     if      ( n <  0 ) pps = "ant";
@@ -626,8 +822,7 @@
                     pasarPagina($(this).attr("data_pagina"), $(this).attr("combinar"), porNombre);
                     //console.log("porNombre="+porNombre)
                     //console.log("n="+n)
-                    $(this).addClass("binded");
-                })
+                }).addClass("binded");
             }
 
             if ($("#inputDesde").val() != "" && $("#inputHasta").val() != ""){

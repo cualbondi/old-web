@@ -43,6 +43,13 @@ class Command(BaseCommand):
             default = False,
             help    = 'Use the cache of downloaded osm'
         ),
+        make_option(
+            '-s',
+            action  = 'store_true',
+            dest    = 'slim',
+            default = False,
+            help    = 'Set osm2pgsql slim mode (create raw tables: nodes, rels, ways)'
+        )
     )
 
     def handle(self, *args, **options):
@@ -70,16 +77,28 @@ class Command(BaseCommand):
         primera = True
         for c in cu.fetchall():
             print ">>- ACTUALIZANDO " + c[0]
-            l = c[1][4:-1].replace(")", "").replace("(", "").split(",")
+            print "st_box: " + c[1]
+            l = c[1][1:-1].replace(")", "").replace("(", "").split(",")
             box = ",".join([l[2], l[3], l[0], l[1]])
+            print "box: " + box
 
+            prog = [
+                "osm2pgsql",
+                "-l",
+                "-S"+os.path.join(os.path.abspath(os.path.dirname(__file__)),"update-osm.style"),
+                "-d"+dbname,
+                "-U"+dbuser,
+                "-b"+box,
+                inputfile
+            ]
             if primera:
-                prog = ["osm2pgsql"      , "-l", "-S"+os.path.join(os.path.abspath(os.path.dirname(__file__)),"update-osm.style"), "-d"+dbname, "-U"+dbuser, "-b"+box, inputfile ]
                 primera = False
             else:
-                prog = ["osm2pgsql", "-a", "-l", "-S"+os.path.join(os.path.abspath(os.path.dirname(__file__)),"update-osm.style"), "-d"+dbname, "-U"+dbuser, "-b"+box, inputfile ]
+                prog.append("-a")
+            if options['slim']:
+                prog.append("-s")
             print "ejecutando:",
-            print prog
+            print " ".join(prog)
             p = subprocess.Popen(prog, env={"PGPASSWORD": dbpass} )
             p.wait()
 
@@ -93,7 +112,7 @@ class Command(BaseCommand):
         superCu.execute("update planet_osm_point   set name=ref where name is null;")
         superCu.execute("update planet_osm_polygon set name=ref where name is null;")
         superCu.execute("update planet_osm_roads   set name=ref where name is null;")
-        superCu.close()        
+        superCu.close()
         print " => Juntando tablas de caminos, normalizando nombres"
         cu.execute("delete from catastro_calle")
         cu.execute("insert into catastro_calle(way, nom_normal, nom) select way, upper(translate(name, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), name from planet_osm_line where name is not null;")
@@ -104,6 +123,7 @@ class Command(BaseCommand):
         cu.execute("insert into catastro_poi(latlng, nom_normal, nom) select latlng, upper(translate(nom, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), nom||coalesce(', '||(select nom from catastro_zona zo where ST_Intersects(latlng, zo.geo)), '') from catastro_poi where nom is not null;")
         print " => Purgando nombres repetidos"
         cu.execute("delete from catastro_poi where id not in (select min(id) from catastro_poi group by nom_normal having count(*) > 1)")
+        transaction.commit_unless_managed()
 
         #print " => Eliminando tablas no usadas"
         #cu.execute("drop table planet_osm_roads;")
