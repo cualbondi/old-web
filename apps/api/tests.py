@@ -3,11 +3,84 @@
 """Tests para los API Handlers"""
 
 import json
+from copy import deepcopy
 
 from django_webtest import WebTest
-from pprint import pprint
 
-from apps.api.factories import CiudadFactory
+from apps.api.factories import CiudadFactory, RecorridoFactory
+from apps.core.models import Posicion
+
+
+class TestPosicionHandler(WebTest):
+    def setUp(self):
+        self.recorrido = RecorridoFactory()
+        self.url = '/api/posicion/{0}/'.format(self.recorrido.id)
+        self.data = {
+            'lat': -34.8723,
+            'lng': -57.2398,
+            'uuid': '550e8400-e29b-41d4-a716-446655440000'
+        }
+
+    def test_cargar_posicion_correcta(self):
+        """Debe crear un objeto posicion cuando el POST se realiza con datos correctos"""
+
+        response = self.app.post(self.url, self.data)
+
+        self.assertEqual(response.status, '200 OK')
+
+        posicion = Posicion.objects.get(id=1)
+
+        point = posicion.latlng
+        self.assertEqual(point.y, self.data['lat'])
+        self.assertEqual(point.x, self.data['lng'])
+
+        self.assertEqual(posicion.dispositivo_uuid, self.data['uuid'])
+
+        self.assertTrue(hasattr(posicion, "timestamp"))
+
+    def test_cargar_posicion_recorrido_no_existe(self):
+        """Debe devolver 404 y NO crear el objeto cuando el recorrido no existe"""
+
+        url = '/api/posicion/999/'
+        response = self.app.post(url, self.data, expect_errors=True)
+
+        self.assertEqual(response.status, '404 NOT FOUND')
+
+        self.assertEqual(Posicion.objects.count(), 0)
+
+    def test_cargar_posicion_faltan_datos(self):
+        """Debe devolver 400 y no crear el objeto cuando faltan datos en el POST"""
+
+        data = deepcopy(self.data)
+        del data['lat']
+
+        response = self.app.post(self.url, data, expect_errors=True)
+        self.assertEqual(response.status, '400 BAD REQUEST')
+
+        data = deepcopy(self.data)
+        del data['lng']
+
+        response = self.app.post(self.url, data, expect_errors=True)
+        self.assertEqual(response.status, '400 BAD REQUEST')
+
+        self.assertEqual(Posicion.objects.count(), 0)
+
+    def test_cargar_posicion_datos_incorrectos(self):
+        """Debe devolver 400 y no crear el objeto cuando los datos son incorrectos"""
+
+        data = deepcopy(self.data)
+        data['lat'] = "bla"
+
+        response = self.app.post(self.url, data, expect_errors=True)
+        self.assertEqual(response.status, '400 BAD REQUEST')
+
+        data = deepcopy(self.data)
+        data['lng'] = "bla"
+
+        response = self.app.post(self.url, data, expect_errors=True)
+        self.assertEqual(response.status, '400 BAD REQUEST')
+
+        self.assertEqual(Posicion.objects.count(), 0)
 
 
 class TestCiudadHandler(WebTest):
