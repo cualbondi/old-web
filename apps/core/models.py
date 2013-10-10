@@ -86,7 +86,7 @@ class Recorrido(models.Model):
 
     class Meta:
         ordering = ['linea__nombre', 'nombre']
-    
+
     def get_absolute_url(self, ciudad_slug):
         # chequear si la linea/recorrido está en esta ciudad, sino tirar excepcion
         # if Ciudad.objects.get(slug=ciudad_slug, lineas=self.linea)
@@ -94,8 +94,30 @@ class Recorrido(models.Model):
             kwargs={
                 'nombre_ciudad'   : ciudad_slug,
                 'nombre_linea'    : self.linea.slug,
-                'nombre_recorrido': self.slug                
+                'nombre_recorrido': self.slug
             })
+
+
+class Posicion(models.Model):
+    """Ubicacion geografica de un recorrido en cierto momento del tiempo"""
+
+    class Meta:
+        verbose_name = 'Posicion'
+        verbose_name_plural = 'Posiciones'
+
+    recorrido = models.ForeignKey(Recorrido)
+    dispositivo_uuid = models.CharField(max_length=100, blank=True, null=True)
+    timestamp = models.DateTimeField(auto_now=False, auto_now_add=True)
+    latlng = models.PointField()
+
+    objects = models.GeoManager()
+
+    def __unicode__(self):
+        return u'{recorrido} ({hora}) - {punto}'.format(
+            recorrido=self.recorrido,
+            punto=self.latlng,
+            hora=self.timestamp.strftime("%d %h %Y %H:%M:%S")
+        )
 
 
 class Comercio(models.Model):

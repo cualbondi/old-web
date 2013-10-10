@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from apps.api.handlers import (CiudadHandler, CiudadLineaHandler,
                                CiudadRecorridoHandler, LineaHandler,
                                LineaRecorridoHandler, RecorridoHandler,
-                               CalleHandler, CatastroHandler)
+                               CalleHandler, CatastroHandler, PosicionHandler)
 
 
 def api_welcome(request):
@@ -31,6 +31,7 @@ lineas_recorridos_handler = Resource(LineaRecorridoHandler, authentication=None)
 recorridos_handler = Resource(RecorridoHandler, authentication=None)
 calles_handler = Resource(CalleHandler, authentication=None)
 catastro_handler = Resource(CatastroHandler, authentication=None)
+posicion_handler = Resource(PosicionHandler, authentication=None)
 
 urlpatterns = patterns('',
     url(r'^$', api_welcome),
@@ -49,6 +50,8 @@ urlpatterns = patterns('',
 
     url(r'^catastro/$', catastro_handler, { 'emitter_format': 'json' }),
     url(r'^catastro/calles/$', calles_handler, { 'emitter_format': 'json' }),
+
+    url(r'^posicion/(?P<id_recorrido>\d+)/$', posicion_handler, { 'emitter_format': 'json' }),
 )
 
 
