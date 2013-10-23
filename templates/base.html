@@ -46,7 +46,7 @@
 		{% block custom_scripts %}{% endblock %}
 
         <script type="text/javascript">
-            $(document).ready(function(){
+            $(function(){
                 $('.android-app-alert-close').on('click', function(){
                     $.cookie("android_app_alert_closed", "true");
                 });
