@@ -5,13 +5,22 @@
         <link rel="icon" type="image/x-icon" href="{{ STATIC_URL }}img/favicon.png" />
     	<title>{% block title %}Cualbondi{% endblock %}</title>
 		<meta name="description" content="{% block meta_description %}Buscador de recorridos de bondis, colectivos, micros en Argentina.{% endblock %}">
-		
+
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link href="{{ STATIC_URL }}css/bootstrap.custom.min.css" rel="stylesheet" type="text/css" />
 
         <meta name="google-site-verification" content="NVSk_0zcZdYua2ILJ4L0DvspOCmHujouihZPlo3mDco">
         <link href="https://plus.google.com/117455886911192315188" rel="publisher">
 
+        <style type="text/css">
+            .android-icon {
+                height: 16px;
+                width: 16px;
+                display: inline-block;
+                line-height: 16px;
+                vertical-align: text-top;
+            }
+        </style>
         {% block custom_styles %}{% endblock %}
 
         <!--[if lt IE 9]>
@@ -30,10 +39,19 @@
         {% block footer %}{% endblock %}
 
 	    <!-- Scripts -->
-	    <script src="{{ STATIC_URL }}js/jquery-1.9.0.min.js"></script>
-	    <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
+        <script src="{{ STATIC_URL }}js/jquery-1.9.0.min.js"></script>
+        <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
+        <script src="{{ STATIC_URL }}js/jquery.cookie.js"></script>
 
 		{% block custom_scripts %}{% endblock %}
+
+        <script type="text/javascript">
+            $(function(){
+                $('.android-app-alert-close').on('click', function(){
+                    $.cookie("android_app_alert_closed", "true");
+                });
+            });
+        </script>
 
         {% include "tracking.html" %}
 

@@ -114,15 +114,18 @@ MIDDLEWARE_CLASSES = (
     'apps.api.middlewares.APIRequestLoggingMiddleware',
 )
 
-TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
-"django.core.context_processors.debug",
-"django.core.context_processors.i18n",
-"django.core.context_processors.media",
-"django.core.context_processors.static",
-"django.contrib.messages.context_processors.messages",
-"django.core.context_processors.request",
-"apps.core.context_processors.lista_ciudades",
-"apps.core.context_processors.get_ciudad_actual")
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.core.context_processors.static",
+    "django.contrib.messages.context_processors.messages",
+    "django.core.context_processors.request",
+    "apps.core.context_processors.lista_ciudades",
+    "apps.core.context_processors.get_ciudad_actual",
+    "apps.core.context_processors.show_android_alert",
+)
 
 ROOT_URLCONF = 'urls'
 
