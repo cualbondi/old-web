@@ -156,6 +156,7 @@ INSTALLED_APPS = (
     'floppyforms',
     'olwidget',
     'imagekit',
+    'south',
 #    'moderacion',
 #    'editor',
 #    'django_extensions',
