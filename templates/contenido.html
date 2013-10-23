@@ -15,7 +15,7 @@
       js.src = "//connect.facebook.net/es_LA/all.js#xfbml=1";
       fjs.parentNode.insertBefore(js, fjs);
     }(document, 'script', 'facebook-jssdk'));</script>
-        
+
     <div class="navbar navbar-fixed-top navbar-inverse">
         <div class="navbar-inner">
             <div class="container">
@@ -29,6 +29,10 @@
     <div class="container">
         <div class="row-fluid">
             <div id="bloque_izquierda" class="span9">
+                <div class="alert alert-success">
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+                  <strong>Atención!</strong> Ahora Cualbondi también en tu celular! Descargate la App para Android haciendo click <a href="http://bit.ly/HfmNTT">acá</a>
+                </div>
                 {% block bloque_izquierda %}{% endblock %}
             </div>
             <div id="bloque_derecha" class="span3">
@@ -115,7 +119,7 @@
                      }
                  }
             });
-            
+
             $('.dropdown-toggle').dropdown();
             $('#submit_button').click(function(){
                 $('#login_form').submit();
@@ -126,9 +130,9 @@
                 }
             })
             $(".alert-message").alert()
-        
+
         })
-            
+
     <!-- DISQUS Code -->
     /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
     var disqus_shortname = 'cualbondi'; // required: replace example with your forum shortname
