@@ -39,10 +39,19 @@
         {% block footer %}{% endblock %}
 
 	    <!-- Scripts -->
-	    <script src="{{ STATIC_URL }}js/jquery-1.9.0.min.js"></script>
-	    <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
+        <script src="{{ STATIC_URL }}js/jquery-1.9.0.min.js"></script>
+        <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
+        <script src="{{ STATIC_URL }}js/jquery.cookie.js"></script>
 
 		{% block custom_scripts %}{% endblock %}
+
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $('.android-app-alert-close').on('click', function(){
+                    $.cookie("android_app_alert_closed", "true");
+                });
+            });
+        </script>
 
         {% include "tracking.html" %}
 
