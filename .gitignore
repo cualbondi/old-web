@@ -2,10 +2,6 @@
 ##################
 # media
 
-# Archivos migracion south #
-##########################
-migrations
-
 # Archivos configuracion #
 ##########################
 settings_local.py
