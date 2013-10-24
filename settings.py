@@ -125,6 +125,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "apps.core.context_processors.lista_ciudades",
     "apps.core.context_processors.get_ciudad_actual",
     "apps.core.context_processors.show_android_alert",
+    "apps.core.context_processors.site",
 )
 
 ROOT_URLCONF = 'urls'

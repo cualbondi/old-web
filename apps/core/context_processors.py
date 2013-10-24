@@ -1,4 +1,5 @@
 from apps.catastro.models import Ciudad
+from django.contrib.sites.models import Site
 
 
 def lista_ciudades(request):
@@ -22,3 +23,15 @@ def show_android_alert(request):
     else:
         show_alert = False
     return {'show_android_alert': show_alert}
+
+def site(request):
+    site = Site.objects.get_current()
+    protocol = ""
+    if request.is_secure():
+        protocol = "https"
+    else:
+        protocol = "http"
+    return {
+        'site': site,
+        'base_url': protocol + "://" + site.domain
+    }
