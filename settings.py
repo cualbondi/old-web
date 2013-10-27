@@ -1,6 +1,8 @@
 # Django settings for cualbondi project.
 import os
 
+CUALBONDI_ENV = os.environ.get('CUALBONDI_ENV', 'development')
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -125,6 +127,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "apps.core.context_processors.lista_ciudades",
     "apps.core.context_processors.get_ciudad_actual",
     "apps.core.context_processors.show_android_alert",
+    "apps.core.context_processors.facebook_app_id",
 )
 
 ROOT_URLCONF = 'urls'
@@ -215,6 +218,10 @@ LOGGING = {
     },
 }
 
+if CUALBONDI_ENV == 'production':
+    FACEBOOK_APP_ID = "516530425068934"
+else:
+    FACEBOOK_APP_ID = "370174876416548"
 
 try:
     from settings_local import *
