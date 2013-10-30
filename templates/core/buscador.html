@@ -18,6 +18,7 @@
 
 {% block content %}
     {% include "facebook_sdk.html" %}
+    {% include "twitter_sdk.html" %}
     <div id="bloque_izquierda">
         <div class="tabbable">
             <ul class="nav nav-tabs">
@@ -70,7 +71,14 @@
                          data-layout="standard"
                          data-action="like"
                          data-show-faces="true"
-                         data-send="true">
+                         data-send="false">
+                    </div>
+
+                    <div style="margin-top: 3px;">
+                        <a href="https://twitter.com/cualbondi"
+                           class="twitter-follow-button"
+                           data-show-count="false"
+                           data-lang="es">Seguir a @cualbondi</a>
                     </div>
 
                     <hr style="margin: 15px 0;">
