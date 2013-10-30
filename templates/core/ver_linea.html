@@ -7,9 +7,9 @@
 {% block head-attrs %} prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# cualbondi: http://ogp.me/ns/fb/cualbondi#"{% endblock %}
 
 {% block custom_top_scripts %}
-    <meta property="fb:app_id" content="516530425068934" /> 
+    <meta property="fb:app_id" content="{{ FACEBOOK_APP_ID }}" /> 
     <meta property="og:type"   content="cualbondi:linea" /> 
-    <meta property="og:url"    content="{{ base_url }}{{ request.get_full_path }}" /> 
+    <meta property="og:url"    content="{{ HOME_URL }}{{ request.get_full_path }}" /> 
     <meta property="og:title"  content="Línea {{linea_actual.nombre|title}}" /> 
     <meta property="og:description"  content="Toda la información sobre ramales, recorridos, paradas, horarios y tarifas de la línea {{linea_actual.nombre|title}} que pasa por la ciudad de {{ciudad_actual.nombre|title}}" /> 
     <meta property="og:image"  content="" /> 

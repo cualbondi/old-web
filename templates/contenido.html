@@ -6,16 +6,6 @@
 {% endblock %}
 
 {% block navbar %}
-    <!-- Incluir el SDK de Facebook -->
-    <div id="fb-root"></div>
-    <script>(function(d, s, id) {
-      var js, fjs = d.getElementsByTagName(s)[0];
-      if (d.getElementById(id)) return;
-      js = d.createElement(s); js.id = id;
-      js.src = "//connect.facebook.net/es_LA/all.js#xfbml=1";
-      fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));</script>
-
     <div class="navbar navbar-fixed-top navbar-inverse">
         <div class="navbar-inner">
             <div class="container">
@@ -26,6 +16,7 @@
 {% endblock %}
 
 {% block content %}
+    {% include "facebook_sdk.html" %}
     <div class="container">
         <div class="row-fluid">
             <div id="bloque_izquierda" class="span9">
@@ -40,34 +31,31 @@
             <div id="bloque_derecha" class="span3">
                 {% block bloque_derecha %}
                     <div style="margin-bottom:15px;">
-                        <script type="text/javascript"><!--
-                        google_ad_client = "ca-pub-1193419141108967";
-                        /* contenido_sidebar_1 */
-                        google_ad_slot = "2452705946";
-                        google_ad_width = 300;
-                        google_ad_height = 250;
-                        //-->
-                        </script>
-                        <script type="text/javascript"
-                        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                        <!-- contenido_sidebar_1 -->
+                        <ins class="adsbygoogle"
+                             style="display:inline-block;width:300px;height:250px"
+                             data-ad-client="ca-pub-1193419141108967"
+                             data-ad-slot="2452705946"></ins>
+                        <script>
+                        (adsbygoogle = window.adsbygoogle || []).push({});
                         </script>
                     </div>
+
                     <!--CAJA DE FACEBOOK-->
                     <!--[if (!IE)|(gt IE 7)]-->
                         <div style="margin-bottom:15px;"><iframe src="//www.facebook.com/plugins/likebox.php?href=http%3A%2F%2Fwww.facebook.com%2Fcualbondi&amp;width=300&amp;height=360&amp;colorscheme=light&amp;show_faces=true&amp;border_color&amp;stream=false&amp;header=false" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:300px; height:360px;" allowTransparency="true"></iframe></div>
                     <!--[endif]-->
 
                     <div align="center" style="margin-bottom:15px;">
-                        <script type="text/javascript"><!--
-                        google_ad_client = "ca-pub-1193419141108967";
-                        /* contenido_sidebar_2 */
-                        google_ad_slot = "6882905540";
-                        google_ad_width = 300;
-                        google_ad_height = 250;
-                        //-->
-                        </script>
-                        <script type="text/javascript"
-                        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                        <!-- contenido_sidebar_2 -->
+                        <ins class="adsbygoogle"
+                             style="display:inline-block;width:300px;height:250px"
+                             data-ad-client="ca-pub-1193419141108967"
+                             data-ad-slot="6882905540"></ins>
+                        <script>
+                        (adsbygoogle = window.adsbygoogle || []).push({});
                         </script>
                     </div>
 
@@ -81,6 +69,17 @@
                         </div>
                     </div>
 
+                    <div align="center" style="margin-bottom:15px;">
+                        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                        <!-- contenido_sidebar_3 -->
+                        <ins class="adsbygoogle"
+                             style="display:inline-block;width:300px;height:250px"
+                             data-ad-client="ca-pub-1193419141108967"
+                             data-ad-slot="9836371941"></ins>
+                        <script>
+                        (adsbygoogle = window.adsbygoogle || []).push({});
+                        </script>
+                    </div>
                 {% endblock %}
             </div>
         </div>

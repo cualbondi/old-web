@@ -1,3 +1,6 @@
+
+from django.conf import settings
+
 from apps.catastro.models import Ciudad
 from django.contrib.sites.models import Site
 
@@ -16,6 +19,7 @@ def get_ciudad_actual(request):
         ciudad_actual = None
     return {'ciudad_actual': ciudad_actual}
 
+
 def show_android_alert(request):
     cookie = request.COOKIES.get('android_app_alert_closed')
     if cookie is None:
@@ -24,14 +28,8 @@ def show_android_alert(request):
         show_alert = False
     return {'show_android_alert': show_alert}
 
-def site(request):
-    site = Site.objects.get_current()
-    protocol = ""
-    if request.is_secure():
-        protocol = "https"
-    else:
-        protocol = "http"
-    return {
-        'site': site,
-        'base_url': protocol + "://" + site.domain
-    }
+def home_url(request):
+    return {'HOME_URL': settings.HOME_URL}
+
+def facebook_app_id(request):
+    return {'FACEBOOK_APP_ID': settings.FACEBOOK_APP_ID}
