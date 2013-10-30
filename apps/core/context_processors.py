@@ -2,6 +2,7 @@
 from django.conf import settings
 
 from apps.catastro.models import Ciudad
+from anuncios import ANUNCIOS
 
 
 def lista_ciudades(request):
@@ -13,10 +14,17 @@ def get_ciudad_actual(request):
     try:
         path_info = request.path_info
         slug_ciudad = path_info.split('/')[1]
+        if slug_ciudad == 'mapa':
+            slug_ciudad = path_info.split('/')[2]
         ciudad_actual = Ciudad.objects.get(slug=slug_ciudad)
+        anuncios = ANUNCIOS.get(ciudad_actual.slug, [])
     except Exception:
         ciudad_actual = None
-    return {'ciudad_actual': ciudad_actual}
+        anuncios = []
+    return {
+        'ciudad_actual': ciudad_actual,
+        'anuncios': anuncios,
+    }
 
 
 def show_android_alert(request):
