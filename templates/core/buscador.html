@@ -120,16 +120,8 @@
         </div>
     </div>
     <div id="bloque_derecha">
-        <div style="position:absolute; z-index: 1000; top: 70%; left: 0;">
-            <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-            <!-- buscador_mapa_vertical -->
-            <ins class="adsbygoogle"
-                 style="display:inline-block;width:120px;height:240px"
-                 data-ad-client="ca-pub-1193419141108967"
-                 data-ad-slot="6304025541"></ins>
-            <script>
-            (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
+        <div style="position:absolute; z-index: 1000; top: 0px; right: 5px;">
+            {% include "slider_anuncios.html" %}
         </div>
         <div id="mapa" class="shadowbox"></div>
     </div>
@@ -142,6 +134,14 @@
             check_layout();
         })
         check_layout();
+
+        $('.slider-anuncios').bxSlider({
+            slideWidth: 300,
+            pager: false,
+            auto: true,
+            autoHover: true,
+            controls: false
+        });
     })
 </script>
 

@@ -1,0 +1,7 @@
+{% if anuncios %}
+<div class="slider-anuncios">
+    {% for anuncio in anuncios %}
+    <div class="slide"><a href="{{anuncio.link_url}}" target="_blank"><img src="{{ STATIC_URL }}/img/anuncios/{{anuncio.filename}}" /></a></div>
+    {% endfor %}
+</div>
+{% endif %}
