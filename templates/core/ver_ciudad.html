@@ -7,9 +7,11 @@
 {% block meta_description %}Toda la información sobre líneas, ramales, recorridos, paradas, horarios y tarifas de transporte público local que pasa por la ciudad de {{ciudad_actual.nombre|title}}, incluyendo bondis, micros, colectivos, trenes y subtes.{% endblock %}
 
 {% block custom_top_scripts %}
-    <script src="http://openlayers.org/api/OpenLayers.js"></script>
-    <script src="http://maps.google.com/maps/api/js?v=3.6&amp;sensor=false"></script>
-    <link rel="stylesheet" href="http://openlayers.org/dev/theme/default/style.css" type="text/css" />
+    {% if request.GET.dynamic_map %}
+        <script src="http://openlayers.org/api/OpenLayers.js"></script>
+        <script src="http://maps.google.com/maps/api/js?v=3.6&amp;sensor=false"></script>
+        <link rel="stylesheet" href="http://openlayers.org/dev/theme/default/style.css" type="text/css" />
+    {% endif %}
 {% endblock %}
 
 {% block bloque_izquierda %}
@@ -56,7 +58,7 @@
     {% endif %}
 
     <h3>Area cubierta por transporte público:</h3>
-    <div class="thumbnail"><div id="map" style="background:lightblue; height:300px;"></div></div>
+    <div class="thumbnail"><div id="map" style="background:lightblue; height:300px;">{% if not request.GET.dynamic_map %}<img src="/{{ ciudad_img.url }}" alt="" />{% endif %}</div></div>
     <br />
 
     <h3>Lineas de micro en {{ciudad_actual.nombre}}:</h3>
@@ -114,10 +116,13 @@
 
 {% block custom_scripts %}
 {{ block.super }}
+
 <script type="text/javascript">
     $(document).ready(function(){
         //CAROUSEL
         $('.carousel').carousel()
+
+        {% if request.GET.dynamic_map %}
 
         //Proyeccion que se necesita para transformar proyecciones mas adelante
         var proj = new OpenLayers.Projection("EPSG:4326");
@@ -148,7 +153,11 @@
         var extent = new OpenLayers.Bounds();
         extent.extend(poligono_ciudad.geometry.getBounds())
         map.zoomToExtent(extent);
+
+        {% endif %}
+    
     });
 </script>
+
 {% endblock %}
 

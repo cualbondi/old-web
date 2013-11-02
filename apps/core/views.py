@@ -15,6 +15,7 @@ from django.contrib.comments.views.comments import CommentPostBadRequest
 from django.utils import simplejson
 from olwidget.widgets import InfoMap
 from django.http import HttpResponse
+from ghost import Ghost
 
 from apps.core.models import Linea, Recorrido, Tarifa
 from apps.catastro.models import Ciudad, ImagenCiudad
@@ -64,6 +65,20 @@ def index(request):
         return HttpResponse(status=501)
         
 
+from ghost import Ghost
+from multiprocessing import Process
+import os
+from django.core.files import File
+from django.contrib.sites.models import Site
+from subprocess import call
+import shutil
+
+def createScreenshot(url,filename,selector):
+    ghost=Ghost(wait_timeout=40,viewport_size=(1900,1900))
+    ghost.open(url)
+    ghost.wait_for_page_loaded()
+    ghost.capture_to(filename,selector=selector)
+
 def ver_ciudad(request, nombre_ciudad):
     if request.method == 'GET':
         slug_ciudad = slugify(nombre_ciudad)
@@ -72,21 +87,34 @@ def ver_ciudad(request, nombre_ciudad):
         lineas = natural_sort_qs(ciudad_actual.lineas.all(), 'slug')
         tarifas = Tarifa.objects.filter(ciudad=ciudad_actual)
 
-        mapa = InfoMap([
-            [ciudad_actual.poligono, {
-                'html': "<p>Special style for this point.</p>",
-                'style': {'fill_color': '#0099CC', 'strokeColor': "#0066CC"},
-            }]],
-            {
-                "map_div_style": {"width": '100%'},
-                "layers": ["google.streets", "osm.mapnik"]  # "google.streets", "google.hybrid", "ve.road", "ve.hybrid", "yahoo.map"]
-            }
-        )
-
         imagenes = ImagenCiudad.objects.filter(ciudad=ciudad_actual)
 
+        # si hace falta sacamos la foto del mapa con Ghost.py
+        img_map = ""
+        if ( not request.GET.get("dynamic_map") and not ciudad_actual.img ):
+            filename = '/tmp/ciudad-{0}.png'.format(ciudad_actual.slug)
+            print "proc about to create"
+            protocol = 'http'
+            if request.is_secure():
+                protocol = 'https'
+            url = '{0}://{1}{2}?dynamic_map=True'.format(protocol,Site.objects.all()[0], request.path)
+            proc = Process(target=createScreenshot, args=(url, filename, '#map'))
+            proc.start()
+            proc.join()
+            # optimizamos la imagen si tenemos pngcrush
+            try:
+                call('pngcrush -q -rem gAMA -rem cHRM -rem iCCP -rem sRGB -rem alla -rem text -reduce -brute {0} {1}.min'.format(filename, filename).split())
+                os.remove(filename)
+                shutil.move('{0}.min'.format(filename), filename)
+            except OSError:
+                pass
+            with open(filename, 'r') as f:
+                ciudad_actual.img = File(f)
+                ciudad_actual.save()
+            os.remove(filename)
+
         return render_to_response('core/ver_ciudad.html',
-                                  {'mapa': mapa,
+                                  {'ciudad_img': ciudad_actual.img,
                                    'imagenes': imagenes,
                                    'lineas': lineas,
                                    'tarifas': tarifas},

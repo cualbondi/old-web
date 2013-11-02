@@ -8,6 +8,7 @@ from django.template.defaultfilters import slugify
 from apps.catastro.managers import (
     CiudadManager, ZonaManager, PuntoBusquedaManager)
 
+from django_thumbs.db import models as imgmod
 
 """ Dejemos estos modelos comentados hasta que resolvamos
 la migracion de Provincia y Ciudad """
@@ -91,6 +92,7 @@ class Ciudad(models.Model):
     slug = models.SlugField(max_length=120, blank=True, null=False)
     provincia = models.ForeignKey(Provincia)
     activa = models.BooleanField(blank=True, null=False, default=False)
+    img = imgmod.ImageWithThumbsField(upload_to='ciudad', sizes=((879,299),(200,200)), blank=True, null=True)
 
     # Opcionales
     variantes_nombre = models.CharField(max_length=150, blank=True, null=True)
