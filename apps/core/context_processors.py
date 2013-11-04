@@ -2,6 +2,7 @@
 from django.conf import settings
 
 from apps.catastro.models import Ciudad
+from django.contrib.sites.models import Site
 
 
 def lista_ciudades(request):
@@ -27,6 +28,8 @@ def show_android_alert(request):
         show_alert = False
     return {'show_android_alert': show_alert}
 
+def home_url(request):
+    return {'HOME_URL': settings.HOME_URL}
 
 def facebook_app_id(request):
     return {'FACEBOOK_APP_ID': settings.FACEBOOK_APP_ID}
