@@ -1,12 +1,11 @@
-Django==1.4.8
-PIL==1.1.7
+Django==1.4.9
+Pillow==2.2.1
 South==0.8.2
 argparse==1.2.1
 django-appconf==0.6
 django-floppyforms==1.1
 django-imagekit==2.0.4
 django-indexer==0.3.0
-django-olwidget==0.60.3
 django-paging==0.2.5
 django-piston==0.2.3
 django-sentry==1.13.5
@@ -19,6 +18,7 @@ psycopg2==2.5.1
 pymongo==2.6.3
 python-daemon==1.6
 python-memcached==1.53
-raven==3.5.0
+raven==3.5.2
 six==1.4.1
 wsgiref==0.1.2
+
