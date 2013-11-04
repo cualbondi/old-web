@@ -175,9 +175,8 @@ class PuntoBusquedaManager:
                 ORDER BY
                     precision DESC
                 LIMIT 5
-        ;"""        
+        ;"""
         cursor = connection.cursor()
-        #cursor.execute("lock catastro_calle in ACCESS SHARE mode;")
         query_set = cursor.execute(query, params)
         l = self.dictfetchall(cursor)
         return l
