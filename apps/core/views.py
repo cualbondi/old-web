@@ -73,11 +73,32 @@ from django.contrib.sites.models import Site
 from subprocess import call
 import shutil
 
-def createScreenshot(url,filename,selector):
+def create_screenshot(url,filename,selector):
     ghost=Ghost(wait_timeout=40,viewport_size=(1900,1900))
     ghost.open(url)
     ghost.wait_for_page_loaded()
     ghost.capture_to(filename,selector=selector)
+
+def ghost_make_map_img(request, obj, prefix):
+    filename = '/tmp/{0}-{1}.png'.format(prefix, obj.slug)
+    protocol = 'http'
+    if request.is_secure():
+        protocol = 'https'
+    url = '{0}://{1}{2}?dynamic_map=True'.format(protocol, Site.objects.all()[0], request.path)
+    proc = Process(target=create_screenshot, args=(url, filename, '#map'))
+    proc.start()
+    proc.join()
+    # optimizamos la imagen si tenemos pngcrush
+    try:
+        call('pngcrush -q -rem gAMA -rem cHRM -rem iCCP -rem sRGB -rem alla -rem text -reduce -brute {0} {1}.min'.format(filename, filename).split())
+        os.remove(filename)
+        shutil.move('{0}.min'.format(filename), filename)
+    except OSError:
+        pass
+    with open(filename, 'r') as f:
+        obj.img = File(f)
+        obj.save()
+    os.remove(filename)
 
 def ver_ciudad(request, nombre_ciudad):
     if request.method == 'GET':
@@ -89,28 +110,8 @@ def ver_ciudad(request, nombre_ciudad):
 
         imagenes = ImagenCiudad.objects.filter(ciudad=ciudad_actual)
 
-        # si hace falta sacamos la foto del mapa con Ghost.py
-        img_map = ""
         if ( not request.GET.get("dynamic_map") and not ciudad_actual.img ):
-            filename = '/tmp/ciudad-{0}.png'.format(ciudad_actual.slug)
-            protocol = 'http'
-            if request.is_secure():
-                protocol = 'https'
-            url = '{0}://{1}{2}?dynamic_map=True'.format(protocol,Site.objects.all()[0], request.path)
-            proc = Process(target=createScreenshot, args=(url, filename, '#map'))
-            proc.start()
-            proc.join()
-            # optimizamos la imagen si tenemos pngcrush
-            try:
-                call('pngcrush -q -rem gAMA -rem cHRM -rem iCCP -rem sRGB -rem alla -rem text -reduce -brute {0} {1}.min'.format(filename, filename).split())
-                os.remove(filename)
-                shutil.move('{0}.min'.format(filename), filename)
-            except OSError:
-                pass
-            with open(filename, 'r') as f:
-                ciudad_actual.img = File(f)
-                ciudad_actual.save()
-            os.remove(filename)
+            ghost_make_map_img(request, ciudad_actual, 'ciudad')
 
         return render_to_response('core/ver_ciudad.html',
                                   {'ciudad_img': ciudad_actual.img,
@@ -155,28 +156,8 @@ def ver_linea(request, nombre_ciudad, nombre_linea):
                                          ciudad=ciudad_actual)
         recorridos = natural_sort_qs(Recorrido.objects.filter(linea=linea_actual), 'slug')
 
-        # si hace falta sacamos la foto del mapa con Ghost.py
-        img_map = ""
         if ( not request.GET.get("dynamic_map") and not linea_actual.img ):
-            filename = '/tmp/linea-{0}.png'.format(linea_actual.slug)
-            protocol = 'http'
-            if request.is_secure():
-                protocol = 'https'
-            url = '{0}://{1}{2}?dynamic_map=True'.format(protocol,Site.objects.all()[0], request.path)
-            proc = Process(target=createScreenshot, args=(url, filename, '#map'))
-            proc.start()
-            proc.join()
-            # optimizamos la imagen si tenemos pngcrush
-            try:
-                call('pngcrush -q -rem gAMA -rem cHRM -rem iCCP -rem sRGB -rem alla -rem text -reduce -brute {0} {1}.min'.format(filename, filename).split())
-                os.remove(filename)
-                shutil.move('{0}.min'.format(filename), filename)
-            except OSError:
-                pass
-            with open(filename, 'r') as f:
-                linea_actual.img = File(f)
-                linea_actual.save()
-            os.remove(filename)
+            ghost_make_map_img(request, linea_actual, 'linea')
 
         return render_to_response('core/ver_linea.html',
                                   {'img_map': linea_actual.img,
@@ -208,28 +189,8 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
         if request.user.is_authenticated():
             favorito = recorrido_actual.es_favorito(request.user)
 
-        # si hace falta sacamos la foto del mapa con Ghost.py
-        img_map = ""
         if ( not request.GET.get("dynamic_map") and not recorrido_actual.img ):
-            filename = '/tmp/recorrido-{0}.png'.format(recorrido_actual.slug)
-            protocol = 'http'
-            if request.is_secure():
-                protocol = 'https'
-            url = '{0}://{1}{2}?dynamic_map=True'.format(protocol,Site.objects.all()[0], request.path)
-            proc = Process(target=createScreenshot, args=(url, filename, '#map'))
-            proc.start()
-            proc.join()
-            # optimizamos la imagen si tenemos pngcrush
-            try:
-                call('pngcrush -q -rem gAMA -rem cHRM -rem iCCP -rem sRGB -rem alla -rem text -reduce -brute {0} {1}.min'.format(filename, filename).split())
-                os.remove(filename)
-                shutil.move('{0}.min'.format(filename), filename)
-            except OSError:
-                pass
-            with open(filename, 'r') as f:
-                recorrido_actual.img = File(f)
-                recorrido_actual.save()
-            os.remove(filename)
+            ghost_make_map_img(request, recorrido_actual, 'recorrido')
 
         return render_to_response('core/ver_recorrido.html',
                                   {'img_map': recorrido_actual.img,
