@@ -136,7 +136,6 @@ TEMPLATE_DIRS = (
     os.path.join(os.path.dirname(__file__),'templates')
 )
 
-OLWIDGET_STATIC_URL = STATIC_URL+"olwidget"
 GOOGLE_API = "//maps.google.com/maps/api/js?v=3.6&sensor=false"
 
 INSTALLED_APPS = (
@@ -157,7 +156,6 @@ INSTALLED_APPS = (
     'apps.core',
     'apps.usuarios',
     'floppyforms',
-    'olwidget',
     'imagekit',
     'south',
 #    'moderacion',
