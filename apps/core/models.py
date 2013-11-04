@@ -9,11 +9,14 @@ from apps.usuarios.models import RecorridoFavorito
 
 from django.core.urlresolvers import reverse
 
+from django_thumbs.db.models import ImageWithThumbsField
+
 class Linea(models.Model):
     nombre = models.CharField(max_length=100)
     slug = models.SlugField(max_length=120, blank=True, null=False)
     descripcion = models.TextField(blank=True, null=True)
     foto = models.CharField(max_length=20, blank=True, null=True)
+    img = ImageWithThumbsField(upload_to='linea', sizes=((879,299),(200,200)), blank=True, null=True)
     color_polilinea = models.CharField(max_length=20, blank=True, null=True)
     info_empresa = models.TextField(blank=True, null=True)
     info_terminal = models.TextField(blank=True, null=True)
@@ -32,6 +35,7 @@ class Linea(models.Model):
 
 class Recorrido(models.Model):
     nombre = models.CharField(max_length=100)
+    img = ImageWithThumbsField(upload_to='recorrido', sizes=((879,299),(200,200)), blank=True, null=True)
     linea = models.ForeignKey(Linea)
     ruta = models.LineStringField()
     sentido = models.CharField(max_length=100, blank=True, null=False)

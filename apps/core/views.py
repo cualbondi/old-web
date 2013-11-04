@@ -93,7 +93,6 @@ def ver_ciudad(request, nombre_ciudad):
         img_map = ""
         if ( not request.GET.get("dynamic_map") and not ciudad_actual.img ):
             filename = '/tmp/ciudad-{0}.png'.format(ciudad_actual.slug)
-            print "proc about to create"
             protocol = 'http'
             if request.is_secure():
                 protocol = 'https'
@@ -156,8 +155,32 @@ def ver_linea(request, nombre_ciudad, nombre_linea):
                                          ciudad=ciudad_actual)
         recorridos = natural_sort_qs(Recorrido.objects.filter(linea=linea_actual), 'slug')
 
+        # si hace falta sacamos la foto del mapa con Ghost.py
+        img_map = ""
+        if ( not request.GET.get("dynamic_map") and not linea_actual.img ):
+            filename = '/tmp/linea-{0}.png'.format(linea_actual.slug)
+            protocol = 'http'
+            if request.is_secure():
+                protocol = 'https'
+            url = '{0}://{1}{2}?dynamic_map=True'.format(protocol,Site.objects.all()[0], request.path)
+            proc = Process(target=createScreenshot, args=(url, filename, '#map'))
+            proc.start()
+            proc.join()
+            # optimizamos la imagen si tenemos pngcrush
+            try:
+                call('pngcrush -q -rem gAMA -rem cHRM -rem iCCP -rem sRGB -rem alla -rem text -reduce -brute {0} {1}.min'.format(filename, filename).split())
+                os.remove(filename)
+                shutil.move('{0}.min'.format(filename), filename)
+            except OSError:
+                pass
+            with open(filename, 'r') as f:
+                linea_actual.img = File(f)
+                linea_actual.save()
+            os.remove(filename)
+
         return render_to_response('core/ver_linea.html',
-                                  {'ciudad_actual': ciudad_actual,
+                                  {'img_map': linea_actual.img,
+                                   'ciudad_actual': ciudad_actual,
                                    'linea_actual': linea_actual,
                                    'recorridos': recorridos
                                    },
@@ -185,8 +208,32 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
         if request.user.is_authenticated():
             favorito = recorrido_actual.es_favorito(request.user)
 
+        # si hace falta sacamos la foto del mapa con Ghost.py
+        img_map = ""
+        if ( not request.GET.get("dynamic_map") and not recorrido_actual.img ):
+            filename = '/tmp/recorrido-{0}.png'.format(recorrido_actual.slug)
+            protocol = 'http'
+            if request.is_secure():
+                protocol = 'https'
+            url = '{0}://{1}{2}?dynamic_map=True'.format(protocol,Site.objects.all()[0], request.path)
+            proc = Process(target=createScreenshot, args=(url, filename, '#map'))
+            proc.start()
+            proc.join()
+            # optimizamos la imagen si tenemos pngcrush
+            try:
+                call('pngcrush -q -rem gAMA -rem cHRM -rem iCCP -rem sRGB -rem alla -rem text -reduce -brute {0} {1}.min'.format(filename, filename).split())
+                os.remove(filename)
+                shutil.move('{0}.min'.format(filename), filename)
+            except OSError:
+                pass
+            with open(filename, 'r') as f:
+                recorrido_actual.img = File(f)
+                recorrido_actual.save()
+            os.remove(filename)
+
         return render_to_response('core/ver_recorrido.html',
-                                  {'ciudad_actual': ciudad_actual,
+                                  {'img_map': recorrido_actual.img,
+                                   'ciudad_actual': ciudad_actual,
                                    'linea_actual': linea_actual,
                                    'recorrido_actual': recorrido_actual,
                                    'favorito': favorito},
