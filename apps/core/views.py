@@ -160,7 +160,8 @@ def ver_linea(request, nombre_ciudad, nombre_linea):
             ghost_make_map_img(request, linea_actual, 'linea')
 
         return render_to_response('core/ver_linea.html',
-                                  {'img_map': linea_actual.img,
+                                  {'img_map_thumb': linea_actual.img.thumbnail(200,200),
+                                   'img_map': linea_actual.img,
                                    'ciudad_actual': ciudad_actual,
                                    'linea_actual': linea_actual,
                                    'recorridos': recorridos
@@ -193,7 +194,8 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
             ghost_make_map_img(request, recorrido_actual, 'recorrido')
 
         return render_to_response('core/ver_recorrido.html',
-                                  {'img_map': recorrido_actual.img,
+                                  {'img_map_thumb': recorrido_actual.img.thumbnail(200,200),
+                                   'img_map': recorrido_actual.img,
                                    'ciudad_actual': ciudad_actual,
                                    'linea_actual': linea_actual,
                                    'recorrido_actual': recorrido_actual,

@@ -12,7 +12,7 @@
     <meta property="og:url"    content="{{ HOME_URL }}{{ request.get_full_path }}" /> 
     <meta property="og:title"  content="Línea {{linea_actual.nombre|title}}" /> 
     <meta property="og:description"  content="Toda la información sobre ramales, recorridos, paradas, horarios y tarifas de la línea {{linea_actual.nombre|title}} que pasa por la ciudad de {{ciudad_actual.nombre|title}}" /> 
-    <meta property="og:image"  content="" /> 
+    <meta property="og:image"  content="{% if img_map %}{{ HOME_URL }}/{{ img_map_thumb }}{% endif %}" /> 
 
     {% if request.GET.dynamic_map %}
     <script src="http://openlayers.org/api/OpenLayers.js"></script>

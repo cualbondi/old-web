@@ -11,7 +11,7 @@
     <meta property="og:url"    content="{{ HOME_URL }}{{ request.get_full_path }}" /> 
     <meta property="og:title"  content="{{linea_actual.nombre|title}} - {{recorrido_actual.nombre|title}}" /> 
     <meta property="og:description"  content="Linea {{linea_actual.nombre|title}}, Ramal {{recorrido_actual.nombre|title}} en {{ciudad_actual.nombre|title}} - Cualbondi{% if recorrido_actual.inicio and recorrido_actual.fin %}, Recorrido desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}} {% endif %} en {{ciudad_actual.nombre|title}}: Descripción del recorrido de colectivo, micro, bus" /> 
-    <meta property="og:image"  content="" /> 
+    <meta property="og:image"  content="{% if img_map %}{{ HOME_URL }}/{{ img_map_thumb }}{% endif %}" /> 
 
     {% if request.GET.dynamic_map %}
     <script src="http://openlayers.org/api/OpenLayers.js"></script>
