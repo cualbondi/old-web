@@ -3,7 +3,16 @@
 {% block title %}Linea {{linea_actual.nombre|title}}, Ramal {{recorrido_actual.nombre|title}} en {{ciudad_actual.nombre|title}} - Cualbondi{% if recorrido_actual.inicio and recorrido_actual.fin %}, Recorrido desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}} {% endif %} en {{ciudad_actual.nombre|title}}: Descripción del recorrido de colectivo, micro, bus{% endblock %}
 {% block meta_description %}Toda la información sobre paradas, horarios y tarifas del recorrido {{recorrido_actual.nombre|title}} de la línea {{linea_actual.nombre|title}} que pasa por la ciudad de {{ciudad_actual.nombre|title}}.{% endblock %}
 
+{% block head-attrs %} prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# cualbondi: http://ogp.me/ns/fb/cualbondi#"{% endblock %}
+
 {% block custom_top_scripts %}
+    <meta property="fb:app_id" content="{{ FACEBOOK_APP_ID }}" /> 
+    <meta property="og:type"   content="cualbondi:recorrido" /> 
+    <meta property="og:url"    content="{{ HOME_URL }}{{ request.get_full_path }}" /> 
+    <meta property="og:title"  content="{{linea_actual.nombre|title}} - {{recorrido_actual.nombre|title}}" /> 
+    <meta property="og:description"  content="Linea {{linea_actual.nombre|title}}, Ramal {{recorrido_actual.nombre|title}} en {{ciudad_actual.nombre|title}} - Cualbondi{% if recorrido_actual.inicio and recorrido_actual.fin %}, Recorrido desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}} {% endif %} en {{ciudad_actual.nombre|title}}: Descripción del recorrido de colectivo, micro, bus" /> 
+    <meta property="og:image"  content="" /> 
+
     {% if request.GET.dynamic_map %}
     <script src="http://openlayers.org/api/OpenLayers.js"></script>
     <script src="http://maps.google.com/maps/api/js?v=3.6&amp;sensor=false"></script>
