@@ -11,7 +11,7 @@
     <meta property="og:url"    content="{{ HOME_URL }}{{ request.get_full_path }}" /> 
     <meta property="og:title"  content="{{linea_actual.nombre|title}} - {{recorrido_actual.nombre|title}}" /> 
     <meta property="og:description"  content="Linea {{linea_actual.nombre|title}}, Ramal {{recorrido_actual.nombre|title}} en {{ciudad_actual.nombre|title}} - Cualbondi{% if recorrido_actual.inicio and recorrido_actual.fin %}, Recorrido desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}} {% endif %} en {{ciudad_actual.nombre|title}}: Descripción del recorrido de colectivo, micro, bus" /> 
-    <meta property="og:image"  content="{% if img_map %}{{ HOME_URL }}/{{ img_map_thumb }}{% endif %}" /> 
+    <meta property="og:image"  content="/{{ recorrido_actual.img_cuadrada.url }}" /> 
 
     {% if request.GET.dynamic_map %}
     <script src="http://openlayers.org/api/OpenLayers.js"></script>
@@ -50,7 +50,7 @@
     <h1>Recorrido {{linea_actual.nombre}} {{recorrido_actual.nombre}} de {{ciudad_actual.nombre}}</h1>
     {% if recorrido_actual.inicio and recorrido_actual.fin %}<h3>desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}}</h3>{% endif %}
 
-    <div class="thumbnail"><div id="map" style="background:lightblue; height:300px;">{% if not request.GET.dynamic_map %}<img src="/{{ img_map.url }}" alt="" />{% endif %}</div></div>
+    <div class="thumbnail"><div id="map" style="background:lightblue; height:300px;">{% if not request.GET.dynamic_map %}<img src="/{{ recorrido_actual.img_panorama.url }}" alt="" />{% endif %}</div></div>
     <br />
 
     {% if recorrido_actual.descripcion %}

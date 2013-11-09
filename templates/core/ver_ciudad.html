@@ -8,9 +8,8 @@
 
 {% block custom_top_scripts %}
     {% if request.GET.dynamic_map %}
-        <script src="http://openlayers.org/api/OpenLayers.js"></script>
-        <script src="http://maps.google.com/maps/api/js?v=3.6&amp;sensor=false"></script>
-        <link rel="stylesheet" href="http://openlayers.org/dev/theme/default/style.css" type="text/css" />
+        <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.css" />
+        <script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
     {% endif %}
 {% endblock %}
 
@@ -58,7 +57,7 @@
     {% endif %}
 
     <h3>Area cubierta por transporte público:</h3>
-    <div class="thumbnail"><div id="map" style="background:lightblue; height:300px;">{% if not request.GET.dynamic_map %}<img src="/{{ ciudad_img.url }}" alt="" />{% endif %}</div></div>
+    <div class="thumbnail"><div id="map" style="background:lightblue; height:300px;">{% if not request.GET.dynamic_map %}<img src="/{{ ciudad_actual.img_panorama.url }}" alt="" />{% endif %}</div></div>
     <br />
 
     <h3>Lineas de micro en {{ciudad_actual.nombre}}:</h3>
@@ -121,7 +120,17 @@
         $('.carousel').carousel()
 
         {% if request.GET.dynamic_map %}
-
+        
+        map = new L.Map('map');
+        var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        var osmAttrib='&copy; Cualbondi &amp; OpenStreetMap contributors';
+        var osm = new L.TileLayer(osmUrl, {maxZoom: 17});
+        map.attributionControl.setPrefix('Leaflet').addAttribution( osmAttrib );
+        
+        map.setView(L.latLng({{ ciudad_actual.centro.get_y }},{{ ciudad_actual.centro.get_x}}), {{ ciudad_actual.zoom }});
+        map.addLayer(osm);
+        
+        /*
         //Proyeccion que se necesita para transformar proyecciones mas adelante
         var proj = new OpenLayers.Projection("EPSG:4326");
 
@@ -151,7 +160,8 @@
         var extent = new OpenLayers.Bounds();
         extent.extend(poligono_ciudad.geometry.getBounds())
         map.zoomToExtent(extent);
-
+        */
+        
         {% endif %}
     
     });

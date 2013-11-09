@@ -14,7 +14,6 @@ django-paging==0.2.5
 django-piston==0.2.3
 django-sentry==1.13.5
 django-templatetag-sugar==0.1
--e git+https://github.com/djromero/django-thumbs.git@9a4b7d31f40502e07437be7e0b6efbac7523336b#egg=django_thumbs-master
 eventlet==0.14.0
 greenlet==0.4.1
 ipython==0.13.2

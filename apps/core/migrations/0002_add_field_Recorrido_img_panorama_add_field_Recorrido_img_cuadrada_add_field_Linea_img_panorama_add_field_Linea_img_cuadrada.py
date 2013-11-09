@@ -8,23 +8,39 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'Recorrido.img'
-        db.add_column('core_recorrido', 'img',
-                      self.gf('django_thumbs.db.models.ImageWithThumbsField')(max_length=100, null=True, blank=True),
+        # Adding field 'Recorrido.img_panorama'
+        db.add_column('core_recorrido', 'img_panorama',
+                      self.gf('django.db.models.fields.files.ImageField')(max_length=100, null=True, blank=True),
                       keep_default=False)
 
-        # Adding field 'Linea.img'
-        db.add_column('core_linea', 'img',
-                      self.gf('django_thumbs.db.models.ImageWithThumbsField')(max_length=100, null=True, blank=True),
+        # Adding field 'Recorrido.img_cuadrada'
+        db.add_column('core_recorrido', 'img_cuadrada',
+                      self.gf('django.db.models.fields.files.ImageField')(max_length=100, null=True, blank=True),
+                      keep_default=False)
+
+        # Adding field 'Linea.img_panorama'
+        db.add_column('core_linea', 'img_panorama',
+                      self.gf('django.db.models.fields.files.ImageField')(max_length=100, null=True, blank=True),
+                      keep_default=False)
+
+        # Adding field 'Linea.img_cuadrada'
+        db.add_column('core_linea', 'img_cuadrada',
+                      self.gf('django.db.models.fields.files.ImageField')(max_length=100, null=True, blank=True),
                       keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting field 'Recorrido.img'
-        db.delete_column('core_recorrido', 'img')
+        # Deleting field 'Recorrido.img_panorama'
+        db.delete_column('core_recorrido', 'img_panorama')
 
-        # Deleting field 'Linea.img'
-        db.delete_column('core_linea', 'img')
+        # Deleting field 'Recorrido.img_cuadrada'
+        db.delete_column('core_recorrido', 'img_cuadrada')
+
+        # Deleting field 'Linea.img_panorama'
+        db.delete_column('core_linea', 'img_panorama')
+
+        # Deleting field 'Linea.img_cuadrada'
+        db.delete_column('core_linea', 'img_cuadrada')
 
 
     models = {
@@ -36,7 +52,8 @@ class Migration(SchemaMigration):
             'descripcion': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'envolvente': ('django.contrib.gis.db.models.fields.PolygonField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'img': ('django_thumbs.db.models.ImageWithThumbsField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
+            'img_cuadrada': ('django.db.models.fields.files.ImageField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
+            'img_panorama': ('django.db.models.fields.files.ImageField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'lineas': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['core.Linea']", 'null': 'True', 'blank': 'True'}),
             'longitud_poligono': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '7', 'decimal_places': '2', 'blank': 'True'}),
             'nombre': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
@@ -81,7 +98,8 @@ class Migration(SchemaMigration):
             'envolvente': ('django.contrib.gis.db.models.fields.PolygonField', [], {'null': 'True', 'blank': 'True'}),
             'foto': ('django.db.models.fields.CharField', [], {'max_length': '20', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'img': ('django_thumbs.db.models.ImageWithThumbsField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
+            'img_cuadrada': ('django.db.models.fields.files.ImageField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
+            'img_panorama': ('django.db.models.fields.files.ImageField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'info_empresa': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'info_terminal': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'localidad': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True', 'blank': 'True'}),
@@ -111,7 +129,8 @@ class Migration(SchemaMigration):
             'fin': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'horarios': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'img': ('django_thumbs.db.models.ImageWithThumbsField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
+            'img_cuadrada': ('django.db.models.fields.files.ImageField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
+            'img_panorama': ('django.db.models.fields.files.ImageField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'inicio': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'linea': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['core.Linea']"}),
             'nombre': ('django.db.models.fields.CharField', [], {'max_length': '100'}),

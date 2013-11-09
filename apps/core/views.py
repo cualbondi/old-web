@@ -63,42 +63,6 @@ def index(request):
         return response
     else:
         return HttpResponse(status=501)
-        
-
-from ghost import Ghost
-from multiprocessing import Process
-import os
-from django.core.files import File
-from django.contrib.sites.models import Site
-from subprocess import call
-import shutil
-
-def create_screenshot(url,filename,selector):
-    ghost=Ghost(wait_timeout=40,viewport_size=(1900,1900))
-    ghost.open(url)
-    ghost.wait_for_page_loaded()
-    ghost.capture_to(filename,selector=selector)
-
-def ghost_make_map_img(request, obj, prefix):
-    filename = '/tmp/{0}-{1}.png'.format(prefix, obj.slug)
-    protocol = 'http'
-    if request.is_secure():
-        protocol = 'https'
-    url = '{0}://{1}{2}?dynamic_map=True'.format(protocol, Site.objects.all()[0], request.path)
-    proc = Process(target=create_screenshot, args=(url, filename, '#map'))
-    proc.start()
-    proc.join()
-    # optimizamos la imagen si tenemos pngcrush
-    try:
-        call('pngcrush -q -rem gAMA -rem cHRM -rem iCCP -rem sRGB -rem alla -rem text -reduce -brute {0} {1}.min'.format(filename, filename).split())
-        os.remove(filename)
-        shutil.move('{0}.min'.format(filename), filename)
-    except OSError:
-        pass
-    with open(filename, 'r') as f:
-        obj.img = File(f)
-        obj.save()
-    os.remove(filename)
 
 def ver_ciudad(request, nombre_ciudad):
     if request.method == 'GET':
@@ -110,11 +74,13 @@ def ver_ciudad(request, nombre_ciudad):
 
         imagenes = ImagenCiudad.objects.filter(ciudad=ciudad_actual)
 
-        if ( not request.GET.get("dynamic_map") and not ciudad_actual.img ):
-            ghost_make_map_img(request, ciudad_actual, 'ciudad')
+        template = "core/ver_ciudad.html"
+        if ( request.GET.get("dynamic_map") ):
+            template = "core/ver_obj_map.html"            
 
-        return render_to_response('core/ver_ciudad.html',
-                                  {'ciudad_img': ciudad_actual.img,
+        return render_to_response(template,
+                                  {'obj': ciudad_actual,
+                                   'ciudad_actual': ciudad_actual,
                                    'imagenes': imagenes,
                                    'lineas': lineas,
                                    'tarifas': tarifas},
@@ -156,12 +122,12 @@ def ver_linea(request, nombre_ciudad, nombre_linea):
                                          ciudad=ciudad_actual)
         recorridos = natural_sort_qs(Recorrido.objects.filter(linea=linea_actual), 'slug')
 
-        if ( not request.GET.get("dynamic_map") and not linea_actual.img ):
-            ghost_make_map_img(request, linea_actual, 'linea')
+        template = "core/ver_linea.html"
+        if ( request.GET.get("dynamic_map") ):
+            template = "core/ver_obj_map.html" 
 
-        return render_to_response('core/ver_linea.html',
-                                  {'img_map_thumb': linea_actual.img.thumbnail(200,200),
-                                   'img_map': linea_actual.img,
+        return render_to_response(template,
+                                  {'obj': linea_actual,
                                    'ciudad_actual': ciudad_actual,
                                    'linea_actual': linea_actual,
                                    'recorridos': recorridos
@@ -190,12 +156,12 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
         if request.user.is_authenticated():
             favorito = recorrido_actual.es_favorito(request.user)
 
-        if ( not request.GET.get("dynamic_map") and not recorrido_actual.img ):
-            ghost_make_map_img(request, recorrido_actual, 'recorrido')
+        template = "core/ver_recorrido.html"
+        if ( request.GET.get("dynamic_map") ):
+            template = "core/ver_obj_map.html" 
 
-        return render_to_response('core/ver_recorrido.html',
-                                  {'img_map_thumb': recorrido_actual.img.thumbnail(200,200),
-                                   'img_map': recorrido_actual.img,
+        return render_to_response(template,
+                                  {'obj': recorrido_actual,
                                    'ciudad_actual': ciudad_actual,
                                    'linea_actual': linea_actual,
                                    'recorrido_actual': recorrido_actual,
