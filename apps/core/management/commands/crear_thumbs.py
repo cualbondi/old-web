@@ -19,10 +19,10 @@ def create_screenshot(url, filename, size):
     ghost.wait_for_page_loaded()
     ghost.capture_to(filename,selector='#map')
     
-def save_img(pre_name, prefix, obj):
+def save_img(pre_name, prefix, obj, img_field):
     fname = pre_name.format(prefix, obj.slug)
     with open(fname, 'r') as f:
-        obj.img_cuadrada = File(f)
+        setattr(obj, img_field, File(f))
         try:
             obj.save()
         except AssertionError, e:
@@ -31,6 +31,7 @@ def save_img(pre_name, prefix, obj):
     os.remove(fname)
 
 def ghost_make_map_img(obj, prefix, ciudad=None):
+    print obj,
     if ciudad is None:
         url = '{0}{1}?dynamic_map=True'.format(settings.HOME_URL, obj.get_absolute_url())
     else:
@@ -38,18 +39,21 @@ def ghost_make_map_img(obj, prefix, ciudad=None):
     print ">>> " + url
     for size in [(500, 500), (880, 300)]:
         fname = '/tmp/{0}-{1}.{2}x{3}.png'.format(prefix, obj.slug, size[0], size[1])
+        print "  >- Size: ", size
+        print "   - Rendering HTML..."
         proc = Process(target=create_screenshot, args=(url, fname, size ) )
         proc.start()
         proc.join()
         # optimizamos la imagen si tenemos pngcrush
+        print "   - pngcrushing it"        
         try:
             call('pngcrush -q -rem gAMA -rem cHRM -rem iCCP -rem sRGB -rem alla -rem text -reduce -brute {0} {1}.min'.format(fname, fname).split())
             os.remove(fname)
             shutil.move('{0}.min'.format(fname), fname)
         except OSError:
             pass
-    save_img('/tmp/{0}-{1}.500x500.png', prefix, obj)
-    save_img('/tmp/{0}-{1}.880x300.png', prefix, obj)
+    save_img('/tmp/{0}-{1}.500x500.png', prefix, obj, 'img_cuadrada')
+    save_img('/tmp/{0}-{1}.880x300.png', prefix, obj, 'img_panorama')
     
 def ciudad_recursiva(c):
     for l in c.lineas.all():
@@ -197,6 +201,7 @@ class Command(BaseCommand):
                 foto_de_linea(l, r)
         
         #recorrido
+        rs=[]
         if options['recorridos']:
             rs = Recorrido.objects.all()
         elif options['recorrido_slug']:
