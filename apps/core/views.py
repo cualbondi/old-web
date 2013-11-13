@@ -13,7 +13,6 @@ from django.contrib.comments import signals
 from django.contrib.comments.views.utils import next_redirect, confirmation_view
 from django.contrib.comments.views.comments import CommentPostBadRequest
 from django.utils import simplejson
-from olwidget.widgets import InfoMap
 from django.http import HttpResponse
 
 from apps.core.models import Linea, Recorrido, Tarifa
