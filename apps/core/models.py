@@ -33,7 +33,7 @@ class Linea(models.Model):
 
     def get_absolute_url(self, ciudad_slug):
         try:
-            Ciudad.objects.get(slug=ciudad_slug, lineas=self.linea)
+            Ciudad.objects.get(slug=ciudad_slug, lineas=self)
         except Ciudad.DoesNotExist:
             raise ValueError("La linea no corresponde a la ciudad")
         return reverse('ver_linea',
