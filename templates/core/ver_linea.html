@@ -12,13 +12,7 @@
     <meta property="og:url"    content="{{ HOME_URL }}{{ request.get_full_path }}" /> 
     <meta property="og:title"  content="Línea {{linea_actual.nombre|title}}" /> 
     <meta property="og:description"  content="Toda la información sobre ramales, recorridos, paradas, horarios y tarifas de la línea {{linea_actual.nombre|title}} que pasa por la ciudad de {{ciudad_actual.nombre|title}}" /> 
-    <meta property="og:image"  content="/{{ linea_actual.img_cuadrada.url }}" /> 
-
-    {% if request.GET.dynamic_map %}
-    <script src="http://openlayers.org/api/OpenLayers.js"></script>
-    <script src="http://maps.google.com/maps/api/js?v=3.6&amp;sensor=false"></script>
-    <link rel="stylesheet" href="http://openlayers.org/dev/theme/default/style.css" type="text/css" />
-    {% endif %}
+    <meta property="og:image"  content="{{ HOME_URL }}{{ linea_actual.img_cuadrada.url }}" /> 
 {% endblock %}
 
 {% block bloque_izquierda %}
@@ -30,7 +24,11 @@
 
     <h1>Linea {{linea_actual.nombre}} de {{ciudad_actual.nombre}}</h1>
 
-    <div class="thumbnail"><div id="map" style="background:lightblue; height:300px;">{% if not request.GET.dynamic_map %}<img src="/{{ linea_actual.img_panorama.url }}" alt="" />{% endif %}</div></div>
+    <div class="thumbnail">
+        <div id="map" style="background:lightblue;">
+            <img src="/{{ linea_actual.img_panorama.url }}" alt="Cobertura de transporte público de la línea {{ linea_actual.nombre }}." />
+        </div>
+    </div>
     <br />
 
     {% if linea_actual.info_empresa and linea_actual.info_terminal %}
@@ -70,43 +68,4 @@
         </script>
         <noscript>Habilita Javascript para ver los comentarios</noscript>
     <!--[endif]-->
-{% endblock %}
-
-{% block custom_scripts %}
-{{ block.super }}
-{% if request.GET.dynamic_map %}
-<script type="text/javascript">
-    $(document).ready(function(){
-        //Proyeccion que se necesita para transformar proyecciones mas adelante
-        var proj = new OpenLayers.Projection("EPSG:4326");
-
-        //Creamos el mapa
-        map = new OpenLayers.Map("map", {theme: null})
-        var gmap = new OpenLayers.Layer.Google(
-            "Google Streets", {numZoomLevels: 20}
-        );
-        map.addLayers([gmap]);
-        map.setCenter(new OpenLayers.LonLat{{ ciudad_actual.centro.coords }}.transform(
-            new OpenLayers.Projection("EPSG:4326"),
-            map.getProjectionObject()
-        ), {{ ciudad_actual.zoom }});
-
-        //Le agregamos una capa para el poligono de la ciudad
-        var style = {'strokeWidth': 2, 'strokeColor': '#0033CC', fillColor: "#0066CC", fillOpacity: 0.5}
-        var layer_recorridos = new OpenLayers.Layer.Vector("Recorridos", {styleMap: new OpenLayers.StyleMap(style) });
-        map.addLayer(layer_recorridos)
-
-
-            path_recorrido = new OpenLayers.Format.WKT().read("{{linea_actual.envolvente}}");
-            path_recorrido.geometry.transform(proj, map.getProjectionObject())
-            layer_recorridos.addFeatures([path_recorrido]);
-
-
-        //Acomodar el zoom al poligono
-        var extent = new OpenLayers.Bounds();
-        extent.extend(path_recorrido.geometry.getBounds())
-        map.zoomToExtent(extent);
-    });
-</script>
-{% endif %}
 {% endblock %}

@@ -6,13 +6,6 @@
 {% block title %}Ciudad de {{ciudad_actual.nombre|title}} - Cualbondi{% endblock %}
 {% block meta_description %}Toda la información sobre líneas, ramales, recorridos, paradas, horarios y tarifas de transporte público local que pasa por la ciudad de {{ciudad_actual.nombre|title}}, incluyendo bondis, micros, colectivos, trenes y subtes.{% endblock %}
 
-{% block custom_top_scripts %}
-    {% if request.GET.dynamic_map %}
-        <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.css" />
-        <script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
-    {% endif %}
-{% endblock %}
-
 {% block bloque_izquierda %}
     <ul class="breadcrumb">
         <li><a href="/">Inicio</a> <span class="divider">&gt;</span></li>
@@ -57,7 +50,12 @@
     {% endif %}
 
     <h3>Area cubierta por transporte público:</h3>
-    <div class="thumbnail"><div id="map" style="background:lightblue; height:300px;">{% if not request.GET.dynamic_map %}<img src="/{{ ciudad_actual.img_panorama.url }}" alt="" />{% endif %}</div></div>
+    <div class="thumbnail">
+        <div id="map" style="background:lightblue;">
+            <img src="/{{ ciudad_actual.img_panorama.url }}" alt="Cobertura de transporte público de la ciudad de {{ ciudad_actual.nombre }}." />
+        </div>
+    </div>
+    
     <br />
 
     <h3>Lineas de micro en {{ciudad_actual.nombre}}:</h3>
@@ -116,54 +114,7 @@
 
 <script type="text/javascript">
     $(document).ready(function(){
-        //CAROUSEL
         $('.carousel').carousel()
-
-        {% if request.GET.dynamic_map %}
-        
-        map = new L.Map('map');
-        var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-        var osmAttrib='&copy; Cualbondi &amp; OpenStreetMap contributors';
-        var osm = new L.TileLayer(osmUrl, {maxZoom: 17});
-        map.attributionControl.setPrefix('Leaflet').addAttribution( osmAttrib );
-        
-        map.setView(L.latLng({{ ciudad_actual.centro.get_y }},{{ ciudad_actual.centro.get_x}}), {{ ciudad_actual.zoom }});
-        map.addLayer(osm);
-        
-        /*
-        //Proyeccion que se necesita para transformar proyecciones mas adelante
-        var proj = new OpenLayers.Projection("EPSG:4326");
-
-        //Creamos el mapa
-        var map = new OpenLayers.Map('map', {theme: null});
-        var gmap = new OpenLayers.Layer.Google(
-            "Google Streets", {numZoomLevels: 20}
-        );
-        map.addLayers([gmap]);
-        map.setCenter(new OpenLayers.LonLat{{ ciudad_actual.centro.coords }}.transform(
-            new OpenLayers.Projection("EPSG:4326"),
-            map.getProjectionObject()
-        ), {{ ciudad_actual.zoom }});
-
-        //Le agregamos una capa para el poligono de la ciudad
-        var style = {'strokeWidth': 2, 'strokeColor': '#0033CC', fillColor: "#0066CC", fillOpacity: 0.5}
-        var layer_poligono = new OpenLayers.Layer.Vector("Poligono", {styleMap: new OpenLayers.StyleMap(style) });
-        map.addLayer(layer_poligono)
-
-        //Insertamos el poligono en la nueva capa
-        poligono_ciudad = new OpenLayers.Format.WKT().read("{{ciudad_actual.envolvente}}");
-
-        poligono_ciudad.geometry.transform(proj, map.getProjectionObject())
-        layer_poligono.addFeatures([poligono_ciudad]);
-
-        //Acomodar el zoom al poligono
-        var extent = new OpenLayers.Bounds();
-        extent.extend(poligono_ciudad.geometry.getBounds())
-        map.zoomToExtent(extent);
-        */
-        
-        {% endif %}
-    
     });
 </script>
 
