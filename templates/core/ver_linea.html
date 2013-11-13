@@ -12,7 +12,7 @@
     <meta property="og:url"    content="{{ HOME_URL }}{{ request.get_full_path }}" /> 
     <meta property="og:title"  content="Línea {{linea_actual.nombre|title}}" /> 
     <meta property="og:description"  content="Toda la información sobre ramales, recorridos, paradas, horarios y tarifas de la línea {{linea_actual.nombre|title}} que pasa por la ciudad de {{ciudad_actual.nombre|title}}" /> 
-    <meta property="og:image"  content="{{ HOME_URL }}{{ linea_actual.img_cuadrada.url }}" /> 
+    <meta property="og:image"  content="{{ HOME_URL }}/{{ linea_actual.img_cuadrada.url }}" /> 
 {% endblock %}
 
 {% block bloque_izquierda %}

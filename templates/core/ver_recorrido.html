@@ -11,7 +11,7 @@
     <meta property="og:url"    content="{{ HOME_URL }}{{ request.get_full_path }}" /> 
     <meta property="og:title"  content="{{linea_actual.nombre|title}} - {{recorrido_actual.nombre|title}}" /> 
     <meta property="og:description"  content="Linea {{linea_actual.nombre|title}}, Ramal {{recorrido_actual.nombre|title}} en {{ciudad_actual.nombre|title}} - Cualbondi{% if recorrido_actual.inicio and recorrido_actual.fin %}, Recorrido desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}} {% endif %} en {{ciudad_actual.nombre|title}}: Descripción del recorrido de colectivo, micro, bus" /> 
-    <meta property="og:image"  content="{{ HOME_URL }}{{ recorrido_actual.img_cuadrada.url }}" /> 
+    <meta property="og:image"  content="{{ HOME_URL }}/{{ recorrido_actual.img_cuadrada.url }}" /> 
 {% endblock %}
 
 {% block bloque_izquierda %}
