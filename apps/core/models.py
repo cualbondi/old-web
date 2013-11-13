@@ -32,8 +32,10 @@ class Linea(models.Model):
         super(Linea, self).save(*args, **kwargs)
 
     def get_absolute_url(self, ciudad_slug):
-        # chequear si la linea/recorrido está en esta ciudad, sino tirar excepcion
-        # if Ciudad.objects.get(slug=ciudad_slug, lineas=self.linea)
+        try:
+            Ciudad.objects.get(slug=ciudad_slug, lineas=self.linea)
+        except Ciudad.DoesNotExist:
+            raise ValueError("La linea no corresponde a la ciudad")
         return reverse('ver_linea',
             kwargs={
                 'nombre_ciudad'   : ciudad_slug,
