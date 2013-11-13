@@ -71,22 +71,10 @@ def ver_ciudad(request, nombre_ciudad):
         lineas = natural_sort_qs(ciudad_actual.lineas.all(), 'slug')
         tarifas = Tarifa.objects.filter(ciudad=ciudad_actual)
 
-        mapa = InfoMap([
-            [ciudad_actual.poligono, {
-                'html': "<p>Special style for this point.</p>",
-                'style': {'fill_color': '#0099CC', 'strokeColor': "#0066CC"},
-            }]],
-            {
-                "map_div_style": {"width": '100%'},
-                "layers": ["google.streets", "osm.mapnik"]  # "google.streets", "google.hybrid", "ve.road", "ve.hybrid", "yahoo.map"]
-            }
-        )
-
         imagenes = ImagenCiudad.objects.filter(ciudad=ciudad_actual)
 
         return render_to_response('core/ver_ciudad.html',
-                                  {'mapa': mapa,
-                                   'imagenes': imagenes,
+                                  {'imagenes': imagenes,
                                    'lineas': lineas,
                                    'tarifas': tarifas},
                                   context_instance=RequestContext(request))
