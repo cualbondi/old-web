@@ -52,7 +52,7 @@
     <h3>Area cubierta por transporte público:</h3>
     <div class="thumbnail">
         <div id="map" style="background:lightblue;">
-            <img src="/{{ ciudad_actual.img_panorama.url }}" alt="Cobertura de transporte público de la ciudad de {{ ciudad_actual.nombre }}." />
+            {% if ciudad_actual.img_panorama %}<img src="/{{ ciudad_actual.img_panorama.url }}" alt="Cobertura de transporte público de la ciudad de {{ ciudad_actual.nombre }}." />{% endif %}
         </div>
     </div>
     
