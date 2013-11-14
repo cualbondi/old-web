@@ -25,12 +25,14 @@
     <h1>Recorrido {{linea_actual.nombre}} {{recorrido_actual.nombre}} de {{ciudad_actual.nombre}}</h1>
     {% if recorrido_actual.inicio and recorrido_actual.fin %}<h3>desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}}</h3>{% endif %}
 
+    {% if recorrido_actual.img_panorama %}
     <div class="thumbnail">
         <div id="map" style="background:lightblue;">
-            {% if recorrido_actual.img_panorama %}<img src="/{{ recorrido_actual.img_panorama.url }}" alt="Mapa del recorrido {{ recorrido_actual.nombre }} de la línea {{ linea_actual.nombre }} en la ciudad de {{ ciudad_actual.nombre }}." />{% endif %}
+            <img src="/{{ recorrido_actual.img_panorama.url }}" alt="Mapa del recorrido {{ recorrido_actual.nombre }} de la línea {{ linea_actual.nombre }} en la ciudad de {{ ciudad_actual.nombre }}." />
         </div>
     </div>
     <br />
+    {% endif %}
 
     {% if recorrido_actual.descripcion %}
         <h3>Lugares por donde pasa</h3>

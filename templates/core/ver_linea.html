@@ -23,13 +23,15 @@
     </ul>
 
     <h1>Linea {{linea_actual.nombre}} de {{ciudad_actual.nombre}}</h1>
-
+    
+    {% if linea_actual.img_panorama %}
     <div class="thumbnail">
         <div id="map" style="background:lightblue;">
-            {% if linea_actual.img_panorama %}<img src="/{{ linea_actual.img_panorama.url }}" alt="Cobertura de transporte público de la línea {{ linea_actual.nombre }} en la ciudad de {{ ciudad_actual.nombre }}." />{% endif %}
+            <img src="/{{ linea_actual.img_panorama.url }}" alt="Cobertura de transporte público de la línea {{ linea_actual.nombre }} en la ciudad de {{ ciudad_actual.nombre }}." />
         </div>
     </div>
     <br />
+    {% endif %}
 
     {% if linea_actual.info_empresa and linea_actual.info_terminal %}
         <h3>Información de la empresa</h3>

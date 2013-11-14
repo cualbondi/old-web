@@ -49,14 +49,16 @@
         <br />
     {% endif %}
 
+    {% if ciudad_actual.img_panorama %}
     <h3>Area cubierta por transporte público:</h3>
     <div class="thumbnail">
         <div id="map" style="background:lightblue;">
-            {% if ciudad_actual.img_panorama %}<img src="/{{ ciudad_actual.img_panorama.url }}" alt="Cobertura de transporte público de la ciudad de {{ ciudad_actual.nombre }}." />{% endif %}
+            <img src="/{{ ciudad_actual.img_panorama.url }}" alt="Cobertura de transporte público de la ciudad de {{ ciudad_actual.nombre }}." />
         </div>
     </div>
     
     <br />
+    {% endif %}
 
     <h3>Lineas de micro en {{ciudad_actual.nombre}}:</h3>
     <table class="table table-striped table-bordered table-condensed">
