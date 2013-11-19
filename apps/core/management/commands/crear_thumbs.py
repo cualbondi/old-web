@@ -180,7 +180,7 @@ class Command(BaseCommand):
         if ( options['ciudades'] and options['recursivo'] ) or options['todas']:
             for ciudad in Ciudad.objects.all():
                 ghost_make_map_img(ciudad, 'ciudad', skip=options['skip'])
-                ciudad_recursiva(ciudad)
+                ciudad_recursiva(ciudad, skip=options['skip'])
             return 0
 
         if options['ciudades']:
