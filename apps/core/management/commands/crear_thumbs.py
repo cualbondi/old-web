@@ -178,7 +178,7 @@ class Command(BaseCommand):
             else:
                 c = Ciudad.objects.get(slug=options['ciudad_id'])
             ghost_make_map_img(c, 'ciudad')
-            if options['r']:
+            if options['recursivo']:
                 ciudad_recursiva(c)
         
         #linea
