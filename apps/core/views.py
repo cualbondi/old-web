@@ -61,7 +61,6 @@ def index(request):
         return response
     else:
         return HttpResponse(status=501)
-        
 
 def ver_ciudad(request, nombre_ciudad):
     if request.method == 'GET':
@@ -73,8 +72,14 @@ def ver_ciudad(request, nombre_ciudad):
 
         imagenes = ImagenCiudad.objects.filter(ciudad=ciudad_actual)
 
-        return render_to_response('core/ver_ciudad.html',
-                                  {'imagenes': imagenes,
+        template = "core/ver_ciudad.html"
+        if ( request.GET.get("dynamic_map") ):
+            template = "core/ver_obj_map.html"            
+
+        return render_to_response(template,
+                                  {'obj': ciudad_actual,
+                                   'ciudad_actual': ciudad_actual,
+                                   'imagenes': imagenes,
                                    'lineas': lineas,
                                    'tarifas': tarifas},
                                   context_instance=RequestContext(request))
@@ -115,8 +120,13 @@ def ver_linea(request, nombre_ciudad, nombre_linea):
                                          ciudad=ciudad_actual)
         recorridos = natural_sort_qs(Recorrido.objects.filter(linea=linea_actual), 'slug')
 
-        return render_to_response('core/ver_linea.html',
-                                  {'ciudad_actual': ciudad_actual,
+        template = "core/ver_linea.html"
+        if ( request.GET.get("dynamic_map") ):
+            template = "core/ver_obj_map.html" 
+
+        return render_to_response(template,
+                                  {'obj': linea_actual,
+                                   'ciudad_actual': ciudad_actual,
                                    'linea_actual': linea_actual,
                                    'recorridos': recorridos
                                    },
@@ -144,8 +154,13 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
         if request.user.is_authenticated():
             favorito = recorrido_actual.es_favorito(request.user)
 
-        return render_to_response('core/ver_recorrido.html',
-                                  {'ciudad_actual': ciudad_actual,
+        template = "core/ver_recorrido.html"
+        if ( request.GET.get("dynamic_map") ):
+            template = "core/ver_obj_map.html" 
+
+        return render_to_response(template,
+                                  {'obj': recorrido_actual,
+                                   'ciudad_actual': ciudad_actual,
                                    'linea_actual': linea_actual,
                                    'recorrido_actual': recorrido_actual,
                                    'favorito': favorito},

@@ -14,6 +14,8 @@ class Linea(models.Model):
     slug = models.SlugField(max_length=120, blank=True, null=False)
     descripcion = models.TextField(blank=True, null=True)
     foto = models.CharField(max_length=20, blank=True, null=True)
+    img_panorama = models.ImageField(max_length=200, upload_to='linea', blank=True, null=True)
+    img_cuadrada = models.ImageField(max_length=200, upload_to='linea', blank=True, null=True)
     color_polilinea = models.CharField(max_length=20, blank=True, null=True)
     info_empresa = models.TextField(blank=True, null=True)
     info_terminal = models.TextField(blank=True, null=True)
@@ -29,9 +31,22 @@ class Linea(models.Model):
         self.slug = slugify(self.nombre)
         super(Linea, self).save(*args, **kwargs)
 
+    def get_absolute_url(self, ciudad_slug):
+        try:
+            Ciudad.objects.get(slug=ciudad_slug, lineas=self)
+        except Ciudad.DoesNotExist:
+            raise ValueError("La linea no corresponde a la ciudad")
+        return reverse('ver_linea',
+            kwargs={
+                'nombre_ciudad'   : ciudad_slug,
+                'nombre_linea'    : self.slug
+            })
+
 
 class Recorrido(models.Model):
     nombre = models.CharField(max_length=100)
+    img_panorama = models.ImageField(max_length=200, upload_to='recorrido', blank=True, null=True)
+    img_cuadrada = models.ImageField(max_length=200, upload_to='recorrido', blank=True, null=True)
     linea = models.ForeignKey(Linea)
     ruta = models.LineStringField()
     sentido = models.CharField(max_length=100, blank=True, null=False)

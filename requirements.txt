@@ -1,5 +1,7 @@
-Django==1.4.9
+Django==1.4.10
+Ghost.py==0.1b2
 Pillow==2.2.1
+PySide==1.2.1
 South==0.8.2
 argparse==1.2.1
 django-appconf==0.6
@@ -21,4 +23,3 @@ python-memcached==1.53
 raven==3.5.2
 six==1.4.1
 wsgiref==0.1.2
-

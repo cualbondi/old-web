@@ -11,28 +11,7 @@
     <meta property="og:url"    content="{{ HOME_URL }}{{ request.get_full_path }}" /> 
     <meta property="og:title"  content="{{linea_actual.nombre|title}} - {{recorrido_actual.nombre|title}}" /> 
     <meta property="og:description"  content="Linea {{linea_actual.nombre|title}}, Ramal {{recorrido_actual.nombre|title}} en {{ciudad_actual.nombre|title}} - Cualbondi{% if recorrido_actual.inicio and recorrido_actual.fin %}, Recorrido desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}} {% endif %} en {{ciudad_actual.nombre|title}}: Descripción del recorrido de colectivo, micro, bus" /> 
-    <meta property="og:image"  content="" /> 
-
-    <script src="http://openlayers.org/api/OpenLayers.js"></script>
-    <script src="http://maps.google.com/maps/api/js?v=3.6&amp;sensor=false"></script>
-    <link rel="stylesheet" href="http://openlayers.org/dev/theme/default/style.css" type="text/css" />
-{% endblock %}
-
-{% block custom_scripts %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.RC4.min.js"></script>
-    <script>
-        var recorrido_actual_id = {{recorrido_actual.id}};
-        var GLOBAL_ci = "{{ ciudad_actual.slug }}";
-        var ciudad_actual_coord1 = new Array{{ ciudad_actual.centro.coords }}[0];
-        var ciudad_actual_coord2 = new Array{{ ciudad_actual.centro.coords }}[1];
-        var ciudad_actual_zoom = {{ ciudad_actual.zoom }};
-        var lonlat_ini_coord1 = new Array{{recorrido_actual.ruta|first}}[0];
-        var lonlat_ini_coord2 = new Array{{recorrido_actual.ruta|first}}[1];
-        var lonlat_fin_coord1 = new Array{{recorrido_actual.ruta|last}}[0];
-        var lonlat_fin_coord2 = new Array{{recorrido_actual.ruta|last}}[1];
-        var STATIC_URL = {{ STATIC_URL }};
-    </script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/vr-1.0.js"></script>
+    {% if recorrido_actual.img_cuadrada %}<meta property="og:image"  content="{{ HOME_URL }}/{{ recorrido_actual.img_cuadrada.url }}" />{% endif %}
 {% endblock %}
 
 {% block bloque_izquierda %}
@@ -46,8 +25,14 @@
     <h1>Recorrido {{linea_actual.nombre}} {{recorrido_actual.nombre}} de {{ciudad_actual.nombre}}</h1>
     {% if recorrido_actual.inicio and recorrido_actual.fin %}<h3>desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}}</h3>{% endif %}
 
-    <div class="thumbnail"><div id="map" style="background:lightblue; height:300px;"></div></div>
+    {% if recorrido_actual.img_panorama %}
+    <div class="thumbnail">
+        <div id="map" style="background:lightblue;">
+            <img src="/{{ recorrido_actual.img_panorama.url }}" alt="Mapa del recorrido {{ recorrido_actual.nombre }} de la línea {{ linea_actual.nombre }} en la ciudad de {{ ciudad_actual.nombre }}." />
+        </div>
+    </div>
     <br />
+    {% endif %}
 
     {% if recorrido_actual.descripcion %}
         <h3>Lugares por donde pasa</h3>
