@@ -92,8 +92,8 @@ class Ciudad(models.Model):
     slug = models.SlugField(max_length=120, blank=True, null=False)
     provincia = models.ForeignKey(Provincia)
     activa = models.BooleanField(blank=True, null=False, default=False)
-    img_panorama = models.ImageField(upload_to='ciudad', blank=True, null=True)
-    img_cuadrada = models.ImageField(upload_to='ciudad', blank=True, null=True)
+    img_panorama = models.ImageField(max_length=200, upload_to='ciudad', blank=True, null=True)
+    img_cuadrada = models.ImageField(max_length=200, upload_to='ciudad', blank=True, null=True)
 
     # Opcionales
     variantes_nombre = models.CharField(max_length=150, blank=True, null=True)
