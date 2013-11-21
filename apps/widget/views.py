@@ -32,7 +32,8 @@ def v1_busqueda(request, extension):
                         { 'current_site': current_site,
                           'ciudad_arg'  : ciudad_arg  },
                         context_instance=RequestContext(request), 
-                        content_type="application/x-JavaScript")                
+                        #content_type="application/x-JavaScript") #django => 1.5
+                        mimetype="application/x-JavaScript") #django < 1.5
         else:
             return HttpResponse(status=403)
     else:
