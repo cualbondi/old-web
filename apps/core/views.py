@@ -1,4 +1,6 @@
-from django.shortcuts import get_object_or_404, render_to_response, redirect
+# -*- coding: UTF-8 -*-
+from django.shortcuts import (get_object_or_404, render_to_response,
+                              redirect, render)
 from django.http import HttpResponse
 from django.template import RequestContext
 from django.template.defaultfilters import slugify
@@ -13,11 +15,32 @@ from django.contrib.comments import signals
 from django.contrib.comments.views.utils import next_redirect, confirmation_view
 from django.contrib.comments.views.comments import CommentPostBadRequest
 from django.utils import simplejson
-from django.http import HttpResponse
+from django.core.urlresolvers import reverse
 
 from apps.core.models import Linea, Recorrido, Tarifa
 from apps.catastro.models import Ciudad, ImagenCiudad
-from apps.core.forms import LineaForm, RecorridoForm
+from apps.core.forms import LineaForm, RecorridoForm, ContactForm
+
+
+def contacto(request):
+    form = ContactForm(request.POST or None)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                "Gracias por tu mensaje! Te contestaremos a la brevedad."
+            )
+
+            # send_mail(...)
+
+            ciudad = form.cleaned_data['ciudad']
+            return redirect(
+                reverse('ver_ciudad', kwargs={'nombre_ciudad': ciudad.slug})
+            )
+
+    return render(request, 'contacto.html', {'form': form})
 
 
 def natural_sort_qs(qs, key):
@@ -74,7 +97,7 @@ def ver_ciudad(request, nombre_ciudad):
 
         template = "core/ver_ciudad.html"
         if ( request.GET.get("dynamic_map") ):
-            template = "core/ver_obj_map.html"            
+            template = "core/ver_obj_map.html"
 
         return render_to_response(template,
                                   {'obj': ciudad_actual,
@@ -122,7 +145,7 @@ def ver_linea(request, nombre_ciudad, nombre_linea):
 
         template = "core/ver_linea.html"
         if ( request.GET.get("dynamic_map") ):
-            template = "core/ver_obj_map.html" 
+            template = "core/ver_obj_map.html"
 
         return render_to_response(template,
                                   {'obj': linea_actual,
@@ -156,7 +179,7 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
 
         template = "core/ver_recorrido.html"
         if ( request.GET.get("dynamic_map") ):
-            template = "core/ver_obj_map.html" 
+            template = "core/ver_obj_map.html"
 
         return render_to_response(template,
                                   {'obj': recorrido_actual,

@@ -4,7 +4,7 @@ ANUNCIOS = {
     'la-plata': [
         {
             'filename': 'publiciteaqui.png',
-            'link_url': 'http://www.google.com'
+            'link_url': 'http://bit.ly/17RjMEP'  # http://cualbondi.com.ar/contacto/
         },
         {
             'filename': 'laplataterminal.png',

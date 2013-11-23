@@ -149,22 +149,24 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     'django.contrib.comments',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
     'django.contrib.gis',
-    'apps.api',
-    'apps.catastro',
-    'apps.core',
-    'apps.usuarios',
+
+    # Externas
+    'bootstrap_toolkit',
     'floppyforms',
     'imagekit',
     'south',
 #    'moderacion',
 #    'editor',
 #    'django_extensions',
+
+    # Propias
+    'apps.api',
+    'apps.catastro',
+    'apps.core',
+    'apps.usuarios',
 )
 
 # A sample logging configuration. The only tangible logging
