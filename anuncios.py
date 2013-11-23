@@ -3,26 +3,13 @@
 ANUNCIOS = {
     'la-plata': [
         {
-            'filename': 'FooBar3.gif',
+            'filename': 'publiciteaqui.png',
             'link_url': 'http://www.google.com'
         },
         {
-            'filename': 'FooBar4.gif',
-            'link_url': 'http://www.google.com'
-        },
-        {
-            'filename': 'FooBar5.gif',
-            'link_url': 'http://www.google.com'
+            'filename': 'laplataterminal.png',
+            'link_url': 'http://bit.ly/1fwDUyF'  # http://www.laplataterminal.com/
         },
     ],
-    'buenos-aires': [
-        {
-            'filename': 'FooBar3.gif',
-            'link_url': 'http://www.google.com'
-        },
-        {
-            'filename': 'FooBar5.gif',
-            'link_url': 'http://www.google.com'
-        },
-    ]
+    'buenos-aires': []
 }
