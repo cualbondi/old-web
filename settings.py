@@ -127,6 +127,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "apps.core.context_processors.lista_ciudades",
     "apps.core.context_processors.get_ciudad_actual",
     "apps.core.context_processors.show_android_alert",
+    "apps.core.context_processors.home_url",
     "apps.core.context_processors.facebook_app_id",
 )
 
@@ -139,7 +140,6 @@ TEMPLATE_DIRS = (
     os.path.join(os.path.dirname(__file__),'templates')
 )
 
-OLWIDGET_STATIC_URL = STATIC_URL+"olwidget"
 GOOGLE_API = "//maps.google.com/maps/api/js?v=3.6&sensor=false"
 
 INSTALLED_APPS = (
@@ -160,7 +160,6 @@ INSTALLED_APPS = (
     'apps.core',
     'apps.usuarios',
     'floppyforms',
-    'olwidget',
     'imagekit',
     'south',
 #    'moderacion',
@@ -220,8 +219,10 @@ LOGGING = {
 
 if CUALBONDI_ENV == 'production':
     FACEBOOK_APP_ID = "516530425068934"
+    HOME_URL = "http://cualbondi.com.ar"
 else:
     FACEBOOK_APP_ID = "370174876416548"
+    HOME_URL = "http://local.cualbondi.com.ar"
 
 try:
     from settings_local import *

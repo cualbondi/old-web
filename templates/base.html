@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
-    <head>
+    <head{% block head-attrs %}{% endblock %}>
 	    <meta charset="utf-8">
         <link rel="icon" type="image/x-icon" href="{{ STATIC_URL }}img/favicon.png" />
     	<title>{% block title %}Cualbondi{% endblock %}</title>
