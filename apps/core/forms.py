@@ -58,7 +58,7 @@ class ContactForm(forms.Form):
         help_text="Díganos en que ciudad vive"
     )
     asunto = forms.CharField(
-        max_length=100,
+        max_length=255,
         help_text="¿Sobre qué es su consulta?"
     )
     mensaje = forms.CharField(widget=forms.Textarea)
