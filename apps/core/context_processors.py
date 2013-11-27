@@ -2,7 +2,6 @@
 from django.conf import settings
 
 from apps.catastro.models import Ciudad
-from anuncios import ANUNCIOS
 
 
 def lista_ciudades(request):
@@ -17,7 +16,7 @@ def get_ciudad_actual(request):
         if slug_ciudad == 'mapa':
             slug_ciudad = path_info.split('/')[2]
         ciudad_actual = Ciudad.objects.get(slug=slug_ciudad)
-        anuncios = ANUNCIOS.get(ciudad_actual.slug, [])
+        anuncios = ciudad_actual.anuncios.all().filter(activo=True)
     except Exception:
         ciudad_actual = None
         anuncios = []

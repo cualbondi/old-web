@@ -167,6 +167,7 @@ INSTALLED_APPS = (
     'apps.catastro',
     'apps.core',
     'apps.usuarios',
+    'apps.anuncios',
 )
 
 # A sample logging configuration. The only tangible logging
