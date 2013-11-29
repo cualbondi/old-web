@@ -16,6 +16,7 @@ from django.contrib.comments.views.utils import next_redirect, confirmation_view
 from django.contrib.comments.views.comments import CommentPostBadRequest
 from django.utils import simplejson
 from django.core.urlresolvers import reverse
+from django.core.mail import send_mail
 
 from apps.core.models import Linea, Recorrido, Tarifa
 from apps.catastro.models import Ciudad, ImagenCiudad
@@ -33,9 +34,16 @@ def contacto(request):
                 "Gracias por tu mensaje! Te contestaremos a la brevedad."
             )
 
-            # send_mail(...)
+            data = form.cleaned_data
 
-            ciudad = form.cleaned_data['ciudad']
+            send_mail(
+                data["asunto"],
+                data["mensaje"],
+                data["email"],
+                ['contacto@cualbondi.com.ar']
+            )
+
+            ciudad = data['ciudad']
             return redirect(
                 reverse('ver_ciudad', kwargs={'nombre_ciudad': ciudad.slug})
             )

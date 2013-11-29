@@ -223,9 +223,14 @@ LOGGING = {
 if CUALBONDI_ENV == 'production':
     FACEBOOK_APP_ID = "516530425068934"
     HOME_URL = "http://cualbondi.com.ar"
+
+    EMAIL_HOST = 'mail.cualbondi.com.ar'
+    EMAIL_PORT = 25
 else:
     FACEBOOK_APP_ID = "370174876416548"
     HOME_URL = "http://local.cualbondi.com.ar"
+
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 try:
     from settings_local import *
