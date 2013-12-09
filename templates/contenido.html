@@ -26,6 +26,12 @@
                   <strong>Atención!</strong> Ahora Cualbondi también en tu celular! Descargate la App para Android haciendo click <a href="http://bit.ly/HfmNTT">acá</a>
                 </div>
                 {% endif %}
+                {% for message in messages %}
+                    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}">
+                        <button type="button" class="close android-app-alert-close" data-dismiss="alert">&times;</button>
+                        {{ message }}
+                    </div>
+                {% endfor %}
                 {% block bloque_izquierda %}{% endblock %}
             </div>
             <div id="bloque_derecha" class="span3">
@@ -41,6 +47,8 @@
                         (adsbygoogle = window.adsbygoogle || []).push({});
                         </script>
                     </div>
+
+                    {% include "slider_anuncios.html" %}
 
                     <!--CAJA DE FACEBOOK-->
                     <!--[if (!IE)|(gt IE 7)]-->
@@ -130,8 +138,13 @@
                     $('#login_form').submit();
                 }
             })
-            $(".alert-message").alert()
 
+            $('.slider-anuncios').bxSlider({
+                pager: false,
+                auto: true,
+                autoHover: true,
+                controls: false
+            });
         })
 
     <!-- DISQUS Code -->

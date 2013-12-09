@@ -1,8 +1,11 @@
+# -*- coding: UTF-8 -*-
 import floppyforms as floppyforms
+
 from django import forms
 from django.conf import settings
 
 from apps.core.models import Linea
+from apps.catastro.models import Ciudad
 
 mensajes = {
     'invalid': 'El valor ingresado es incorrecto',
@@ -45,3 +48,19 @@ class RecorridoForm(floppyforms.Form):
     nombre = forms.CharField()
     linea = forms.ModelChoiceField(queryset=Linea.objects.all())
     ruta = floppyforms.gis.LineStringField(widget=CustomLineStringWidget)
+
+
+class ContactForm(forms.Form):
+    email = forms.EmailField(
+        help_text="Déjenos su email para que podamos contactarlo",
+        error_messages=mensajes)
+    ciudad = forms.ModelChoiceField(
+        queryset=Ciudad.objects.filter(activa=True),
+        help_text="Díganos en que ciudad vive",
+        error_messages=mensajes)
+    asunto = forms.CharField(
+        max_length=255,
+        help_text="¿Sobre qué es su consulta?",
+        error_messages=mensajes)
+    mensaje = forms.CharField(widget=forms.Textarea,
+                              error_messages=mensajes)

@@ -149,22 +149,25 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     'django.contrib.comments',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
     'django.contrib.gis',
-    'apps.api',
-    'apps.catastro',
-    'apps.core',
-    'apps.usuarios',
+
+    # Externas
+    'bootstrap_toolkit',
     'floppyforms',
     'imagekit',
     'south',
 #    'moderacion',
 #    'editor',
 #    'django_extensions',
+
+    # Propias
+    'apps.api',
+    'apps.catastro',
+    'apps.core',
+    'apps.usuarios',
+    'apps.anuncios',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -220,9 +223,14 @@ LOGGING = {
 if CUALBONDI_ENV == 'production':
     FACEBOOK_APP_ID = "516530425068934"
     HOME_URL = "http://cualbondi.com.ar"
+
+    EMAIL_HOST = 'mail.cualbondi.com.ar'
+    EMAIL_PORT = 25
 else:
     FACEBOOK_APP_ID = "370174876416548"
     HOME_URL = "http://local.cualbondi.com.ar"
+
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 try:
     from settings_local import *

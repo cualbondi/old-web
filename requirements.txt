@@ -23,3 +23,4 @@ python-memcached==1.53
 raven==3.5.2
 six==1.4.1
 wsgiref==0.1.2
+django-bootstrap-toolkit==2.15.0
