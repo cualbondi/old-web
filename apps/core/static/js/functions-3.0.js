@@ -36,17 +36,17 @@
 
             var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
             var osmAttrib='Map data © Cualbondi & OpenStreetMap contributors';
-            var osm = L.tileLayer(osmUrl, {minZoom: 8, maxZoom: 16, attribution: osmAttrib});		
+            var osm = L.tileLayer(osmUrl, {minZoom: 8, maxZoom: 16, attribution: osmAttrib});       
             map.setView(L.latLng(ciudad_actual_coord2, ciudad_actual_coord1), ciudad_actual_zoom);
             map.addLayer(osm);
-
+            
             // creacion de las diferentes capas
             var paradas = L.layerGroup();
             var markers = L.layerGroup();
             var recorridos = L.featureGroup();
             map.addLayer(paradas);
-            map.addLayer(markers);
             map.addLayer(recorridos);
+            map.addLayer(markers);
 
             // clase Marker (para manejar el markerA y marerB mas facil)
             function Marker(layer, id, visible) {
@@ -57,62 +57,56 @@
                 this.id     = id
                 this.centro = null
                 this.confirmado = false
-                this.rad=300/Math.cos(-34.9)/Math.cos(50*(Math.PI/180));
+                this.rad=200;
                 this.layer  = layer
                 this.group  = null
             }
-            Marker.prototype.setPoint = function(point, style) {
+            Marker.prototype.setPoint = function(point, cssclass) {
                 // setea el punto con latlng y lo pone en el mapa
-                // point = new OpenLayers.Geometry.Point(lon, lat);
-                if (this.group == null) {
+                if (this.group)
+                    this.layer.removeLayer(this.group)
 
-                    try {
-                        this.map.removeFeatures([this.point])
+                this.centro = point;
+
+                this.group = L.editableCircleMarker(this.centro, this.rad)
+                
+                self = this
+                this.group.on('moveend', function(latlng) {
+                    if ( self == markerA ) {
+                        markerA.confirmado = true
+                        markerAaux.setPoint(markerA.getLatlng())
+                        markerBaux.setPoint(markerB.getLatlng())
+                        piwikLog("/click/mapa/drag/A")
                     }
-                    catch(err) {}
-
-                    this.centro = point;
-                    this.marker = L.marker(this.centro);
-                    this.circle = L.circle(this.centro, 200);
-                    this.group = L.featureGroup([
-                        this.circle,
-                        this.marker
-                    ])
-                    
-                    if (this.visible) {
-                        this.layer.addLayer(this.group)
-                        this.listo = true
+                    if ( self == markerB ) {
+                        markerB.confirmado = true
+                        markerAaux.setPoint(markerA.getLatlng())
+                        markerBaux.setPoint(markerB.getLatlng())
+                        piwikLog("/click/mapa/drag/B")
                     }
-
-                    /*
-                    this.point = new OpenLayers.Feature.Vector(
-                        new OpenLayers.Geometry.Collection(
-                            [
-                            OpenLayers.Geometry.Polygon.createRegularPolygon(point, this.rad, 20, 0),
-                            point
-                            ]
-                        ),
-                        {
-                            tipo:this.id+":false:false",
-                            dragging: false
-                        }
-                    )
-
-                    if ( typeof(style) !== 'undefined' )
-                        this.point.style = style;
-
-                    if (this.visible) {
-                        this.layer.addFeatures([this.point])
-                        this.listo = true
-                        //this.layer.map.moveTo(this.point)
-                        this.layer.drawFeature(this.point)
-                    }*/
+                    if (markerA !== null && markerB !== null) {
+                        $('a[data-toggle="tab"]').first().tab('show')
+                        pagina_input = 1
+                        buscarporclick(markerA.getLatlng(), markerB.getLatlng())
+                    }
+                })
+                
+                if (this.visible) {
+                    this.layer.addLayer(this.group)
+                    this.listo = true
                 }
                 
             }
             Marker.prototype.setRadius = function(rad) {
-                this.circle.setRadius(rad)
+                if (this.group) {
+                    this.group.setRadius(rad)
+                    this.rad = rad
+                }
             }
+            Marker.prototype.getLatlng = function(rad) {
+                return this.group.getLatLng()
+            }
+
             // dos objetos de la clase marker // cuidado, este código se repite mas abajo
             var markerA = new Marker(markers, "A")
             var markerB = new Marker(markers, "B")
@@ -136,7 +130,7 @@
                         markerB.confirmado = true
                         piwikLog("/click/mapa/marker/B")
                         pagina_input = 1
-                        buscarporclick(markerA.centro, markerB.centro)
+                        buscarporclick(markerA.getLatlng(), markerB.getLatlng())
                     }
             })
 
@@ -154,20 +148,20 @@
                         feature.attributes.tipo=t[0]+":true:false"
                         if ( feature == markerA.point ) {
                             markerA.confirmado = true
-                            markerAaux.setPoint(markerA.centro)
-                            markerBaux.setPoint(markerB.centro)
+                            markerAaux.setPoint(markerA.getLatlng())
+                            markerBaux.setPoint(markerB.getLatlng())
                             piwikLog("/click/mapa/drag/A")
                         }
                         if ( feature == markerB.point ) {
                             markerB.confirmado = true
-                            markerAaux.setPoint(markerA.centro)
-                            markerBaux.setPoint(markerB.centro)
+                            markerAaux.setPoint(markerA.getLatlng())
+                            markerBaux.setPoint(markerB.getLatlng())
                             piwikLog("/click/mapa/drag/B")
                         }
-                        if (markerA.centro !== null && markerB.centro !== null) {
+                        if (markerA.getLatlng() !== null && markerB.getLatlng() !== null) {
                             $('a[data-toggle="tab"]').first().tab('show')
                             pagina_input = 1
-                            buscarporclick(markerA.centro, markerB.centro)
+                            buscarporclick(markerA.getLatlng(), markerB.getLatlng())
                         }
                         markers.redraw()
                     },
@@ -321,8 +315,8 @@
                     markerB.setPoint(polylinea[polylinea.length-1].geometry.getVertices()[polylinea[polylinea.length-1].geometry.getVertices().length-1]);
                 }
                 else {
-                    markerA.setPoint(markerAaux.centro);
-                    markerB.setPoint(markerBaux.centro);
+                    markerA.setPoint(markerAaux.getLatlng());
+                    markerB.setPoint(markerBaux.getLatlng());
                 }
                 if (porNombre || forzarPanZoom) {
                     map.fitBounds(recorridos.getBounds())
@@ -397,7 +391,7 @@
                 markerB.confirmado = true
                 if ( markerA.listo && markerB.listo ) {
                     pagina_input = 1
-                    buscarporclick(markerA.centro, markerB.centro, 'false', true)
+                    buscarporclick(markerA.getLatlng(), markerB.getLatlng(), 'false', true)
                 }
             }
 
@@ -407,7 +401,7 @@
                 markerB.confirmado = true
                 if ( markerA.listo && markerB.listo ) {
                     pagina_input = 1
-                    buscarporclick(markerA.centro, markerB.centro, 'true')
+                    buscarporclick(markerA.getLatlng(), markerB.getLatlng(), 'true')
                 }
             }
 
@@ -435,7 +429,7 @@
                 }
 
                 if ( !porNombre )
-                    buscarporclick(markerA.centro, markerB.centro, combinar);
+                    buscarporclick(markerA.getLatlng(), markerB.getLatlng(), combinar);
                 else
                     inputLinea();
             }
@@ -608,7 +602,7 @@
             $("[data-slider]").bind("slider:release", function (event, data) {
                 if (markerA.listo && markerB.listo) {
                     piwikLog("/click/buscarRadio/"+data.value);
-                    buscarporclick(markerA.centro, markerB.centro, false, true);
+                    buscarporclick(markerA.getLatlng(), markerB.getLatlng(), false, true);
                 }
             });
             
@@ -697,14 +691,14 @@
                     $("#inputHasta").val(desde)
                 }
                 if ( markerA.confirmado && markerB.confirmado ) {
-                    ma = new OpenLayers.Geometry.Point(markerA.centro.x, markerA.centro.y)
-                    mb = new OpenLayers.Geometry.Point(markerB.centro.x, markerB.centro.y)
+                    ma = new OpenLayers.Geometry.Point(markerA.getLatlng().x, markerA.getLatlng().y)
+                    mb = new OpenLayers.Geometry.Point(markerB.getLatlng().x, markerB.getLatlng().y)
                     markerA.setPoint(mb)
                     markerAaux.setPoint(mb)
                     markerB.setPoint(ma)
                     markerBaux.setPoint(ma)
                     // buscar sobre los markers
-                    buscarporclick(markerA.centro, markerB.centro)
+                    buscarporclick(markerA.getLatlng(), markerB.getLatlng())
                 }
                 else {
                     // buscar sobre los textbox
