@@ -61,7 +61,7 @@
                 this.layer  = layer
                 this.group  = null
             }
-            Marker.prototype.setPoint = function(point, cssclass) {
+            Marker.prototype.setPoint = function(point) {
                 // setea el punto con latlng y lo pone en el mapa
                 if (this.group)
                     this.layer.removeLayer(this.group)
@@ -139,57 +139,6 @@
             //      cambio de imagenes al draggear y onhover
             //      busqueda por ondrag
             /*
-            dragControl = new OpenLayers.Control.DragFeature(
-                markers,
-                {
-                    onComplete: function(feature, pixel) {
-                        feature.attributes.dragging = true
-                        t = feature.attributes.tipo.split(":")
-                        feature.attributes.tipo=t[0]+":true:false"
-                        if ( feature == markerA.point ) {
-                            markerA.confirmado = true
-                            markerAaux.setPoint(markerA.getLatlng())
-                            markerBaux.setPoint(markerB.getLatlng())
-                            piwikLog("/click/mapa/drag/A")
-                        }
-                        if ( feature == markerB.point ) {
-                            markerB.confirmado = true
-                            markerAaux.setPoint(markerA.getLatlng())
-                            markerBaux.setPoint(markerB.getLatlng())
-                            piwikLog("/click/mapa/drag/B")
-                        }
-                        if (markerA.getLatlng() !== null && markerB.getLatlng() !== null) {
-                            $('a[data-toggle="tab"]').first().tab('show')
-                            pagina_input = 1
-                            buscarporclick(markerA.getLatlng(), markerB.getLatlng())
-                        }
-                        markers.redraw()
-                    },
-                    onEnter: function(feature, pixel) {
-                        feature.attributes.dragging = true
-                        t = feature.attributes.tipo.split(":")
-                        feature.attributes.tipo=t[0]+":true:false"
-                        markers.redraw()
-                    },
-                    onLeave: function(feature, pixel) {
-                        feature.attributes.dragging = false
-                        t = feature.attributes.tipo.split(":")
-                        feature.attributes.tipo=t[0]+":false:false"
-                        markers.redraw()
-                    },
-                    onStart: function(feature, pixel) {
-                        feature.attributes.dragging = true
-                        t = feature.attributes.tipo.split(":")
-                        feature.attributes.tipo=t[0]+":true:true"
-                        markers.redraw()
-                    }
-                }
-            )
-            map.addControl(dragControl)
-
-            // activar el click y drag handlers
-            clickHandler.activate()
-            dragControl.activate()
 
             // hover en las paradas
             var hoverControl = new OpenLayers.Control.SelectFeature([paradas, markers], {
@@ -328,11 +277,10 @@
                 markerB = new Marker(markers, "markerB");
                 markerA.confirmado = true;
                 markerB.confirmado = true;
-                recorridos.removeAllFeatures();
-                paradas.removeAllFeatures();
-                while( map.popups.length )
-                    map.removePopup(map.popups[0]);
-                markers.removeAllFeatures();
+                recorridos.clearLayers();
+                paradas.clearLayers();
+                map.popup.close()
+                markers.clearLayers();
                 $("[data-slider]").simpleSlider("setValue", 300);
                 clickHandler.activate();
                 $("#ajaxLoader").tmpl().appendTo($("#sidebarResultados").empty())
