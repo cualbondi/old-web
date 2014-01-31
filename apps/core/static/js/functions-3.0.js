@@ -24,12 +24,12 @@
             };
 
             preload([
-                STATIC_URL+"css/openlayers/markerA.png"      ,
-                STATIC_URL+"css/openlayers/markerA-hover.png",
-                STATIC_URL+"css/openlayers/markerA-drag.png" ,
-                STATIC_URL+"css/openlayers/markerB.png"      ,
-                STATIC_URL+"css/openlayers/markerB-hover.png",
-                STATIC_URL+"css/openlayers/markerB-drag.png"
+                STATIC_URL+"css/markers/markerA.png"      ,
+                STATIC_URL+"css/markers/markerA-hover.png",
+                STATIC_URL+"css/markers/markerA-drag.png" ,
+                STATIC_URL+"css/markers/markerB.png"      ,
+                STATIC_URL+"css/markers/markerB-hover.png",
+                STATIC_URL+"css/markers/markerB-drag.png"
             ]);
 
             map = new L.Map('mapa');
@@ -68,7 +68,7 @@
 
                 this.centro = point;
 
-                this.group = L.editableCircleMarker(this.centro, this.rad)
+                this.group = L.editableCircleMarker(this.centro, this.rad, {className: this.id})
                 
                 self = this
                 this.group.on('moveend', function(latlng) {
@@ -108,10 +108,10 @@
             }
 
             // dos objetos de la clase marker // cuidado, este código se repite mas abajo
-            var markerA = new Marker(markers, "A")
-            var markerB = new Marker(markers, "B")
-            var markerAaux = new Marker(markers, "A", false)
-            var markerBaux = new Marker(markers, "B", false)
+            var markerA = new Marker(markers, "markerA")
+            var markerB = new Marker(markers, "markerB")
+            var markerAaux = new Marker(markers, "markerA", false)
+            var markerBaux = new Marker(markers, "markerB", false)
 
             // manejo de clicks en el mapa
             //      creacion de los markers A y B
@@ -282,7 +282,7 @@
                 })
                 
                 $.each(trasbordos, function(key, value) {
-                    markerT = new Marker(recorridos, "T");
+                    markerT = new Marker(recorridos, "markerT");
                     var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
                     style.externalGraphic = STATIC_URL+"css/openlayers/markerT.png";
                     style.graphicWidth    = 15;
@@ -324,8 +324,8 @@
             }
 
             function buscar_por_inputs() {
-                markerA = new Marker(markers, "A");
-                markerB = new Marker(markers, "B");
+                markerA = new Marker(markers, "markerA");
+                markerB = new Marker(markers, "markerB");
                 markerA.confirmado = true;
                 markerB.confirmado = true;
                 recorridos.removeAllFeatures();
@@ -546,7 +546,7 @@
                             trasbordos.pop() //eliminar ultimo elemento (punto B)
                             trasbordos.splice(0,1) //eliminar primer elemento (punto A)
                             $.each(trasbordos, function(key, value) {
-                                markerT = new Marker(recorridos, "T");
+                                markerT = new Marker(recorridos, "markerT");
                                 /*
                                 var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
                                 style.externalGraphic = STATIC_URL+"css/openlayers/markerT.png";
@@ -575,8 +575,8 @@
 
             function limpiar() {
                 // cuidado, este código se repite mas arriba
-                markerA = new Marker(markers, "A");
-                markerB = new Marker(markers, "B");
+                markerA = new Marker(markers, "markerA");
+                markerB = new Marker(markers, "markerB");
                 markerA.confirmado = true;
                 markerB.confirmado = true;
                 recorridos.removeAllFeatures();
