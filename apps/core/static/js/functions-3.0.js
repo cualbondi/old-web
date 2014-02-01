@@ -52,14 +52,14 @@
 
             // clase Marker (para manejar el markerA y marerB mas facil)
             function Marker(layer, id, options) {
-				this.visible = true
-				this.draggable = true
-				this.popup = false
-				if ( typeof options !== "undefined" ) {
-					if ( typeof options.visible   !== 'undefined' ) this.visible   = options.visible
-					if ( typeof options.draggable !== 'undefined' ) this.draggable = options.draggable
-					if ( typeof options.popup     !== 'undefined' ) this.popup     = options.popup
-				}
+                this.visible = true
+                this.draggable = true
+                this.popup = false
+                if ( typeof options !== "undefined" ) {
+                    if ( typeof options.visible   !== 'undefined' ) this.visible   = options.visible
+                    if ( typeof options.draggable !== 'undefined' ) this.draggable = options.draggable
+                    if ( typeof options.popup     !== 'undefined' ) this.popup     = options.popup
+                }
                 this.listo  = false
                 this.point  = null
                 this.id     = id
@@ -224,9 +224,9 @@
                         if (key != cant-1) // not last (punto B)
                             trasbordos.push(L.latLng(poly._latlngs[poly._latlngs.length-1]));
                     poly.setStyle({
-						color: value.color_polilinea ? value.color_polilinea : "#000000",
-						opacity: 0.8
-					})
+                        color: value.color_polilinea ? value.color_polilinea : "#000000",
+                        opacity: 0.8
+                    })
                     polylinea.push(poly);
                 });
 
@@ -242,11 +242,11 @@
                 
                 $.each(stops, function(key, value) {
                     if (typeof value !== 'undefined') {
-						p = new Marker(paradas, "markerP", { draggable: false, popup: "<p><strong>Parada "+value.codigo+"</strong><br>"+value.nombre+"</p>" });
-						p.setRadius(0);
-						var wkt = new Wkt.Wkt();
-						wkt.read(value.latlng);
-						p.setPoint(L.latLng(wkt.toObject(map.defaults)._latlng))
+                        p = new Marker(paradas, "markerP", { draggable: false, popup: "<p><strong>Parada "+value.codigo+"</strong><br>"+value.nombre+"</p>" });
+                        p.setRadius(0);
+                        var wkt = new Wkt.Wkt();
+                        wkt.read(value.latlng);
+                        p.setPoint(L.latLng(wkt.toObject(map.defaults)._latlng))
                     }
                 })
                                 
@@ -259,7 +259,7 @@
                     markerB.setPoint(markerBaux.getLatlng());
                 }
                 if (porNombre || forzarPanZoom) {
-					map.fitBounds(recorridos.getBounds().extend(markers.getBounds()))
+                    map.fitBounds(recorridos.getBounds().extend(markers.getBounds()))
                 }
             }
 
@@ -308,8 +308,8 @@
                 // pointWKT es 'POINT(12.234 56.789)'
                 // id es 1 para origen(markerA) y 2 para destino(markerB)
                 var wkt = new Wkt.Wkt();
-				wkt.read(pointWKT);
-				var point = L.latLng(wkt.toObject(map.defaults)._latlng);
+                wkt.read(pointWKT);
+                var point = L.latLng(wkt.toObject(map.defaults)._latlng);
                 if ( id == 1 ) {
                     markerA.setPoint(point)
                     markerAaux.setPoint(point)

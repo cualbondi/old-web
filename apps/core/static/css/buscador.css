@@ -181,10 +181,10 @@ div.olForeignContainer {
 }
 
 div.leaflet-marker-icon {
- 	margin-left: -10px !important;
-	margin-top: -50px !important;
-	width: 20px !important;
-	height: 50px !important;
+    margin-left: -10px !important;
+    margin-top: -50px !important;
+    width: 20px !important;
+    height: 50px !important;
 }
 .leaflet-marker-icon {
   -webkit-transition: height .4s ease;
@@ -197,53 +197,53 @@ div.leaflet-marker-icon {
           transition: margin .4s ease;
 }
 div.leaflet-marker-icon:hover {
-	margin-top: -50px !important;
-	height: 50px !important;
+    margin-top: -50px !important;
+    height: 50px !important;
 }
 div.leaflet-marker-icon.leaflet-drag-target {
- 	margin-left: -10px !important;
-	margin-top: -45px !important;
-	width: 20px !important;
-	height: 50px !important;
+    margin-left: -10px !important;
+    margin-top: -45px !important;
+    width: 20px !important;
+    height: 50px !important;
 }
 
 div.leaflet-marker-icon.markerA {
-	background: url(markers/markerA.png);
+    background: url(markers/markerA.png);
 }
 div.leaflet-marker-icon.markerA:hover {
-	background: url(markers/markerA-hover.png);
+    background: url(markers/markerA-hover.png);
 }
 .markerA.leaflet-drag-target {
-	background: url(markers/markerA-drag.png) !important;
+    background: url(markers/markerA-drag.png) !important;
 }
 
 div.leaflet-marker-icon.markerB {
-	background: url(markers/markerB.png);
+    background: url(markers/markerB.png);
 }
 div.leaflet-marker-icon.markerB:hover {
-	background: url(markers/markerB-hover.png);
+    background: url(markers/markerB-hover.png);
 }
 div.leaflet-marker-icon.markerB.leaflet-drag-target {
-	background: url(markers/markerB-drag.png);
+    background: url(markers/markerB-drag.png);
 }
 
 div.leaflet-marker-icon.markerP {
-	background: url(markers/markerP.png);
- 	margin-left: -10px !important;
-	margin-top: -16px !important;
-	width: 15px !important;
-	height: 16px !important;
+    background: url(markers/markerP.png);
+    margin-left: -10px !important;
+    margin-top: -16px !important;
+    width: 15px !important;
+    height: 16px !important;
 }
 div.leaflet-marker-icon.markerP:hover {
-	background: url(markers/markerP-hover.png);
+    background: url(markers/markerP-hover.png);
 }
 
 div.leaflet-marker-icon.markerT {
-	background: url(markers/markerT.png);
- 	margin-left: -10px !important;
-	margin-top: -26px !important;
-	width: 15px !important;
-	height: 26px !important;
+    background: url(markers/markerT.png);
+    margin-left: -10px !important;
+    margin-top: -26px !important;
+    width: 15px !important;
+    height: 26px !important;
 }
 
 
