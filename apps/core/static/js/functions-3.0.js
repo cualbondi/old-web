@@ -54,9 +54,11 @@
             function Marker(layer, id, options) {
 				this.visible = true
 				this.draggable = true
+				this.popup = false
 				if ( typeof options !== "undefined" ) {
 					if ( typeof options.visible   !== 'undefined' ) this.visible   = options.visible
 					if ( typeof options.draggable !== 'undefined' ) this.draggable = options.draggable
+					if ( typeof options.popup     !== 'undefined' ) this.popup     = options.popup
 				}
                 this.listo  = false
                 this.point  = null
@@ -74,7 +76,7 @@
 
                 this.centro = point;
 
-                this.group = L.editableCircleMarker(this.centro, this.rad, {draggable: this.draggable, className: this.id})
+                this.group = L.editableCircleMarker(this.centro, this.rad, {draggable: this.draggable, className: this.id, popup: this.popup})
                 
                 self = this
                 this.group.on('moveend', function(latlng) {
@@ -240,18 +242,11 @@
                 
                 $.each(stops, function(key, value) {
                     if (typeof value !== 'undefined') {
-                        p = new OpenLayers.Feature.Vector(new OpenLayers.Format.WKT().read(value.latlng).geometry.transform(proj, map.getProjectionObject()))
-                        //var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
-                        //style.label = "P\n\n"+value.codigo;
-                        //style.labelYOffset = -4;
-                        //style.externalGraphic = STATIC_URL+"css/openlayers/markerP.png"
-                        //style.graphicWidth    = 15
-                        //style.graphicHeight   = 16
-                        //style.graphicYOffset  = -16
-                        //style.graphicOpacity  = 1
-                        //p.style = style
-                        p.data['content'] = "<p><strong>Parada "+value.codigo+"</strong><br>"+value.nombre+"</p>"
-                        paradas.addFeatures([p]);
+						p = new Marker(paradas, "markerP", { draggable: false, popup: "<p><strong>Parada "+value.codigo+"</strong><br>"+value.nombre+"</p>" });
+						p.setRadius(0);
+						var wkt = new Wkt.Wkt();
+						wkt.read(value.latlng);
+						p.setPoint(L.latLng(wkt.toObject(map.defaults)._latlng))
                     }
                 })
                                 

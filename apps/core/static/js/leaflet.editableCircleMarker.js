@@ -27,6 +27,10 @@ L.EditableCircleMarker = L.Class.extend({
             icon: this._markerIcon,
             draggable: this.options.draggable
         });
+        
+        if ( this.options.popup ) {
+            this._marker.bindPopup(this.options.popup);
+        }
  
         this._circle = new L.Circle(latlng, radius, this.options);
  

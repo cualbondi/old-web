@@ -229,6 +229,10 @@ div.leaflet-marker-icon.markerB.leaflet-drag-target {
 
 div.leaflet-marker-icon.markerP {
 	background: url(markers/markerP.png);
+ 	margin-left: -10px !important;
+	margin-top: -16px !important;
+	width: 15px !important;
+	height: 16px !important;
 }
 div.leaflet-marker-icon.markerP:hover {
 	background: url(markers/markerP-hover.png);
