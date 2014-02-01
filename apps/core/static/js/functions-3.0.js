@@ -634,8 +634,8 @@
                     $("#inputHasta").val(desde)
                 }
                 if ( markerA.confirmado && markerB.confirmado ) {
-                    ma = new OpenLayers.Geometry.Point(markerA.getLatlng().x, markerA.getLatlng().y)
-                    mb = new OpenLayers.Geometry.Point(markerB.getLatlng().x, markerB.getLatlng().y)
+                    ma = markerA.getLatlng()
+                    mb = markerB.getLatlng()
                     markerA.setPoint(mb)
                     markerAaux.setPoint(mb)
                     markerB.setPoint(ma)
