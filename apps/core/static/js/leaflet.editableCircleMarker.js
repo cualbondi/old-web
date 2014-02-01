@@ -10,28 +10,24 @@ L.EditableCircleMarker = L.Class.extend({
  
     options: {
         weight: 1,
-        clickable: false
+        clickable: false,
+        draggable: true
     },
  
     initialize: function (latlng, radius, options) {
+        options = options || {};
         L.Util.setOptions(this, options);
- 
         this._latlng = L.latLng(latlng);
         this._radius = radius;
         this._markerIcon = new L.DivIcon({
             className: this.options.className
         }),
-        //console.log(this._markerIcon)
+        
         this._marker = new L.Marker(latlng, {
             icon: this._markerIcon,
-            draggable: true
+            draggable: this.options.draggable
         });
  
-        /*
-        this._marker = new L.Marker(latlng, {
-            draggable: 'true'
-        });
-        */
         this._circle = new L.Circle(latlng, radius, this.options);
  
         // move circle when marker is dragged
@@ -55,7 +51,8 @@ L.EditableCircleMarker = L.Class.extend({
         this._map = map;
         this._marker.onAdd(map);
         this._circle.onAdd(map);
-        this._marker.dragging.enable();
+        if ( this.options.draggable )
+            this._marker.dragging.enable();
         this.fire('loaded');
     },
  

@@ -236,6 +236,10 @@ div.leaflet-marker-icon.markerP:hover {
 
 div.leaflet-marker-icon.markerT {
 	background: url(markers/markerT.png);
+ 	margin-left: -10px !important;
+	margin-top: -26px !important;
+	width: 15px !important;
+	height: 26px !important;
 }
 
 

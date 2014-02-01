@@ -41,17 +41,23 @@
             map.addLayer(osm);
             
             // creacion de las diferentes capas
-            var paradas = L.layerGroup();
-            var markers = L.layerGroup();
+            var paradas = L.featureGroup();
+            var markers = L.featureGroup();
             var recorridos = L.featureGroup();
+            var hoverLayer = L.featureGroup();
             map.addLayer(paradas);
             map.addLayer(recorridos);
             map.addLayer(markers);
+            map.addLayer(hoverLayer);
 
             // clase Marker (para manejar el markerA y marerB mas facil)
-            function Marker(layer, id, visible) {
-                if (typeof(visible)=='undefined') this.visible = true
-                else this.visible = visible
+            function Marker(layer, id, options) {
+				this.visible = true
+				this.draggable = true
+				if ( typeof options !== "undefined" ) {
+					if ( typeof options.visible   !== 'undefined' ) this.visible   = options.visible
+					if ( typeof options.draggable !== 'undefined' ) this.draggable = options.draggable
+				}
                 this.listo  = false
                 this.point  = null
                 this.id     = id
@@ -68,7 +74,7 @@
 
                 this.centro = point;
 
-                this.group = L.editableCircleMarker(this.centro, this.rad, {className: this.id})
+                this.group = L.editableCircleMarker(this.centro, this.rad, {draggable: this.draggable, className: this.id})
                 
                 self = this
                 this.group.on('moveend', function(latlng) {
@@ -98,9 +104,9 @@
                 
             }
             Marker.prototype.setRadius = function(rad) {
+                this.rad = rad
                 if (this.group) {
                     this.group.setRadius(rad)
-                    this.rad = rad
                 }
             }
             Marker.prototype.getLatlng = function(rad) {
@@ -110,8 +116,8 @@
             // dos objetos de la clase marker // cuidado, este código se repite mas abajo
             var markerA = new Marker(markers, "markerA")
             var markerB = new Marker(markers, "markerB")
-            var markerAaux = new Marker(markers, "markerA", false)
-            var markerBaux = new Marker(markers, "markerB", false)
+            var markerAaux = new Marker(markers, "markerA", { visible: false })
+            var markerBaux = new Marker(markers, "markerB", { visible: false })
 
             // manejo de clicks en el mapa
             //      creacion de los markers A y B
@@ -165,7 +171,6 @@
             resultados[true] = new Object()
             resultados[false] = new Object()
             var polylinea  = new Array()
-            var polyhover  = new Array()
             var pagina_input     = 1
             var pagina_nombre    = 1
             var ajaxInputLinea = false
@@ -210,12 +215,12 @@
                         stops.push(value.p1)
                     else
                         if (key != 0) // not first (punto A)
-                            trasbordos.push(poly.geometry.components[0]);
+                            trasbordos.push(L.latLng(poly._latlngs[0]));
                     if (value.p2 !== null)
                         stops.push(value.p2)
                     else
                         if (key != cant-1) // not last (punto B)
-                            trasbordos.push(poly.geometry.components[poly.geometry.components.length-1]);
+                            trasbordos.push(L.latLng(poly._latlngs[poly._latlngs.length-1]));
                     /*
                     var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
                     style.strokeOpacity = 0.8;
@@ -231,15 +236,16 @@
                 })
                 
                 $.each(trasbordos, function(key, value) {
-                    markerT = new Marker(recorridos, "markerT");
-                    var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+                    markerT = new Marker(recorridos, "markerT", { draggable: false });
+                    /*var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
                     style.externalGraphic = STATIC_URL+"css/openlayers/markerT.png";
                     style.graphicWidth    = 15;
                     style.graphicHeight   = 26;
                     style.graphicYOffset  = -26;
                     style.graphicOpacity  = 1;
+                    */
                     markerT.setRadius(0);
-                    markerT.setPoint(value, style);
+                    markerT.setPoint(value);
                 })
                 
                 $.each(stops, function(key, value) {
@@ -260,15 +266,15 @@
                 })
                                 
                 if (porNombre) {
-                    markerA.setPoint(polylinea[0].geometry.getVertices()[0]);
-                    markerB.setPoint(polylinea[polylinea.length-1].geometry.getVertices()[polylinea[polylinea.length-1].geometry.getVertices().length-1]);
+                    markerA.setPoint(L.latLng(polylinea[0]._latlngs[0]));
+                    markerB.setPoint(L.latLng(polylinea[polylinea.length-1]._latlngs[polylinea[polylinea.length-1]._latlngs.length-1]));
                 }
                 else {
                     markerA.setPoint(markerAaux.getLatlng());
                     markerB.setPoint(markerBaux.getLatlng());
                 }
                 if (porNombre || forzarPanZoom) {
-                    map.fitBounds(recorridos.getBounds())
+					map.fitBounds(recorridos.getBounds().extend(markers.getBounds()))
                 }
             }
 
@@ -279,10 +285,9 @@
                 markerB.confirmado = true;
                 recorridos.clearLayers();
                 paradas.clearLayers();
-                map.popup.close()
+                map.closePopup()
                 markers.clearLayers();
                 $("[data-slider]").simpleSlider("setValue", 300);
-                clickHandler.activate();
                 $("#ajaxLoader").tmpl().appendTo($("#sidebarResultados").empty())
                 var data1 = null
                 var data2 = null
@@ -317,9 +322,9 @@
             function marcarPunto(pointWKT, id, domId) {
                 // pointWKT es 'POINT(12.234 56.789)'
                 // id es 1 para origen(markerA) y 2 para destino(markerB)
-                var point = new OpenLayers.Format.WKT().read(pointWKT).geometry
-                point.transform(proj, map.getProjectionObject())
-                point = new OpenLayers.Geometry.Point(point.x, point.y);
+                var wkt = new Wkt.Wkt();
+				wkt.read(pointWKT);
+				var point = L.latLng(wkt.toObject(map.defaults)._latlng);
                 if ( id == 1 ) {
                     markerA.setPoint(point)
                     markerAaux.setPoint(point)
@@ -328,7 +333,7 @@
                     markerB.setPoint(point)
                     markerBaux.setPoint(point)
                 }
-                map.panTo(new OpenLayers.LonLat(point.x, point.y))
+                map.panTo(point)
                 $("#sug" + domId).siblings().removeClass("active")
                 $("#sug" + domId).addClass("active")
             }
@@ -473,7 +478,6 @@
 
                             // codigo repetido mas arriba (solo cambia la opacity)
                             //recorridos.clearLayers(polyhover)
-                            polyhover = new Array();
                             trasbordos = new Array();
                             $.each(resultados[porNombre][id], function(key, value) {
                                 var wkt = new Wkt.Wkt();
@@ -488,13 +492,13 @@
                                 style.strokeColor   = value.color_polilinea ? value.color_polilinea : "#000000"
                                 poly.style          = style
                                 */
-                                polyhover.push(poly);
+                                hoverLayer.addLayer(poly);
                             });
 
                             trasbordos.pop() //eliminar ultimo elemento (punto B)
                             trasbordos.splice(0,1) //eliminar primer elemento (punto A)
                             $.each(trasbordos, function(key, value) {
-                                markerT = new Marker(recorridos, "markerT");
+                                markerT = new Marker(hoverLayer, "markerT", { draggable: false });
                                 /*
                                 var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
                                 style.externalGraphic = STATIC_URL+"css/openlayers/markerT.png";
@@ -504,17 +508,11 @@
                                 style.graphicOpacity  = 0.5;
                                 */
                                 markerT.setRadius(0);
-                                markerT.setPoint(value, style);
-                                polyhover.push(markerT.layer)
+                                markerT.setPoint(value);
                             })
-                            $.each(polyhover, function(key, value) {
-                                recorridos.addLayer(value)
-                            });
                         })
                         $(this).children().bind("mouseleave", function(e) {
-                            $.each(polyhover, function(key, value) {
-                                recorridos.removeLayer(value)
-                            });
+                            hoverLayer.clearLayers()
                         })
                     })
                     mostrar_resultado(undefined, porNombre, forzarPanZoom)
@@ -527,16 +525,14 @@
                 markerB = new Marker(markers, "markerB");
                 markerA.confirmado = true;
                 markerB.confirmado = true;
-                recorridos.removeAllFeatures();
-                paradas.removeAllFeatures();
-                while( map.popups.length )
-                    map.removePopup(map.popups[0]);
-                markers.removeAllFeatures();
+                recorridos.clearLayers();
+                paradas.clearLayers();
+                map.closePopup()
+                markers.clearLayers();
                 $("[data-slider]").simpleSlider("setValue", 300);
                 $('#inputDesde').val('');
                 $('#inputHasta').val('');
                 $("#ayudaTempl").tmpl().appendTo($("#sidebarResultados").empty());
-                clickHandler.activate();
             }
 
             // bind eventos click partes estaticas de la pagina (bind unico)
@@ -579,10 +575,9 @@
             })
 
             function buscar_por_nombre() {
-                recorridos.removeAllFeatures();
-                paradas.removeAllFeatures();
-                while( map.popups.length )
-                    map.removePopup(map.popups[0]);
+                recorridos.clearLayers();
+                paradas.clearLayers();
+                map.closePopup();
                 $("#ajaxLoader").tmpl().appendTo($("#sidebarResultadosPorNombre").empty())
                 if ( ajaxInputLinea ) ajaxInputLinea.abort()
                 pagina_nombre = 1
