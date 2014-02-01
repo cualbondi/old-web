@@ -221,13 +221,10 @@
                     else
                         if (key != cant-1) // not last (punto B)
                             trasbordos.push(L.latLng(poly._latlngs[poly._latlngs.length-1]));
-                    /*
-                    var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
-                    style.strokeOpacity = 0.8;
-                    style.strokeWidth   = 5;
-                    style.strokeColor   = value.color_polilinea ? value.color_polilinea : "#000000";
-                    poly.style          = style;
-                    */
+                    poly.setStyle({
+						color: value.color_polilinea ? value.color_polilinea : "#000000",
+						opacity: 0.8
+					})
                     polylinea.push(poly);
                 });
 
@@ -237,13 +234,6 @@
                 
                 $.each(trasbordos, function(key, value) {
                     markerT = new Marker(recorridos, "markerT", { draggable: false });
-                    /*var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
-                    style.externalGraphic = STATIC_URL+"css/openlayers/markerT.png";
-                    style.graphicWidth    = 15;
-                    style.graphicHeight   = 26;
-                    style.graphicYOffset  = -26;
-                    style.graphicOpacity  = 1;
-                    */
                     markerT.setRadius(0);
                     markerT.setPoint(value);
                 })
@@ -485,13 +475,7 @@
                                 var poly = wkt.toObject(map.defaults);
                                 trasbordos.push(poly._latlngs[0]);
                                 trasbordos.push(poly._latlngs[poly._latlngs.length-1]);
-                                /*
-                                var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
-                                style.strokeOpacity = 0.4
-                                style.strokeWidth   = 5
-                                style.strokeColor   = value.color_polilinea ? value.color_polilinea : "#000000"
-                                poly.style          = style
-                                */
+                                poly.setStyle({color: value.color_polilinea ? value.color_polilinea : "#000000"})
                                 hoverLayer.addLayer(poly);
                             });
 
@@ -499,14 +483,6 @@
                             trasbordos.splice(0,1) //eliminar primer elemento (punto A)
                             $.each(trasbordos, function(key, value) {
                                 markerT = new Marker(hoverLayer, "markerT", { draggable: false });
-                                /*
-                                var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
-                                style.externalGraphic = STATIC_URL+"css/openlayers/markerT.png";
-                                style.graphicWidth    = 15;
-                                style.graphicHeight   = 26;
-                                style.graphicYOffset  = -26;
-                                style.graphicOpacity  = 0.5;
-                                */
                                 markerT.setRadius(0);
                                 markerT.setPoint(value);
                             })
