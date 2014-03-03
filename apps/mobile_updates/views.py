@@ -3,7 +3,7 @@ import json
 from apps.catastro.models import Ciudad
 from apps.core.models import Recorrido
 from apps.mobile_updates.models import Version
-from django.db.models import Max
+from django.db.models import Max, Q
 from django.shortcuts import get_object_or_404
 
 def json_response(func):
@@ -54,13 +54,18 @@ def recorridos_package(request):
 
 @json_response
 def versiones(request):
-#    return [
-#        {
-#            'tipo'     : v.tipo,
-#            'timestamp': v.timestamp,
-#            'name'     : v.name,
-#            'noticia'  : v.noticia
-#        }
-#        for v in 
-	return Version.objects.values('tipo').annotate(timestamp_max=Max('timestamp'))
-#    ]
+    max_set = Version.objects.values('tipo').annotate(timestamp_max=Max('timestamp'))
+    # hack sacado de https://gist.github.com/ryanpitts/1304725
+    q_statement = Q()
+    for pair in max_set:
+        q_statement |= (Q(tipo__exact=pair['tipo']) & Q(timestamp=pair['timestamp_max']))
+    model_set = Version.objects.filter(q_statement)
+    return [
+        {
+            'tipo'     : v.tipo,
+            'timestamp': str(v.timestamp),
+            'name'     : v.name,
+            'noticia'  : v.noticia
+        }
+        for v in model_set
+    ]
