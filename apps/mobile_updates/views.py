@@ -4,6 +4,7 @@ from apps.catastro.models import Ciudad
 from apps.core.models import Recorrido
 from apps.mobile_updates.models import Version
 from django.db.models import Max
+from django.shortcuts import get_object_or_404
 
 def json_response(func):
     """
@@ -41,7 +42,7 @@ def ciudades_package(request):
 @json_response
 def recorridos_package(request):
     ci_sl = request.GET.get("ciudad", "")
-    ci = Ciudad.objects.get(slug=ci_sl)
+    ci = get_object_or_404(Ciudad, slug=ci_sl)
     return [
         {
             'li': r.linea.nombre,
