@@ -168,6 +168,7 @@ INSTALLED_APPS = (
     'apps.core',
     'apps.usuarios',
     'apps.anuncios',
+    'apps.mobile_updates',
 )
 
 # A sample logging configuration. The only tangible logging
