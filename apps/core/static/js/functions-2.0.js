@@ -34,9 +34,11 @@
 
             map = new L.Map('mapa');
 
-            var osmUrl='http://{s}.tiles.mapbox.com/v3/jperelli.h5bfjb34/{z}/{x}/{y}.png';
-            var osmAttrib='Map data © Cualbondi & OpenStreetMap contributors';
-            var osm = L.tileLayer(osmUrl, {minZoom: 8, maxZoom: 16, attribution: osmAttrib});       
+            //var osmUrl='http://{s}.tiles.mapbox.com/v3/jperelli.h5bfjb34/{z}/{x}/{y}.png';
+            //var osmAttrib='Map data © Cualbondi & OpenStreetMap contributors';
+            //var osm = L.tileLayer(osmUrl, {minZoom: 8, maxZoom: 16, attribution: osmAttrib});
+            var osm = L.bingLayer('AmM8t5peYejCydeEekXGJ-r537XU4YY3jQOyWoaP0wRPC9SsJdPGO-rzogOlYXbm', { type: 'road'})
+            
             map.setView(L.latLng(ciudad_actual_coord2, ciudad_actual_coord1), ciudad_actual_zoom);
             map.addLayer(osm);
             
