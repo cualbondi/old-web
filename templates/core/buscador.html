@@ -17,6 +17,8 @@
 {% endblock %}
 
 {% block content %}
+    {#% include "facebook_sdk.html" %#}
+    {#% include "twitter_sdk.html" %#}
     <div id="bloque_izquierda">
         <div class="tabbable">
             <ul class="nav nav-tabs">
@@ -25,6 +27,12 @@
             </ul>
             <div class="tab-content">
                 <div class="tab-pane active" id="1">
+                    {% if show_android_alert %}
+                    <div class="alert alert-success">
+                      <button type="button" class="close android-app-alert-close" data-dismiss="alert">&times;</button>
+                      <strong>Atención!</strong> Ahora Cualbondi también en tu celular! Descargate la App para Android haciendo click <a href="http://bit.ly/HfmNTT">acá</a>
+                    </div>
+                    {% endif %}
                     <input type="text" id="inputDesde" class="input-block-level" placeholder="Desde" {% if desde %}value="{{desde}}"{% endif %}>
                     <input type="text" id="inputHasta" class="input-block-level" placeholder="Hasta" {% if hasta %}value="{{hasta}}"{% endif %}>
                     <p><small>Ejemplos: {{ ciudad_actual.sugerencia }}</small></p>
@@ -53,20 +61,40 @@
                     </div>
                     <button id="button-buscarinputs" class="btn btn-primary pull-right" title="Buscar recorridos" type="submit"><i class="icon-search icon-white"></i> Buscar</button>
                     <div style="clear:both;"></div>
-                    <div style="margin-top: 5px;">
-                        <script type="text/javascript"><!--
-                        google_ad_client = "ca-pub-1193419141108967";
-                        /* buscador_links_bajo_inputs_busqueda */
-                        google_ad_slot = "6244739547";
-                        google_ad_width = 468;
-                        google_ad_height = 15;
-                        //-->
-                        </script>
-                        <script type="text/javascript"
-                        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+
+<!--                    <div style="margin-top: 15px;"
+                         class="fb-like"
+                         data-href="http://facebook.com/cualbondi"
+                         data-width="365"
+                         data-height="The pixel height of the plugin"
+                         data-colorscheme="light"
+                         data-layout="standard"
+                         data-action="like"
+                         data-show-faces="true"
+                         data-send="false">
+                    </div>
+
+                    <div style="margin-top: 3px;">
+                        <a href="https://twitter.com/cualbondi"
+                           class="twitter-follow-button"
+                           data-show-count="false"
+                           data-lang="es">Seguir a @cualbondi</a>
+                    </div>
+!-->
+                    <hr style="margin: 15px 0;">
+
+                    <div align="center">
+                        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                        <!-- buscador_arriba_resultados -->
+                        <ins class="adsbygoogle"
+                             style="display:inline-block;width:234px;height:60px"
+                             data-ad-client="ca-pub-1193419141108967"
+                             data-ad-slot="6889578320"></ins>
+                        <script>
+                        (adsbygoogle = window.adsbygoogle || []).push({});
                         </script>
                     </div>
-                    <hr>
+
                     <div id="sidebarResultados"></div>
                 </div>
                 <div class="tab-pane" id="2">
@@ -76,33 +104,25 @@
                     <hr>
                     <div id="sidebarResultadosPorNombre"></div>
                 </div>
-                <div>
-                    <script type="text/javascript"><!--
-                    google_ad_client = "ca-pub-1193419141108967";
-                    /* Anuncio 234x60 n1 */
-                    google_ad_slot = "9820069640";
-                    google_ad_width = 234;
-                    google_ad_height = 60;
-                    //-->
+                <div align="center">
+                    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                    <!-- buscador_abajo_resultados -->
+                    <ins class="adsbygoogle"
+                         style="display:inline-block;width:234px;height:60px"
+                         data-ad-client="ca-pub-1193419141108967"
+                         data-ad-slot="9820069640"></ins>
+                    <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
                     </script>
-                    <script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>
                 </div>
             </div>
             <div id="sidebarContenido"></div>
         </div>
     </div>
     <div id="bloque_derecha">
-        <div style="position:absolute; z-index: 1000; top: 0; right: 40%;">
-            <script type="text/javascript"><!--
-            google_ad_client = "ca-pub-1193419141108967";
-            /* Anuncio 234x60 n1 */
-            google_ad_slot = "0175038549";
-            google_ad_width = 234;
-            google_ad_height = 60;
-            //-->
-            </script>
-            <script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>
-        </div>        
+        <div style="position:absolute; z-index: 1000; top: 0px; right: 5px;">
+            {% include "slider_anuncios.html" %}
+        </div>
         <div id="mapa" class="shadowbox"></div>
     </div>
 {% endblock %}
@@ -114,15 +134,26 @@
             check_layout();
         })
         check_layout();
+
+        $('.slider-anuncios').bxSlider({
+            slideWidth: 300,
+            pager: false,
+            auto: true,
+            autoHover: true,
+            controls: false
+        });
     })
 </script>
 
-<script src="http://openlayers.org/api/OpenLayers.js"></script>
 <script src="{{ STATIC_URL }}js/jquery.RC4.min.js"></script>
 <script src="{{ STATIC_URL }}js/simple-slider.min.js"></script>
 <script src="http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
-<script src="http://maps.google.com/maps/api/js?v=3&amp;sensor=false"></script>
-<link rel="stylesheet" href="{{ STATIC_URL }}css/openlayers/style.css" type="text/css" />
+<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
+<script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
+<script src="{{ STATIC_URL }}js/wicket.js"></script>
+<script src="{{ STATIC_URL }}js/wicket-leaflet.js"></script>
+<script src="{{ STATIC_URL }}js/leaflet.editableCircleMarker.js"></script>
+<script src="{{ STATIC_URL }}js/Bing.js"></script>
 
 <script>
     var GLOBAL_ci = "{{ ciudad_actual.slug }}";

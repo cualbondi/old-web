@@ -1,4 +1,6 @@
-from django.shortcuts import get_object_or_404, render_to_response, redirect
+# -*- coding: UTF-8 -*-
+from django.shortcuts import (get_object_or_404, render_to_response,
+                              redirect, render)
 from django.http import HttpResponse
 from django.template import RequestContext
 from django.template.defaultfilters import slugify
@@ -13,14 +15,43 @@ from django.contrib.comments import signals
 from django.contrib.comments.views.utils import next_redirect, confirmation_view
 from django.contrib.comments.views.comments import CommentPostBadRequest
 from django.utils import simplejson
-from olwidget.widgets import InfoMap
 from django.http import HttpResponse, HttpResponseRedirect
 import sys
 from django.contrib.gis.geos import GEOSGeometry
+from django.core.urlresolvers import reverse
+from django.core.mail import send_mail
 
 from apps.core.models import Linea, Recorrido, Tarifa, RecorridoProposed
 from apps.catastro.models import Ciudad, ImagenCiudad
-from apps.core.forms import LineaForm, RecorridoForm
+from apps.core.forms import LineaForm, RecorridoForm, ContactForm
+
+
+def contacto(request):
+    form = ContactForm(request.POST or None)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                "Gracias por tu mensaje! Te contestaremos a la brevedad."
+            )
+
+            data = form.cleaned_data
+
+            send_mail(
+                data["asunto"],
+                data["mensaje"],
+                data["email"],
+                ['contacto@cualbondi.com.ar']
+            )
+
+            ciudad = data['ciudad']
+            return redirect(
+                reverse('ver_ciudad', kwargs={'nombre_ciudad': ciudad.slug})
+            )
+
+    return render(request, 'contacto.html', {'form': form})
 
 
 def natural_sort_qs(qs, key):
@@ -64,7 +95,6 @@ def index(request):
         return response
     else:
         return HttpResponse(status=501)
-        
 
 def ver_ciudad(request, nombre_ciudad):
     if request.method == 'GET':
@@ -74,21 +104,15 @@ def ver_ciudad(request, nombre_ciudad):
         lineas = natural_sort_qs(ciudad_actual.lineas.all(), 'slug')
         tarifas = Tarifa.objects.filter(ciudad=ciudad_actual)
 
-        mapa = InfoMap([
-            [ciudad_actual.poligono, {
-                'html': "<p>Special style for this point.</p>",
-                'style': {'fill_color': '#0099CC', 'strokeColor': "#0066CC"},
-            }]],
-            {
-                "map_div_style": {"width": '100%'},
-                "layers": ["google.streets", "osm.mapnik"]  # "google.streets", "google.hybrid", "ve.road", "ve.hybrid", "yahoo.map"]
-            }
-        )
-
         imagenes = ImagenCiudad.objects.filter(ciudad=ciudad_actual)
 
-        return render_to_response('core/ver_ciudad.html',
-                                  {'mapa': mapa,
+        template = "core/ver_ciudad.html"
+        if ( request.GET.get("dynamic_map") ):
+            template = "core/ver_obj_map.html"
+
+        return render_to_response(template,
+                                  {'obj': ciudad_actual,
+                                   'ciudad_actual': ciudad_actual,
                                    'imagenes': imagenes,
                                    'lineas': lineas,
                                    'tarifas': tarifas},
@@ -130,8 +154,13 @@ def ver_linea(request, nombre_ciudad, nombre_linea):
                                          ciudad=ciudad_actual)
         recorridos = natural_sort_qs(Recorrido.objects.filter(linea=linea_actual), 'slug')
 
-        return render_to_response('core/ver_linea.html',
-                                  {'ciudad_actual': ciudad_actual,
+        template = "core/ver_linea.html"
+        if ( request.GET.get("dynamic_map") ):
+            template = "core/ver_obj_map.html"
+
+        return render_to_response(template,
+                                  {'obj': linea_actual,
+                                   'ciudad_actual': ciudad_actual,
                                    'linea_actual': linea_actual,
                                    'recorridos': recorridos
                                    },
@@ -159,8 +188,13 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
         if request.user.is_authenticated():
             favorito = recorrido_actual.es_favorito(request.user)
 
-        return render_to_response('core/ver_recorrido.html',
-                                  {'ciudad_actual': ciudad_actual,
+        template = "core/ver_recorrido.html"
+        if ( request.GET.get("dynamic_map") ):
+            template = "core/ver_obj_map.html"
+
+        return render_to_response(template,
+                                  {'obj': recorrido_actual,
+                                   'ciudad_actual': ciudad_actual,
                                    'linea_actual': linea_actual,
                                    'recorrido_actual': recorrido_actual,
                                    'favorito': favorito},

@@ -17,6 +17,8 @@ class Linea(models.Model):
     slug = models.SlugField(max_length=120, blank=True, null=False)
     descripcion = models.TextField(blank=True, null=True)
     foto = models.CharField(max_length=20, blank=True, null=True)
+    img_panorama = models.ImageField(max_length=200, upload_to='linea', blank=True, null=True)
+    img_cuadrada = models.ImageField(max_length=200, upload_to='linea', blank=True, null=True)
     color_polilinea = models.CharField(max_length=20, blank=True, null=True)
     info_empresa = models.TextField(blank=True, null=True)
     info_terminal = models.TextField(blank=True, null=True)
@@ -32,10 +34,23 @@ class Linea(models.Model):
         self.slug = slugify(self.nombre)
         super(Linea, self).save(*args, **kwargs)
 
+    def get_absolute_url(self, ciudad_slug):
+        try:
+            Ciudad.objects.get(slug=ciudad_slug, lineas=self)
+        except Ciudad.DoesNotExist:
+            raise ValueError("La linea no corresponde a la ciudad")
+        return reverse('ver_linea',
+            kwargs={
+                'nombre_ciudad'   : ciudad_slug,
+                'nombre_linea'    : self.slug
+            })
+
 
 class Recorrido(models.Model):
     uuid = UUIDField()
     nombre = models.CharField(max_length=100)
+    img_panorama = models.ImageField(max_length=200, upload_to='recorrido', blank=True, null=True)
+    img_cuadrada = models.ImageField(max_length=200, upload_to='recorrido', blank=True, null=True)
     linea = models.ForeignKey(Linea)
     ruta = models.LineStringField()
     sentido = models.CharField(max_length=100, blank=True, null=False)
@@ -90,7 +105,7 @@ class Recorrido(models.Model):
 
     class Meta:
         ordering = ['linea__nombre', 'nombre']
-    
+
     def get_absolute_url(self, ciudad_slug):
         # chequear si la linea/recorrido está en esta ciudad, sino tirar excepcion
         # if Ciudad.objects.get(slug=ciudad_slug, lineas=self.linea)
@@ -98,7 +113,7 @@ class Recorrido(models.Model):
             kwargs={
                 'nombre_ciudad'   : ciudad_slug,
                 'nombre_linea'    : self.linea.slug,
-                'nombre_recorrido': self.slug                
+                'nombre_recorrido': self.slug
             })
             
 
@@ -170,6 +185,28 @@ class LogModeracion(models.Model):
         if self.recorridoProposed.current_status != self.newStatus:
             self.recorridoProposed.current_status = self.newStatus
             self.recorridoProposed.save()
+
+class Posicion(models.Model):
+    """Ubicacion geografica de un recorrido en cierto momento del tiempo"""
+
+    class Meta:
+        verbose_name = 'Posicion'
+        verbose_name_plural = 'Posiciones'
+
+    recorrido = models.ForeignKey(Recorrido)
+    dispositivo_uuid = models.CharField(max_length=100, blank=True, null=True)
+    timestamp = models.DateTimeField(auto_now=False, auto_now_add=True)
+    latlng = models.PointField()
+
+    objects = models.GeoManager()
+
+    def __unicode__(self):
+        return u'{recorrido} ({hora}) - {punto}'.format(
+            recorrido=self.recorrido,
+            punto=self.latlng,
+            hora=self.timestamp.strftime("%d %h %Y %H:%M:%S")
+        )
+
 
 class Comercio(models.Model):
     nombre = models.CharField(max_length=100)

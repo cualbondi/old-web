@@ -19,5 +19,9 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^usuarios/', include('apps.usuarios.urls')),
     url(r'^widget/', include('apps.widget.urls')),
+    url(r'^mobile_updates/', include('apps.mobile_updates.urls')),
+
+    url(r'^contacto/', 'apps.core.views.contacto', name='contacto'),
+
     url(r'^', include('apps.core.urls')),
 )

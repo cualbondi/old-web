@@ -24,246 +24,131 @@
             };
 
             preload([
-                STATIC_URL+"css/openlayers/markerA.png"      ,
-                STATIC_URL+"css/openlayers/markerA-hover.png",
-                STATIC_URL+"css/openlayers/markerA-drag.png" ,
-                STATIC_URL+"css/openlayers/markerB.png"      ,
-                STATIC_URL+"css/openlayers/markerB-hover.png",
-                STATIC_URL+"css/openlayers/markerB-drag.png"
+                STATIC_URL+"css/markers/markerA.png"      ,
+                STATIC_URL+"css/markers/markerA-hover.png",
+                STATIC_URL+"css/markers/markerA-drag.png" ,
+                STATIC_URL+"css/markers/markerB.png"      ,
+                STATIC_URL+"css/markers/markerB-hover.png",
+                STATIC_URL+"css/markers/markerB-drag.png"
             ]);
 
-            // definicion inicial del mapa
-            OpenLayers.ImgPath = STATIC_URL+"css/openlayers/"
-            var map = new OpenLayers.Map("mapa", {theme: null})
-            var gmap = new OpenLayers.Layer.Google(
-                "Google Streets", {numZoomLevels: 20}
-            );
-            var osm = new OpenLayers.Layer.OSM();
-            map.addLayers([gmap, osm]);
-            //var gmap = new OpenLayers.Layer.Google("Google Streets", {visibility: false});
-            //map.addLayers([osm, gmap]);
-            //map.addControl(new OpenLayers.Control.LayerSwitcher());
-            map.setCenter(new OpenLayers.LonLat(ciudad_actual_coord1, ciudad_actual_coord2).transform(
-                new OpenLayers.Projection("EPSG:4326"),
-                map.getProjectionObject()
-            ), ciudad_actual_zoom);
+            map = new L.Map('mapa');
 
-            map.zoomOut() //esto es para que el mapa se redibuje (workaround de redraw)
-            //map.setCenter(map.center())
-
-            // estilos de los markers
-            var styleMap = new OpenLayers.StyleMap({fillColor: '#1166EE', fillOpacity: 0.2, strokeColor: '#1166EE', strokeOpacity: 0.3, strokeWidth: 2});
-            lookup = {
-                // nombre:hovering:dragging
-                "A:false:false": { externalGraphic: STATIC_URL+"css/openlayers/markerA.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -50, graphicOpacity: 1 },
-                "A:true:false" : { externalGraphic: STATIC_URL+"css/openlayers/markerA-hover.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -50, graphicOpacity: 1 },
-                "A:false:true" : { externalGraphic: STATIC_URL+"css/openlayers/markerA-drag.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -41, graphicOpacity: 1 },
-                "A:true:true"  : { externalGraphic: STATIC_URL+"css/openlayers/markerA-drag.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -41, graphicOpacity: 1 },
-                "B:false:false": { externalGraphic: STATIC_URL+"css/openlayers/markerB.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -50, graphicOpacity: 1 },
-                "B:true:false" : { externalGraphic: STATIC_URL+"css/openlayers/markerB-hover.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -50, graphicOpacity: 1 },
-                "B:false:true" : { externalGraphic: STATIC_URL+"css/openlayers/markerB-drag.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -41, graphicOpacity: 1 },
-                "B:true:true"  : { externalGraphic: STATIC_URL+"css/openlayers/markerB-drag.png", graphicWidth: 20, graphicHeight: 50, graphicYOffset: -41, graphicOpacity: 1 }
-            }
-            styleMap.addUniqueValueRules("default", "tipo", lookup);
-
-            // creacion de las diferentes capas
-            var paradas = new OpenLayers.Layer.Vector( "Paradas", {
-                eventListeners: {
-                    'featureselected':function(evt){
-                        var feature = evt.feature;
-                        var popup = new OpenLayers.Popup.FramedCloud(
-                            null,
-                            OpenLayers.LonLat.fromString(feature.geometry.toShortString()),
-                            null,
-                            feature.data['content'],
-                            null,
-                            false
-                        );
-                        popup.autoSize = true;
-                        popup.maxSize = new OpenLayers.Size(400,800);
-                        popup.fixedRelativePosition = true;
-                        feature.popup = popup;
-                        map.addPopup(popup);
-                    },
-                    'featureunselected':function(evt){
-                        var feature = evt.feature;
-                        map.removePopup(feature.popup);
-                        feature.popup.destroy();
-                        feature.popup = null;
-                    }
-                },
-                styleMap: new OpenLayers.StyleMap({
-                    "default": new OpenLayers.Style({
-                        externalGraphic : STATIC_URL+"css/openlayers/markerP.png",
-                        graphicWidth    : 15,
-                        graphicHeight   : 16,
-                        graphicYOffset  : -8,
-                        graphicOpacity  : 1,
-                        cursor: "pointer"
-                    }),
-                    "hover": new OpenLayers.Style({
-                        externalGraphic : STATIC_URL+"css/openlayers/markerP-hover.png"
-                    })
-                })
-            });
-            var markers = new OpenLayers.Layer.Vector( "Markers", {
-                styleMap: styleMap
-                //,renderers: ["SVG2", "VML", "Canvas"] // allow render while panning when possible
-            });
-            var recorridos = new OpenLayers.Layer.Vector( "Recorridos", {styleMap: new OpenLayers.StyleMap({strokeWidth: 5})});
+            //var osmUrl='http://{s}.tiles.mapbox.com/v3/jperelli.h5bfjb34/{z}/{x}/{y}.png';
+            //var osmAttrib='Map data © Cualbondi & OpenStreetMap contributors';
+            //var osm = L.tileLayer(osmUrl, {minZoom: 8, maxZoom: 16, attribution: osmAttrib});
+            var osm = L.bingLayer('AmM8t5peYejCydeEekXGJ-r537XU4YY3jQOyWoaP0wRPC9SsJdPGO-rzogOlYXbm', { type: 'road'})
             
-            map.addLayer(recorridos)
-            map.addLayer(markers)
-            map.addLayer(paradas)
-
-            // proyeccion que se necesita para transformar proyecciones mas adelante
-            var proj = new OpenLayers.Projection("EPSG:4326");
+            map.setView(L.latLng(ciudad_actual_coord2, ciudad_actual_coord1), ciudad_actual_zoom);
+            map.addLayer(osm);
+            
+            // creacion de las diferentes capas
+            var paradas = L.featureGroup();
+            var markers = L.featureGroup();
+            var recorridos = L.featureGroup();
+            var hoverLayer = L.featureGroup();
+            map.addLayer(paradas);
+            map.addLayer(recorridos);
+            map.addLayer(markers);
+            map.addLayer(hoverLayer);
 
             // clase Marker (para manejar el markerA y marerB mas facil)
-            function Marker(layer, id, visible) {
-                if (typeof(visible)=='undefined') this.visible = true
-                else this.visible = visible
+            function Marker(layer, id, options) {
+                this.visible = true
+                this.draggable = true
+                this.popup = false
+                if ( typeof options !== "undefined" ) {
+                    if ( typeof options.visible   !== 'undefined' ) this.visible   = options.visible
+                    if ( typeof options.draggable !== 'undefined' ) this.draggable = options.draggable
+                    if ( typeof options.popup     !== 'undefined' ) this.popup     = options.popup
+                }
                 this.listo  = false
                 this.point  = null
-                this.layer  = layer
                 this.id     = id
                 this.centro = null
                 this.confirmado = false
-                this.rad=300/Math.cos(-34.9)/Math.cos(50*(Math.PI/180));
+                this.rad=200;
+                this.layer  = layer
+                this.group  = null
             }
-            Marker.prototype.setPoint = function(point, style) {
+            Marker.prototype.setPoint = function(point) {
                 // setea el punto con latlng y lo pone en el mapa
-                // point = new OpenLayers.Geometry.Point(lon, lat);
-                if (this.point == null || !this.point.attributes.dragging) {
-                    try {
-                        this.layer.removeFeatures([this.point])
+                if (this.group)
+                    this.layer.removeLayer(this.group)
+
+                this.centro = point;
+
+                this.group = L.editableCircleMarker(this.centro, this.rad, {draggable: this.draggable, className: this.id, popup: this.popup})
+                
+                self = this
+                this.group.on('moveend', function(latlng) {
+                    if ( self == markerA ) {
+                        markerA.confirmado = true
+                        markerAaux.setPoint(markerA.getLatlng())
+                        markerBaux.setPoint(markerB.getLatlng())
+                        piwikLog("/click/mapa/drag/A")
                     }
-                    catch(err) {}
-
-                    this.centro = point
-                    this.point = new OpenLayers.Feature.Vector(
-                        new OpenLayers.Geometry.Collection(
-                            [
-                            OpenLayers.Geometry.Polygon.createRegularPolygon(point, this.rad, 20, 0),
-                            point
-                            ]
-                        ),
-                        {
-                            tipo:this.id+":false:false",
-                            dragging: false
-                        }
-                    )
-
-                    if ( typeof(style) !== 'undefined' )
-                        this.point.style = style;
-
-                    if (this.visible) {
-                        this.layer.addFeatures([this.point])
-                        this.listo = true
-                        //this.layer.map.moveTo(this.point)
-                        this.layer.drawFeature(this.point)
+                    if ( self == markerB ) {
+                        markerB.confirmado = true
+                        markerAaux.setPoint(markerA.getLatlng())
+                        markerBaux.setPoint(markerB.getLatlng())
+                        piwikLog("/click/mapa/drag/B")
                     }
+                    if (markerA !== null && markerB !== null) {
+                        $('a[data-toggle="tab"]').first().tab('show')
+                        pagina_input = 1
+                        buscarporclick(markerA.getLatlng(), markerB.getLatlng())
+                    }
+                })
+                
+                if (this.visible) {
+                    this.layer.addLayer(this.group)
+                    this.listo = true
                 }
+                
             }
             Marker.prototype.setRadius = function(rad) {
-                var lat = -34.9;
-                if ( this.centro !== null )
-                    lat =(new OpenLayers.Geometry.Point(this.centro.x, this.centro.y))
-                        .transform(map.getProjectionObject(), proj)
-                        .y;
-                this.rad=rad/Math.cos(lat)/Math.cos(50*(Math.PI/180));
-                if ( this.listo )
-                    this.setPoint(this.centro);
+                this.rad = rad
+                if (this.group) {
+                    this.group.setRadius(rad)
+                }
             }
+            Marker.prototype.getLatlng = function(rad) {
+                return this.group.getLatLng()
+            }
+
             // dos objetos de la clase marker // cuidado, este código se repite mas abajo
-            var markerA = new Marker(markers, "A")
-            var markerB = new Marker(markers, "B")
-            var markerAaux = new Marker(markers, "A", false)
-            var markerBaux = new Marker(markers, "B", false)
+            var markerA = new Marker(markers, "markerA")
+            var markerB = new Marker(markers, "markerB")
+            var markerAaux = new Marker(markers, "markerA", { visible: false })
+            var markerBaux = new Marker(markers, "markerB", { visible: false })
 
             // manejo de clicks en el mapa
             //      creacion de los markers A y B
             //      busqueda por click en el mapa
-            var clickHandler = new OpenLayers.Handler.Click(
-                { 'map': map },
-                {
-                    'click': function(evt) {
-                        var lonlat = map.getLonLatFromViewPortPx(evt.xy);
-                        point = new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat);
-                        if ( !markerA.listo ) {
-                            markerA.setPoint(point)
-                            markerAaux.setPoint(point)
-                            markerA.confirmado = true
-                            piwikLog("/click/mapa/marker/A")
-                        }
-                        else
-                            if ( !markerB.listo ) {
-                                markerB.setPoint(point)
-                                markerBaux.setPoint(point)
-                                markerB.confirmado = true
-                                piwikLog("/click/mapa/marker/B")
-                                clickHandler.deactivate();
-                                pagina_input = 1
-                                buscarporclick(markerA.centro, markerB.centro)
-                            }
-                    }
+            map.on('click', function(e){
+                if ( !markerA.listo ) {
+                    markerA.setPoint(e.latlng)
+                    markerAaux.setPoint(e.latlng)
+                    markerA.confirmado = true
+                    piwikLog("/click/mapa/marker/A")
                 }
-            );
+                else
+                    if ( !markerB.listo ) {
+                        markerB.setPoint(e.latlng)
+                        markerBaux.setPoint(e.latlng)
+                        markerB.confirmado = true
+                        piwikLog("/click/mapa/marker/B")
+                        pagina_input = 1
+                        buscarporclick(markerA.getLatlng(), markerB.getLatlng())
+                    }
+            })
+
             
             // manejo del drag de los markers
             //      cambio de imagenes al draggear y onhover
             //      busqueda por ondrag
-            dragControl = new OpenLayers.Control.DragFeature(
-                markers,
-                {
-                    onComplete: function(feature, pixel) {
-                        feature.attributes.dragging = true
-                        t = feature.attributes.tipo.split(":")
-                        feature.attributes.tipo=t[0]+":true:false"
-                        if ( feature == markerA.point ) {
-                            markerA.confirmado = true
-                            markerAaux.setPoint(markerA.centro)
-                            markerBaux.setPoint(markerB.centro)
-                            piwikLog("/click/mapa/drag/A")
-                        }
-                        if ( feature == markerB.point ) {
-                            markerB.confirmado = true
-                            markerAaux.setPoint(markerA.centro)
-                            markerBaux.setPoint(markerB.centro)
-                            piwikLog("/click/mapa/drag/B")
-                        }
-                        if (markerA.centro !== null && markerB.centro !== null) {
-                            $('a[data-toggle="tab"]').first().tab('show')
-                            pagina_input = 1
-                            buscarporclick(markerA.centro, markerB.centro)
-                        }
-                        markers.redraw()
-                    },
-                    onEnter: function(feature, pixel) {
-                        feature.attributes.dragging = true
-                        t = feature.attributes.tipo.split(":")
-                        feature.attributes.tipo=t[0]+":true:false"
-                        markers.redraw()
-                    },
-                    onLeave: function(feature, pixel) {
-                        feature.attributes.dragging = false
-                        t = feature.attributes.tipo.split(":")
-                        feature.attributes.tipo=t[0]+":false:false"
-                        markers.redraw()
-                    },
-                    onStart: function(feature, pixel) {
-                        feature.attributes.dragging = true
-                        t = feature.attributes.tipo.split(":")
-                        feature.attributes.tipo=t[0]+":true:true"
-                        markers.redraw()
-                    }
-                }
-            )
-            map.addControl(dragControl)
-
-            // activar el click y drag handlers
-            clickHandler.activate()
-            dragControl.activate()
+            /*
 
             // hover en las paradas
             var hoverControl = new OpenLayers.Control.SelectFeature([paradas, markers], {
@@ -283,13 +168,13 @@
             });
             map.addControl(selectorControl);
             selectorControl.activate()
+            */
 
             // variables "globales"
             var resultados = new Object()
             resultados[true] = new Object()
             resultados[false] = new Object()
             var polylinea  = new Array()
-            var polyhover  = new Array()
             var pagina_input     = 1
             var pagina_nombre    = 1
             var ajaxInputLinea = false
@@ -317,10 +202,9 @@
                     $("#sidebarResultados li").removeClass("active")
                     $("#sidebarResultados #res"+id).addClass("active")
                 }
-                recorridos.removeAllFeatures();
-                paradas.removeAllFeatures();
-                while( map.popups.length )
-                    map.removePopup(map.popups[0]);
+                recorridos.clearLayers();
+                paradas.clearLayers();
+                map.closePopup();
 
                 var polylinea = new Array()
                 var trasbordos = new Array()
@@ -328,83 +212,69 @@
                 var cant = resultados[porNombre][id].length
                 $.each(resultados[porNombre][id], function(key, value) {
                     ruta = $.RC4.decode(value.ruta_corta)
-                    var poly = new OpenLayers.Format.WKT().read(ruta);
-                    poly.geometry.transform(proj, map.getProjectionObject())
+                    var wkt = new Wkt.Wkt();
+                    wkt.read(ruta);
+                    var poly = wkt.toObject(map.defaults);
                     if (value.p1 !== null)
                         stops.push(value.p1)
                     else
                         if (key != 0) // not first (punto A)
-                            trasbordos.push(poly.geometry.components[0]);
+                            trasbordos.push(L.latLng(poly._latlngs[0]));
                     if (value.p2 !== null)
                         stops.push(value.p2)
                     else
                         if (key != cant-1) // not last (punto B)
-                            trasbordos.push(poly.geometry.components[poly.geometry.components.length-1]);
-                    var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
-                    style.strokeOpacity = 0.8;
-                    style.strokeWidth   = 5;
-                    style.strokeColor   = value.color_polilinea ? value.color_polilinea : "#000000";
-                    poly.style          = style;
+                            trasbordos.push(L.latLng(poly._latlngs[poly._latlngs.length-1]));
+                    poly.setStyle({
+                        color: value.color_polilinea ? value.color_polilinea : "#000000",
+                        opacity: 0.8
+                    })
                     polylinea.push(poly);
                 });
 
-                recorridos.addFeatures(polylinea);
+                $.each(polylinea, function(key, value) {
+                    recorridos.addLayer(value);
+                })
                 
                 $.each(trasbordos, function(key, value) {
-                    markerT = new Marker(recorridos, "T");
-                    var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
-                    style.externalGraphic = STATIC_URL+"css/openlayers/markerT.png";
-                    style.graphicWidth    = 15;
-                    style.graphicHeight   = 26;
-                    style.graphicYOffset  = -26;
-                    style.graphicOpacity  = 1;
+                    markerT = new Marker(recorridos, "markerT", { draggable: false });
                     markerT.setRadius(0);
-                    markerT.setPoint(value, style);
+                    markerT.setPoint(value);
                 })
                 
                 $.each(stops, function(key, value) {
                     if (typeof value !== 'undefined') {
-                        p = new OpenLayers.Feature.Vector(new OpenLayers.Format.WKT().read(value.latlng).geometry.transform(proj, map.getProjectionObject()))
-                        //var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
-                        //style.label = "P\n\n"+value.codigo;
-                        //style.labelYOffset = -4;
-                        //style.externalGraphic = STATIC_URL+"css/openlayers/markerP.png"
-                        //style.graphicWidth    = 15
-                        //style.graphicHeight   = 16
-                        //style.graphicYOffset  = -16
-                        //style.graphicOpacity  = 1
-                        //p.style = style
-                        p.data['content'] = "<p><strong>Parada "+value.codigo+"</strong><br>"+value.nombre+"</p>"
-                        paradas.addFeatures([p]);
+                        p = new Marker(paradas, "markerP", { draggable: false, popup: "<p><strong>Parada "+value.codigo+"</strong><br>"+value.nombre+"</p>" });
+                        p.setRadius(0);
+                        var wkt = new Wkt.Wkt();
+                        wkt.read(value.latlng);
+                        p.setPoint(L.latLng(wkt.toObject(map.defaults)._latlng))
                     }
                 })
                                 
                 if (porNombre) {
-                    markerA.setPoint(polylinea[0].geometry.getVertices()[0]);
-                    markerB.setPoint(polylinea[polylinea.length-1].geometry.getVertices()[polylinea[polylinea.length-1].geometry.getVertices().length-1]);
+                    markerA.setPoint(L.latLng(polylinea[0]._latlngs[0]));
+                    markerB.setPoint(L.latLng(polylinea[polylinea.length-1]._latlngs[polylinea[polylinea.length-1]._latlngs.length-1]));
                 }
                 else {
-                    markerA.setPoint(markerAaux.centro);
-                    markerB.setPoint(markerBaux.centro);
+                    markerA.setPoint(markerAaux.getLatlng());
+                    markerB.setPoint(markerBaux.getLatlng());
                 }
                 if (porNombre || forzarPanZoom) {
-                    map.panTo(recorridos.getDataExtent().getCenterLonLat());
-                    map.zoomTo(map.getZoomForExtent(recorridos.getDataExtent())-1);
+                    map.fitBounds(recorridos.getBounds().extend(markers.getBounds()))
                 }
             }
 
             function buscar_por_inputs() {
-                markerA = new Marker(markers, "A");
-                markerB = new Marker(markers, "B");
+                markerA = new Marker(markers, "markerA");
+                markerB = new Marker(markers, "markerB");
                 markerA.confirmado = true;
                 markerB.confirmado = true;
-                recorridos.removeAllFeatures();
-                paradas.removeAllFeatures();
-                while( map.popups.length )
-                    map.removePopup(map.popups[0]);
-                markers.removeAllFeatures();
+                recorridos.clearLayers();
+                paradas.clearLayers();
+                map.closePopup()
+                markers.clearLayers();
                 $("[data-slider]").simpleSlider("setValue", 300);
-                clickHandler.activate();
                 $("#ajaxLoader").tmpl().appendTo($("#sidebarResultados").empty())
                 var data1 = null
                 var data2 = null
@@ -439,9 +309,9 @@
             function marcarPunto(pointWKT, id, domId) {
                 // pointWKT es 'POINT(12.234 56.789)'
                 // id es 1 para origen(markerA) y 2 para destino(markerB)
-                var point = new OpenLayers.Format.WKT().read(pointWKT).geometry
-                point.transform(proj, map.getProjectionObject())
-                point = new OpenLayers.Geometry.Point(point.x, point.y);
+                var wkt = new Wkt.Wkt();
+                wkt.read(pointWKT);
+                var point = L.latLng(wkt.toObject(map.defaults)._latlng);
                 if ( id == 1 ) {
                     markerA.setPoint(point)
                     markerAaux.setPoint(point)
@@ -450,7 +320,7 @@
                     markerB.setPoint(point)
                     markerBaux.setPoint(point)
                 }
-                map.panTo(new OpenLayers.LonLat(point.x, point.y))
+                map.panTo(point)
                 $("#sug" + domId).siblings().removeClass("active")
                 $("#sug" + domId).addClass("active")
             }
@@ -461,7 +331,7 @@
                 markerB.confirmado = true
                 if ( markerA.listo && markerB.listo ) {
                     pagina_input = 1
-                    buscarporclick(markerA.centro, markerB.centro, 'false', true)
+                    buscarporclick(markerA.getLatlng(), markerB.getLatlng(), 'false', true)
                 }
             }
 
@@ -471,7 +341,7 @@
                 markerB.confirmado = true
                 if ( markerA.listo && markerB.listo ) {
                     pagina_input = 1
-                    buscarporclick(markerA.centro, markerB.centro, 'true')
+                    buscarporclick(markerA.getLatlng(), markerB.getLatlng(), 'true')
                 }
             }
 
@@ -499,7 +369,7 @@
                 }
 
                 if ( !porNombre )
-                    buscarporclick(markerA.centro, markerB.centro, combinar);
+                    buscarporclick(markerA.getLatlng(), markerB.getLatlng(), combinar);
                 else
                     inputLinea();
             }
@@ -508,18 +378,15 @@
             function buscarporclick(lla, llb, combinar, forzarPanZoom) {
                 if ( typeof(combinar) === 'undefined' ) combinar = 'false';
                 buscar     = true
-                recorridos.removeAllFeatures();
-                paradas.removeAllFeatures();
-                while( map.popups.length )
-                    map.removePopup(map.popups[0]);
+                recorridos.clearLayers();
+                paradas.clearLayers();
+                map.closePopup();
                 $("#ajaxLoader").tmpl().appendTo($("#sidebarResultados").empty())
-                lla = lla.transform(map.getProjectionObject(), proj)
-                llb = llb.transform(map.getProjectionObject(), proj)
                 $.get(
                     "/api/recorridos/",
                     {
-                        origen: lla.x+","+lla.y,
-                        destino: llb.x+","+llb.y,
+                        origen: lla.lng+","+lla.lat,
+                        destino: llb.lng+","+llb.lat,
                         radio_origen: $('#button-radio').val(),
                         radio_destino: $('#button-radio').val(),
                         c: GLOBAL_ci,
@@ -530,8 +397,6 @@
                         mostrarResultados(data, combinar, false, forzarPanZoom);
                     }
                 );
-                lla = lla.transform(proj, map.getProjectionObject())
-                llb = llb.transform(proj, map.getProjectionObject())
             }
 
             // muestra los resultados devueltos por el server usando un template
@@ -599,42 +464,28 @@
                             id = $(this).attr("id")
 
                             // codigo repetido mas arriba (solo cambia la opacity)
-                            recorridos.removeFeatures(polyhover)
-                            polyhover = new Array();
+                            //recorridos.clearLayers(polyhover)
                             trasbordos = new Array();
                             $.each(resultados[porNombre][id], function(key, value) {
-                                var poly = new OpenLayers.Format.WKT().read($.RC4.decode(value.ruta_corta))
-                                poly.geometry.transform(proj, map.getProjectionObject())
-                                trasbordos.push(poly.geometry.components[0]);
-                                trasbordos.push(poly.geometry.components[poly.geometry.components.length-1]);
-                                var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
-                                style.strokeOpacity = 0.4
-                                style.strokeWidth   = 5
-                                style.strokeColor   = value.color_polilinea ? value.color_polilinea : "#000000"
-                                poly.style          = style
-                                polyhover.push(poly);
+                                var wkt = new Wkt.Wkt();
+                                wkt.read($.RC4.decode(value.ruta_corta));
+                                var poly = wkt.toObject(map.defaults);
+                                trasbordos.push(poly._latlngs[0]);
+                                trasbordos.push(poly._latlngs[poly._latlngs.length-1]);
+                                poly.setStyle({color: value.color_polilinea ? value.color_polilinea : "#000000"})
+                                hoverLayer.addLayer(poly);
                             });
-
-                            recorridos.addFeatures(polyhover)
 
                             trasbordos.pop() //eliminar ultimo elemento (punto B)
                             trasbordos.splice(0,1) //eliminar primer elemento (punto A)
                             $.each(trasbordos, function(key, value) {
-                                markerT = new Marker(recorridos, "T");
-                                var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
-                                style.externalGraphic = STATIC_URL+"css/openlayers/markerT.png";
-                                style.graphicWidth    = 15;
-                                style.graphicHeight   = 26;
-                                style.graphicYOffset  = -26;
-                                style.graphicOpacity  = 0.5;
+                                markerT = new Marker(hoverLayer, "markerT", { draggable: false });
                                 markerT.setRadius(0);
-                                markerT.setPoint(value, style);
-                                polyhover.push(markerT.point)
+                                markerT.setPoint(value);
                             })
-
                         })
                         $(this).children().bind("mouseleave", function(e) {
-                            recorridos.removeFeatures(polyhover)
+                            hoverLayer.clearLayers()
                         })
                     })
                     mostrar_resultado(undefined, porNombre, forzarPanZoom)
@@ -643,20 +494,18 @@
 
             function limpiar() {
                 // cuidado, este código se repite mas arriba
-                markerA = new Marker(markers, "A");
-                markerB = new Marker(markers, "B");
+                markerA = new Marker(markers, "markerA");
+                markerB = new Marker(markers, "markerB");
                 markerA.confirmado = true;
                 markerB.confirmado = true;
-                recorridos.removeAllFeatures();
-                paradas.removeAllFeatures();
-                while( map.popups.length )
-                    map.removePopup(map.popups[0]);
-                markers.removeAllFeatures();
+                recorridos.clearLayers();
+                paradas.clearLayers();
+                map.closePopup()
+                markers.clearLayers();
                 $("[data-slider]").simpleSlider("setValue", 300);
                 $('#inputDesde').val('');
                 $('#inputHasta').val('');
                 $("#ayudaTempl").tmpl().appendTo($("#sidebarResultados").empty());
-                clickHandler.activate();
             }
 
             // bind eventos click partes estaticas de la pagina (bind unico)
@@ -670,7 +519,7 @@
             $("[data-slider]").bind("slider:release", function (event, data) {
                 if (markerA.listo && markerB.listo) {
                     piwikLog("/click/buscarRadio/"+data.value);
-                    buscarporclick(markerA.centro, markerB.centro, false, true);
+                    buscarporclick(markerA.getLatlng(), markerB.getLatlng(), false, true);
                 }
             });
             
@@ -699,10 +548,9 @@
             })
 
             function buscar_por_nombre() {
-                recorridos.removeAllFeatures();
-                paradas.removeAllFeatures();
-                while( map.popups.length )
-                    map.removePopup(map.popups[0]);
+                recorridos.clearLayers();
+                paradas.clearLayers();
+                map.closePopup();
                 $("#ajaxLoader").tmpl().appendTo($("#sidebarResultadosPorNombre").empty())
                 if ( ajaxInputLinea ) ajaxInputLinea.abort()
                 pagina_nombre = 1
@@ -759,14 +607,14 @@
                     $("#inputHasta").val(desde)
                 }
                 if ( markerA.confirmado && markerB.confirmado ) {
-                    ma = new OpenLayers.Geometry.Point(markerA.centro.x, markerA.centro.y)
-                    mb = new OpenLayers.Geometry.Point(markerB.centro.x, markerB.centro.y)
+                    ma = markerA.getLatlng()
+                    mb = markerB.getLatlng()
                     markerA.setPoint(mb)
                     markerAaux.setPoint(mb)
                     markerB.setPoint(ma)
                     markerBaux.setPoint(ma)
                     // buscar sobre los markers
-                    buscarporclick(markerA.centro, markerB.centro)
+                    buscarporclick(markerA.getLatlng(), markerB.getLatlng())
                 }
                 else {
                     // buscar sobre los textbox

@@ -8,6 +8,7 @@ from django.template.defaultfilters import slugify
 from apps.catastro.managers import (
     CiudadManager, ZonaManager, PuntoBusquedaManager)
 
+from django.core.urlresolvers import reverse
 
 """ Dejemos estos modelos comentados hasta que resolvamos
 la migracion de Provincia y Ciudad """
@@ -91,6 +92,8 @@ class Ciudad(models.Model):
     slug = models.SlugField(max_length=120, blank=True, null=False)
     provincia = models.ForeignKey(Provincia)
     activa = models.BooleanField(blank=True, null=False, default=False)
+    img_panorama = models.ImageField(max_length=200, upload_to='ciudad', blank=True, null=True)
+    img_cuadrada = models.ImageField(max_length=200, upload_to='ciudad', blank=True, null=True)
 
     # Opcionales
     variantes_nombre = models.CharField(max_length=150, blank=True, null=True)
@@ -115,6 +118,9 @@ class Ciudad(models.Model):
 
     def __unicode__(self):
         return self.nombre + " (" + self.provincia.nombre + ")"
+    
+    def get_absolute_url(self):
+        return reverse('ver_ciudad', kwargs={'nombre_ciudad': self.slug})
 
 
 class ImagenCiudad(models.Model):

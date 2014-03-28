@@ -1,6 +1,8 @@
 # Django settings for cualbondi project.
 import os
 
+CUALBONDI_ENV = os.environ.get('CUALBONDI_ENV', 'development')
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -32,7 +34,6 @@ CACHE_TIMEOUT = 60*60
 RADIO_ORIGEN_DEFAULT = 200
 RADIO_DESTINO_DEFAULT = 200
 LONGITUD_PAGINA = 5
-
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -113,17 +114,23 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'apps.core.middleware.WhodidMiddleware',
+    'apps.api.middlewares.APIRequestLoggingMiddleware',
 )
 
-TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
-"django.core.context_processors.debug",
-"django.core.context_processors.i18n",
-"django.core.context_processors.media",
-"django.core.context_processors.static",
-"django.contrib.messages.context_processors.messages",
-"django.core.context_processors.request",
-"apps.core.context_processors.lista_ciudades",
-"apps.core.context_processors.get_ciudad_actual")
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.core.context_processors.static",
+    "django.contrib.messages.context_processors.messages",
+    "django.core.context_processors.request",
+    "apps.core.context_processors.lista_ciudades",
+    "apps.core.context_processors.get_ciudad_actual",
+    "apps.core.context_processors.show_android_alert",
+    "apps.core.context_processors.home_url",
+    "apps.core.context_processors.facebook_app_id",
+)
 
 ROOT_URLCONF = 'urls'
 
@@ -134,7 +141,6 @@ TEMPLATE_DIRS = (
     os.path.join(os.path.dirname(__file__),'templates')
 )
 
-OLWIDGET_STATIC_URL = STATIC_URL+"olwidget"
 GOOGLE_API = "//maps.google.com/maps/api/js?v=3.6&sensor=false"
 
 INSTALLED_APPS = (
@@ -144,21 +150,26 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     'django.contrib.comments',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
     'django.contrib.gis',
-    'apps.catastro',
-    'apps.core',
-    'apps.usuarios',
+
+    # Externas
+    'bootstrap_toolkit',
     'floppyforms',
-    'olwidget',
     'imagekit',
+    'south',
 #    'moderacion',
 #    'editor',
 #    'django_extensions',
+
+    # Propias
+    'apps.api',
+    'apps.catastro',
+    'apps.core',
+    'apps.usuarios',
+    'apps.anuncios',
+    'apps.mobile_updates',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -211,6 +222,17 @@ LOGGING = {
     },
 }
 
+if CUALBONDI_ENV == 'production':
+    FACEBOOK_APP_ID = "516530425068934"
+    HOME_URL = "http://cualbondi.com.ar"
+
+    EMAIL_HOST = 'mail.cualbondi.com.ar'
+    EMAIL_PORT = 25
+else:
+    FACEBOOK_APP_ID = "370174876416548"
+    HOME_URL = "http://local.cualbondi.com.ar"
+
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 try:
     from settings_local import *
