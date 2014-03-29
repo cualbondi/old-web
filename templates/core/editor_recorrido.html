@@ -3,13 +3,13 @@
 <head>
     <title>Editor de Cualbondi</title>
 
-    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.2/leaflet.css" />
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
     <link rel="stylesheet" href="http://leaflet.github.com/Leaflet.draw/leaflet.draw.css" />
     <!--[if lte IE 8]>
         <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.2/leaflet.ie.css" />
         <link rel="stylesheet" href="http://leaflet.github.com/Leaflet.draw/leaflet.draw.ie.css" />
     <![endif]-->
-    <script src="http://cdn.leafletjs.com/leaflet-0.6.2/leaflet.js"></script>
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
     <script src="http://leaflet.github.com/Leaflet.draw/leaflet.draw.js"></script>
 
     <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
@@ -20,7 +20,29 @@
     <style media="screen" type="text/css">
         invalid-data { border: 1px solid red; }
     </style>
+    
+    <div id="fb-root"></div>
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+            appId      : 516530425068934,
+            status     : true,
+            cookie     : true,
+            oauth      : true,
+            xfbml      : true,
+            
+        });
+      };
 
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "//connect.facebook.net/en_US/all.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+    </script>
+    
 </head>
 <body>
     <div id="map" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
@@ -59,9 +81,10 @@
         (function(d){"function"===typeof define&&define.amd?define(["jquery"],d):d(jQuery)})(function(d){function n(a){return a}function p(a){return decodeURIComponent(a.replace(k," "))}function l(a){0===a.indexOf('"')&&(a=a.slice(1,-1).replace(/\\"/g,'"').replace(/\\\\/g,"\\"));try{return e.json?JSON.parse(a):a}catch(c){}}var k=/\+/g,e=d.cookie=function(a,c,b){if(void 0!==c){b=d.extend({},e.defaults,b);if("number"===typeof b.expires){var g=b.expires,f=b.expires=new Date;f.setDate(f.getDate()+g)}c=e.json?JSON.stringify(c):String(c);return document.cookie=[e.raw?a:encodeURIComponent(a),"=",e.raw?c:encodeURIComponent(c),b.expires?"; expires="+b.expires.toUTCString():"",b.path?"; path="+b.path:"",b.domain?"; domain="+b.domain:"",b.secure?"; secure":""].join("")}c=e.raw?n:p;b=document.cookie.split("; ");for(var g=a?void 0:{},f=0,k=b.length;f<k;f++){var h=b[f].split("="),m=c(h.shift()),h=c(h.join("="));if(a&&a===m){g=l(h);break}a||(g[m]=l(h))}return g};e.defaults={};d.removeCookie=function(a,c){return void 0!==d.cookie(a)?(d.cookie(a,"",d.extend({},c,{expires:-1})),!0):!1}});
 
         // Load map and base layer
-        var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/997/256/{z}/{x}/{y}.png',
-            cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18}),
-            map = new L.Map('map', {layers: [cloudmade], center: new L.LatLng(-37.7772, 175.2756), zoom: 15 });
+        var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
+        var osm = new L.TileLayer(osmUrl, {minZoom: 8, maxZoom: 12, attribution: osmAttrib});
+        var map = new L.Map('map', {layers: [osm], center: new L.LatLng(-37.7772, 175.2756), zoom: 15 });
 
         // Create layer to edition
         var drawnItems = new L.FeatureGroup();
@@ -119,7 +142,7 @@
             var p = $("#pass").val();
             $.ajax({
                 "method": "POST",
-                "url":"{% url 'apps.usuarios.views.iniciar_sesion' %}",
+                "url":"{% url apps.usuarios.views.iniciar_sesion %}",
                 "data": {
                     "username": u,
                     "password": p
@@ -139,10 +162,56 @@
                 authenticated = false
             })
         }
+        
+        var token = null;
+        function loginFB(){
+            FB.login(
+                function(response) {
+                    if (response.authResponse) {
+                        token = response.authResponse.accessToken;
+                        $.ajax(
+                            {
+                                "method": "POST",
+                                "url": "/login_ajax/facebook/",
+                                "data": {
+                                    //next: '',
+                                    //process: 'authenticate',
+                                    //expires_in: response.authResponse.expiresIn,
+                                    access_token: token,
+                                    //action: "reauthenticate",
+                                    csrfmiddlewaretoken: $.cookie('csrftoken')
+                                }
+                                //,
+                                //"beforeSend": function(xhr, settings) {
+                                //    xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken') );
+                                //}
+                            }
+                        ).done(function(data, textStatus, jqXHR){
+                            console.log(200)
+                            // login success
+                            authenticated = true
+                            $.fancybox.close();
+                            guardarRecorrido()
+                        }).fail(function(data, textStatus, jqXHR){
+                            console.log("otro" )
+                            // error login
+                            $("#user").addClass("invalid-data");
+                            $("#pass").addClass("invalid-data");
+                            authenticated = false
+                        })
+                    } else {
+                        console.log('User cancelled login or did not fully authorize.');
+                    }
+                },
+                { scope: 'email' }
+            );
 
+        }
+        
         function openLogin() {
             $.fancybox({
-                content: '<input id="user" placeholder="User"><br><input id="pass" placeholder="Password" type="password"><br><button onclick="$.fancybox.close()">Cerrar!</button><button onclick="login()">Login!</button>'
+                content: '<button onclick="loginFB()">Facebook Login!</button>'
+                //content: '<input id="user" placeholder="User"><br><input id="pass" placeholder="Password" type="password"><br><button onclick="$.fancybox.close()">Cerrar!</button><button onclick="login()">Login!</button>'
             });        
         }
 
