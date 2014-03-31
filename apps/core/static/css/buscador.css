@@ -246,6 +246,23 @@ div.leaflet-marker-icon.markerT {
     height: 26px !important;
 }
 
+.itemResultado .itinerario {
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
 
+.itemResultado .botones {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: none;
+}
 
+.itemResultado:hover .botones {
+    display: block;
+}
 
+.itemResultado.active .botones {
+    display: block;
+}

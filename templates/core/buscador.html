@@ -185,17 +185,17 @@
         </script>
 
         <script id="itemTempl" type="text/x-jquery-tmpl">
-            <li id="res${id}">
+            <li class="itemResultado" id="res${id}">
                 <a href="#" id="${id}">
                     {% templatetag openvariable %}each itinerario{% templatetag closevariable %}
-                        <div style="margin:0; padding:0; position:relative">
+                        <div class="itinerario">
                             <img src="{{ STATIC_URL }}img/micros/30x35/${foto}.png" style="float:left; margin-top: 4px; margin-right: 4px"/>
                             <strong>${nombre}</strong>
                             <br>
                             de ${inicio} a ${fin}
                             <br>
                             distancia: {% templatetag openvariable %}if long_pata{% templatetag closevariable %}${Math.round(long_pata)} m (pie) + {% templatetag openvariable %}/if{% templatetag closevariable %}${Math.round(long_bondi/100)/10} km (bondi)
-                            <span style="position:absolute;top:0;right:0">
+                            <span class="botones">
 								<span href="${url}" class="btn btn-mini" title="Ver información, horarios y paradas de la línea ${nombre}" target="_blank"><i class="icon-info-sign"></i></span>
 								<span href="/editor/${id}" class="btn btn-mini" title="Editar recorrido" target="self"><i class="icon-pencil"></i></span>
                             </span>
