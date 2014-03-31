@@ -9,8 +9,6 @@ from apps.usuarios.models import RecorridoFavorito
 from apps.editor.fields import UUIDField
 
 from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User
-
 
 class Linea(models.Model):
     nombre = models.CharField(max_length=100)
@@ -115,7 +113,7 @@ class Recorrido(models.Model):
                 'nombre_linea'    : self.linea.slug,
                 'nombre_recorrido': self.slug
             })
-            
+
 
 class Posicion(models.Model):
     """Ubicacion geografica de un recorrido en cierto momento del tiempo"""

@@ -27,7 +27,6 @@ urlpatterns = patterns('',
 
     # Recorridos
     url(r'^(?P<nombre_ciudad>[\w-]+)/(?P<nombre_linea>[\w-]+)/(?P<nombre_recorrido>[\w-]+)/$', 'apps.core.views.ver_recorrido', name='ver_recorrido'),
-
 )
 
 #cualbondi.com.ar/la-plata/recorridos/Norte/10/IDA/

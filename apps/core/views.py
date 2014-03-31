@@ -15,8 +15,6 @@ from django.contrib.comments import signals
 from django.contrib.comments.views.utils import next_redirect, confirmation_view
 from django.contrib.comments.views.comments import CommentPostBadRequest
 from django.utils import simplejson
-from django.http import HttpResponse, HttpResponseRedirect
-import sys
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
 
