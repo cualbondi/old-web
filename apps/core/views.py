@@ -5,8 +5,8 @@ from django.http import HttpResponse
 from django.template import RequestContext
 from django.template.defaultfilters import slugify
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, permission_required
-from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
@@ -17,36 +17,12 @@ from django.contrib.comments.views.comments import CommentPostBadRequest
 from django.utils import simplejson
 from django.http import HttpResponse, HttpResponseRedirect
 import sys
-from django.contrib.gis.geos import GEOSGeometry
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
 
-from apps.core.models import Linea, Recorrido, Tarifa, RecorridoProposed
+from apps.core.models import Linea, Recorrido, Tarifa
 from apps.catastro.models import Ciudad, ImagenCiudad
 from apps.core.forms import LineaForm, RecorridoForm, ContactForm
-
-from social.apps.django_app.utils import strategy
-from django.contrib.auth.models import User
-from django.contrib.auth import login
-
-@strategy('social:complete')
-def ajax_auth(request, backend):
-    access_token = request.POST.get('access_token', False)
-    if access_token:
-        request.social_strategy.clean_partial_pipeline()
-        ret = request.social_strategy.backend.do_auth(access_token)
-        user = User.objects.get(username=ret)
-        if user:
-            if user.is_active:
-                user.backend = 'social.backends.facebook.FacebookOAuth2'
-                login(request, user)
-                return HttpResponse(status=200)
-            else:
-                return HttpResponse("Disabled Account", status=403)
-        else:
-            return HttpResponse("Invalid Login", status=403)
-    else:
-        return HttpResponse("No token found", status=403)
 
 
 def contacto(request):
@@ -249,168 +225,6 @@ def redirect_nuevas_urls(request, ciudad=None, linea=None, ramal=None, recorrido
     else:
         return HttpResponse(status=501)
 
-@ensure_csrf_cookie
-@csrf_protect
-def editor_recorrido(request, id_recorrido):
-    if request.method == 'GET':
-        recorrido = get_object_or_404(Recorrido, pk=id_recorrido)
-        return render_to_response(
-            'core/editor_recorrido.html',
-            {'recorrido': recorrido},
-            context_instance=RequestContext(request)
-        )
-    elif request.method == 'POST':
-        # save anyway! all info is useful
-        if request.POST.get("mode") == 'save':
-            mode = "save"
-        else:
-            mode = "draft"
-        # request.POST.get("id")
-        recorrido = get_object_or_404(Recorrido, pk=id_recorrido)
-        # sys.stderr.write(str(GEOSGeometry(request.POST.get("geojson"))))
-        if ( request.POST.get("uuid") ):
-            r = RecorridoProposed.objects.get(uuid=request.POST.get("uuid"))
-        else:
-            r = RecorridoProposed()
-        r.recorrido = recorrido
-        r.nombre = recorrido.nombre
-        r.linea = recorrido.linea
-        r.sentido         = recorrido.sentido
-        r.inicio          = recorrido.inicio
-        r.fin             = recorrido.fin
-        r.semirrapido     = recorrido.semirrapido
-        r.color_polilinea = recorrido.color_polilinea
-        r.pois            = recorrido.pois
-        r.descripcion     = recorrido.descripcion
-        r.ruta = GEOSGeometry(request.POST.get("geojson"))
-        r.user = request.user if request.user.is_authenticated() else None
-        r.parent = recorrido.uuid
-        # save anyway, but respond as forbidden if not auth ;)
-        r.save()
-        data = '{"uuid":"'+r.uuid+'"}'
-        if request.user.is_authenticated():
-            return HttpResponse(data)
-        else:
-            return HttpResponse(data, status=403)
-    else:
-        return HttpResponse(status=501)
-
-@login_required(login_url="/usuarios/login/")
-@permission_required('core.moderate_recorridos')
-def mostrar_ediciones(request):
-    # chequear capability moderar_ediciones
-    # por get, sin id: mostrar ultimos recorridos en la tabla de ediciones
-    # por get con uuid: mostrar ese recorrido con diff con el parent o con el que esta publicado (recorrido_id)
-    # por post con uuid: aceptar ese recorrido: mover de la tabla ediciones a la tabla posta con el recorrido_id
-    if request.method == 'GET':
-        ediciones = RecorridoProposed.objects.order_by('-date_update')[:50]
-        return render_to_response(
-            'core/moderacion_listado.html',
-            {'ediciones': ediciones},
-            context_instance=RequestContext(request)
-        )
-    else:
-        return HttpResponse(status=501)
-
-@login_required(login_url="/usuarios/login/")
-@permission_required('core.moderate_recorridos')
-def moderar_ediciones_id(request, id=None):
-    # chequear capability moderar_ediciones
-    # por get, sin id: mostrar ultimos recorridos en la tabla de ediciones
-    # por get con uuid: mostrar ese recorrido con diff con el parent o con el que esta publicado (recorrido_id)
-    # por post con uuid: aceptar ese recorrido: mover de la tabla ediciones a la tabla posta con el recorrido_id
-    if request.method == 'GET':
-        ediciones = RecorridoProposed.objects.filter(recorrido__id=id).order_by('-date_update')[:50]
-        original = Recorrido.objects.get(id=id)
-        return render_to_response(
-            'core/moderacion_id.html',
-            {
-                'ediciones': ediciones,
-                'original': original
-            },
-            context_instance=RequestContext(request)
-        )
-    else:
-        return HttpResponse(status=501)
-
-@login_required(login_url="/usuarios/login/")
-@permission_required('core.moderate_recorridos')
-def moderar_ediciones_uuid(request, uuid=None):
-    # chequear capability moderar_ediciones
-    # por get, sin id: mostrar ultimos recorridos en la tabla de ediciones
-    # por get con uuid: mostrar ese recorrido con diff con el parent o con el que esta publicado (recorrido_id)
-    # por post con uuid: aceptar ese recorrido: mover de la tabla ediciones a la tabla posta con el recorrido_id
-    if request.method == 'GET':
-        ediciones = RecorridoProposed.objects.filter(uuid=uuid).order_by('-date_update')[:50]
-        original = Recorrido.objects.get(id=ediciones[0].recorrido.id)
-        return render_to_response(
-            'core/moderacion_id.html',
-            {
-                'ediciones': ediciones,
-                'original': original
-            },
-            context_instance=RequestContext(request)
-        )
-    else:
-        return HttpResponse(status=501)
-
-@login_required(login_url="/usuarios/login/")
-@permission_required('core.moderate_recorridos')
-def moderar_ediciones_uuid_rechazar(request, uuid=None):
-    RecorridoProposed.objects.get(uuid=uuid).logmoderacion_set.create(newStatus='N')
-    #redirect('moderar_ediciones_uuid', uuid=uuid)
-    return HttpResponseRedirect(request.GET.get("next"))
-    
-@login_required(login_url="/usuarios/login/")
-@permission_required('core.moderate_recorridos')
-def moderar_ediciones_uuid_aprobar(request, uuid=None):
-    proposed=RecorridoProposed.objects.get(uuid=uuid)
-    r = proposed.recorrido
-    if not r.uuid:
-        rp = RecorridoProposed(
-            recorrido       = r,
-            nombre          = r.nombre,
-            linea           = r.linea,
-            ruta            = r.ruta,
-            sentido         = r.sentido,
-            slug            = r.slug,
-            inicio          = r.inicio,
-            fin             = r.fin,
-            semirrapido     = r.semirrapido,
-            color_polilinea = r.color_polilinea,
-            pois            = r.pois,
-            descripcion     = r.descripcion
-        )
-        rp.save()
-        proposed.parent=rp.uuid
-        proposed.save()
-    
-    r.recorrido       = proposed.recorrido
-    r.nombre          = proposed.nombre
-    r.linea           = proposed.linea
-    r.ruta            = proposed.ruta
-    r.sentido         = proposed.sentido
-    r.inicio          = proposed.inicio
-    r.fin             = proposed.fin
-    r.semirrapido     = proposed.semirrapido
-    r.color_polilinea = proposed.color_polilinea
-    r.pois            = proposed.pois
-    r.descripcion     = proposed.descripcion
-    r.save()
-    
-    try:
-        parent = RecorridoProposed.objects.get(uuid=proposed.parent)
-        if parent:
-            parent.logmoderacion_set.create(newStatus='R')
-    except ObjectDoesNotExist:
-        pass
-    for rp in RecorridoProposed.objects.filter(current_status='S', recorrido=r.recorrido).exclude(uuid=uuid):
-        rp.logmoderacion_set.create(newStatus='R')
-    proposed.logmoderacion_set.create(newStatus='S')
-    return HttpResponseRedirect(request.GET.get("next"))
- 
-
-#### HASTA ACA EDITOR FEEDBACKER ####
 
 @login_required(login_url="/usuarios/login/")
 def agregar_linea(request):

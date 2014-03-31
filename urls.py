@@ -22,6 +22,7 @@ urlpatterns = patterns('',
     url(r'^usuarios/', include('apps.usuarios.urls')),
     url(r'^widget/', include('apps.widget.urls')),
     url(r'^mobile_updates/', include('apps.mobile_updates.urls')),
+    url(r'^editor/', include('apps.editor.urls')),
 
     url(r'^contacto/', 'apps.core.views.contacto', name='contacto'),
 

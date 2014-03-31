@@ -8,15 +8,6 @@ urlpatterns = patterns('',
 #    url(r'^lineas/agregar/$', 'apps.core.views.agregar_linea', name='agregar_linea'),
 #    url(r'^recorridos/agregar/$', 'apps.core.views.agregar_recorrido', name='agregar_recorrido'),
 
-    # Editor
-    url(r'^login_ajax/(?P<backend>[^/]+)/$', 'apps.core.views.ajax_auth', name='ajax_auth'),
-    url(r'^editor/moderar/$', 'apps.core.views.mostrar_ediciones', name='mostrar_ediciones'),
-    url(r'^editor/moderar/id:(?P<id>\d+)/$', 'apps.core.views.moderar_ediciones_id', name='moderar_ediciones_id'),
-    url(r'^editor/moderar/uuid:(?P<uuid>[-\w]+)/$', 'apps.core.views.moderar_ediciones_uuid', name='moderar_ediciones_uuid'),
-    url(r'^editor/moderar/uuid:(?P<uuid>[-\w]+)/aprobar/$', 'apps.core.views.moderar_ediciones_uuid_aprobar', name='moderar_ediciones_uuid_aprobar'),
-    url(r'^editor/moderar/uuid:(?P<uuid>[-\w]+)/rechazar/$', 'apps.core.views.moderar_ediciones_uuid_rechazar', name='moderar_ediciones_uuid_rechazar'),
-    url(r'^editor/(?P<id_recorrido>\d+)/$', 'apps.core.views.editor_recorrido', name='editor_recorrido'),
-
     # Redirects para las URLs viejas
     url(r'^recorridos/$', 'apps.core.views.redirect_nuevas_urls', name='redirect_nuevas_urls'),
     url(r'^recorridos/(?P<linea>[^/]+)/$', 'apps.core.views.redirect_nuevas_urls', name='redirect_nuevas_urls'),

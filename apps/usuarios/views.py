@@ -22,6 +22,29 @@ from apps.usuarios.models import PerfilUsuario
 from apps.usuarios.forms import RegistracionForm
 from apps.usuarios.forms import PerfilUsuarioForm
 
+from social.apps.django_app.utils import strategy
+from django.contrib.auth.models import User
+from django.contrib.auth import login
+
+@strategy('social:complete')
+def ajax_auth(request, backend):
+    access_token = request.POST.get('access_token', False)
+    if access_token:
+        request.social_strategy.clean_partial_pipeline()
+        ret = request.social_strategy.backend.do_auth(access_token)
+        user = User.objects.get(username=ret)
+        if user:
+            if user.is_active:
+                user.backend = 'social.backends.facebook.FacebookOAuth2'
+                login(request, user)
+                return HttpResponse(status=200)
+            else:
+                return HttpResponse("Disabled Account", status=403)
+        else:
+            return HttpResponse("Invalid Login", status=403)
+    else:
+        return HttpResponse("No token found", status=403)
+    
 
 @csrf_protect
 @never_cache

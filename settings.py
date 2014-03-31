@@ -183,6 +183,7 @@ INSTALLED_APPS = (
     'apps.usuarios',
     'apps.anuncios',
     'apps.mobile_updates',
+    'apps.editor',
 )
 
 # A sample logging configuration. The only tangible logging
