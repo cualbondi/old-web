@@ -37,7 +37,7 @@ class Migration(SchemaMigration):
         db.create_table('editor_logmoderacion', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('recorridoProposed', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['editor.RecorridoProposed'])),
-            ('created_by', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
+            ('created_by', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], null=True, blank=True)),
             ('date_create', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('newStatus', self.gf('django.db.models.fields.CharField')(default='E', max_length=1)),
         ))
@@ -128,7 +128,7 @@ class Migration(SchemaMigration):
         },
         'editor.logmoderacion': {
             'Meta': {'object_name': 'LogModeracion'},
-            'created_by': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
+            'created_by': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True', 'blank': 'True'}),
             'date_create': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'newStatus': ('django.db.models.fields.CharField', [], {'default': "'E'", 'max_length': '1'}),

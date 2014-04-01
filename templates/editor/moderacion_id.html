@@ -77,9 +77,7 @@
     <table>
         {% with original as e %}
         <tr>
-            <td>{{ e.linea.nombre }} - {{ e.nombre }}</td>
-            <td><a href="{% url apps.editor.views.moderar_ediciones_id id=e.id %}">id</a></td>
-            <td><a href="">uuid</a></td>
+            <td><a href="{% url apps.editor.views.moderar_ediciones_id id=e.id %}">{{ e.linea.nombre }} - {{ e.nombre }}</a></td>
         </tr>
         {% endwith %}
     </table>
@@ -88,9 +86,19 @@
     <table>
         {% for e in ediciones %}
         <tr>
-            <td>{{ e.linea.nombre }} - {{ e.nombre }}</td>
-            <td><a href="{% url apps.editor.views.moderar_ediciones_id id=e.recorrido.id %}">id</a></td>
             <td><a href="{% url apps.editor.views.moderar_ediciones_uuid uuid=e.uuid %}">uuid</a></td>
+            <td>
+                <table>
+                    {% for m in e.log %}
+                    <tr>
+                        <td>{{ m.date_create|date:"d/m/Y H:i" }}</td>
+                        <td>{{ m.created_by }}</td>
+                        <td>{{ m.get_newStatus_display }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </td>
+            <td><a href="{% url apps.editor.views.moderar_ediciones_uuid_aprobar uuid=e.uuid %}?next={{ request.path }}">Aprobar</a></td>
         </tr>
         {% endfor %}
     </table>

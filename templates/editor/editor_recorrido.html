@@ -45,7 +45,12 @@
     
 </head>
 <body>
-    <div id="map" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
+    <div id="title" style="position: absolute; top: 0; left: 0; right: 0; height: 60px;">
+        <h2 style="display: inline; margin-bottom: 4px;">Cualbondi Editor Beta.</h2>
+        <h3 style="display: inline; margin-bottom: 4px;">{{ recorrido.linea.ciudad_set.all.0.nombre }} {{ recorrido.linea.nombre }} {{ recorrido.nombre }}</h3>
+        <p style="margin-top:2px;">Los cambios que realices serán aprobados por un moderador. Gracias por colaborar {{ user }}!</p>
+    </div>
+    <div id="map" style="position: absolute; top: 60px; left: 0; right: 0; bottom: 0;"></div>
 
     <script>
 
@@ -82,8 +87,8 @@
 
         // Load map and base layer
         var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-        var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
-        var osm = new L.TileLayer(osmUrl, {minZoom: 8, maxZoom: 12, attribution: osmAttrib});
+        var osmAttrib='Map data © Cualbondi & <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
+        var osm = new L.TileLayer(osmUrl, {minZoom: 8, maxZoom: 19, attribution: osmAttrib});
         var map = new L.Map('map', {layers: [osm], center: new L.LatLng(-37.7772, 175.2756), zoom: 15 });
 
         // Create layer to edition
@@ -99,7 +104,7 @@
         var drawControl = new L.Control.Draw({
             draw: {
                 position: 'topleft',
-                polyline: {
+                /*polyline: {
                     guidelineDistance: 20,
                     shapeOptions: {
                         stroke: true,
@@ -108,7 +113,8 @@
                         opacity: 1,
                         clickable: true
                         }
-                    },
+                    },*/
+                polyline: false, /* */
                 polygon: false,
                 rectangle: false,
                 circle: false,
@@ -210,7 +216,7 @@
         
         function openLogin() {
             $.fancybox({
-                content: '<button onclick="loginFB()">Facebook Login!</button>'
+                content: 'Hola, necesitamos que realices el login via facebook para poder guardar tu progreso en cualbondi <br /><button onclick="loginFB()">Facebook Login!</button> Pronto agregaremos mas funcionalidades. Muchas gracias por tu aporte!'
                 //content: '<input id="user" placeholder="User"><br><input id="pass" placeholder="Password" type="password"><br><button onclick="$.fancybox.close()">Cerrar!</button><button onclick="login()">Login!</button>'
             });        
         }
@@ -236,9 +242,16 @@
                     xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken') );
                     }
             })
-            .done(function() {  })
-            .fail(function() { if(!$.fancybox.isOpen) openLogin() })
-            .always(function(data) { uuid = JSON.parse(data).uuid; console.log(uuid) })
+            .done(function(data) {
+                uuid = JSON.parse(data).uuid;
+                console.log(uuid)
+            })
+            .fail(function(jqXHR) {
+                if ( ! $.fancybox.isOpen )
+                    openLogin();
+                uuid = JSON.parse(jqXHR.responseText).uuid;
+                console.log(uuid)
+            })
         }
 
         var jqxhrSave
