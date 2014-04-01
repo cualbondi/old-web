@@ -65,7 +65,6 @@ class RecorridoProposed(models.Model):
             return None
 
     def __unicode__(self):
-        #return str(self.ciudad_set.all()[0]) + " - " + str(self.linea) + " - " + self.nombre
         return str(self.linea) + " - " + self.nombre
 
     def aprobar(self, user):

@@ -103,7 +103,6 @@ def moderar_ediciones_uuid(request, uuid=None):
 @permission_required('editor.moderate_recorridos', login_url="/usuarios/login/", raise_exception=True)
 def moderar_ediciones_uuid_rechazar(request, uuid=None):
     RecorridoProposed.objects.get(uuid=uuid).logmoderacion_set.create(created_by=request.user,newStatus='N')
-    # redirect('moderar_ediciones_uuid', uuid=uuid)
     return HttpResponseRedirect(request.GET.get("next"))
 
 
