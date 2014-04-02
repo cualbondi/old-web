@@ -12,7 +12,7 @@ from django.views.decorators.cache import never_cache
 from django.contrib.auth import REDIRECT_FIELD_NAME, login as auth_login
 from django.contrib.sites.models import get_current_site
 from django.template import RequestContext
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 from django.utils.hashcompat import sha_constructor
@@ -22,6 +22,29 @@ from apps.usuarios.models import PerfilUsuario
 from apps.usuarios.forms import RegistracionForm
 from apps.usuarios.forms import PerfilUsuarioForm
 
+from social.apps.django_app.utils import strategy
+from django.contrib.auth.models import User
+from django.contrib.auth import login
+
+@strategy('social:complete')
+def ajax_auth(request, backend):
+    access_token = request.POST.get('access_token', False)
+    if access_token:
+        request.social_strategy.clean_partial_pipeline()
+        ret = request.social_strategy.backend.do_auth(access_token)
+        user = User.objects.get(username=ret)
+        if user:
+            if user.is_active:
+                user.backend = 'social.backends.facebook.FacebookOAuth2'
+                login(request, user)
+                return HttpResponse(status=200)
+            else:
+                return HttpResponse("Disabled Account", status=403)
+        else:
+            return HttpResponse("Invalid Login", status=403)
+    else:
+        return HttpResponse("No token found", status=403)
+    
 
 @csrf_protect
 @never_cache
@@ -58,7 +81,11 @@ def iniciar_sesion(request, template_name='registration/login.html',
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
 
-            return HttpResponseRedirect(redirect_to)
+            if request.is_ajax():
+                return HttpResponse()
+            else:
+                return HttpResponseRedirect(redirect_to)
+
     elif request.method == 'GET':
         if request.user.is_authenticated():
             return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
@@ -78,7 +105,10 @@ def iniciar_sesion(request, template_name='registration/login.html',
         'referer': url_referer
     }
     context.update(extra_context or {})
-    return render_to_response(template_name, context,
+    if request.is_ajax():
+        return HttpResponseForbidden()
+    else:
+        return render_to_response(template_name, context,
                               context_instance=RequestContext(request, current_app=current_app))
 
 

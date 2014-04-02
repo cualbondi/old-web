@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import patterns
+from django.conf.urls.defaults import patterns, url
 
 
 urlpatterns = patterns('',
@@ -9,4 +9,5 @@ urlpatterns = patterns('',
     (r'^perfil/$', 'apps.usuarios.views.ver_perfil'),
     (r'^confirmar-email/(\w+)/$', 'apps.usuarios.views.confirmar_email'),
     (r'^editar-perfil/$', 'apps.usuarios.views.editar_perfil'),
+    url(r'^login_ajax/(?P<backend>[^/]+)/$', 'apps.usuarios.views.ajax_auth', name='ajax_auth'),
 )

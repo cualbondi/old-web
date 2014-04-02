@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Editor de Cualbondi</title>
+
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.2/leaflet.css" />
+    <script src="http://cdn.leafletjs.com/leaflet-0.6.2/leaflet.js"></script>
+
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+
+
+</head>
+<body>
+    <div id="map" style="position: absolute; top: 0; right: 0; width: 50%; height: 100%;"></div>
+
+    <script>
+
+        // jquery.cookie.js
+        (function(d){"function"===typeof define&&define.amd?define(["jquery"],d):d(jQuery)})(function(d){function n(a){return a}function p(a){return decodeURIComponent(a.replace(k," "))}function l(a){0===a.indexOf('"')&&(a=a.slice(1,-1).replace(/\\"/g,'"').replace(/\\\\/g,"\\"));try{return e.json?JSON.parse(a):a}catch(c){}}var k=/\+/g,e=d.cookie=function(a,c,b){if(void 0!==c){b=d.extend({},e.defaults,b);if("number"===typeof b.expires){var g=b.expires,f=b.expires=new Date;f.setDate(f.getDate()+g)}c=e.json?JSON.stringify(c):String(c);return document.cookie=[e.raw?a:encodeURIComponent(a),"=",e.raw?c:encodeURIComponent(c),b.expires?"; expires="+b.expires.toUTCString():"",b.path?"; path="+b.path:"",b.domain?"; domain="+b.domain:"",b.secure?"; secure":""].join("")}c=e.raw?n:p;b=document.cookie.split("; ");for(var g=a?void 0:{},f=0,k=b.length;f<k;f++){var h=b[f].split("="),m=c(h.shift()),h=c(h.join("="));if(a&&a===m){g=l(h);break}a||(g[m]=l(h))}return g};e.defaults={};d.removeCookie=function(a,c){return void 0!==d.cookie(a)?(d.cookie(a,"",d.extend({},c,{expires:-1})),!0):!1}});
+
+        // Load map and base layer
+        var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/997/256/{z}/{x}/{y}.png',
+            cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18}),
+            map = new L.Map('map', {layers: [cloudmade], center: new L.LatLng(-37.7772, 175.2756), zoom: 15 });
+
+        // Create layer to edition
+        var drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+
+        // Load the linestring
+        {% for e in ediciones %}
+            linestring = L.GeoJSON.geometryToLayer({{ e.ruta.geojson|safe }})
+            linestring.setStyle({opacity: 0.5, color: '#606'})
+            drawnItems.addLayer(linestring);
+        {% endfor %}
+        
+        linestring = L.GeoJSON.geometryToLayer({{ original.ruta.geojson|safe }})
+        linestring.setStyle({opacity: 0.5, color: '#666'})
+        drawnItems.addLayer(linestring);
+
+        function guardarRecorrido() {
+            try { jqxhrSave.cancel() } catch(err) {}
+            jqxhrSave = $.ajax({
+                "method": "POST",
+                "url":"",
+                "data": {
+                    "mode": "save",
+                    "geojson": JSON.stringify(drawnItems.getLayers()[0].toGeoJSON().geometry)
+                    },
+                "beforeSend": function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken') );
+                    }
+            })
+            .done(function() {  })
+            .fail(function() { if(!$.fancybox.isOpen) openLogin() })
+        }
+
+        var jqxhrSave
+        // Guardar con estado saved en la base de datos via POST ajax
+        map.on('draw:edited', function (e) {
+            guardarRecorrido()
+            if ( !authenticated ) {
+                openLogin()            
+                throw "not auth"
+            }
+        });
+
+
+        // Move map to actual linestring
+        map.fitBounds(drawnItems.getBounds());
+
+
+    </script>
+
+
+    <h3>Original</h3>
+    <table>
+        {% with original as e %}
+        <tr>
+            <td><a href="{% url apps.editor.views.moderar_ediciones_id id=e.id %}">{{ e.linea.nombre }} - {{ e.nombre }}</a></td>
+        </tr>
+        {% endwith %}
+    </table>
+
+    <h3>Derivaciones</h3>
+    <table>
+        {% for e in ediciones %}
+        <tr>
+            <td><a href="{% url apps.editor.views.moderar_ediciones_uuid uuid=e.uuid %}">uuid</a></td>
+            <td>
+                <table>
+                    {% for m in e.log %}
+                    <tr>
+                        <td>{{ m.date_create|date:"d/m/Y H:i" }}</td>
+                        <td>{{ m.created_by }}</td>
+                        <td>{{ m.get_newStatus_display }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </td>
+            <td><a href="{% url apps.editor.views.moderar_ediciones_uuid_aprobar uuid=e.uuid %}?next={{ request.path }}">Aprobar</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+
+
+</body>
+</html>

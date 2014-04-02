@@ -6,6 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from apps.core.managers import RecorridoManager
 from apps.catastro.models import Ciudad
 from apps.usuarios.models import RecorridoFavorito
+from apps.editor.fields import UUIDField
 
 from django.core.urlresolvers import reverse
 
@@ -44,6 +45,7 @@ class Linea(models.Model):
 
 
 class Recorrido(models.Model):
+    uuid = UUIDField()
     nombre = models.CharField(max_length=100)
     img_panorama = models.ImageField(max_length=200, upload_to='recorrido', blank=True, null=True)
     img_cuadrada = models.ImageField(max_length=200, upload_to='recorrido', blank=True, null=True)
