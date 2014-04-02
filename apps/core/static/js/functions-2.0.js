@@ -82,13 +82,13 @@
                 
                 self = this
                 this.group.on('moveend', function(latlng) {
-                    if ( self == markerA ) {
+                    if ( self.id == markerA.id ) {
                         markerA.confirmado = true
                         markerAaux.setPoint(markerA.getLatlng())
                         markerBaux.setPoint(markerB.getLatlng())
                         piwikLog("/click/mapa/drag/A")
                     }
-                    if ( self == markerB ) {
+                    if ( self.id == markerB.id ) {
                         markerB.confirmado = true
                         markerAaux.setPoint(markerA.getLatlng())
                         markerBaux.setPoint(markerB.getLatlng())
