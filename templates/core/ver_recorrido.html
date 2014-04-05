@@ -1,7 +1,7 @@
 {% extends "contenido.html" %}
 
 {% block title %}Linea {{linea_actual.nombre|title}}, Ramal {{recorrido_actual.nombre|title}} en {{ciudad_actual.nombre|title}} - Cualbondi{% if recorrido_actual.inicio and recorrido_actual.fin %}, Recorrido desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}} {% endif %} en {{ciudad_actual.nombre|title}}: Descripción del recorrido de colectivo, micro, bus{% endblock %}
-{% block meta_description %}Toda la información sobre paradas, horarios y tarifas del recorrido {{recorrido_actual.nombre|title}} de la línea {{linea_actual.nombre|title}} que pasa por la ciudad de {{ciudad_actual.nombre|title}}.{% endblock %}
+{% block meta_description %}Toda la información sobre paradas, horarios y tarifas del recorrido {{recorrido_actual.nombre|title}} de la línea {{linea_actual.nombre|title}} desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}} en la ciudad de {{ciudad_actual.nombre|title}}.{% endblock %}
 
 {% block head-attrs %} prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# cualbondi: http://ogp.me/ns/fb/cualbondi#"{% endblock %}
 
