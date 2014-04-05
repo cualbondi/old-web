@@ -27,6 +27,7 @@
 
     {% if recorrido_actual.img_panorama %}
     <div class="thumbnail">
+	<a href="/editor/{{ recorrido_actual.id }}/" class="btn btn-primary" style="position:absolute; margin:6px">Modificar recorrido</a>
         <div id="map" style="background:lightblue;">
             <img src="/{{ recorrido_actual.img_panorama.url }}" alt="Mapa del recorrido {{ recorrido_actual.nombre }} de la línea {{ linea_actual.nombre }} en la ciudad de {{ ciudad_actual.nombre }}." />
         </div>
@@ -42,6 +43,7 @@
 
     <!--[if (!IE)|(gt IE 7)]-->
         <h3>Dejanos un comentario sobre el recorrido "{{linea_actual.nombre}} {{recorrido_actual.nombre}}"</h3>
+	<p>Si el recorrido esta mal, podés ayudar haciendo <a href="/editor/{{ recorrido_actual.id }}/">click acá</a></p>
         <div id="disqus_thread"></div>
         <script type="text/javascript">
             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
