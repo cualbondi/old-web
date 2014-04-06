@@ -22,8 +22,11 @@
         <li class="active">{{linea_actual.nombre}}</li>
     </ul>
 
-    <h1>Linea {{linea_actual.nombre}} de {{ciudad_actual.nombre}}</h1>
-    
+    <div>
+        <h1 style="display:inline;">Linea {{linea_actual.nombre}} de {{ciudad_actual.nombre}}</h1>
+        <div style="vertical-align: super;margin-left: 10px;" class="fb-like" data-layout="button" data-action="like" data-show-faces="false" data-share="false"></div>
+    </div>
+
     {% if linea_actual.img_panorama %}
     <div class="thumbnail">
         <div id="map" style="background:lightblue;">
