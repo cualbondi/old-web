@@ -2,7 +2,8 @@
 from django.contrib.gis.db import models
 from django.template.defaultfilters import slugify
 from django.core.exceptions import ObjectDoesNotExist
-
+from django.shortcuts import get_object_or_404
+ 
 from apps.core.managers import RecorridoManager
 from apps.catastro.models import Ciudad
 from apps.usuarios.models import RecorridoFavorito
@@ -104,9 +105,12 @@ class Recorrido(models.Model):
     class Meta:
         ordering = ['linea__nombre', 'nombre']
 
-    def get_absolute_url(self, ciudad_slug):
+    def get_absolute_url(self, ciudad_slug = None):
         # chequear si la linea/recorrido está en esta ciudad, sino tirar excepcion
-        # if Ciudad.objects.get(slug=ciudad_slug, lineas=self.linea)
+        if ciudad_slug is None:
+            ciudad_slug = Ciudad.objects.filter(lineas=self.linea)[0].slug
+        else:
+            get_object_or_404(Ciudad, slug=ciudad_slug, lineas=self.linea)
         return reverse('ver_recorrido',
             kwargs={
                 'nombre_ciudad'   : ciudad_slug,
