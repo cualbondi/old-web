@@ -27,18 +27,71 @@
         // Create layer to edition
         var drawnItems = new L.FeatureGroup();
         map.addLayer(drawnItems);
+        
+        // Create layer to show diff
+        var diffItems = new L.FeatureGroup();
+        map.addLayer(diffItems);
 
         // Load the linestring
+        var list = []
         {% for e in ediciones %}
             linestring = L.GeoJSON.geometryToLayer({{ e.ruta.geojson|safe }})
             linestring.setStyle({opacity: 0.5, color: '#606'})
-            drawnItems.addLayer(linestring);
+            list.push(linestring)
+            drawnItems.addLayer(linestring);        
         {% endfor %}
         
         linestring = L.GeoJSON.geometryToLayer({{ original.ruta.geojson|safe }})
         linestring.setStyle({opacity: 0.5, color: '#666'})
         drawnItems.addLayer(linestring);
 
+         /*/// tratando de hacer un diff entre polilineas
+        for ( var i = 0; i < list.length; i++) {
+            var l = list[i];
+            for ( j = 0; j < l.latlngs.length; j++) {
+                var fragmento = []
+                var p = l.latlngs[j];  // agarro el primer punto
+                var ps = [];
+                while ( k < linestring.latlngs.length and p ) { // busco en la poly original a ver si lo encuentro
+                    k++;
+                }
+            }
+        }
+         ///*///
+        
+        var ps = []
+        for ( var i = 0; i < list.length; i++) {
+            var l = list[i];
+            for ( j = 0; j < l._latlngs.length; j++) {
+                var p = l._latlngs[j];  // agarro el primer punto
+                var found = false;
+                for ( k = 0; k < linestring._latlngs.length; k++) {
+                    if ( linestring._latlngs[k].equals(p) ) {
+                        found = true;
+                    }
+                }
+                if ( ! found ) {
+                    // pongo en ps los puntos no encontrados en la poly original
+                    ps.push(p);
+                    // marco los puntos que cambiaron con markers directamente
+                    diffItems.addLayer(L.marker(p))
+                }
+            }
+            /*
+            var pl;
+            if ( ps.length == 1 ) {
+                pl = L.marker(ps[0])
+            }
+            else {
+                pl = L.polyline(ps);
+                pl.setStyle({opacity: 1, color: '#F00', weight:8})
+            }
+            diffItems.addLayer(pl);
+            */
+        }
+        
+        if ( ps.length == 0 ) alert('no hay diferencias con el original');
+         
         function guardarRecorrido() {
             try { jqxhrSave.cancel() } catch(err) {}
             jqxhrSave = $.ajax({
