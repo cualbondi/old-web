@@ -64,6 +64,20 @@ class RecorridoProposed(models.Model):
         else:
             return None
 
+    def get_moderacion_last_user(self):
+        loglist = self.logmoderacion_set.filter(created_by__is_staff=False).order_by('-date_create')
+        if loglist:
+            return loglist[0].created_by
+        else:
+            return None
+
+    def get_fb_uid(self):
+        last = self.get_moderacion_last_user()
+        if last is not None:
+            return last.social_auth.get(provider='facebook').uid
+        else:
+            return None
+        
     def __unicode__(self):
         return str(self.linea) + " - " + self.nombre
 
