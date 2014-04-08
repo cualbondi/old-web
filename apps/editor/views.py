@@ -55,7 +55,11 @@ def editor_recorrido(request, id_recorrido):
 @permission_required('editor.moderate_recorridos', login_url="/usuarios/login/", raise_exception=True)
 def mostrar_ediciones(request):
     if request.method == 'GET':
-        ediciones = RecorridoProposed.objects.order_by('-date_update')[:50]
+        estado = request.GET.get('estado', None)
+        ediciones = RecorridoProposed.objects.all()
+        if estado != 'all':
+            ediciones = ediciones.filter(current_status='E')
+        ediciones = ediciones.order_by('-date_update')
         return render_to_response(
             'editor/moderacion_listado.html',
             {
