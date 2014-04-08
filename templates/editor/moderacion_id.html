@@ -40,6 +40,7 @@
                 </table>
             </td>
             <td><a href="{% url apps.editor.views.moderar_ediciones_uuid_aprobar uuid=e.uuid %}?next={{ request.path }}">Aprobar</a></td>
+            <td><a href="{% url apps.editor.views.moderar_ediciones_uuid_rechazar uuid=e.uuid %}?next={{ request.path }}">Rechazar</a></td>
         </tr>
         {% endfor %}
     </table>
