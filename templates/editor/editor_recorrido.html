@@ -54,6 +54,8 @@
 
     <script>
 
+        {% include "editor/dependencias.js" %}
+        
         L.drawLocal.draw.toolbar.actions.title="Cancelar Dibujo"
         L.drawLocal.draw.toolbar.actions.text="Cancelar"
         L.drawLocal.draw.toolbar.buttons.polyline="Trazar un recorrido desde cero"
@@ -78,12 +80,9 @@
         L.drawLocal.edit.toolbar.actions.cancel.text="Cancelar"
         L.drawLocal.edit.toolbar.buttons.edit="Editar trazado"
         //L.drawLocal.edit.toolbar.buttons.remove="Delete layers"
-        L.drawLocal.edit.handlers.edit.tooltip.text="Arrastra los nodos para modificar el trazado."
-        L.drawLocal.edit.handlers.edit.tooltip.subtext="Haz click en cancelar para deshacer los cambios.";
+        L.drawLocal.edit.handlers.edit.tooltip.text="Click en Guardar al terminar."
+        L.drawLocal.edit.handlers.edit.tooltip.subtext="Arrastra los cuadrados!";
         //L.drawLocal.edit.handlers.remove.tooltip.text="Click on a feature to remove"
-
-        // jquery.cookie.js
-        (function(d){"function"===typeof define&&define.amd?define(["jquery"],d):d(jQuery)})(function(d){function n(a){return a}function p(a){return decodeURIComponent(a.replace(k," "))}function l(a){0===a.indexOf('"')&&(a=a.slice(1,-1).replace(/\\"/g,'"').replace(/\\\\/g,"\\"));try{return e.json?JSON.parse(a):a}catch(c){}}var k=/\+/g,e=d.cookie=function(a,c,b){if(void 0!==c){b=d.extend({},e.defaults,b);if("number"===typeof b.expires){var g=b.expires,f=b.expires=new Date;f.setDate(f.getDate()+g)}c=e.json?JSON.stringify(c):String(c);return document.cookie=[e.raw?a:encodeURIComponent(a),"=",e.raw?c:encodeURIComponent(c),b.expires?"; expires="+b.expires.toUTCString():"",b.path?"; path="+b.path:"",b.domain?"; domain="+b.domain:"",b.secure?"; secure":""].join("")}c=e.raw?n:p;b=document.cookie.split("; ");for(var g=a?void 0:{},f=0,k=b.length;f<k;f++){var h=b[f].split("="),m=c(h.shift()),h=c(h.join("="));if(a&&a===m){g=l(h);break}a||(g[m]=l(h))}return g};e.defaults={};d.removeCookie=function(a,c){return void 0!==d.cookie(a)?(d.cookie(a,"",d.extend({},c,{expires:-1})),!0):!1}});
 
         // Load map and base layer
         var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
@@ -99,6 +98,12 @@
         linestring = L.GeoJSON.geometryToLayer({{ recorrido.ruta.geojson|safe }})
         linestring.setStyle({opacity: 1})
         drawnItems.addLayer(linestring);
+        // set arrows
+        L.polylineDecorator(linestring, {
+                patterns: [
+                    {offset: '0%', repeat: 150, symbol: L.Symbol.arrowHead({pixelSize: 15, polygon: false, pathOptions: {stroke: true}})}
+                ]
+            }).addTo(map);
 
         // Draw control options
         var drawControl = new L.Control.Draw({
@@ -127,8 +132,8 @@
                         stroke: true,
                         color: '#0000AA',
                         weight: 5,
-                        opacity: 0.5,
-                        dashArray: "10,10"
+                        opacity: 0.5
+                        //,dashArray: "10,10"
                         }
                     },
                 remove: false
