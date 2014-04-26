@@ -3,6 +3,7 @@ from django.contrib.gis.db import models
 from apps.editor.fields import UUIDField
 from django.contrib.auth.models import User
 from django.db.models.loading import get_model
+from django.core.management import call_command
 
 
 MODERATION_CHOICES = (
@@ -126,6 +127,8 @@ class RecorridoProposed(models.Model):
         for rp in RecorridoProposed.objects.filter(current_status='S', recorrido=r.recorrido).exclude(uuid=self.uuid):
             rp.logmoderacion_set.create(created_by=user, newStatus='R')
         self.logmoderacion_set.create(created_by=user, newStatus='S')
+        
+        call_command('crear_thumbs', recorrido_id=self.recorrido.id)
     
     class Meta:
         permissions = (
