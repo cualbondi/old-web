@@ -1,16 +1,16 @@
 {% extends "contenido.html" %}
 
-{% block title %}Edicion por {{ revision.created_by }} de la Linea {{original.linea.nombre|title}}, Ramal {{original.nombre|title}} {% if recorrido_actual.inicio and recorrido_actual.fin %}, Recorrido desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}} {% endif %} - Cualbondi{% endblock %}
-{% block meta_description %}Edicion del recorrido {{original.linea.nombre|title}} {{original.nombre|title}} creada por el usuario {{ revision.created_by }} en Cualbondi. Visualización de la edición del recorrido en el estado {{ revision.get_newStatus_display }}.{% endblock %}
+{% block title %}Edicion por {{ revision.get_moderacion_last_user }} de la Linea {{original.linea.nombre|title}}, Ramal {{original.nombre|title}} {% if recorrido_actual.inicio and recorrido_actual.fin %}, Recorrido desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}} {% endif %} - Cualbondi{% endblock %}
+{% block meta_description %}Edicion del recorrido {{original.linea.nombre|title}} {{original.nombre|title}} creada por el usuario {{ revision.get_moderacion_last_user }} en Cualbondi. Visualización de la edición del recorrido en el estado {{ revision.get_newStatus_display }}.{% endblock %}
 
 {% block head-attrs %} prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# cualbondi: http://ogp.me/ns/fb/cualbondi#"{% endblock %}
 
 {% block custom_top_scripts %}
     <meta property="fb:app_id" content="{{ FACEBOOK_APP_ID }}" /> 
     <meta property="og:type"   content="cualbondi:edicion" /> 
-    <meta property="og:url"    content="{{ HOME_URL }}{{ original.get_absolute_url }}" /> 
+    <meta property="og:url"    content="{{ HOME_URL }}{{ revision.get_absolute_url }}" /> 
     <meta property="og:title"  content="Edición por {{ revision.created_by }} de {{original.linea.nombre|title}} - {{original.nombre|title}}" /> 
-    <meta property="og:description"  content="Edicion del recorrido {{original.linea.nombre|title}} {{original.nombre|title}} creada por el usuario {{ revision.created_by }} en Cualbondi. Visualización de la edición del recorrido en el estado {{ revision.get_newStatus_display }}" /> 
+    <meta property="og:description"  content="Edicion del recorrido {{original.linea.nombre|title}} {{original.nombre|title}} creada por el usuario {{ revision.get_moderacion_last_user }} en Cualbondi. Visualización de la edición del recorrido en el estado {{ revision.get_newStatus_display }}" /> 
     {% if original.img_cuadrada %}<meta property="og:image"  content="{{ HOME_URL }}/{{ original.img_cuadrada.url }}" />{% endif %}
     
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.2/leaflet.css" />
@@ -19,22 +19,31 @@
 {% endblock %}
 
 {% block bloque_izquierda %}
-    <ul class="breadcrumb">
+    <!-- ul class="breadcrumb">
         <li><a href="/">Inicio</a> <span class="divider">&gt;</span></li>
         <li><a href="/editor">Editor</a> <span class="divider">&gt;</span></li>
         <li><a href="/editor/{{ original.id }}">{{original.linea.nombre|title}} - {{original.nombre|title}}</a> <span class="divider">&gt;</span></li>
         <li class="active">Visualizar</li>
-    </ul>
+    </ul !-->
     
     <div>
-        <h1 style="display:inline;">Edición por {{ revision.created_by }} de {{original.linea.nombre}} {{original.nombre}}</h1>
+        <h1 style="display:inline;">Edición por {{ revision.get_moderacion_last_user }} de {{original.linea.nombre}} {{original.nombre}}</h1>
         <div style="vertical-align: super;margin-left: 10px;" class="fb-like" data-layout="button" data-action="like" data-show-faces="false" data-share="false"></div>
     </div>
     {% if original.inicio and original.fin %}<h3>desde {{original.inicio}} hasta {{original.fin}}</h3>{% endif %}
-    <h4>Creación {{ revision.date_create|date:"d/m/Y H:i" }}</h4>
-    <h4>Estado {{ revision.get_newStatus_display }}</h4>
-    <div class="thumbnail">
-        verde=tramo nuevo / rojo=tramo a eliminar / azul=tramo no modificado (poner cada color en una capa)
+    <div>
+        {% with revision.get_moderacion_last.get_newStatus_display as estado %}
+        <p class="pull-right"><span class="label label-{% if estado == 'Esperando Mod' %}warning{% endif %}{% if estado == 'Rechazado' %}important{% endif %}{% if estado == 'Aceptado' %}success{% endif %}{% if estado == 'Reemplazado' %}info{% endif %}">{{ estado }}</span></p>
+        {% endwith %}
+        <p>Creación: {{ revision.date_create|date:"d/m/Y H:i" }}</p>
+    </div>
+    <div class="thumbnail" style="position: relative">
+        <div class="leaflet-control" style="border-radius: 4px;padding:10px;position:absolute;bottom:15px; left:15px; background:white; z-index: 1200">
+            <div><strong>Referencias</strong></div>
+            <div>Verde: tramo agregado</div>
+            <div>Rojo: tramo eliminado</div>
+            <div>Azul: tramo no modificado</div>
+        </div>
         <div id="map" style="background:lightblue;height:500px;width:100%"></div>
     </div>
 
@@ -49,16 +58,15 @@
         var map = new L.Map('map', {layers: [osm], center: new L.LatLng(-37.7772, 175.2756), zoom: 15 });
 
         // Create layer to edition
-        //B?'#A22':(C?'#22A':'#2A2')}
-        var layerSuma         = new L.FeatureGroup();
         var layerResta        = new L.FeatureGroup();
+        var layerSuma         = new L.FeatureGroup();
         var layerInterseccion = new L.FeatureGroup();
         var layersAll         = new L.FeatureGroup();
-        map.addLayer(layerSuma);
         map.addLayer(layerResta);
+        map.addLayer(layerSuma);
         map.addLayer(layerInterseccion);
-        layerSuma.style         = {opacity: 0.9, stroke: true, color: '#2A2'};
         layerResta.style        = {opacity: 0.9, stroke: true, color: '#A22'};
+        layerSuma.style         = {opacity: 0.9, stroke: true, color: '#2A2'};
         layerInterseccion.style = {opacity: 0.9, stroke: true, color: '#22A'};
         L.control.layers(null, {'agregado': layerSuma, 'eliminado': layerResta, 'igual': layerInterseccion}).addTo(map);
          
@@ -67,7 +75,6 @@
                 var col = geojsoncol.coordinates;
                 var points = [];
                 for ( var l = 0; l < col.length; l++ ) {
-                    //console.log(col[l])
                     for ( var i = 0; i < col[l].length; i++ ) {
                         var e = col[l][i]
                         points.push([e[1],e[0]])
@@ -75,7 +82,7 @@
                     if ( l == col.length-1 || col[l][col[l].length-1].toString() != col[l+1][0].toString() ) {
                         var linestring = L.polyline(points)
                         var style = layer.style || {};
-						linestring.setStyle(style)//B?'#A22':(C?'#22A':'#2A2')})
+						linestring.setStyle(style)
                         layer.addLayer(linestring);
                         layersAll.addLayer(linestring);
                         L.polylineDecorator(linestring, {
@@ -108,8 +115,8 @@
         // Load the linestring
         var list = []
         
-        var diffa = loadcoll({{ diffa.geojson|safe }}, layerSuma)
         var diffb = loadcoll({{ diffb.geojson|safe }}, layerResta)
+        var diffa = loadcoll({{ diffa.geojson|safe }}, layerSuma)
         var intersection = loadcoll({{ intersection.geojson|safe }}, layerInterseccion)
 
         // Move map to actual linestring

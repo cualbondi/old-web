@@ -4,7 +4,7 @@ from apps.editor.fields import UUIDField
 from django.contrib.auth.models import User
 from django.db.models.loading import get_model
 from django.core.management import call_command
-
+from django.contrib.auth.models import AnonymousUser
 
 MODERATION_CHOICES = (
     ('E', 'Esperando Mod'),
@@ -70,7 +70,7 @@ class RecorridoProposed(models.Model):
         if loglist:
             return loglist[0].created_by
         else:
-            return None
+            return AnonymousUser()
 
     def get_fb_uid(self):
         last = self.get_moderacion_last_user()
