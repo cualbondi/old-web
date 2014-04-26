@@ -9,7 +9,7 @@
 {% block custom_top_scripts %}
     <meta property="fb:app_id" content="{{ FACEBOOK_APP_ID }}" /> 
     <meta property="og:type"   content="cualbondi:linea" /> 
-    <meta property="og:url"    content="{{ HOME_URL }}{{ request.get_full_path }}" /> 
+    <meta property="og:url"    content="{{ HOME_URL }}{{ linea_actual.get_absolute_url }}" /> 
     <meta property="og:title"  content="Línea {{linea_actual.nombre|title}}" /> 
     <meta property="og:description"  content="Toda la información sobre ramales, recorridos, paradas, horarios y tarifas de la línea {{linea_actual.nombre|title}} que pasa por la ciudad de {{ciudad_actual.nombre|title}}" /> 
     {% if linea_actual.img_cuadrada %}<meta property="og:image"  content="{{ HOME_URL }}/{{ linea_actual.img_cuadrada.url }}" />{% endif %}

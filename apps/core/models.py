@@ -33,17 +33,17 @@ class Linea(models.Model):
         self.slug = slugify(self.nombre)
         super(Linea, self).save(*args, **kwargs)
 
-    def get_absolute_url(self, ciudad_slug):
-        try:
-            Ciudad.objects.get(slug=ciudad_slug, lineas=self)
-        except Ciudad.DoesNotExist:
-            raise ValueError("La linea no corresponde a la ciudad")
+    def get_absolute_url(self, ciudad_slug = None):
+        # chequear si la linea está en esta ciudad, sino tirar excepcion
+        if ciudad_slug is None:
+            ciudad_slug = Ciudad.objects.filter(lineas=self)[0].slug
+        else:
+            get_object_or_404(Ciudad, slug=ciudad_slug, lineas=self)
         return reverse('ver_linea',
             kwargs={
                 'nombre_ciudad'   : ciudad_slug,
                 'nombre_linea'    : self.slug
             })
-
 
 class Recorrido(models.Model):
     uuid = UUIDField()
