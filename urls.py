@@ -22,7 +22,8 @@ urlpatterns = patterns('',
     url(r'^widget/', include('apps.widget.urls')),
     url(r'^mobile_updates/', include('apps.mobile_updates.urls')),
     url(r'^editor/', include('apps.editor.urls')),
-
+    url(r'^revision/(?P<id_revision>\d+)/$', 'apps.editor.views.revision', name='revision'),
+    
     url(r'^contacto/', 'apps.core.views.contacto', name='contacto'),
 
     url(r'^', include('apps.core.urls')),

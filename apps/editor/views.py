@@ -104,6 +104,29 @@ def moderar_ediciones_uuid(request, uuid=None):
         return HttpResponse(status=501)
 
 
+def revision(request, id_revision=None):
+    if request.method == 'GET':
+        revision = RecorridoProposed.objects.get(id=id_revision)
+        original = revision.recorrido
+        print original
+        diffa = revision.ruta.difference(original.ruta)
+        diffb = original.ruta.difference(revision.ruta)
+        intersection = original.ruta.intersection(revision.ruta)
+        return render_to_response(
+            'editor/revision.html',
+            {
+                'revision': revision,
+                'original': original,
+                'diffa': diffa,
+                'diffb': diffb,
+                'intersection': intersection
+            },
+            context_instance=RequestContext(request)
+        )
+    else:
+        return HttpResponse(status=501)
+
+
 @permission_required('editor.moderate_recorridos', login_url="/usuarios/login/", raise_exception=True)
 def moderar_ediciones_uuid_rechazar(request, uuid=None):
     RecorridoProposed.objects.get(uuid=uuid).logmoderacion_set.create(created_by=request.user,newStatus='N')
