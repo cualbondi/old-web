@@ -6,6 +6,8 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.contrib.auth.decorators import login_required, permission_required
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 
 @ensure_csrf_cookie
@@ -43,11 +45,18 @@ def editor_recorrido(request, id_recorrido):
         r.parent          = recorrido.uuid
         # save anyway, but respond as forbidden if not auth ;)
         r.save(user=user)
-        data = '{"uuid":"'+r.uuid+'"}'
+        
+        data = {
+            "id"    : r.id,
+            "uuid"  : r.uuid,
+            "nombre": r.nombre,
+            "linea" : r.linea.nombre,
+            "ciudad": r.ciudades[0].nombre
+        }
         if request.user.is_authenticated():
-            return HttpResponse(data)
+            return HttpResponse(json.dumps(data), content_type="application/json")
         else:
-            return HttpResponse(data, status=403)
+            return HttpResponse(json.dumps(data), content_type="application/json", status=403)
     else:
         return HttpResponse(status=501)
 
@@ -104,6 +113,7 @@ def moderar_ediciones_uuid(request, uuid=None):
         return HttpResponse(status=501)
 
 
+@csrf_exempt
 def revision(request, id_revision=None):
     if request.method == 'GET':
         revision = RecorridoProposed.objects.get(id=id_revision)

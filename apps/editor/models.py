@@ -5,6 +5,9 @@ from django.contrib.auth.models import User
 from django.db.models.loading import get_model
 from django.core.management import call_command
 from django.contrib.auth.models import AnonymousUser
+from apps.catastro.models import Ciudad
+import urllib2, urllib
+from django.conf import settings
 
 MODERATION_CHOICES = (
     ('E', 'Esperando Mod'),
@@ -38,6 +41,10 @@ class RecorridoProposed(models.Model):
     # este recorrido en la tabla paradas+horarios (horarios puede ser null),
     # y se puede utilizar en la busqueda usando solo las paradas.
     paradas_completas = models.BooleanField(default=False)
+    
+    @property
+    def ciudades(self):
+        return Ciudad.objects.filter(lineas=self)
     
     objects = models.GeoManager()
     
@@ -74,7 +81,7 @@ class RecorridoProposed(models.Model):
 
     def get_fb_uid(self):
         last = self.get_moderacion_last_user()
-        if last is not None:
+        if last != AnonymousUser():
             return last.social_auth.get(provider='facebook').uid
         else:
             return None
@@ -128,7 +135,17 @@ class RecorridoProposed(models.Model):
             rp.logmoderacion_set.create(created_by=user, newStatus='R')
         self.logmoderacion_set.create(created_by=user, newStatus='S')
         
-        call_command('crear_thumbs', recorrido_id=self.recorrido.id)
+        #call_command('crear_thumbs', recorrido_id=self.recorrido.id)
+        
+        # Notificacion por facebook
+        token = urllib2.urlopen('https://graph.facebook.com/oauth/access_token?client_id='+settings.SOCIAL_AUTH_FACEBOOK_KEY+'&client_secret='+settings.SOCIAL_AUTH_FACEBOOK_SECRET+'&grant_type=client_credentials').read().split('access_token=')[1]
+        fb = self.get_moderacion_last_user().social_auth.filter(provider='facebook')
+        if len(fb) != 0:
+            from facebook import GraphAPI
+            fb_uid = fb[0].uid
+            graph = GraphAPI(token)
+            graph.request("/"+fb_uid+"/notifications/", post_args={"template":'Felicitaciones! Un moderador aceptó tu edición en cualbondi', "href":"https://cualbondi.com.ar/revision/" + str(self.id) + "/"})
+
     
     class Meta:
         permissions = (

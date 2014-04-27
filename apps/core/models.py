@@ -25,7 +25,11 @@ class Linea(models.Model):
     cp = models.CharField(max_length=20, blank=True, null=True)
     telefono = models.CharField(max_length=200, blank=True, null=True)
     envolvente = models.PolygonField(blank=True, null=True)
-
+    
+    @property
+    def ciudades(self):
+        return Ciudad.objects.filter(lineas=self)
+    
     def __unicode__(self):
         return self.nombre
 
@@ -69,6 +73,10 @@ class Recorrido(models.Model):
 
     objects = RecorridoManager()
 
+    @property
+    def ciudades(self):
+        return Ciudad.objects.filter(lineas=self.linea)
+    
     def __unicode__(self):
         #return str(self.ciudad_set.all()[0]) + " - " + str(self.linea) + " - " + self.nombre
         return str(self.linea) + " - " + self.nombre

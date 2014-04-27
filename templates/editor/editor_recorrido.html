@@ -30,17 +30,20 @@
     
     <div id="fb-root"></div>
     <script>
+      FBstatus = null;
       window.fbAsyncInit = function() {
         FB.init({
             appId      : 516530425068934,
             status     : true,
             cookie     : true,
             oauth      : true,
-            xfbml      : true,
-            
+            xfbml      : true
         });
+        FB.getLoginStatus(function(e) {
+			FBstatus = e;
+		})
       };
-
+        
       (function(d, s, id){
          var js, fjs = d.getElementsByTagName(s)[0];
          if (d.getElementById(id)) {return;}
@@ -239,6 +242,16 @@
                 authenticated = false
             })
         }
+		
+		revisionParaShareEdit = {};
+		function shareEdit(revision) {
+			revision = revisionParaShareEdit;
+			FB.ui({
+				method: 'feed',
+				link: 'http://cualbondi.com.ar/revision/'+revision.id+'/',
+				caption: 'Edición por jperelli del recorrido '+revision.nombre+' en <a href="http://cualbondi.com.ar/">cualbondi</a>',
+			}, function(response){ console.log(response) });		
+		}
         
         var token = null;
         function loginFB(){
@@ -314,15 +327,14 @@
                     }
             })
             .done(function(data) {
-                uuid = JSON.parse(data).uuid;
-                addAlert("<strong>Gracias!</strong> La edición fue guardada y será aceptada por un moderador.", "alert-success")
-                //console.log(uuid)
+                var revision = data;
+                revisionParaShareEdit = revision;
+                addAlert('<strong>Gracias!</strong> La edición fue guardada y será aceptada por un moderador. <a href="/revision/'+revision.id+'/">Podés verla aca</a>. <span class="btn btn-primary" style="margin:-2px 6px;padding:0px 8px;" onclick="shareEdit()">Compartila en facebook!</span>', 'alert-success')
             })
             .fail(function(jqXHR) {
                 if ( ! $.fancybox.isOpen )
                     openLogin();
-                uuid = JSON.parse(jqXHR.responseText).uuid;
-                //console.log(uuid)
+                uuid = jqXHR.responseText.uuid;
             })
         }
 
@@ -335,9 +347,14 @@
                 openLogin()            
                 throw "not auth"
             }
-            else
+            else {
                 guardarRecorrido()
+            }
         });
+        
+        $('a[title="Guardar Cambios."]').on('click', function(){
+			console.log('clickGuardar')
+		})
         
         linestring.on('edit', function(e) {
             console.log('lineedit')
