@@ -84,6 +84,7 @@ def moderar_ediciones_id(request, id=None):
     if request.method == 'GET':
         ediciones = RecorridoProposed.objects.filter(recorrido__id=id).order_by('-date_update')[:50]
         original = Recorrido.objects.get(id=id)
+        #original = RecorridoProposed.objects.get(uuid=ediciones[0].parent)
         return render_to_response(
             'editor/moderacion_id.html',
             {
@@ -100,7 +101,11 @@ def moderar_ediciones_id(request, id=None):
 def moderar_ediciones_uuid(request, uuid=None):
     if request.method == 'GET':
         ediciones = RecorridoProposed.objects.filter(uuid=uuid).order_by('-date_update')[:50]
-        original = Recorrido.objects.get(id=ediciones[0].recorrido.id)
+        original = RecorridoProposed.objects.filter(uuid=ediciones[0].parent)
+        if original:
+            original = original[0]
+        else:
+            original = Recorrido.objects.get(id=ediciones[0].recorrido.id)
         return render_to_response(
             'editor/moderacion_id.html',
             {
@@ -117,8 +122,12 @@ def moderar_ediciones_uuid(request, uuid=None):
 def revision(request, id_revision=None):
     if request.method == 'GET' or request.method == 'POST':
         revision = RecorridoProposed.objects.get(id=id_revision)
-        original = revision.recorrido
-        print original
+        #print revision.parent
+        original = RecorridoProposed.objects.filter(uuid=revision.parent)
+        if original:
+            original = original[0]
+        else:
+            original = revision.recorrido
         diffa = revision.ruta.difference(original.ruta)
         diffb = original.ruta.difference(revision.ruta)
         intersection = original.ruta.intersection(revision.ruta)

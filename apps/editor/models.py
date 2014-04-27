@@ -150,12 +150,14 @@ class RecorridoProposed(models.Model):
         
         # Notificacion por facebook
         token = urllib2.urlopen('https://graph.facebook.com/oauth/access_token?client_id='+settings.SOCIAL_AUTH_FACEBOOK_KEY+'&client_secret='+settings.SOCIAL_AUTH_FACEBOOK_SECRET+'&grant_type=client_credentials').read().split('access_token=')[1]
-        fb = self.get_moderacion_last_user().social_auth.filter(provider='facebook')
-        if len(fb) != 0:
-            from facebook import GraphAPI
-            fb_uid = fb[0].uid
-            graph = GraphAPI(token)
-            graph.request("/"+fb_uid+"/notifications/", post_args={"template":'Felicitaciones! Un moderador aceptó tu edición en cualbondi', "href":"https://cualbondi.com.ar/revision/" + str(self.id) + "/"})
+        user = self.get_moderacion_last_user()
+        if not user.is_anonymous():
+            fb = user.social_auth.filter(provider='facebook')
+            if len(fb) != 0:
+                from facebook import GraphAPI
+                fb_uid = fb[0].uid
+                graph = GraphAPI(token)
+                graph.request("/"+fb_uid+"/notifications/", post_args={"template":'Felicitaciones! Un moderador aceptó tu edición en cualbondi', "href":"https://cualbondi.com.ar/revision/" + str(self.id) + "/"})
 
     def get_absolute_url(self):
         url = reverse('revision_externa',
