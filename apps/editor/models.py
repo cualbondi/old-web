@@ -135,7 +135,7 @@ class RecorridoProposed(models.Model):
             rp.logmoderacion_set.create(created_by=user, newStatus='R')
         self.logmoderacion_set.create(created_by=user, newStatus='S')
         
-        #call_command('crear_thumbs', recorrido_id=self.recorrido.id)
+        call_command('crear_thumbs', recorrido_id=self.recorrido.id)
         
         # Notificacion por facebook
         token = urllib2.urlopen('https://graph.facebook.com/oauth/access_token?client_id='+settings.SOCIAL_AUTH_FACEBOOK_KEY+'&client_secret='+settings.SOCIAL_AUTH_FACEBOOK_SECRET+'&grant_type=client_credentials').read().split('access_token=')[1]
