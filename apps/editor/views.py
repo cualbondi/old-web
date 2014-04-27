@@ -115,7 +115,7 @@ def moderar_ediciones_uuid(request, uuid=None):
 
 @csrf_exempt
 def revision(request, id_revision=None):
-    if request.method == 'GET' || request.method == 'POST':
+    if request.method == 'GET' or request.method == 'POST':
         revision = RecorridoProposed.objects.get(id=id_revision)
         original = revision.recorrido
         print original
