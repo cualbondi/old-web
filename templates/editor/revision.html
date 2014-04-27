@@ -1,7 +1,7 @@
 {% extends "contenido.html" %}
 
-{% block title %}Edicion por {{ revision.get_pretty_user }} de la Linea {{original.linea.nombre|title}}, Ramal {{original.nombre|title}} {% if recorrido_actual.inicio and recorrido_actual.fin %}, Recorrido desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}} {% endif %} - Cualbondi{% endblock %}
-{% block meta_description %}Edicion del recorrido {{original.linea.nombre|title}} {{original.nombre|title}} creada por el usuario {{ revision.get_pretty_user }} en Cualbondi. Visualización de la edición del recorrido en el estado {{ revision.get_newStatus_display }}.{% endblock %}
+{% block title %}Edición por {{ revision.get_pretty_user }} de la Linea {{original.linea.nombre|title}}, Ramal {{original.nombre|title}} {% if recorrido_actual.inicio and recorrido_actual.fin %}, Recorrido desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}} {% endif %} - Cualbondi{% endblock %}
+{% block meta_description %}Edición del recorrido {{original.linea.nombre|title}} {{original.nombre|title}} creada por el usuario {{ revision.get_pretty_user }} en Cualbondi. Visualización de la edición del recorrido en el estado {{ revision.get_moderacion_last.get_newStatus_display }}.{% endblock %}
 
 {% block head-attrs %} prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# cualbondi: http://ogp.me/ns/fb/cualbondi#"{% endblock %}
 
@@ -9,8 +9,8 @@
     <meta property="fb:app_id" content="{{ FACEBOOK_APP_ID }}" /> 
     <meta property="og:type"   content="cualbondi:edicion" /> 
     <meta property="og:url"    content="{{ HOME_URL }}{{ revision.get_absolute_url }}" /> 
-    <meta property="og:title"  content="Edición por {{ revision.created_by }} de {{original.linea.nombre|title}} - {{original.nombre|title}}" /> 
-    <meta property="og:description"  content="Edicion del recorrido {{original.linea.nombre|title}} {{original.nombre|title}} creada por el usuario {{ revision.get_moderacion_last_user }} en Cualbondi. Visualización de la edición del recorrido en el estado {{ revision.get_newStatus_display }}" /> 
+    <meta property="og:title"  content="Edición por {{ revision.get_pretty_user }} de {{original.linea.nombre|title}} - {{original.nombre|title}}" /> 
+    <meta property="og:description"  content="Edición del recorrido {{original.linea.nombre|title}} {{original.nombre|title}} creada por el usuario {{ revision.get_pretty_user }} en Cualbondi. Visualización de la edición del recorrido en el estado {{ revision.get_moderacion_last.get_newStatus_display }}" /> 
     {% if original.img_cuadrada %}<meta property="og:image"  content="{{ HOME_URL }}/{{ original.img_cuadrada.url }}" />{% endif %}
     
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.2/leaflet.css" />

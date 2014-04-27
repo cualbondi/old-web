@@ -8,6 +8,7 @@ from django.contrib.auth.models import AnonymousUser
 from apps.catastro.models import Ciudad
 import urllib2, urllib
 from django.conf import settings
+from django.core.urlresolvers import reverse
 
 MODERATION_CHOICES = (
     ('E', 'Esperando Mod'),
@@ -156,7 +157,14 @@ class RecorridoProposed(models.Model):
             graph = GraphAPI(token)
             graph.request("/"+fb_uid+"/notifications/", post_args={"template":'Felicitaciones! Un moderador aceptó tu edición en cualbondi', "href":"https://cualbondi.com.ar/revision/" + str(self.id) + "/"})
 
-    
+    def get_absolute_url(self):
+        url = reverse('revision_externa',
+            kwargs={
+                'id_revision'   : self.id,
+            })
+        print "URL: " + url
+        return url
+
     class Meta:
         permissions = (
             ("moderate_recorridos", "Can moderate (accept/decline) recorridos"),
