@@ -1,7 +1,7 @@
 {% extends "contenido.html" %}
 
-{% block title %}Edicion por {{ revision.get_moderacion_last_user }} de la Linea {{original.linea.nombre|title}}, Ramal {{original.nombre|title}} {% if recorrido_actual.inicio and recorrido_actual.fin %}, Recorrido desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}} {% endif %} - Cualbondi{% endblock %}
-{% block meta_description %}Edicion del recorrido {{original.linea.nombre|title}} {{original.nombre|title}} creada por el usuario {{ revision.get_moderacion_last_user }} en Cualbondi. Visualización de la edición del recorrido en el estado {{ revision.get_newStatus_display }}.{% endblock %}
+{% block title %}Edicion por {{ revision.get_pretty_user }} de la Linea {{original.linea.nombre|title}}, Ramal {{original.nombre|title}} {% if recorrido_actual.inicio and recorrido_actual.fin %}, Recorrido desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}} {% endif %} - Cualbondi{% endblock %}
+{% block meta_description %}Edicion del recorrido {{original.linea.nombre|title}} {{original.nombre|title}} creada por el usuario {{ revision.get_pretty_user }} en Cualbondi. Visualización de la edición del recorrido en el estado {{ revision.get_newStatus_display }}.{% endblock %}
 
 {% block head-attrs %} prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# cualbondi: http://ogp.me/ns/fb/cualbondi#"{% endblock %}
 
@@ -27,7 +27,7 @@
     </ul !-->
     
     <div>
-        <h1 style="display:inline;">Edición por {{ revision.get_moderacion_last_user }} de {{original.linea.nombre}} {{original.nombre}}</h1>
+        <h1 style="display:inline;">Edición por {{ revision.get_pretty_user }} de {{original.linea.nombre}} {{original.nombre}}</h1>
         <div style="vertical-align: super;margin-left: 10px;" class="fb-like" data-layout="button" data-action="like" data-show-faces="false" data-share="false"></div>
     </div>
     {% if original.inicio and original.fin %}<h3>desde {{original.inicio}} hasta {{original.fin}}</h3>{% endif %}

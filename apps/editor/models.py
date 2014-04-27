@@ -78,7 +78,14 @@ class RecorridoProposed(models.Model):
             return loglist[0].created_by
         else:
             return AnonymousUser()
-
+        
+    def get_pretty_user(self):
+        user = self.get_moderacion_last_user()
+        if user.first_name or user.last_name:
+            return user.first_name + " " + user.last_name
+        else:
+            return user.username
+        
     def get_fb_uid(self):
         last = self.get_moderacion_last_user()
         if last != AnonymousUser():
