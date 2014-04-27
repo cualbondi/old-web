@@ -329,7 +329,7 @@
             .done(function(data) {
                 var revision = data;
                 revisionParaShareEdit = revision;
-                addAlert('<strong>Gracias!</strong> La edición fue guardada y será aceptada por un moderador. <a href="/revision/'+revision.id+'/">Podés verla aca</a>. <span class="btn btn-primary" style="margin:-2px 6px;padding:0px 8px;" onclick="shareEdit()">Compartila en facebook!</span>', 'alert-success')
+                addAlert('<strong>Gracias!</strong> La edición fue guardada y será aceptada por un moderador. <a target="_blank" href="/revision/'+revision.id+'/">Podés verla aca</a>. <span class="btn btn-primary" style="margin:-2px 6px;padding:0px 8px;" onclick="shareEdit()">Compartila en facebook!</span>', 'alert-success')
             })
             .fail(function(jqXHR) {
                 if ( ! $.fancybox.isOpen )
