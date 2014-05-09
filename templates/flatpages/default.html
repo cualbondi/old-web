@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Cualbondi: {{ flatpage.title }}{% endblock %}
+
+{% block custom_styles %}
+    <link href="{{ STATIC_URL }}css/fonts.css" rel="stylesheet" type="text/css" />
+    <link href="{{ STATIC_URL }}css/estilo.css" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block navbar %}
+    <div class="navbar navbar-fixed-top navbar-inverse">
+        <div class="navbar-inner">
+            <div class="container">
+                {% include "navbar.html"%}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row-fluid">
+            <div id="bloque_izquierda" class="span12">
+                <h2>{{ flatpage.title }}</h2>
+                {{ flatpage.content }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html"%}
+{% endblock %}

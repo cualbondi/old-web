@@ -115,6 +115,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'apps.core.middleware.WhodidMiddleware',
     'apps.api.middlewares.APIRequestLoggingMiddleware',
+    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -166,6 +167,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.comments',
     'django.contrib.gis',
+    'django.contrib.flatpages',
 
     # Externas
     'bootstrap_toolkit',
