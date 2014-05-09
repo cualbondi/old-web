@@ -37,3 +37,7 @@ def do_flatpages_list(parser, token):
         raise template.TemplateSyntaxError("flatpages_list tag had invalid arguments")
     tagname, varname = m.groups()
     return FlatpagesList(varname)
+
+@register.filter
+def divide(lista, num):
+    return [lista[i::num] for i in range(num)]

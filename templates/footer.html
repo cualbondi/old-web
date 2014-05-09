@@ -1,18 +1,23 @@
-<hr>
-<div class="container">
-    <div class="row-fluid">
-        {% load bootstrap_tags %}
-        {% load flatpages_list %}
-        {% flatpages_list %}
-        {% for columna_flatpages in flatpages_list|dividir_columnas:1 %}
-        <div id="bloque_izquierda" class="span6"  style="text-align:center;">
-            {% for flatpage in columna_flatpages %}
-                <a href="{{ flatpage.get_absolute_url }}">{{ flatpage.title }}</a>
+<footer style="background:#F0F0FA">
+    <hr>
+    <div class="container">
+        <div class="row-fluid">
+            {% load flatpages_list %}
+            {% flatpages_list %}
+            {% for columna_flatpages in flatpages_list|divide:2 %}
+            <div id="bloque_izquierda" class="span6"  style="text-align:center;">
+                {% for flatpage in columna_flatpages %}
+                    <div><a href="{{ flatpage.get_absolute_url }}">{{ flatpage.title }}</a></div>
+                {% endfor %}
+            </div>
             {% endfor %}
         </div>
-        {% endfor %}
-        <div id="bloque_izquierda" class="span12">
-            <p style="text-align:center;">&copy; <a href="mailto:contacto@cualbondi.com.ar">CualBondi</a> 2009 - 2014 Todos los derechos reservados.</p>
+        <hr>
+        <div class="row-fluid">
+            <div id="bloque_izquierda" class="span12">
+                <p style="text-align:center;">&copy; <a href="mailto:contacto@cualbondi.com.ar">CualBondi</a> 2009 - 2014 Todos los derechos reservados.</p>
+            </div>
         </div>
+        <br>
     </div>
-</div>
+</footer>
