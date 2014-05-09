@@ -1,16 +1,20 @@
-{% extends "maquetado.html" %}
+{% extends "contenido.html" %}
 
 {% block bloque_izquierda %}
+    <h1>{{usuario.username}}</h1>
     <div class="row-fluid">
         <div class="span9">
-            <h1>Perfil de @{{user}}</h1>
-            <div><strong>Nombre y Apellido: </strong>{{perfil.nombre}} {{perfil.apellido}}</div>
-            <div><strong>Mini biografia: </strong>{{perfil.about}}</div>
-            <div><strong>Página web: </strong>{{perfil.website}}</div>
-            <div><strong>Ciudad: </strong>{{perfil.ciudad.nombre}}</div>
+            <div><strong>Nombre y Apellido: </strong>{{usuario.first_name}} {{usuario.last_name}}</div>
         </div>
-        <div class="span3">
-            <div><a href="/usuarios/editar-perfil/" class="btn"><i class="icon-pencil"></i> Editar perfil</a></div>
+    </div>
+    <h3>Ediciones</h3>
+    <div class="row-fluid">
+        <div class="span12">
+            <ul class="nav nav-list">
+                {% for e in ediciones %}
+                    <li><a href="{{e.get_absolute_url}}">{{ e.linea.nombre }} {{ e.nombre }} ({{e.inicio}} > {{e.fin}})<small class="pull-right">{{e.get_current_status_display}} {{ e.date_update|date:"d/m/Y H:i" }}</small></a></li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
 {% endblock %}
