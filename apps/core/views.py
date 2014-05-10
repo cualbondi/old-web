@@ -22,6 +22,46 @@ from apps.core.models import Linea, Recorrido, Tarifa
 from apps.catastro.models import Ciudad, ImagenCiudad
 from apps.core.forms import LineaForm, RecorridoForm, ContactForm
 
+from django.contrib.auth.models import User
+from django.contrib.flatpages.models import FlatPage
+from apps.editor.models import RecorridoProposed, LogModeracion
+
+def agradecimientos(request):
+    if request.method == 'GET':
+        
+        # TODO: Refactor for better performance (too many database hits)
+        us1 = User.objects.filter(is_staff=False)
+        us2 = []
+        for u in us1:
+            # Obtener los logmoderacion de este usuario
+            lms = LogModeracion.objects.filter(created_by=u)
+            # Obtener todos los recorridosproposed que son de esos logmoderacion
+            rps = [ x.recorridoProposed for x in lms ]
+            # de esos solo tomar aquellos que alguna vez fueron aceptados (que tienen un logmoderacion aceptado)
+            count = len([ 1 for x in rps if x.logmoderacion_set.filter(newStatus='S') ])
+            # devolver el contador de eso
+            u.count_ediciones_aceptadas = count
+            # eliminar los usuarios que tienen count = 0
+            if count > 0:
+                us2.append(u)
+        # ordenar us2 (in-place)
+        us2.sort(key=lambda x: x.count_ediciones_aceptadas, reverse=True)
+            
+        try:
+            flatpage_edicion = FlatPage.objects.get(url__contains='contribuir')
+        except:
+            flatpage_edicion = None
+            
+        return render_to_response(
+            'core/agradecimientos.html',
+            {
+                'usuarios': us2,
+                'flatpage_edicion': flatpage_edicion,
+            },
+            context_instance=RequestContext(request)
+        )
+    else:
+        return HttpResponse(status=501)
 
 def contacto(request):
     form = ContactForm(request.POST or None)

@@ -1,0 +1,26 @@
+{% extends "contenido.html" %}
+
+{% block bloque_izquierda %}
+    <h2>Agradecimientos</h2>
+    <p>Queremos destacar públicamente a las personas que de alguna u otra forma han contribuído a cualbondi. Les agradecemos enormemente por sus colaboraciones, que son útiles día a día para todos los usuarios del sistema.</p>
+    <h3>Editores de recorridos</h3>
+    <div class="row-fluid">
+        <div class="span12">
+            <ul class="nav nav-list">
+                <li class="nav-header">Nombre de usuario <small class="pull-right">Contribuciones aceptadas</small></li>
+                {% for u in usuarios %}
+                    <li><a href="{{ u.get_absolute_url }}">{{ u.username }}<small class="pull-right">{{ u.count_ediciones_aceptadas }}</small></a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% if flatpage_edicion %}<a href="{{ flatpage_edicion.get_absolute_url }}">¿Cómo puedo colaborar y aparecer en este listado?</a>{% endif %}
+    <h3>Adicionales</h3>
+    <ul>
+        <li>A <a href="https://www.facebook.com/1267618709">Fabian</a> por haber donado un server en un momento crítico en 2010.</li>
+        <li>A nuestros amigos y especialmente a las personas que nos acompañan en esta vida, por la motivación y el apoyo moral.</li>
+        <li>A todos aquellos que <a href="https://spreadsheets.google.com/spreadsheet/viewform?formkey=dFJERlREQjUyaE1iSkFDYnhOa2Nnbmc6MQ+">completan la encuesta</a>, califican <a href="https://play.google.com/store/apps/details?id=com.cualbondi.buscador">la app en google play</a>, o envian comentarios via <a href="https://www.facebook.com/cualbondi">facebook</a>, <a href="https://twitter.com/CualBondi">twitter</a>, disqus o <a href="mailto:contacto@cualbondi.com.ar">email</a>.</li>
+        <li>A todos los que siguen prefiriendo nuestro servicio, utilizándolo todos los dias y corriendo la voz: sin ustedes nada de esto sería posible.</li>
+    </ul>
+    <h3>Gracias... Totales!</h3>
+{% endblock %}

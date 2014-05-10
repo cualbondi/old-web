@@ -10,6 +10,10 @@ ALLOWED_HOSTS = ['*',]
 
 LOGIN_REDIRECT_URL = '/'
 
+ABSOLUTE_URL_OVERRIDES = {
+    'auth.user': lambda u: "/usuarios/%s/" % u.username, 
+}
+
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )

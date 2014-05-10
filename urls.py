@@ -25,6 +25,9 @@ urlpatterns = patterns('',
     url(r'^revision/(?P<id_revision>\d+)/$', 'apps.editor.views.revision', name='revision_externa'),
     
     url(r'^contacto/', 'apps.core.views.contacto', name='contacto'),
+        
+    # Ranking aka agradecimientos
+    url(r'^agradecimientos/$', 'apps.core.views.agradecimientos', name='agradecimientos'),
 
     url(r'^', include('apps.core.urls')),
 )
