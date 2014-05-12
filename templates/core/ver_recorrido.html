@@ -38,9 +38,35 @@
     <br />
     {% endif %}
 
-    {% if recorrido_actual.descripcion %}
-        <h3>Lugares por donde pasa</h3>
-        <div>{{recorrido_actual.descripcion}}</div>
+    {% if calles %}
+        <h3>Calles que componen este recorrido</h3>
+        <ol>
+            {% for c in calles %}
+            <li style="color:gray">
+                <span style="color:black">{{ c.nom }}</span>
+            </li>
+            {% endfor %}
+        </ol>
+        <br />
+    {% endif %}
+
+    {% if pois %}
+        <h3>Puntos de interés por donde pasa</h3>
+        <ul>
+            {% for p in pois %}
+            <li>{{ p.nom }}</li>
+            {% endfor %}
+        </ul>
+        <br />
+    {% endif %}
+
+    {% if zonas %}
+        <h3>Barrios que transita</h3>
+        <ul>
+            {% for z in zonas %}
+            <li>{{ z.name }}</li>
+            {% endfor %}
+        </ul>
         <br />
     {% endif %}
 

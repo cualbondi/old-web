@@ -17,9 +17,11 @@ from django.contrib.comments.views.comments import CommentPostBadRequest
 from django.utils import simplejson
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
+from django.contrib.gis.measure import D
+from django.contrib.gis.geos import Point
 
 from apps.core.models import Linea, Recorrido, Tarifa
-from apps.catastro.models import Ciudad, ImagenCiudad
+from apps.catastro.models import Ciudad, ImagenCiudad, Calle, Poi, Zona
 from apps.core.forms import LineaForm, RecorridoForm, ContactForm
 
 from django.contrib.auth.models import User
@@ -220,7 +222,44 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
         recorrido_actual = get_object_or_404(Recorrido,
                                              slug=slug_recorrido,
                                              linea=linea_actual)
+        
+        
+        # Calles por las que pasa el recorrido
+        """
+        # solucion 1
+        # toma todas las calles cercanas al recorrido
+        # simple pero no funciona bien, genera "falsos positivos", trae calles perpendiculares al recorrido
+        # igual es lento: 13 seg
+        calles_fin = Calle.objects.filter(way__distance_lte=(recorrido_actual.ruta, D(m=20)))
+        
+        # alternativa con dwithin
+        # igual es lento, pero 10 veces mejor que antes: 1.4 seg
+        calles_fin = Calle.objects.filter(way__dwithin=(recorrido_actual.ruta, D(m=20)))
+        """
+        # solucion 2
+        # toma las calles que estan cercanas y se repiten cada par de puntos
+        # hace 1 query lenta por cada punto: funciona bien, pero un poco lento!
+        # 0.003 seg x cant_puntos
+        calles_ant = None
+        calles_fin = []
+        for p in recorrido_actual.ruta.coords:
+            calles = Calle.objects.filter(way__dwithin=(Point(p), D(m=20)))
+            if calles_ant is not None:
+                for c in calles_ant:
+                    if len(calles_fin) > 0:
+                        if c.nom != calles_fin[-1].nom and c in calles:
+                            calles_fin.append(c)
+                    else:
+                        calles_fin.append(c)
+            calles_ant = calles
+        # TODO: tal vez se pueda mejorar eso con una custom query sola.
+        
+        # POI por los que pasa el recorrido
+        pois = Poi.objects.filter(latlng__distance_lt=(recorrido_actual.ruta, D(m=200))).values('nom').distinct('nom')
 
+        # Zonas por las que pasa el recorrido
+        zonas = Zona.objects.filter(geo__dwithin=(recorrido_actual.ruta, D(m=200)))
+        
         favorito = False
         if request.user.is_authenticated():
             favorito = recorrido_actual.es_favorito(request.user)
@@ -229,13 +268,20 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
         if ( request.GET.get("dynamic_map") ):
             template = "core/ver_obj_map.html"
 
-        return render_to_response(template,
-                                  {'obj': recorrido_actual,
-                                   'ciudad_actual': ciudad_actual,
-                                   'linea_actual': linea_actual,
-                                   'recorrido_actual': recorrido_actual,
-                                   'favorito': favorito},
-                                  context_instance=RequestContext(request))
+        return render_to_response(
+            template,
+            {
+                'obj': recorrido_actual,
+                'ciudad_actual': ciudad_actual,
+                'linea_actual': linea_actual,
+                'recorrido_actual': recorrido_actual,
+                'favorito': favorito,
+                'calles': calles_fin,
+                'pois': pois,
+                'zonas': zonas
+            },
+            context_instance=RequestContext(request)
+        )
     else:
         return HttpResponse(status=501)
 
