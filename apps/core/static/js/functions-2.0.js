@@ -234,6 +234,12 @@
 
                 $.each(polylinea, function(key, value) {
                     recorridos.addLayer(value);
+                    var flechas = L.polylineDecorator(value, {
+                            patterns: [
+                                {offset: '50', repeat: 150, symbol: L.Symbol.arrowHead({pixelSize: 15, polygon: false, pathOptions: {color: value.options.color, opacity: 0.6, stroke: true}})}
+                            ]
+                        });
+                    recorridos.addLayer(flechas);
                 })
                 
                 $.each(trasbordos, function(key, value) {
