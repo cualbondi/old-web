@@ -161,7 +161,7 @@ class Poi(models.Model):
     """
     nom_normal = models.TextField()
     nom = models.TextField()
-    latlng = models.PointField()
+    latlng = models.GeometryField(srid=4326, geography=True)
     objects = models.GeoManager()
 
 

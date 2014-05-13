@@ -255,7 +255,11 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
         # TODO: tal vez se pueda mejorar eso con una custom query sola.
         
         # POI por los que pasa el recorrido
-        pois = Poi.objects.filter(latlng__distance_lt=(recorrido_actual.ruta, D(m=200))).values('nom').distinct('nom')
+        pois = Poi.objects.filter(latlng__dwithin=(recorrido_actual.ruta, D(m=400))).values('nom').distinct('nom')
+        poi_noms = []
+        for p in pois:
+            poi_noms.append(p['nom'].split(',')[0])
+        poi_noms = set(poi_noms)
 
         # Zonas por las que pasa el recorrido
         zonas = Zona.objects.filter(geo__dwithin=(recorrido_actual.ruta, D(m=200)))
