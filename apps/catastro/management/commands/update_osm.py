@@ -53,18 +53,18 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
-        inputfile = os.path.join(os.path.abspath(os.path.dirname(__file__)), "argentina.cache.osm")
+        inputfile = os.path.join(os.path.abspath(os.path.dirname(__file__)), "argentina.cache.osm.pbf")
         if options['inputFile'] or options['use_cache']:
             if options['inputFile']:
                 inputfile = options['inputFile']
         else:
             print "Descargando argentina.osm de geofabrik:",
-            url = "http://download.geofabrik.de/openstreetmap/south-america/argentina.osm.bz2"
+            url = "http://download.geofabrik.de/south-america/argentina-latest.osm.pbf"
             print url
-            f, d = urllib.urlretrieve(url, inputfile+".bz2", lambda nb, bs, fs, url=url: self.reporthook(nb,bs,fs,url))
-            print "Descomprimiendo"
-            subprocess.Popen(["bunzip2", "-vvf", inputfile+".bz2"]).wait()
-            os.chmod(inputfile, S_IROTH | S_IRUSR | S_IROTH | S_IWOTH | S_IWUSR | S_IWOTH)
+            f, d = urllib.urlretrieve(url, inputfile, lambda nb, bs, fs, url=url: self.reporthook(nb,bs,fs,url))
+            #print "Descomprimiendo"
+            #subprocess.Popen(["bunzip2", "-vvf", inputfile+".bz2"]).wait()
+            #os.chmod(inputfile, S_IROTH | S_IRUSR | S_IROTH | S_IWOTH | S_IWUSR | S_IWOTH)
 
         dbname = connection.settings_dict['NAME']
         dbuser = "postgres"#connection.settings_dict['USER']
@@ -118,7 +118,7 @@ class Command(BaseCommand):
         cu.execute("insert into catastro_calle(way, nom_normal, nom) select way, upper(translate(name, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), name from planet_osm_line where name is not null;")
         cu.execute("insert into catastro_calle(way, nom_normal, nom) select way, upper(translate(name, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), name from planet_osm_roads where name is not null;")
         print " => Generando POIs a partir de poligonos y lugares, normalizando nombres"
-        cu.execute("delete from catastro_poi")
+        #cu.execute("delete from catastro_poi")
         cu.execute("insert into catastro_poi(latlng, nom_normal, nom) select ST_Centroid(way), upper(translate(name, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), name||coalesce(', '||(select name from catastro_zona zo where ST_Intersects(ST_Centroid(way), zo.geo)), '') from planet_osm_polygon as pop where name is not null;")
         cu.execute("insert into catastro_poi(latlng, nom_normal, nom) select latlng, upper(translate(nom, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), nom||coalesce(', '||(select nom from catastro_zona zo where ST_Intersects(latlng, zo.geo)), '') from catastro_poi where nom is not null;")
         print " => Purgando nombres repetidos"
