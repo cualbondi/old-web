@@ -236,6 +236,7 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
         # igual es lento, pero 10 veces mejor que antes: 1.4 seg
         calles_fin = Calle.objects.filter(way__dwithin=(recorrido_actual.ruta, D(m=20)))
         """
+        """
         # solucion 2
         # toma las calles que estan cercanas y se repiten cada par de puntos
         # hace 1 query lenta por cada punto: funciona bien, pero un poco lento!
@@ -243,7 +244,7 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
         calles_ant = None
         calles_fin = []
         for p in recorrido_actual.ruta.coords:
-            calles = Calle.objects.filter(way__dwithin=(Point(p), D(m=20)))
+            calles = Calle.objects.filter(way__dwithin=(Point(p), D(m=50)))
             if calles_ant is not None:
                 for c in calles_ant:
                     if len(calles_fin) > 0:
@@ -253,7 +254,64 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
                         calles_fin.append(c)
             calles_ant = calles
         # TODO: tal vez se pueda mejorar eso con una custom query sola.
-        
+        """
+        # solucion 3, como la solucion 2 pero con raw query (para bs as no anda bien)
+        if not recorrido_actual.descripcion or ciudad_actual.slug != 'buenos-aires':
+            def uniquify(seq, idfun=None): 
+                if idfun is None:
+                    def idfun(x): return x
+                seen = {}
+                result = []
+                for item in seq:
+                    marker = idfun(item)
+                    if marker in seen: continue
+                    seen[marker] = 1
+                    result.append(item)
+                return result
+
+            from django.db import connection
+            cursor = connection.cursor()
+            cursor.execute('''
+                    SELECT 
+                        (dp).path[1] as idp,
+                        cc.nom       as nom
+                    FROM
+                        (SELECT ST_DumpPoints(ST_GeomFromText(
+                            (SELECT ruta FROM core_recorrido WHERE id=%s)
+                        )) as dp ) as dpa
+                        JOIN catastro_calle as cc
+                        ON ST_DWithin(cc.way, (dp).geom, 20)
+                ''',
+                (
+                    recorrido_actual.id,
+                )
+            )
+            from collections import OrderedDict
+            calles = OrderedDict()
+            for c in cursor.fetchall():
+                if c[0] in calles:
+                    calles[c[0]].append(c[1])
+                else:
+                    calles[c[0]] = [c[1]]
+
+            calles_fin = []
+            calles_ant = []
+            for k in calles:
+                calles_aca = []
+                for c in calles_ant:
+                    if len(calles_fin) > 0:
+                        if c not in calles_fin[-1] and c in calles[k]:
+                            calles_aca.append(c)
+                    else:
+                        calles_aca.append(c)
+                if calles_aca:
+                    calles_fin.append(calles_aca)
+                calles_ant = calles[k]
+
+            calles_fin = [item for sublist in calles_fin for item in uniquify(sublist)]
+        else:
+            calles_fin = None
+            
         # POI por los que pasa el recorrido
         pois = Poi.objects.filter(latlng__dwithin=(recorrido_actual.ruta, D(m=400))).values('nom').distinct('nom')
         poi_noms = []
@@ -281,7 +339,7 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
                 'recorrido_actual': recorrido_actual,
                 'favorito': favorito,
                 'calles': calles_fin,
-                'pois': pois,
+                'pois': poi_noms,
                 'zonas': zonas
             },
             context_instance=RequestContext(request)

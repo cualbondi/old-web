@@ -37,17 +37,23 @@
     </div>
     <br />
     {% endif %}
-
+    
     {% if calles %}
         <h3>Calles que componen este recorrido</h3>
         <ol>
             {% for c in calles %}
             <li style="color:gray">
-                <span style="color:black">{{ c.nom }}</span>
+                <span style="color:black">{{ c }}</span>
             </li>
             {% endfor %}
         </ol>
         <br />
+    {% else %}
+        {% if recorrido_actual.descripcion %}
+            <h3>Calles que componen este recorrido</h3>
+            <div>{{ recorrido_actual.descripcion }}</div>
+            <br />
+        {% endif %}
     {% endif %}
 
     {% if pois %}
