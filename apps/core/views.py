@@ -28,6 +28,87 @@ from django.contrib.auth.models import User
 from django.contrib.flatpages.models import FlatPage
 from apps.editor.models import RecorridoProposed, LogModeracion
 
+
+from django.views.decorators.csrf import csrf_exempt                                          
+from django.contrib.auth import BACKEND_SESSION_KEY
+from social_auth.backends.facebook import FacebookBackend, load_signed_request
+from social_auth.models import UserSocialAuth
+from social_auth.views import complete as social_complete
+from social.apps.django_app.utils import strategy
+from django.contrib.auth.models import AnonymousUser
+from django.conf import settings
+
+def is_complete_authentication(request):
+    return request.user.is_authenticated() and FacebookBackend.__name__ in request.session.get(BACKEND_SESSION_KEY, '')
+
+def get_access_token(user):   
+    try:
+        social_user = user.social_user if hasattr(user, 'social_user') else UserSocialAuth.objects.get(user=user.id, provider=FacebookBackend.name)
+    except UserSocialAuth.DoesNotExist:
+        return None
+    if social_user.extra_data:
+        access_token = social_user.extra_data.get('access_token')
+    return access_token
+
+# Facebook decorator to setup environment
+def facebook_decorator(func):
+    def wrapper(request, *args, **kwargs):
+        # User must me logged via FB backend in order to ensure we talk about the same person
+        if not is_complete_authentication(request):
+            social_complete(request, FacebookBackend.name)                
+            try:
+                print "intento social_complete"
+                social_complete(request, FacebookBackend.name)                
+            except ValueError:
+                print "no pudo social_complete"
+                pass # no matter if failed
+        # Need to re-check the completion
+        if is_complete_authentication(request):
+            kwargs.update({'access_token': get_access_token(request.user)})
+        else:
+            request.user = AnonymousUser()
+        signed_request = load_signed_request(request.REQUEST.get('signed_request', ''))
+        if signed_request:
+            kwargs.update({'signed_request': signed_request})
+        return func(request, *args, **kwargs)
+    return wrapper
+
+@csrf_exempt
+@facebook_decorator
+def facebook_tab(request, *args, **kwargs):
+    sr = kwargs['signed_request']
+    fb_user_id = None
+    if 'user_id' not in sr:
+        # el usuario no esta logueado en ponline con fb
+        # mostrar en el template un popup con el login de fb
+        pass
+    else:
+        fb_user_id = sr['user_id']
+    if 'page' in sr:
+        srp = sr['page']
+        page_id    = srp['id']
+        page_liked = srp['liked']
+        page_admin = srp['admin']
+    else:
+        page_id = request.REQUEST.get('page_id')
+        page_liked = request.REQUEST.get('page_liked')
+        page_admin = request.REQUEST.get('page_admin')
+    context = {
+            'fb_app_id' : settings.FACEBOOK_APP_ID,
+            'fb_user_id': fb_user_id,
+            'fb_page_id': page_id,
+            'fb_page_liked': page_liked,
+            'fb_page_admin': page_admin,
+            'inside_facebook': True,
+            'user': request.user
+        }
+    return render_to_response(
+        'facebook/tab.html',
+        context,
+        context_instance=RequestContext(request)
+    )
+
+
 def agradecimientos(request):
     if request.method == 'GET':
         

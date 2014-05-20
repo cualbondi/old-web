@@ -1,0 +1,51 @@
+<html>
+    <head>
+    </head>
+    <body>
+    {% if fb_user_id %}
+
+        {% include 'core/seleccionar_ciudad.html' %}
+        
+    {% else %}
+
+    Hola usuario desconocido
+    <button onclick="startConnect()">conectate con facebook!</button>
+
+    <div id="fb-root"></div>
+    <script type="text/javascript">
+
+        function startConnect(){
+            FB.login(function(response) {
+                if (response.authResponse) {
+                    window.location = window.location +
+                        '?access_token=' + response.authResponse.accessToken +
+                        '&expires=' + response.authResponse.expiresIn +
+                        '&signed_request=' + response.authResponse.signedRequest +
+                        '&page_id={{ fb_page_id }}' +
+                        '&page_liked={{ fb_page_liked }}' +
+                        '&page_admin={{ fb_page_admin }}';
+                }
+
+            }, {scope: "email" })
+        }
+
+        window.fbAsyncInit = function() {
+            FB.init({appId: {{ fb_app_id }}, status: true, cookie: true, xfbml: true, oauth: true});
+
+            //window.setTimeout(function() {
+            //    FB.Canvas.setAutoResize();
+            //}, 250);
+         };
+
+        (function() {
+            var e = document.createElement('script'); e.async = true;
+            e.src = document.location.protocol +
+              '//connect.facebook.net/es_ES/all.js';
+            document.getElementById('fb-root').appendChild(e);
+         }());
+    </script>
+
+    {% endif %}
+        
+    </body>
+</html>

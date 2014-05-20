@@ -123,14 +123,11 @@ MIDDLEWARE_CLASSES = (
 )
 
 AUTHENTICATION_BACKENDS = (
+    'social.backends.facebook.FacebookAppOAuth2',
     'social.backends.facebook.FacebookOAuth2',
+    'social_auth.backends.facebook.FacebookBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
-
-SOCIAL_AUTH_FACEBOOK_KEY = '516530425068934'
-SOCIAL_AUTH_FACEBOOK_SECRET = 'f90d27d49f50939996db0f299dec129d'
-SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
-SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {'locale': 'es_AR'}
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'social.apps.django_app.context_processors.backends',
@@ -244,6 +241,9 @@ LOGGING = {
 
 if CUALBONDI_ENV == 'production':
     FACEBOOK_APP_ID = "516530425068934"
+    FACEBOOK_API_SECRET = 'f90d27d49f50939996db0f299dec129d'
+    FACEBOOK_EXTENDED_PERMISSIONS = ['email']
+
     HOME_URL = "http://cualbondi.com.ar"
 
     EMAIL_HOST = 'mail.cualbondi.com.ar'

@@ -8,6 +8,8 @@ urlpatterns = patterns('',
 #    url(r'^lineas/agregar/$', 'apps.core.views.agregar_linea', name='agregar_linea'),
 #    url(r'^recorridos/agregar/$', 'apps.core.views.agregar_recorrido', name='agregar_recorrido'),
 
+    url(r'^facebook_tab/$', 'apps.core.views.facebook_tab', name='facebook_tab'),
+
     # Redirects para las URLs viejas
     url(r'^recorridos/$', 'apps.core.views.redirect_nuevas_urls', name='redirect_nuevas_urls'),
     url(r'^recorridos/(?P<linea>[^/]+)/$', 'apps.core.views.redirect_nuevas_urls', name='redirect_nuevas_urls'),
