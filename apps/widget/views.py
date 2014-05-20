@@ -1,4 +1,6 @@
 from apps.catastro.models import Ciudad
+from apps.core.models import Recorrido
+from django.contrib.gis.geos import Point
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -38,6 +40,45 @@ def v1_busqueda(request, extension):
             return HttpResponse(status=403)
     else:
         return HttpResponse(status=501)
+
+
+def v1_lineas(request, extension):
+    if request.method == 'GET':
+        if request.GET.get("key") == '123456789':
+            if extension == "html":
+                try: 
+                    lat = float(request.GET.get("lat", "NaN"))
+                    lon = float(request.GET.get("lon", "NaN"))
+                    rad = int(request.GET.get("rad", "NaN"))
+                except:
+                    return HttpResponse(status=501)
+                print_ramales = request.GET.get("ramales") == "true"
+                recorridos = Recorrido.objects.select_related('linea').filter(ruta__dwithin=(Point(lon, lat), 0.1), ruta__distance_lt=(Point(lon, lat), rad))
+                if not print_ramales:
+                    recorridos = list(set([x.linea for x in recorridos]))
+                return render_to_response('widget/v1/lineas.html',
+                    {
+                        'listado': recorridos,
+                        'print_ramales': print_ramales,
+                    },
+                    context_instance=RequestContext(request))
+            else:
+                if extension == "js":
+                    if request.GET.get("lat") and request.GET.get("lon") and request.GET.get("rad"):
+                        current_site = Site.objects.get_current()
+                        return render_to_response('widget/v1/lineas.js',
+                            { 'current_site': current_site },
+                            context_instance=RequestContext(request), 
+                            #content_type="application/x-JavaScript") #django => 1.5
+                            mimetype="application/x-JavaScript") #django < 1.5
+                    else:
+                        return HttpResponse(status=501)
+        else:
+            return HttpResponse(status=403)
+    else:
+        return HttpResponse(status=501)
+
+    
 
 def not_found(request):
     return HttpResponse(status=404)

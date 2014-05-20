@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+
+    </head>
+
+    <body style="margin:0;padding:0">
+       
+    {% for l in listado %}
+        {% if print_ramales %}
+            <a href="{{ l.get_absolute_url }}" target="_blank">{{ l.linea.nombre }} {{ l.nombre }}</a>{% if not forloop.last %}, {% endif %}
+        {% else %}
+            <a href="{{ l.get_absolute_url }}" target="_blank">{{ l.nombre }}</a>{% if not forloop.last %}, {% endif %}
+        {% endif %}
+    {% endfor %}
+
+    </body>
+
+</html>
