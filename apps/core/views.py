@@ -55,12 +55,9 @@ def facebook_decorator(func):
     def wrapper(request, *args, **kwargs):
         # User must me logged via FB backend in order to ensure we talk about the same person
         if not is_complete_authentication(request):
-            social_complete(request, FacebookBackend.name)                
             try:
-                print "intento social_complete"
                 social_complete(request, FacebookBackend.name)                
             except ValueError:
-                print "no pudo social_complete"
                 pass # no matter if failed
         # Need to re-check the completion
         if is_complete_authentication(request):
