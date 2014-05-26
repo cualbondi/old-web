@@ -38,6 +38,16 @@
     <br />
     {% endif %}
     
+    {% if horarios %}
+        <h3>Paradas:</h3>
+        <ul>
+        {% for h in horarios %}
+            <li>{% if h.parada.codigo %}{{ h.parada.codigo }} -{% endif %}{{ h.parada.nombre }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+
     {% if calles %}
         <h3>Calles que componen este recorrido</h3>
         <ol>

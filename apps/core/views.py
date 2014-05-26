@@ -400,6 +400,9 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
         # Zonas por las que pasa el recorrido
         zonas = Zona.objects.filter(geo__dwithin=(recorrido_actual.ruta, D(m=200)))
         
+        # Horarios + paradas que tiene este recorrido
+        horarios = recorrido_actual.horario_set.all().prefetch_related('parada')
+        
         favorito = False
         if request.user.is_authenticated():
             favorito = recorrido_actual.es_favorito(request.user)
@@ -418,7 +421,8 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
                 'favorito': favorito,
                 'calles': calles_fin,
                 'pois': poi_noms,
-                'zonas': zonas
+                'zonas': zonas,
+                'horarios': horarios
             },
             context_instance=RequestContext(request)
         )
