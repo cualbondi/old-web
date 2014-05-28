@@ -149,7 +149,7 @@ class RecorridoProposed(models.Model):
         call_command('crear_thumbs', recorrido_id=self.recorrido.id)
         
         # Notificacion por facebook
-        token = urllib2.urlopen('https://graph.facebook.com/oauth/access_token?client_id='+settings.FACEBOOK_API_SECRET+'&client_secret='+settings.SOCIAL_AUTH_FACEBOOK_SECRET+'&grant_type=client_credentials').read().split('access_token=')[1]
+        token = urllib2.urlopen('https://graph.facebook.com/oauth/access_token?client_id='+settings.FACEBOOK_APP_ID+'&client_secret='+settings.FACEBOOK_API_SECRET+'&grant_type=client_credentials').read().split('access_token=')[1]
         user = self.get_moderacion_last_user()
         if not user.is_anonymous():
             fb = user.social_auth.filter(provider='facebook')
