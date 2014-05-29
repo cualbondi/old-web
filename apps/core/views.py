@@ -38,6 +38,8 @@ from social.apps.django_app.utils import strategy
 from django.contrib.auth.models import AnonymousUser
 from django.conf import settings
 
+from apps.core.models import FacebookPage
+
 def is_complete_authentication(request):
     return request.user.is_authenticated() and FacebookBackend.__name__ in request.session.get(BACKEND_SESSION_KEY, '')
 
@@ -90,6 +92,11 @@ def facebook_tab(request, *args, **kwargs):
         page_id = request.REQUEST.get('page_id')
         page_liked = request.REQUEST.get('page_liked')
         page_admin = request.REQUEST.get('page_admin')
+    try:
+        fbps = FacebookPage.objects.filter(id_fb=page_id).values_list('linea_id', flat=True)
+        ls = Linea.objects.filter(id__in=fbps)
+    except:
+        ls = []
     context = {
             'fb_app_id' : settings.FACEBOOK_APP_ID,
             'fb_user_id': fb_user_id,
@@ -97,10 +104,11 @@ def facebook_tab(request, *args, **kwargs):
             'fb_page_liked': page_liked,
             'fb_page_admin': page_admin,
             'inside_facebook': True,
+            'lineas': ls,
             'user': request.user
         }
     return render_to_response(
-        'facebook/tab.html',
+        'facebook/tab_lineas.html',
         context,
         context_instance=RequestContext(request)
     )

@@ -1,7 +1,7 @@
 from django.contrib.gis import admin
 
 from apps.core.models import (Linea, Recorrido, Tarifa, Parada,
-                              Horario, Posicion)
+                              Horario, Posicion, FacebookPage)
 from django.utils.safestring import mark_safe
 
 # TODO: Esto fue copiado a lo macho del codigo de Django 1.5
@@ -74,3 +74,4 @@ admin.site.register(Recorrido, RecorridoCustomAdmin)
 admin.site.register(Parada, ParadaCustomAdmin)
 admin.site.register(Tarifa)
 admin.site.register(Posicion)
+admin.site.register(FacebookPage)

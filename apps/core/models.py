@@ -195,3 +195,7 @@ class Tarifa(models.Model):
 
     def __unicode__(self):
         return u'{0} - {1} - ${2}'.format(self.ciudad, self.tipo, self.precio)
+
+class FacebookPage(models.Model):
+    id_fb = models.CharField(max_length=50)
+    linea = models.ForeignKey(Linea)
