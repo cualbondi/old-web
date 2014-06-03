@@ -19,7 +19,8 @@ def editor_recorrido(request, id_recorrido):
             'editor/editor_recorrido.html',
             {
                 'recorrido': recorrido,
-                'user': request.user
+                'user': request.user,
+                'ediciones' : RecorridoProposed.objects.order_by('-date_update')[:10]
             },
             context_instance=RequestContext(request)
         )

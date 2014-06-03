@@ -86,7 +86,21 @@
             <strong>Para comenzar</strong> mové los cuadrados y al terminar hacé click en guardar. Gracias por colaborar {{ user }}!
         </div>
     </div>
-    <div id="map" style="position: absolute; top: 40px; left: 0; right: 0; bottom: 0;"></div>
+    <div id="map" style="position: absolute; top: 40px; left: 0; right: 0; bottom: 0;">
+        <div class="leaflet-control-container">
+            <div class="leaflet-top leaflet-right" style="height:100%; overflow:auto">
+                <div class="leaflet-control leaflet-bar" style="background-color:white; padding:8px">
+                    <a style="width:auto" href="/agradecimientos/" target="_blank">Ver top de usuarios editores</a>
+                    Ultimas ediciones en cualbondi: 
+                    <ul class="nav nav-list">
+                    {% for e in ediciones %}
+                        <li><a style="width:auto; display:auto; overflow:none; text-align:left;" href="{{e.get_absolute_url}}" target="_blank" title="{{ e.date_update|date:'d/m/Y H:i' }}">{{ e.get_moderacion_last_user }} {{ e.linea.nombre }} {{ e.nombre }}</a></li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal -->
     <div id="modalayuda" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true">
