@@ -28,7 +28,7 @@ class RecorridoManager(models.GeoManager):
 
         connection.cursor().execute('SET STATEMENT_TIMEOUT=45000')
 
-        params = {'puntoA': puntoA.ewkt, 'puntoB': puntoB.ewkt, 'rad1': distanciaA, 'rad2': distanciaB, 'gap': gap}
+        params = {'puntoA': puntoA.ewkt, 'puntoB': puntoB.ewkt, 'rad1': distanciaA, 'rad2': distanciaB, 'gap': gap, 'p': 0.1}
         query = """
             SELECT *
             FROM 
@@ -427,7 +427,7 @@ class RecorridoManager(models.GeoManager):
         distanciaA = 0.0000111 * float(distanciaA) 
         distanciaB = 0.0000111 * float(distanciaB)
 
-        params = {'puntoA': puntoA.ewkt, 'puntoB': puntoB.ewkt, 'rad1': distanciaA, 'rad2': distanciaB}
+        params = {'puntoA': puntoA.ewkt, 'puntoB': puntoB.ewkt, 'rad1': distanciaA, 'rad2': distanciaB, 'p': 0.1}
         query = """
                 SELECT
                     re.id,
@@ -472,9 +472,9 @@ class RecorridoManager(models.GeoManager):
                                         linea_id,
                                         color_polilinea,
                                         ST_Line_Substring(
-                                            ST_Line_Substring(ruta, 0, 0.5),
-                                            ST_Line_Locate_Point(ST_Line_Substring(ruta, 0, 0.5),	%(puntoA)s),
-                                            ST_Line_Locate_Point(ST_Line_Substring(ruta, 0, 0.5),	%(puntoB)s)
+                                            ruta,
+                                            GREATEST(ST_Line_Locate_Point(ruta, %(puntoA)s) - %(p)s, 0),
+                                            LEAST(ST_Line_Locate_Point(ruta, %(puntoB)s) + %(p)s, 1)
                                         ) as ruta_corta,
                                         null::integer as p1,
                                         null::integer as p2,
@@ -497,9 +497,9 @@ class RecorridoManager(models.GeoManager):
                                         linea_id,
                                         color_polilinea,
                                         ST_Line_Substring(
-                                            ST_Line_Substring(ruta, 0.5, 1),
-                                            ST_Line_Locate_Point(ST_Line_Substring(ruta, 0.5, 1),	%(puntoA)s),
-                                            ST_Line_Locate_Point(ST_Line_Substring(ruta, 0.5, 1),	%(puntoB)s)
+                                            ruta,
+                                            GREATEST(ST_Line_Locate_Point(ruta, %(puntoA)s) - %(p)s, 0),
+                                            LEAST(ST_Line_Locate_Point(ruta, %(puntoB)s) + %(p)s, 1)
                                         ) as ruta_corta,
                                         null::integer as p1,
                                         null::integer as p2,
@@ -523,8 +523,8 @@ class RecorridoManager(models.GeoManager):
                                         color_polilinea,
                                         ST_Line_Substring(
                                             ruta,
-                                            ST_Line_Locate_Point(ruta, %(puntoA)s),
-                                            ST_Line_Locate_Point(ruta, %(puntoB)s)
+                                            GREATEST(ST_Line_Locate_Point(ruta, %(puntoA)s) - %(p)s, 0),
+                                            LEAST(ST_Line_Locate_Point(ruta, %(puntoB)s) + %(p)s, 1)
                                         ) as ruta_corta,
                                         null::integer as p1,
                                         null::integer as p2,
@@ -598,7 +598,6 @@ class RecorridoManager(models.GeoManager):
                     ORDER BY
                         long_pata*10 + long_ruta asc
             ;"""
-
         query_set = self.raw(query, params)
         return list(query_set)
 
