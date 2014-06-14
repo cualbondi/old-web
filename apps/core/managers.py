@@ -473,8 +473,8 @@ class RecorridoManager(models.GeoManager):
                                         color_polilinea,
                                         ST_Line_Substring(
                                             ruta,
-                                            GREATEST(ST_Line_Locate_Point(ruta, %(puntoA)s) - %(p)s, 0),
-                                            LEAST(ST_Line_Locate_Point(ruta, %(puntoB)s) + %(p)s, 1)
+                                            GREATEST(ST_Line_Locate_Point(ruta, ST_ClosestPoint(ST_Line_Substring(ruta, 0, 0.5), %(puntoA)s) ) - %(p)s, 0),
+                                            LEAST(ST_Line_Locate_Point(ruta, ST_ClosestPoint(ST_Line_Substring(ruta, 0, 0.5), %(puntoB)s) ) + %(p)s, 1)
                                         ) as ruta_corta,
                                         null::integer as p1,
                                         null::integer as p2,
@@ -498,8 +498,8 @@ class RecorridoManager(models.GeoManager):
                                         color_polilinea,
                                         ST_Line_Substring(
                                             ruta,
-                                            GREATEST(ST_Line_Locate_Point(ruta, %(puntoA)s) - %(p)s, 0),
-                                            LEAST(ST_Line_Locate_Point(ruta, %(puntoB)s) + %(p)s, 1)
+                                            GREATEST(ST_Line_Locate_Point(ruta, ST_ClosestPoint(ST_Line_Substring(ruta, 0.5,1), %(puntoA)s)) - %(p)s, 0),
+                                            LEAST(ST_Line_Locate_Point(ruta,ST_ClosestPoint(ST_Line_Substring(ruta, 0.5,1), %(puntoB)s)) + %(p)s, 1)
                                         ) as ruta_corta,
                                         null::integer as p1,
                                         null::integer as p2,
