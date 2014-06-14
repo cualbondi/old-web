@@ -20,3 +20,7 @@ h1, h2, h3, h4, h5, h6 { font-family: 'geoslab_medium_normal'; }
 }
 
 .bx-viewport { margin: 0px 0px 15px 5px; }
+
+.navbar-inverse .nav>li>a {
+    color: white !important;
+}

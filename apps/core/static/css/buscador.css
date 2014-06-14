@@ -266,3 +266,6 @@ div.leaflet-marker-icon.markerT {
 .itemResultado.active .botones {
     display: block;
 }
+.navbar-inverse .nav>li>a {
+    color: white !important;
+}

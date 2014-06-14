@@ -6,7 +6,6 @@
 <a class="brand" href="/" style="background:url({{ STATIC_URL }}img/logo-navbar.png); height:25px; width:132px; padding:0; margin: 5px 20px 0 0;"></a>
 <div class="nav-collapse">
     <ul class="nav">
-        <li class="active"><a href="/"><i class="icon-home icon-white"></i> Inicio</a></li>
         <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="">
                 <i class="icon-picture icon-white"></i> Ciudad
@@ -31,7 +30,12 @@
         {% endif %}
     </ul>
     <ul class="nav pull-right">
-        <li><a href="{% url apps.core.views.agradecimientos %}"><i class="icon-star icon-white"></i> Colaboradores</a></li>
-        <li><a href="https://spreadsheets.google.com/spreadsheet/viewform?formkey=dFJERlREQjUyaE1iSkFDYnhOa2Nnbmc6MQ+"><i class="icon-pencil icon-white"></i> Ayudanos: encuesta</a></li>
+        {% if request.user.is_authenticated %}
+            <li><a href="{% url apps.usuarios.views.ver_perfil username=user.username %}"><i class="icon-user icon-white"></i> {{ request.user }}</a></li>
+        {% else %}
+            <li><a href="/login/facebook/"><i class="icon-user icon-white"></i> Login</a></li>
+        {% endif %}
+        <li><a href="{% url apps.core.views.agradecimientos %}"><i class="icon-star icon-white"></i> Usuarios estrella</a></li>
+        <li><a href="https://spreadsheets.google.com/spreadsheet/viewform?formkey=dFJERlREQjUyaE1iSkFDYnhOa2Nnbmc6MQ+"><i class="icon-pencil icon-white"></i> Encuesta</a></li>
     </ul>
 </div>
