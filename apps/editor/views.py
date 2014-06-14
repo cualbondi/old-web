@@ -15,7 +15,7 @@ import json
 def editor_recorrido(request, id_recorrido):
     if request.method == 'GET':
         recorrido = get_object_or_404(Recorrido, pk=id_recorrido)
-        ediciones = RecorridoProposed.objects.exclude(logmoderacion__created_by__isnull=True).order_by('-date_update')[:10]
+        ediciones = RecorridoProposed.objects.select_related('linea').exclude(logmoderacion__created_by__isnull=True).order_by('-date_update')[:10]
         return render_to_response(
             'editor/editor_recorrido.html',
             {
