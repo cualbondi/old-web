@@ -4,6 +4,15 @@ from apps.core.models import (Linea, Recorrido, Tarifa, Parada,
                               Horario, Posicion, FacebookPage)
 from django.utils.safestring import mark_safe
 
+from django.contrib.auth.admin import UserAdmin
+UserAdmin.list_display += ('date_joined',)
+UserAdmin.list_filter += ('date_joined',)
+UserAdmin.fieldsets += ('date_joined',)
+UserAdmin.list_display += ('last_login',)
+UserAdmin.list_filter += ('last_login',)
+UserAdmin.fieldsets += ('last_login',)
+
+
 # TODO: Esto fue copiado a lo macho del codigo de Django 1.5
 def format_html(format_string, *args, **kwargs):
     """
