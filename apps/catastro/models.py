@@ -161,9 +161,18 @@ class Poi(models.Model):
     """
     nom_normal = models.TextField()
     nom = models.TextField()
+    slug = models.SlugField(max_length=150)
     latlng = models.GeometryField(srid=4326, geography=True)
     objects = models.GeoManager()
 
+    def save(self, *args, **kwargs):
+        slug = slugify(self.nom)
+        self.slug = slug
+        suffix = 2
+        while Poi.objects.filter(slug=self.slug).exists():
+            self.slug = "%s-%d" % (slug, suffix)
+            suffix = suffix + 1
+        super(Poi, self).save(*args, **kwargs)
 
 class PuntoBusqueda(models.Model):
     nombre = models.TextField()
