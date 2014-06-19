@@ -342,7 +342,7 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
         # TODO: tal vez se pueda mejorar eso con una custom query sola.
         """
         # solucion 3, como la solucion 2 pero con raw query (para bs as no anda bien)
-        if not recorrido_actual.descripcion or ciudad_actual.slug != 'buenos-aires':
+        if not recorrido_actual.descripcion or not recorrido_actual.descripcion.strip():
             def uniquify(seq, idfun=None): 
                 if idfun is None:
                     def idfun(x): return x
@@ -362,9 +362,9 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
                         (dp).path[1] as idp,
                         cc.nom       as nom
                     FROM
-                        (SELECT ST_DumpPoints(ST_GeomFromText(
+                        (SELECT ST_DumpPoints(ST_Simplify(ST_GeomFromText(
                             (SELECT ruta FROM core_recorrido WHERE id=%s)
-                        )) as dp ) as dpa
+                        ), 0.00005)) as dp ) as dpa
                         JOIN catastro_calle as cc
                         ON ST_DWithin(cc.way, (dp).geom, 20)
                 ''',
