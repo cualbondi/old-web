@@ -362,14 +362,12 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
                         (dp).path[1] as idp,
                         cc.nom       as nom
                     FROM
-                        (SELECT ST_DumpPoints(ST_Simplify(ST_GeomFromText(
-                            (SELECT ruta FROM core_recorrido WHERE id=%s)
-                        ), 0.00005)) as dp ) as dpa
+                        (SELECT ST_DumpPoints(ST_Simplify(%s, 0.00005)) as dp ) as dpa
                         JOIN catastro_calle as cc
                         ON ST_DWithin(cc.way, (dp).geom, 20)
                 ''',
                 (
-                    recorrido_actual.id,
+                    recorrido_actual.ruta.ewkb,
                 )
             )
             from collections import OrderedDict
