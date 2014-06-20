@@ -610,7 +610,7 @@ class RecorridoManager(models.GeoManager):
                 r.id,
                 l.nombre || ' ' || r.nombre as nombre,
                 similarity(l.nombre || ' ' || r.nombre, %(q)s) as similarity,
-                Astext(r.ruta) as ruta_corta
+                ST_Astext(r.ruta) as ruta_corta
             FROM
                 core_recorrido as r
                 join core_linea as l on (r.linea_id = l.id)
@@ -632,7 +632,7 @@ class RecorridoManager(models.GeoManager):
                 r.id,
                 l.nombre || ' ' || r.nombre as nombre,
                 ts_rank_cd(to_tsvector('spanish', l.nombre || ' ' || r.nombre), query, 32) as similarity,
-                Astext(r.ruta) as ruta_corta
+                ST_Astext(r.ruta) as ruta_corta
             FROM
                 core_recorrido as r
                 join core_linea as l on (r.linea_id = l.id)
@@ -654,7 +654,7 @@ class RecorridoManager(models.GeoManager):
             SELECT
                 r.id,
                 l.nombre || ' ' || r.nombre as nombre,
-                Astext(r.ruta) as ruta_corta,
+                ST_Astext(r.ruta) as ruta_corta,
                 l.foto as foto,
                 ST_Length(r.ruta::Geography) as long_ruta
             FROM
@@ -678,7 +678,7 @@ class RecorridoManager(models.GeoManager):
             SELECT
                 r.id,
                 l.nombre || ' ' || r.nombre as nombre,
-                Astext(r.ruta) as ruta_corta,
+                ST_Astext(r.ruta) as ruta_corta,
                 l.foto as foto,
                 ST_Length(r.ruta::Geography) as long_ruta,
                 similarity(l.nombre || ' ' || r.nombre, %(q)s) as similarity
