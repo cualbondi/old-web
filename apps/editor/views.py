@@ -48,12 +48,16 @@ def editor_recorrido(request, id_recorrido):
         # save anyway, but respond as forbidden if not auth ;)
         r.save(user=user)
         
+        ciudad = None
+        if len(r.ciudades) > 0:
+            ciudad = r.ciudades[0].nombre
+        
         data = {
             "id"    : r.id,
             "uuid"  : r.uuid,
             "nombre": r.nombre,
             "linea" : r.linea.nombre,
-            "ciudad": r.ciudades[0].nombre
+            "ciudad": ciudad 
         }
         if request.user.is_authenticated():
             return HttpResponse(json.dumps(data), content_type="application/json")
