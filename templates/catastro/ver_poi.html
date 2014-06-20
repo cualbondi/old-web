@@ -1,0 +1,42 @@
+{% extends "contenido.html" %}
+
+{% block title %}Cómo llegar a {{poi.nombre|title}} en {{ciudad_actual.nombre|title}} - Cualbondi{% endblock %}
+{% block meta_description %}Cómo llegar a {{poi.nombre|title}} y qué líneas de recorridos de micros y ómnibus y buses pasan por {{poi.nombre|title}} en {{ciudad_actual.nombre|title}}.{% endblock %}
+
+{% block head-attrs %}{% endblock %}
+
+{% block bloque_izquierda %}
+    <div>
+        <h1 style="display:inline;">¿Cómo llegar a {{poi.nom}}?</h1>
+    </div>
+
+    {% if recorridos %}
+        <h3>Recorridos de transporte público que pasan por aquí</h3>
+        <ul>
+            {% for r in recorridos %}
+            <li><a href="{{r.get_absolute_url}}">{{r.linea.nombre}} - {{ r.nombre }} <small>({{r.inicio}} >> {{r.fin}})</small></a></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if pois %}
+        <h3>Otros puntos de interés cercanos</h3>
+        <ul>
+            {% for p in pois %}
+            <li><a href="{{p.get_absolute_url}}">{{ p.nombre }}</a></li>
+            {% endfor %}
+        </ul>
+        <br />
+    {% endif %}
+
+    {% if zonas %}
+        <h3>Barrios cercanos</h3>
+        <ul>
+            {% for z in zonas %}
+            <li>{{ z.name }}</li>
+            {% endfor %}
+        </ul>
+        <br />
+    {% endif %}
+
+{% endblock %}

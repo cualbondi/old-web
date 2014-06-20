@@ -23,6 +23,8 @@ urlpatterns = patterns('',
     url(r'^mobile_updates/', include('apps.mobile_updates.urls')),
     url(r'^editor/', include('apps.editor.urls')),
     url(r'^revision/(?P<id_revision>\d+)/$', 'apps.editor.views.revision', name='revision_externa'),
+
+    url(r'^como-llegar/', include('apps.catastro.urls')),
     
     url(r'^contacto/', 'apps.core.views.contacto', name='contacto'),
         

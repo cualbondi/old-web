@@ -70,7 +70,7 @@
         <h3>Puntos de interés por donde pasa</h3>
         <ul>
             {% for p in pois %}
-            <li>{{ p }}</li>
+            <li><a href="{{p.get_absolute_url}}">{{ p.nom }}</a></li>
             {% endfor %}
         </ul>
         <br />

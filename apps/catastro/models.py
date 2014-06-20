@@ -173,6 +173,10 @@ class Poi(models.Model):
             self.slug = "%s-%d" % (slug, suffix)
             suffix = suffix + 1
         super(Poi, self).save(*args, **kwargs)
+    
+    def get_absolute_url(self):
+        return reverse('poi', kwargs={'slug': self.slug})
+
 
 class PuntoBusqueda(models.Model):
     nombre = models.TextField()

@@ -399,14 +399,10 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
             calles_fin = None
             
         # POI por los que pasa el recorrido
-        pois = Poi.objects.filter(latlng__dwithin=(recorrido_actual.ruta, D(m=400))).values('nom').distinct('nom')
-        poi_noms = []
-        for p in pois:
-            poi_noms.append(p['nom'].split(',')[0])
-        poi_noms = set(poi_noms)
+        pois = Poi.objects.filter(latlng__dwithin=(recorrido_actual.ruta, D(m=400)))
 
         # Zonas por las que pasa el recorrido
-        zonas = Zona.objects.filter(geo__dwithin=(recorrido_actual.ruta, D(m=200)))
+        zonas = Zona.objects.filter(geo__intersects=recorrido_actual.ruta).values('name')
         
         # Horarios + paradas que tiene este recorrido
         horarios = recorrido_actual.horario_set.all().prefetch_related('parada')
@@ -428,7 +424,7 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
                 'recorrido_actual': recorrido_actual,
                 'favorito': favorito,
                 'calles': calles_fin,
-                'pois': poi_noms,
+                'pois': pois,
                 'zonas': zonas,
                 'horarios': horarios
             },
