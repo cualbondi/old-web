@@ -236,7 +236,7 @@
             var p = $("#pass").val();
             $.ajax({
                 "method": "POST",
-                "url":"{% url apps.usuarios.views.iniciar_sesion %}",
+                "url":"{% url "apps.usuarios.views.iniciar_sesion" %}",
                 "data": {
                     "username": u,
                     "password": p

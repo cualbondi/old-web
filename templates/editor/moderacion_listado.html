@@ -6,11 +6,11 @@
     </tr>
     {% for e in ediciones %}
     <tr>
-        <td><a href="{% url apps.editor.views.moderar_ediciones_uuid uuid=e.uuid %}">{{ e.date_update }}</a></td>
-        <td><a href="{% url apps.editor.views.moderar_ediciones_id id=e.recorrido.id %}">{{ e.linea.nombre }} - {{ e.nombre }}</a></td>
+        <td><a href="{% url "apps.editor.views.moderar_ediciones_uuid" uuid=e.uuid %}">{{ e.date_update }}</a></td>
+        <td><a href="{% url "apps.editor.views.moderar_ediciones_id" id=e.recorrido.id %}">{{ e.linea.nombre }} - {{ e.nombre }}</a></td>
         <td>{{ e.get_current_status_display }}</td>
-        <td><a href="{% url apps.editor.views.moderar_ediciones_uuid_aprobar uuid=e.uuid %}?next={{ request.path }}">Aprobar</a></td>
-        <td><a href="{% url apps.editor.views.moderar_ediciones_uuid_rechazar uuid=e.uuid %}?next={{ request.path }}">Rechazar</a></td>
+        <td><a href="{% url "apps.editor.views.moderar_ediciones_uuid_aprobar" uuid=e.uuid %}?next={{ request.path }}">Aprobar</a></td>
+        <td><a href="{% url "apps.editor.views.moderar_ediciones_uuid_rechazar" uuid=e.uuid %}?next={{ request.path }}">Rechazar</a></td>
         <td>{% if e.get_fb_uid %}<a href="http://facebook.com/{{ e.get_fb_uid }}" target="_blank">{{ e.get_moderacion_last_user }}</a>{% endif %}</td>
     </tr>
     {% endfor %}

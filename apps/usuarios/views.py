@@ -15,7 +15,7 @@ from django.template import RequestContext
 from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
-from django.utils.hashcompat import sha_constructor
+from hashlib import sha1 as sha_constructor
 from django.contrib.auth.decorators import login_required
 
 from apps.usuarios.models import PerfilUsuario

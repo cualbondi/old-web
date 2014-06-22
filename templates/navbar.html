@@ -31,11 +31,11 @@
     </ul>
     <ul class="nav pull-right">
         {% if request.user.is_authenticated %}
-            <li><a href="{% url apps.usuarios.views.ver_perfil username=user.username %}"><i class="icon-user icon-white"></i> {{ request.user }}</a></li>
+            <li><a href="{% url "apps.usuarios.views.ver_perfil" username=user.username %}"><i class="icon-user icon-white"></i> {{ request.user }}</a></li>
         {% else %}
             <li><a href="/login/facebook/"><i class="icon-user icon-white"></i> Login</a></li>
         {% endif %}
-        <li><a href="{% url apps.core.views.agradecimientos %}"><i class="icon-star icon-white"></i> Usuarios estrella</a></li>
+        <li><a href="{% url "apps.core.views.agradecimientos" %}"><i class="icon-star icon-white"></i> Usuarios estrella</a></li>
         <li><a href="https://spreadsheets.google.com/spreadsheet/viewform?formkey=dFJERlREQjUyaE1iSkFDYnhOa2Nnbmc6MQ+"><i class="icon-pencil icon-white"></i> Encuesta</a></li>
     </ul>
 </div>

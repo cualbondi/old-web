@@ -6,7 +6,7 @@
     <h3>Contáctese con Cualbondi</h3>
     <p>Envíenos su consulta y a la brevedad nos comunicaremos con usted.</p>
     <div style="margin-top: 25px;">
-        <form id="contact_form" method="POST" action="{% url contacto %}"
+        <form id="contact_form" method="POST" action="{% url "contacto" %}"
               autocapitalize="off" class="form-horizontal">
             {% csrf_token %}
             {{ form|as_bootstrap }}

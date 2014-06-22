@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from piston.resource import Resource
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls import patterns, url
 from django.http import HttpResponse
 
 from apps.api.handlers import (CiudadHandler, CiudadLineaHandler,

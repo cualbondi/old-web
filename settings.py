@@ -260,8 +260,26 @@ else:
     SOCIAL_AUTH_FACEBOOK_SECRET='f90d27d49f50939996db0f299dec129d'
     SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
     HOME_URL = "http://local.cualbondi.com.ar"
-
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    INSTALLED_APPS += ('debug_toolbar','django_extensions')
+    
+    import logging
+    l = logging.getLogger('django.db.backends')
+    l.setLevel(logging.DEBUG)
+    l.addHandler(logging.StreamHandler())
+    LOGGING.update({
+        'handlers': {
+            'console': {
+                'level': 'DEBUG',
+                'class': 'logging.StreamHandler',
+            }
+        },
+        'loggers': {
+            'django.db.backends': {
+                'level': 'DEBUG',
+                'handlers': ['console'],
+            }
+        }
+    })
 
 try:
     from settings_local import *

@@ -17,7 +17,7 @@
     <table>
         {% with original as e %}
         <tr>
-            <td><a href="{% url apps.editor.views.moderar_ediciones_id id=e.id %}">{{ e.linea.nombre }} - {{ e.nombre }}</a></td>
+            <td><a href="{% url "apps.editor.views.moderar_ediciones_id" id=e.id %}">{{ e.linea.nombre }} - {{ e.nombre }}</a></td>
         </tr>
         {% endwith %}
     </table>
@@ -27,7 +27,7 @@
     <table>
         {% for e in ediciones %}
         <tr>
-            <td><a href="{% url apps.editor.views.moderar_ediciones_uuid uuid=e.uuid %}">uuid</a></td>
+            <td><a href="{% url "apps.editor.views.moderar_ediciones_uuid" uuid=e.uuid %}">uuid</a></td>
             <td>
                 <table>
                     {% for m in e.log %}
@@ -39,8 +39,8 @@
                     {% endfor %}
                 </table>
             </td>
-            <td><a href="{% url apps.editor.views.moderar_ediciones_uuid_aprobar uuid=e.uuid %}?next={{ request.path }}">Aprobar</a></td>
-            <td><a href="{% url apps.editor.views.moderar_ediciones_uuid_rechazar uuid=e.uuid %}?next={{ request.path }}">Rechazar</a></td>
+            <td><a href="{% url "apps.editor.views.moderar_ediciones_uuid_aprobar" uuid=e.uuid %}?next={{ request.path }}">Aprobar</a></td>
+            <td><a href="{% url "apps.editor.views.moderar_ediciones_uuid_rechazar" uuid=e.uuid %}?next={{ request.path }}">Rechazar</a></td>
         </tr>
         {% endfor %}
     </table>
