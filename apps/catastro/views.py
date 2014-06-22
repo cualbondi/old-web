@@ -4,7 +4,7 @@ from django.shortcuts import (get_object_or_404, render_to_response,
 from django.http import HttpResponse
 from django.template import RequestContext
 
-from apps.catastro.models import Poi
+from apps.catastro.models import Poi, Ciudad
 from apps.core.models import Recorrido
 from django.contrib.gis.measure import D
 
@@ -16,6 +16,7 @@ def poi(request, slug=None):
         return render_to_response(
             'catastro/ver_poi.html',
             {
+                'ciudad_actual': Ciudad.objects.filter(poligono__intersects=poi.latlng),
                 'poi': poi,
                 'recorridos': recorridos,
             },
