@@ -280,7 +280,7 @@ class RecorridoHandler(BaseHandler):
                                         "foto": r.foto,
                                         "p1": None if r.p1 == None else (lambda p:{"latlng": p.latlng.wkt, "codigo": p.codigo, "nombre": p.nombre } ) (Parada.objects.get(pk=r.p1)),
                                         "p2": None if r.p1 == None else (lambda p:{"latlng": p.latlng.wkt, "codigo": p.codigo, "nombre": p.nombre } ) (Parada.objects.get(pk=r.p2)),
-                                        "url": r.get_absolute_url(ciudad_slug)
+                                        "url": r.get_absolute_url(ciudad_slug, r.lineaslug)
                                     }
                                 ]
                             }
@@ -303,7 +303,7 @@ class RecorridoHandler(BaseHandler):
                                         "foto": r.foto,
                                         "p1": None if r.p11ll == None else (lambda p:{"latlng": p.latlng.wkt, "codigo": p.codigo, "nombre": p.nombre } ) (Parada.objects.get(pk=r.p11ll)),
                                         "p2": None if r.p12ll == None else (lambda p:{"latlng": p.latlng.wkt, "codigo": p.codigo, "nombre": p.nombre } ) (Parada.objects.get(pk=r.p12ll)),
-                                        "url": r.get_absolute_url(ciudad_slug)
+                                        "url": r.get_absolute_url(ciudad_slug, r.lineaslug, r.slug1)
                                     },
                                     {
                                         "id": r.id2,
@@ -317,7 +317,7 @@ class RecorridoHandler(BaseHandler):
                                         "foto": r.foto2,
                                         "p1": None if r.p21ll == None else (lambda p:{"latlng": p.latlng.wkt, "codigo": p.codigo, "nombre": p.nombre } ) (Parada.objects.get(pk=r.p21ll)),
                                         "p2": None if r.p22ll == None else (lambda p:{"latlng": p.latlng.wkt, "codigo": p.codigo, "nombre": p.nombre } ) (Parada.objects.get(pk=r.p22ll)),
-                                        "url": r.get_absolute_url(ciudad_slug)
+                                        "url": r.get_absolute_url(ciudad_slug, r.lineaslug2, r.slug2)
                                     }
                                 ]
                             }

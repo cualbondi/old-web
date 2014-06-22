@@ -26,7 +26,7 @@ class RecorridoManager(models.GeoManager):
         distanciaB = 0.0000111 * float(distanciaB)
         gap = 0.0000111 * float(gap) 
 
-        connection.cursor().execute('SET STATEMENT_TIMEOUT=45000')
+        connection.cursor().execute('SET STATEMENT_TIMEOUT=30000')
 
         params = {'puntoA': puntoA.ewkt, 'puntoB': puntoB.ewkt, 'rad1': distanciaA, 'rad2': distanciaB, 'gap': gap, 'p': 0.1}
         query = """
@@ -432,6 +432,11 @@ class RecorridoManager(models.GeoManager):
                 SELECT
                     re.id,
                     li.nombre || ' ' || re.nombre as nombre,
+                    linea_id,
+                    re.slug as slug,
+                    li.slug as lineaslug,
+                    inicio,
+                    fin,
                     ruta_corta,
                     round(long_ruta::numeric, 2) as long_ruta,
                     round(long_pata::numeric, 2) as long_pata,
@@ -445,6 +450,9 @@ class RecorridoManager(models.GeoManager):
                         SELECT
                             id,
                             nombre,
+                            slug,
+                            inicio,
+                            fin,
                             linea_id,
                             color_polilinea,
                             ST_AsText(min_path(ruta_corta)) as ruta_corta,
@@ -457,6 +465,9 @@ class RecorridoManager(models.GeoManager):
                             SELECT
                                 id,
                                 nombre,
+                                slug,
+                                inicio,
+                                fin,
                                 linea_id,
                                 color_polilinea,
                                 ruta_corta,
@@ -469,6 +480,9 @@ class RecorridoManager(models.GeoManager):
                                     SELECT
                                         id,
                                         nombre,
+                                        slug,
+                                        inicio,
+                                        fin,
                                         linea_id,
                                         color_polilinea,
                                         ST_Line_Substring(
@@ -494,6 +508,9 @@ class RecorridoManager(models.GeoManager):
                                     SELECT
                                         id,
                                         nombre,
+                                        slug,
+                                        inicio,
+                                        fin,
                                         linea_id,
                                         color_polilinea,
                                         ST_Line_Substring(
@@ -519,6 +536,9 @@ class RecorridoManager(models.GeoManager):
                                     SELECT
                                         id,
                                         nombre,
+                                        slug,
+                                        inicio,
+                                        fin,
                                         linea_id,
                                         color_polilinea,
                                         ST_Line_Substring(
@@ -544,6 +564,9 @@ class RecorridoManager(models.GeoManager):
                                     SELECT
                                         cr.id,
                                         cr.nombre,
+                                        cr.slug,
+                                        cr.inicio,
+                                        cr.fin,
                                         cr.linea_id,
                                         cr.color_polilinea,
                                         ST_Line_Substring(
@@ -588,6 +611,9 @@ class RecorridoManager(models.GeoManager):
                         ) as agrupar
                         GROUP BY
                             id,
+                            slug,
+                            inicio,
+                            fin,
                             linea_id,
                             nombre,
                             color_polilinea,
@@ -599,6 +625,7 @@ class RecorridoManager(models.GeoManager):
                         long_pata*10 + long_ruta asc
             ;"""
         query_set = self.raw(query, params)
+        print query_set
         return list(query_set)
 
     def fuzzy_trgm_query(self, q):
@@ -718,7 +745,7 @@ class RecorridoManager(models.GeoManager):
         distanciaB = 0.0000111 * float(distanciaB)
         gap = 0.0000111 * float(gap) 
 
-        connection.cursor().execute('SET STATEMENT_TIMEOUT=45000')
+        connection.cursor().execute('SET STATEMENT_TIMEOUT=30000')
 
         params = {'puntoA': puntoA.ewkt, 'puntoB': puntoB.ewkt, 'rad1': distanciaA, 'rad2': distanciaB, 'gap': gap}
         query = """
@@ -1015,7 +1042,7 @@ class RecorridoManager(models.GeoManager):
         distanciaB = 0.0000111 * float(distanciaB)
         gap = 0.0000111 * float(gap) 
 
-        connection.cursor().execute('SET STATEMENT_TIMEOUT=45000')
+        connection.cursor().execute('SET STATEMENT_TIMEOUT=30000')
 
         params = {'puntoA': puntoA.ewkt, 'puntoB': puntoB.ewkt, 'rad1': distanciaA, 'rad2': distanciaB, 'gap': gap}
         query = """
@@ -1024,6 +1051,10 @@ class RecorridoManager(models.GeoManager):
                 nombre,
                 nombre2,
                 id2,
+                lineaslug,
+                lineaslug2,
+                slug1,
+                slug2,
                 color_polilinea,
                 color_polilinea2,
                 foto,
@@ -1046,9 +1077,13 @@ class RecorridoManager(models.GeoManager):
             FROM (
                 SELECT
                     re1.id as id,
+                    re2.id as id2,
                     li1.nombre || ' ' || re1.nombre as nombre,
                     li2.nombre || ' ' || re2.nombre as nombre2,
-                    re2.id as id2,
+                    li1.slug as lineaslug,
+                    li2.slug as lineaslug2,
+                    re1.slug as slug1,
+                    re2.slug as slug2,
                     coalesce(re1.color_polilinea, li1.color_polilinea, '#000') as color_polilinea,
                     coalesce(re2.color_polilinea, li2.color_polilinea, '#000') as color_polilinea2,
                     coalesce(li1.foto, 'default') as foto,
