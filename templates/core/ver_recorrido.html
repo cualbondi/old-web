@@ -17,10 +17,29 @@
 
 {% block bloque_izquierda %}
     <ul class="breadcrumb">
-        <li><a href="/">Inicio</a> <span class="divider">&gt;</span></li>
-        <li><a href="/{{ciudad_actual.slug}}">{{ciudad_actual.nombre}}</a> <span class="divider">&gt;</span></li>
-        <li><a href="/{{ciudad_actual.slug}}/{{linea_actual.slug}}">{{linea_actual.nombre}}</a> <span class="divider">&gt;</span></li>
-        <li class="active">{{recorrido_actual.nombre}} {% if recorrido_actual.inicio and recorrido_actual.fin %}(de {{recorrido_actual.inicio}} a {{recorrido_actual.fin}}){% endif %}</li>
+        <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+            <a href="{{ HOME_URL }}/" itemprop="url">
+                <span itemprop="title">Inicio</span>
+            </a>
+            <span class="divider">&gt;</span>
+        </li>
+        <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+            <a href="{{ HOME_URL }}/{{ciudad_actual.slug}}/" itemprop="url">
+                <span itemprop="title">{{ciudad_actual.nombre}}</span>
+            </a>
+            <span class="divider">&gt;</span>
+        </li>
+        <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+            <a href="{{ HOME_URL }}/{{ciudad_actual.slug}}/{{linea_actual.slug}}/" itemprop="url">
+                <span itemprop="title">{{linea_actual.nombre}}</span>
+            </a>
+            <span class="divider">&gt;</span>
+        </li>
+        <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+            <a href="{{ HOME_URL }}/{{ciudad_actual.slug}}/{{linea_actual.slug}}/{{recorrido_actual.slug}}/" itemprop="url">
+                <span itemprop="title">{{recorrido_actual.nombre}} {% if recorrido_actual.inicio and recorrido_actual.fin %}(de {{recorrido_actual.inicio}} a {{recorrido_actual.fin}}){% endif %}</span>
+            </a>
+        </li>
     </ul>
     
     <div>

@@ -9,8 +9,17 @@
 {% block bloque_izquierda %}
 
     <ul class="breadcrumb">
-        <li><a href="/">Inicio</a> <span class="divider">&gt;</span></li>
-        <li class="active">{{ciudad_actual.nombre}}</li>
+        <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+            <a href="{{ HOME_URL }}/" itemprop="url">
+                <span itemprop="title">Inicio</span>
+            </a>
+            <span class="divider">&gt;</span>
+        </li>
+        <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+            <a href="{{ HOME_URL }}/{{ciudad_actual.slug}}/" itemprop="url">
+                <span itemprop="title">{{ciudad_actual.nombre}}</span>
+            </a>
+        </li>
     </ul>
 
     <h1 style="margin:0">Ciudad de {{ciudad_actual.nombre}}</h1>
