@@ -625,7 +625,6 @@ class RecorridoManager(models.GeoManager):
                         long_pata*10 + long_ruta asc
             ;"""
         query_set = self.raw(query, params)
-        print query_set
         return list(query_set)
 
     def similar_hausdorff(self, rec):

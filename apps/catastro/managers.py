@@ -64,6 +64,11 @@ class PuntoBusquedaManager:
         ciudad_model = get_model("catastro", "Ciudad")
         zona_model = get_model("catastro", "Zona")
         if query:
+            
+            res = self.poi_exact(query)
+            if res:
+                return res
+            
             tokens = filter(None, map(unicode.strip, query.split(',')))
 
             calles = tokens[0].upper()[:]
@@ -90,14 +95,36 @@ class PuntoBusquedaManager:
                     for tok in tokens:
                         # PROBLEMA! estos devuelven diccionarios que se acceden asi: punto['item']
                         # PROBLEMA! pero los otros devuelven objetos que se acceden asi punto.attr
-                        res += self.poi(tok) + self.zona(tok) + self.rawGeocoder(tok)
+                        res += self.poi(tok) + self.zona(tok)
+
+            # ciudad actual, en la que esta el mapa, deberia ser pasada por parametro
+            ciudad_actual = ciudad_model.objects.get(slug=ciudad_actual_slug)
+            
+            if res:
+                res = [r for r in res if ciudad_actual.poligono.intersects(GEOSGeometry(r['geom']))]
+            if not res:
+                res = []
+                for tok in tokens:
+                    res += self.poi(tok) + self.zona(tok)
+                if res:
+                    res = [r for r in res if ciudad_actual.poligono.intersects(GEOSGeometry(r['geom']))]
+            if not res:
+                res = []
+                for tok in tokens:
+                    res += self.rawGeocoder(tok)
+                if res:
+                    res = [r for r in res if ciudad_actual.poligono.intersects(GEOSGeometry(r['geom']))]
+            if not res:
+                res = []
+                for tok in tokens:
+                    res += self.rawGeocoder(tok+","+ciudad_actual.nombre)
+                if res:
+                    res = [r for r in res if ciudad_actual.poligono.intersects(GEOSGeometry(r['geom']))]
+
             #
             # aca chequear si los resultados intersectan con el poligono de la ciudad_actual y de la ciudad_entrada o de la zona
             # ciudad entrada estaría en token[1]. Sumar puntos si eso es una ciudad, o si es una zona, a la cual cada punto pertenece.
             areas = []
-
-            # ciudad actual, en la que esta el mapa, deberia ser pasada por parametro
-            ciudad_actual = ciudad_model.objects.get(slug=ciudad_actual_slug).poligono
 
             # zona o ciudad ingresada (tokens>1)
             for token in tokens[1:]:
@@ -113,7 +140,6 @@ class PuntoBusquedaManager:
             if areas:
                 # para cada resultado aplicar la subida o bajada de puntaje segun el area en la que se encuentra
                 for r in res:
-                    print r['precision']
                     # para cada area en la que este resultado intersecta, sumar o restar
                     for area in areas:
                         if area.intersects(GEOSGeometry(r['geom'])):
@@ -121,11 +147,11 @@ class PuntoBusquedaManager:
                             r['precision'] *= 1.8
                         else:
                             r['precision'] *= 0.4
-                    if ciudad_actual.intersects(GEOSGeometry(r['geom'])):
+                    if ciudad_actual.poligono.intersects(GEOSGeometry(r['geom'])):
                         r['precision'] *= 1.8
             else:
                 # El punto tiene que estar si o si en la ciudad actual
-                res = [r for r in res if ciudad_actual.intersects(GEOSGeometry(r['geom']))]
+                res = [r for r in res if ciudad_actual.poligono.intersects(GEOSGeometry(r['geom']))]
 
             # ordenar
             res.sort(key=itemgetter("precision"), reverse=True)
@@ -195,6 +221,25 @@ class PuntoBusquedaManager:
                 nom_normal %% %(nombre)s
             ORDER BY
                 precision DESC
+            LIMIT 5
+        ;"""
+        cursor = connection.cursor()
+        query_set = cursor.execute(query, params)
+        l = self.dictfetchall(cursor)
+        return l
+
+    def poi_exact(self, nombre):
+        params = {'nombre': nombre}
+        query = """
+            SELECT
+                nom as nombre,
+                1 as precision,
+                ST_AsText(latlng) as geom,
+                'poi' as tipo
+            FROM
+                catastro_poi as p
+            WHERE
+                nom_normal = %(nombre)s
             LIMIT 5
         ;"""
         cursor = connection.cursor()
