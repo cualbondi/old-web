@@ -33,8 +33,10 @@ def dividir_columnas(lista, cantidad_columnas):
         lista = list(lista)
     except (ValueError, TypeError):
         return [lista]
-    paginator = Paginator(lista, cantidad_columnas)
     result = []
-    for index in xrange(paginator.num_pages):
-        result.append(paginator.page(index+1).object_list)
+    tamano = len(lista) / (cantidad_columnas)
+    if tamano * cantidad_columnas < len(lista):
+        tamano = tamano + 1
+    for i in range(cantidad_columnas):
+        result.append(lista[i*tamano:(i+1)*tamano])
     return result

@@ -116,14 +116,20 @@ class Recorrido(models.Model):
     def get_absolute_url(self, ciudad_slug = None, linea_slug = None, slug = None):
         # chequear si la linea/recorrido está en esta ciudad, sino tirar excepcion
         if ciudad_slug is None:
-            ciudad_slug = Ciudad.objects.filter(lineas=self.linea)[0].slug
+            try:
+                ciudad_slug = self.ciudad_slug
+            except:
+                ciudad_slug = Ciudad.objects.filter(lineas=self.linea)[0].slug
         else:
             # Esto lo comento porque hace muuuy lento a todo el sistema.
             # Mas vale tomo como que el slug esta siempre bien. De ultima como mucho, me genera un link que da un 404.
             # get_object_or_404(Ciudad, slug=ciudad_slug, lineas=self.linea)
             pass
         if linea_slug is None:
-            linea_slug = self.linea.slug # Esto genera una consulta mas
+            try:
+                linea_slug = self.linea_slug
+            except:
+                linea_slug = self.linea.slug # Esto genera una consulta mas
         if slug is None:
             slug = self.slug # Esto puede generar otra a veces
         return reverse('ver_recorrido',

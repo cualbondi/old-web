@@ -628,6 +628,34 @@ class RecorridoManager(models.GeoManager):
         print query_set
         return list(query_set)
 
+    def similar_hausdorff(self, rec):
+        params = {"r2ruta": rec.ruta.ewkb}
+        query = """
+            SELECT
+                set_limit(0.01);
+            SELECT
+                r.id,
+                r.nombre as nombre, 
+                r.inicio as inicio,
+                r.fin as fin,
+                r.slug as slug,
+                l.slug as linea_slug,
+                l.nombre as linea_nombre,
+                cc.slug as ciudad_slug
+            FROM
+                core_recorrido as r
+                join core_linea as l on (r.linea_id = l.id)
+                join catastro_ciudad_lineas ccl on (l.id = ccl.linea_id)
+                join catastro_ciudad cc on (ccl.ciudad_id = cc.id)
+            WHERE
+                ST_contains(ST_Buffer(%(r2ruta)s::geometry, 0.03), r.ruta)
+                and
+                ST_HausdorffDistance(r.ruta, %(r2ruta)s) < 0.03
+            ;
+        """
+        query_set = self.raw(query, params)
+        return query_set
+    
     def fuzzy_trgm_query(self, q):
         params = {"q": q}
         query = """

@@ -8,9 +8,26 @@ body {
     background-repeat: repeat-x;
     background-position: 0 40px;
     font-family: 'opensans_regular';
-    font-size: 13px !important;
+    font-size: 12px !important;
 }
-h1, h2, h3, h4, h5, h6 { font-family: 'geoslab_medium_normal'; }
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'geoslab_medium_normal';
+    font-weight: 500;
+    color: #444;
+}
+h2 {
+    font-size: 16.5px;
+    line-height: 15px;
+    border-bottom: #EEE 1px solid;
+    margin-top: 23px;
+}
+h1 {
+    font-size: 31.5px;
+    line-height: 24px;
+}
+form {
+    margin-bottom: 0;
+}
 .escrachado { background-color: red; }
 #submit_button { cursor: pointer; }
 .required { color: #B94A48; }
@@ -23,4 +40,46 @@ h1, h2, h3, h4, h5, h6 { font-family: 'geoslab_medium_normal'; }
 
 .navbar-inverse .nav>li>a {
     color: white !important;
+}
+
+.row-fluid .row-fluid div {
+    margin:0;
+}
+
+.nav-stacked>li {
+    text-align: center;
+}
+
+.nav-pills.nav-stacked>li>a {
+    padding: 5px;
+}
+
+.breadcrumb {
+    background:none;
+    padding:0;
+    margin:0 0 13px 0;
+}
+
+.breadcrumb a {
+    color: #999;
+}
+
+button.btn {
+    font-size: 13px;
+}
+
+::-webkit-input-placeholder { font-size: 13px; }
+:-moz-placeholder { font-size: 13px; }
+::-moz-placeholder { font-size: 13px; }
+:-ms-input-placeholder { font-size: 13px; }
+
+.light {
+    color: #999;
+    display:block;
+}
+
+h1 > small {
+    display: block;
+    font-size: 20px;
+    margin-top: 6px;
 }

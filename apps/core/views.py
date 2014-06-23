@@ -404,7 +404,7 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
         
         # Horarios + paradas que tiene este recorrido
         horarios = recorrido_actual.horario_set.all().prefetch_related('parada')
-        
+                
         favorito = False
         if request.user.is_authenticated():
             favorito = recorrido_actual.es_favorito(request.user)
@@ -424,7 +424,8 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
                 'calles': calles_fin,
                 'pois': pois,
                 'zonas': zonas,
-                'horarios': horarios
+                'horarios': horarios,
+                'recorridos_similares': Recorrido.objects.similar_hausdorff(recorrido_actual)
             },
             context_instance=RequestContext(request)
         )

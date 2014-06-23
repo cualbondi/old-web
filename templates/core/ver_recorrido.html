@@ -1,7 +1,8 @@
 {% extends "contenido.html" %}
+{% load bootstrap_tags %}
 
-{% block title %}Linea {{linea_actual.nombre|title}}, Ramal {{recorrido_actual.nombre|title}} en {{ciudad_actual.nombre|title}} - Cualbondi{% if recorrido_actual.inicio and recorrido_actual.fin %}, Recorrido desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}} {% endif %} en {{ciudad_actual.nombre|title}}: Descripción del recorrido de colectivo, micro, bus{% endblock %}
-{% block meta_description %}Toda la información sobre paradas, horarios y tarifas del recorrido {{recorrido_actual.nombre|title}} de la línea {{linea_actual.nombre|title}} desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}} en la ciudad de {{ciudad_actual.nombre|title}}.{% endblock %}
+{% block title %}Recorrido {{recorrido_actual.nombre|title}} {% if recorrido_actual.inicio and recorrido_actual.fin %} desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}} {% endif %} de la linea {{linea_actual.nombre|title}}, en {{ciudad_actual.nombre|title}} - Cualbondi{% endblock %}
+{% block meta_description %}Toda la información sobre paradas, horarios y tarifas del recorrido {{recorrido_actual.nombre|title}} de la línea {{linea_actual.nombre|title}} desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}} en la ciudad de {{ciudad_actual.nombre|title}}: Descripción del recorrido de colectivo, micro, bus.{% endblock %}
 
 {% block head-attrs %} prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# cualbondi: http://ogp.me/ns/fb/cualbondi#"{% endblock %}
 
@@ -23,10 +24,12 @@
     </ul>
     
     <div>
-        <h1 style="display:inline;">Recorrido {{linea_actual.nombre}} {{recorrido_actual.nombre}} de {{ciudad_actual.nombre}}</h1>
-        <div style="vertical-align: super;margin-left: 10px;" class="fb-like" data-layout="button" data-action="like" data-show-faces="false" data-share="false"></div>
+        <h1>
+            Recorrido {{linea_actual.nombre}} {{recorrido_actual.nombre}}
+            <span style="margin-left:5px;" class="fb-like" data-layout="button_count" data-action="like" data-colorscheme="light" data-show-faces="false" data-share="false"></span>
+            {% if recorrido_actual.inicio and recorrido_actual.fin %}<small>desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}}</small>{% endif %}
+        </h1>
     </div>
-    {% if recorrido_actual.inicio and recorrido_actual.fin %}<h3>desde {{recorrido_actual.inicio}} hasta {{recorrido_actual.fin}}</h3>{% endif %}
 
     {% if recorrido_actual.img_panorama %}
     <div class="thumbnail">
@@ -37,19 +40,9 @@
     </div>
     <br />
     {% endif %}
-    
-    {% if horarios %}
-        <h3>Paradas:</h3>
-        <ul>
-        {% for h in horarios %}
-            <li>{% if h.parada.codigo %}{{ h.parada.codigo }} -{% endif %}{{ h.parada.nombre }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
-
 
     {% if calles %}
-        <h3>Calles que componen este recorrido</h3>
+        <h2>Calles que componen este recorrido</h2>
         <ol>
             {% for c in calles %}
             <li style="color:gray">
@@ -57,37 +50,63 @@
             </li>
             {% endfor %}
         </ol>
-        <br />
     {% else %}
         {% if recorrido_actual.descripcion %}
-            <h3>Calles que componen este recorrido</h3>
+            <h2>Calles que componen este recorrido</h2>
             <div>{{ recorrido_actual.descripcion }}</div>
-            <br />
         {% endif %}
     {% endif %}
 
     {% if pois %}
-        <h3>Puntos de interés por donde pasa</h3>
-        <ul>
-            {% for p in pois %}
-            <li><a href="{{p.get_absolute_url}}">{{ p.nom }}</a></li>
+        <div class="row-fluid">
+            <h2>Puntos de interés por donde pasa</h2>
+            {% for columna in pois|dividir_columnas:3 %}
+            <div class="span4">
+                <ul class="nav nav-pills nav-stacked">
+                {% for p in columna %}
+                    <li><a href="{{p.get_absolute_url}}">{{ p.nom }}</a></li>
+                {% endfor %}
+                </ul>
+            </div>
             {% endfor %}
-        </ul>
-        <br />
+        </div>
     {% endif %}
 
     {% if zonas %}
-        <h3>Barrios que transita</h3>
+        <h2>Barrios que transita</h2>
         <ul>
             {% for z in zonas %}
             <li>{{ z.name }}</li>
             {% endfor %}
         </ul>
-        <br />
+    {% endif %}
+
+    {% if horarios %}
+        <h2>Paradas:</h2>
+        <ul>
+        {% for h in horarios %}
+            <li>{% if h.parada.codigo %}{{ h.parada.codigo }} -{% endif %}{{ h.parada.nombre }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if recorridos_similares %}
+        <div class="row-fluid">
+            <h2>Recorridos similares</h2>
+            {% for columna in recorridos_similares|dividir_columnas:3 %}
+            <div class="span4">
+                <ul class="nav nav-pills nav-stacked">
+                {% for rs in columna %}
+                    <li><a href="{{rs.get_absolute_url}}">{{rs.linea_nombre}} - {{rs.nombre}}{% if rs.inicio and rs.fin %} <span class="light">de {{rs.inicio}} a {{rs.fin}}</span>{% endif %}</a></li>
+                {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
     {% endif %}
 
     <!--[if (!IE)|(gt IE 7)]-->
-        <h3>Dejanos un comentario sobre el recorrido "{{linea_actual.nombre}} {{recorrido_actual.nombre}}"</h3>
+    <h2>Dejanos un comentario sobre el recorrido "{{linea_actual.nombre}} {{recorrido_actual.nombre}}"</h2>
 	<p>Si el recorrido esta mal, podés ayudar haciendo <a href="/editor/{{ recorrido_actual.id }}/">click acá</a></p>
         <div id="disqus_thread"></div>
         <script type="text/javascript">
