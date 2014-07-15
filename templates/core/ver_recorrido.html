@@ -104,7 +104,7 @@
         <h2>Paradas:</h2>
         <ul>
         {% for h in horarios %}
-            <li>{% if h.parada.codigo %}{{ h.parada.codigo }} -{% endif %}{{ h.parada.nombre }}</li>
+            <li>{% if h.parada.codigo %}{{ h.parada.codigo }} -{% endif %}{% if h.parada.nombre %} {{ h.parada.nombre }}{% endif %}</li>
         {% endfor %}
         </ul>
     {% endif %}
