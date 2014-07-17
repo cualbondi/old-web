@@ -41,14 +41,6 @@
         <div style="vertical-align: super;margin-left: 10px;" class="fb-like" data-layout="button" data-action="like" data-show-faces="false" data-share="false"></div>
     </div>
 
-    {% if linea_actual.img_panorama %}
-    <div class="thumbnail">
-        <div id="map" style="background:lightblue;">
-            <img src="/{{ linea_actual.img_panorama.url }}" alt="Cobertura de transporte público de la línea {{ linea_actual.nombre }} en la ciudad de {{ ciudad_actual.nombre }}." />
-        </div>
-    </div>
-    {% endif %}
-
     {% if linea_actual.info_empresa and linea_actual.info_terminal %}
         <h2>Información de la empresa</h2>
         <div>{{linea_actual.info_empresa}}</div>
@@ -67,6 +59,14 @@
         </div>
         {% endfor %}
     </div>
+
+    {% if linea_actual.img_panorama %}
+    <div class="thumbnail">
+        <div id="map" style="background:lightblue;">
+            <img src="/{{ linea_actual.img_panorama.url }}" alt="Cobertura de transporte público de la línea {{ linea_actual.nombre }} en la ciudad de {{ ciudad_actual.nombre }}." />
+        </div>
+    </div>
+    {% endif %}
 
     <!--[if (!IE)|(gt IE 7)]-->
         <h2>Dejanos un comentario sobre la linea {{linea_actual.nombre}}</h2>

@@ -60,22 +60,6 @@
     <br />
     {% endif %}
 
-    {% if calles %}
-        <h2>Calles que componen este recorrido</h2>
-        <ol>
-            {% for c in calles %}
-            <li style="color:gray">
-                <span style="color:black">{{ c }}</span>
-            </li>
-            {% endfor %}
-        </ol>
-    {% else %}
-        {% if recorrido_actual.descripcion %}
-            <h2>Calles que componen este recorrido</h2>
-            <div>{{ recorrido_actual.descripcion }}</div>
-        {% endif %}
-    {% endif %}
-
     {% if pois %}
         <div class="row-fluid">
             <h2>Puntos de interés por donde pasa</h2>
@@ -98,6 +82,22 @@
             <li>{{ z.name }}</li>
             {% endfor %}
         </ul>
+    {% endif %}
+
+    {% if calles %}
+        <h2>Calles que componen este recorrido</h2>
+        <ol>
+            {% for c in calles %}
+            <li style="color:gray">
+                <span style="color:black">{{ c }}</span>
+            </li>
+            {% endfor %}
+        </ol>
+    {% else %}
+        {% if recorrido_actual.descripcion %}
+            <h2>Calles que componen este recorrido</h2>
+            <div>{{ recorrido_actual.descripcion }}</div>
+        {% endif %}
     {% endif %}
 
     {% if horarios %}
