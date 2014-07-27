@@ -2,10 +2,21 @@ import json
 import time
 
 import pymongo
+from elasticsearch import Elasticsearch
 from django.db import connection
 from django.utils.encoding import smart_str
 
 from settings import REQUEST_LOGGING_BACKEND
+
+ES_CONNECTION = Elasticsearch(REQUEST_LOGGING_BACKEND['host'])
+
+class ElasticsearchLogger(object):
+
+    @classmethod
+    def save_document(cls, info):
+        ES_CONNECTION.index(index=REQUEST_LOGGING_BACKEND['index'],
+                            doc_type=REQUEST_LOGGING_BACKEND['type'],
+                            body=info, timeout=1)
 
 
 class MongoDBLogger(object):
@@ -103,8 +114,8 @@ class APIRequestLoggingMiddleware(object):
                 json_content = self.get_json_content(request, response)
                 info.update(getattr(self, function_name)(json_content))
 
-            MongoDBLogger.save_document(REQUEST_LOGGING_BACKEND['collection'], info)
-        except Exception as e:
+            ElasticsearchLogger.save_document(info)
+        except Exception:
             # TODO: Add log here.
             pass
 
