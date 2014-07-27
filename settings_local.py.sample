@@ -32,9 +32,8 @@ PYMONGOLOG_URI = "mongodb://stats.cualbondi.com.ar/cualbondi?w=0"
 PISTON_DISPLAY_ERRORS = False
 
 REQUEST_LOGGING_BACKEND = {
-    'name': 'MongoDB',
     'host': 'localhost',
-    'port': 27017,
-    'db': 'cualbondi',
-    'collection': 'requests'
+    'port': 9200,
+    'index': 'cualbondi',
+    'type': 'requests'
 }
