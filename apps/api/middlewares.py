@@ -1,5 +1,6 @@
 import json
 import time
+from datetime import datetime
 
 import pymongo
 from elasticsearch import Elasticsearch
@@ -74,7 +75,7 @@ class APIRequestLoggingMiddleware(object):
 
     def get_generic_info(self, request, response):
         return {
-            'timestamp': request._start,
+            'timestamp': datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
             'method': request.method,
             'duration_in_seconds': time.time() - request._start,
             'code': response.status_code,
