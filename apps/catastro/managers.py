@@ -239,7 +239,7 @@ class PuntoBusquedaManager:
             FROM
                 catastro_poi as p
             WHERE
-                nom_normal = %(nombre)s
+                nom_normal ilike %(nombre)s
             LIMIT 5
         ;"""
         cursor = connection.cursor()

@@ -1,0 +1,182 @@
+[
+  {
+    "pk": 5954,
+    "model": "catastro.poicb",
+    "fields": {
+      "nom": "Casco de Estancia San Juan",
+      "latlng": "POINT (-58.1239562833355023 -34.8349023384111760)",
+      "nom_normal": "CASCO DE ESTANCIA SAN JUAN"
+    }
+  },
+  {
+    "pk": 9303,
+    "model": "catastro.poicb",
+    "fields": {
+      "nom": "Colegio, Casco Urbano",
+      "latlng": "POINT (-57.9785412657705734 -34.9313743459638602)",
+      "nom_normal": "COLEGIO, CASCO URBANO"
+    }
+  },
+  {
+    "pk": 9309,
+    "model": "catastro.poicb",
+    "fields": {
+      "nom": "Club Estudiantes de la Plata, Casco Urbano",
+      "latlng": "POINT (-57.9479461634209585 -34.9168667496900795)",
+      "nom_normal": "CLUB ESTUDIANTES DE LA PLATA, CASCO URBANO"
+    }
+  },
+  {
+    "pk": 9339,
+    "model": "catastro.poicb",
+    "fields": {
+      "nom": "Escuela, Casco Urbano",
+      "latlng": "POINT (-57.9500295136951991 -34.9105147990957292)",
+      "nom_normal": "ESCUELA, CASCO URBANO"
+    }
+  },
+  {
+    "pk": 9346,
+    "model": "catastro.poicb",
+    "fields": {
+      "nom": "COTO, Casco Urbano",
+      "latlng": "POINT (-57.9496203479676808 -34.9071539834681204)",
+      "nom_normal": "COTO, CASCO URBANO"
+    }
+  },
+  {
+    "pk": 9348,
+    "model": "catastro.poicb",
+    "fields": {
+      "nom": "EDELP, Casco Urbano",
+      "latlng": "POINT (-57.9510978597720054 -34.9078716416071515)",
+      "nom_normal": "EDELP, CASCO URBANO"
+    }
+  },
+  {
+    "pk": 9350,
+    "model": "catastro.poicb",
+    "fields": {
+      "nom": "Galería, Casco Urbano",
+      "latlng": "POINT (-57.9530647340110292 -34.9143874178133586)",
+      "nom_normal": "GALERIA, CASCO URBANO"
+    }
+  },
+  {
+    "pk": 9367,
+    "model": "catastro.poicb",
+    "fields": {
+      "nom": "Plazoleta, Casco Urbano",
+      "latlng": "POINT (-57.9488691999999972 -34.9118379666666669)",
+      "nom_normal": "PLAZOLETA, CASCO URBANO"
+    }
+  },
+  {
+    "pk": 9370,
+    "model": "catastro.poicb",
+    "fields": {
+      "nom": "Colegio Cristo Rey, Casco Urbano",
+      "latlng": "POINT (-57.9782384432833524 -34.9197138518023138)",
+      "nom_normal": "COLEGIO CRISTO REY, CASCO URBANO"
+    }
+  },
+  {
+    "pk": 9425,
+    "model": "catastro.poicb",
+    "fields": {
+      "nom": "Lago del Parque Saavedra, Casco Urbano",
+      "latlng": "POINT (-57.9417292190224913 -34.9308446419059919)",
+      "nom_normal": "LAGO DEL PARQUE SAAVEDRA, CASCO URBANO"
+    }
+  },
+  {
+    "pk": 9438,
+    "model": "catastro.poicb",
+    "fields": {
+      "nom": "Plaza Brown, Casco Urbano",
+      "latlng": "POINT (-57.9427782129301221 -34.9106903990136530)",
+      "nom_normal": "PLAZA BROWN, CASCO URBANO"
+    }
+  },
+  {
+    "pk": 16093,
+    "model": "catastro.poicb",
+    "fields": {
+      "nom": "ABSA, Casco Urbano",
+      "latlng": "POINT (-57.9397484269590066 -34.9334235521152934)",
+      "nom_normal": "ABSA, CASCO URBANO"
+    }
+  },
+  {
+    "pk": 28263,
+    "model": "catastro.poicb",
+    "fields": {
+      "nom": "Pami, Casco Urbano",
+      "latlng": "POINT (-57.9649710469326962 -34.9038149660924901)",
+      "nom_normal": "PAMI, CASCO URBANO"
+    }
+  },
+  {
+    "pk": 28269,
+    "model": "catastro.poicb",
+    "fields": {
+      "nom": "Galeno, Casco Urbano",
+      "latlng": "POINT (-57.9596938336546756 -34.9173669016547379)",
+      "nom_normal": "GALENO, CASCO URBANO"
+    }
+  },
+  {
+    "pk": 28270,
+    "model": "catastro.poicb",
+    "fields": {
+      "nom": "Tribunales, Casco Urbano",
+      "latlng": "POINT (-57.9583863314160226 -34.9194777460392416)",
+      "nom_normal": "TRIBUNALES, CASCO URBANO"
+    }
+  },
+  {
+    "pk": 28284,
+    "model": "catastro.poicb",
+    "fields": {
+      "nom": "OSDE, Casco Urbano",
+      "latlng": "POINT (-57.9567172466932021 -34.9209336663445740)",
+      "nom_normal": "OSDE, CASCO URBANO"
+    }
+  },
+  {
+    "pk": 28308,
+    "model": "catastro.poicb",
+    "fields": {
+      "nom": "CNRT, Casco Urbano",
+      "latlng": "POINT (-57.9552495999999948 -34.9052944499999924)",
+      "nom_normal": "CNRT, CASCO URBANO"
+    }
+  },
+  {
+    "pk": 29340,
+    "model": "catastro.poicb",
+    "fields": {
+      "nom": "Terminal, Casco Urbano, La Plata",
+      "latlng": "POINT (-57.9544901767141738 -34.9055257409750155)",
+      "nom_normal": "TERMINAL"
+    }
+  },
+  {
+    "pk": 29341,
+    "model": "catastro.poicb",
+    "fields": {
+      "nom": "Plaza Paso, Casco Urbano",
+      "latlng": "POINT (-57.9614210048108802 -34.9163078189610374)",
+      "nom_normal": "PLAZA PASO"
+    }
+  },
+  {
+    "pk": 29342,
+    "model": "catastro.poicb",
+    "fields": {
+      "nom": "1 y 66, Casco Urbano",
+      "latlng": "POINT (-57.9286497750711078 -34.9203523825741868)",
+      "nom_normal": "1 y 66"
+    }
+  }
+]
