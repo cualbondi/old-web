@@ -68,7 +68,7 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
-        inputfile = "/tmp/argentina.cache.osm" + datetime.now().strftime("%Y%m%d%H%M%S") + ".pbf"
+        inputfile = "/tmp/argentina.cache.osm-{}.pbf".format(datetime.now().strftime("%Y%m%d%H%M%S"))
         if options['no-tmp']:
             inputfile = os.path.join(os.path.abspath(os.path.dirname(__file__)), "argentina.cache.osm.pbf")
         if options['inputFile'] or options['use_cache']:
@@ -93,19 +93,19 @@ class Command(BaseCommand):
 
         primera = True
         for c in cu.fetchall():
-            print " => ACTUALIZANDO " + c[0]
-            print "st_box: " + c[1]
+            print " => ACTUALIZANDO {}".format(c[0])
+            print "    - st_box: {}".format(c[1])
             l = c[1][1:-1].replace(")", "").replace("(", "").split(",")
             box = ",".join([l[2], l[3], l[0], l[1]])
-            print "box: " + box
+            print "    - box: {}".format(box)
 
             prog = [
                 "osm2pgsql",
                 "-l",
-                "-S"+os.path.join(os.path.abspath(os.path.dirname(__file__)),"update-osm.style"),
-                "-d"+dbname,
-                "-U"+dbuser,
-                "-b"+box,
+                "-S{}".format(os.path.join(os.path.abspath(os.path.dirname(__file__)),"update-osm.style")),
+                "-d{}".format(dbname),
+                "-U{}".format(dbuser),
+                "-b{}".format(box),
                 inputfile
             ]
             if primera:
@@ -114,7 +114,7 @@ class Command(BaseCommand):
                 prog.append("-a")
             if options['slim']:
                 prog.append("-s")
-            print "ejecutando:",
+            print "    - ejecutando:",
             print " ".join(prog)
             if not options['no-o2p']:
                 p = subprocess.Popen(prog, env={"PGPASSWORD": dbpass} )
@@ -152,7 +152,7 @@ class Command(BaseCommand):
             i = i + 1
             Poi.objects.create(nom_normal = poly[1], nom = poly[2], latlng = poly[0])
             if i * 100.0 / total % 1 == 0:
-                print "    -", i * 100.0 / total, "%"
+                print "    - {:2.0f}%".format(i * 100.0 / total)
 
         # unir catastro_poicb (13 y 60, 13 y 66, 13 y 44) con catastro_poi (osm_pois)
         print "    - Mergeando POIs propios de cualbondi"
