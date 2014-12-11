@@ -8,7 +8,7 @@ import os
 from stat import *
 import sys
 from optparse import make_option
-from apps.catastro.models import Ciudad
+from apps.catastro.models import Ciudad, Poi
 from django.conf import settings
 from django.db import connection, transaction
 from psycopg2 import connect
@@ -49,6 +49,13 @@ class Command(BaseCommand):
             dest    = 'slim',
             default = False,
             help    = 'Set osm2pgsql slim mode (create raw tables: nodes, rels, ways)'
+        ),
+        make_option(
+            '--no-o2p',
+            action  = 'store_true',
+            dest    = 'no-o2p',
+            default = False,
+            help    = 'Ignore osm2pgsql execution (debug purposes only)'
         )
     )
 
@@ -72,7 +79,7 @@ class Command(BaseCommand):
         dbhost = "localhost"#connection.settings_dict['HOST']
 
         cu = connection.cursor()
-        cu.execute("SELECT slug, st_box(poligono::geometry) as box FROM catastro_ciudad;")
+        cu.execute("SELECT slug, box(poligono::geometry) as box FROM catastro_ciudad;")
 
         primera = True
         for c in cu.fetchall():
@@ -99,8 +106,9 @@ class Command(BaseCommand):
                 prog.append("-s")
             print "ejecutando:",
             print " ".join(prog)
-            p = subprocess.Popen(prog, env={"PGPASSWORD": dbpass} )
-            p.wait()
+            if not options['no-o2p']:
+                p = subprocess.Popen(prog, env={"PGPASSWORD": dbpass} )
+                p.wait()
 
 
         #POST PROCESAMIENTO
@@ -114,13 +122,22 @@ class Command(BaseCommand):
         superCu.execute("update planet_osm_roads   set name=ref where name is null;")
         superCu.close()
         print " => Juntando tablas de caminos, normalizando nombres"
-        cu.execute("delete from catastro_calle")
-        cu.execute("insert into catastro_calle(way, nom_normal, nom) select way, upper(translate(name, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), name from planet_osm_line where name is not null;")
-        cu.execute("insert into catastro_calle(way, nom_normal, nom) select way, upper(translate(name, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), name from planet_osm_roads where name is not null;")
-        print " => Generando POIs a partir de poligonos y lugares, normalizando nombres"
-        #cu.execute("delete from catastro_poi")
-        cu.execute("insert into catastro_poi(latlng, nom_normal, nom) select ST_Centroid(way), upper(translate(name, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), name||coalesce(', '||(select name from catastro_zona zo where ST_Intersects(ST_Centroid(way), zo.geo)), '') from planet_osm_polygon as pop where name is not null;")
-        cu.execute("insert into catastro_poi(latlng, nom_normal, nom) select latlng, upper(translate(nom, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), nom||coalesce(', '||(select nom from catastro_zona zo where ST_Intersects(latlng, zo.geo)), '') from catastro_poi where nom is not null;")
+        #cu.execute("delete from catastro_calle")
+        #cu.execute("insert into catastro_calle(way, nom_normal, nom) select way, upper(translate(name, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), name from planet_osm_line where name is not null;")
+        #cu.execute("insert into catastro_calle(way, nom_normal, nom) select way, upper(translate(name, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), name from planet_osm_roads where name is not null;")
+        print " => Generando POIs a partir de poligonos normalizando nombres, agregando slugs (puede tardar bastante)"
+        cu.execute("delete from catastro_poi")
+        cu.execute("select ST_Centroid(way), upper(translate(name, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), name||coalesce(', '||(select name from catastro_zona zo where ST_Intersects(ST_Centroid(way), zo.geo)), '') from planet_osm_polygon as pop where name is not null;")
+        polygons = cu.fetchall()
+        total = len(polygons)
+        i = 0
+        for poly in polygons:
+            i = i + 1
+            Poi.objects.create(nom_normal = poly[1], nom = poly[2], latlng = poly[0])
+            if i * 100.0 / total % 1 == 0:
+                print i * 100.0 / total, "%"
+
+        # TODO: unir catastro_poi_cb (13 y 60, 13 y 66, 13 y 44) con catastro_poi (osm_pois)
         print " => Purgando nombres repetidos"
         cu.execute("delete from catastro_poi where id not in (select min(id) from catastro_poi group by nom_normal having count(*) > 1)")
         transaction.commit_unless_managed()
