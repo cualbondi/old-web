@@ -8,10 +8,11 @@ import os
 from stat import *
 import sys
 from optparse import make_option
-from apps.catastro.models import Ciudad, Poi
+from apps.catastro.models import Ciudad, Poi, Poicb
 from django.conf import settings
 from django.db import connection, transaction
 from psycopg2 import connect
+from datetime import datetime
 
 
 
@@ -56,11 +57,20 @@ class Command(BaseCommand):
             dest    = 'no-o2p',
             default = False,
             help    = 'Ignore osm2pgsql execution (debug purposes only)'
+        ),
+        make_option(
+            '--no-tmp',
+            action  = 'store_true',
+            dest    = 'no-tmp',
+            default = False,
+            help    = 'Don\'t use /tmp folder, instead use apps/catastro/management/commands folder to save the downloaded argentina.osm.pbf file'
         )
     )
 
     def handle(self, *args, **options):
-        inputfile = os.path.join(os.path.abspath(os.path.dirname(__file__)), "argentina.cache.osm.pbf")
+        inputfile = "/tmp/argentina.cache.osm" + datetime.now().strftime("%Y%m%d%H%M%S") + ".pbf"
+        if options['no-tmp']:
+            inputfile = os.path.join(os.path.abspath(os.path.dirname(__file__)), "argentina.cache.osm.pbf")
         if options['inputFile'] or options['use_cache']:
             if options['inputFile']:
                 inputfile = options['inputFile']
@@ -83,7 +93,7 @@ class Command(BaseCommand):
 
         primera = True
         for c in cu.fetchall():
-            print ">>- ACTUALIZANDO " + c[0]
+            print " => ACTUALIZANDO " + c[0]
             print "st_box: " + c[1]
             l = c[1][1:-1].replace(")", "").replace("(", "").split(",")
             box = ",".join([l[2], l[3], l[0], l[1]])
@@ -114,17 +124,24 @@ class Command(BaseCommand):
         #POST PROCESAMIENTO
         print "POSTPROCESO"
         print " => Dando nombres alternativos a los objetos sin nombre"
-        print " => NOTA: si esto no se puede completar es porque el usuario 'postgres' debe tener 'trust' en el archivo 'pg_hba.conf' para 'local'"
+        print "    - NOTA: si esto no se puede completar es porque el usuario 'postgres' debe tener 'trust' en el archivo 'pg_hba.conf' para 'local'"
         superCu = connect(user="postgres", database=dbname).cursor()
+        print "    - planet_osm_line"
         superCu.execute("update planet_osm_line    set name=ref where name is null;")
+        print "    - planet_osm_point"
         superCu.execute("update planet_osm_point   set name=ref where name is null;")
+        print "    - planet_osm_polygon"
         superCu.execute("update planet_osm_polygon set name=ref where name is null;")
+        print "    - planet_osm_roads"
         superCu.execute("update planet_osm_roads   set name=ref where name is null;")
         superCu.close()
         print " => Juntando tablas de caminos, normalizando nombres"
-        #cu.execute("delete from catastro_calle")
-        #cu.execute("insert into catastro_calle(way, nom_normal, nom) select way, upper(translate(name, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), name from planet_osm_line where name is not null;")
-        #cu.execute("insert into catastro_calle(way, nom_normal, nom) select way, upper(translate(name, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), name from planet_osm_roads where name is not null;")
+        print "    - Eliminando viejos"
+        cu.execute("delete from catastro_calle")
+        print "    - planet_osm_line"
+        cu.execute("insert into catastro_calle(way, nom_normal, nom) select way, upper(translate(name, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), name from planet_osm_line where name is not null;")
+        print "    - planet_osm_roads"
+        cu.execute("insert into catastro_calle(way, nom_normal, nom) select way, upper(translate(name, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), name from planet_osm_roads where name is not null;")
         print " => Generando POIs a partir de poligonos normalizando nombres, agregando slugs (puede tardar bastante)"
         cu.execute("delete from catastro_poi")
         cu.execute("select ST_Centroid(way), upper(translate(name, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), name||coalesce(', '||(select name from catastro_zona zo where ST_Intersects(ST_Centroid(way), zo.geo)), '') from planet_osm_polygon as pop where name is not null;")
@@ -135,11 +152,15 @@ class Command(BaseCommand):
             i = i + 1
             Poi.objects.create(nom_normal = poly[1], nom = poly[2], latlng = poly[0])
             if i * 100.0 / total % 1 == 0:
-                print i * 100.0 / total, "%"
+                print "    -", i * 100.0 / total, "%"
 
-        # TODO: unir catastro_poi_cb (13 y 60, 13 y 66, 13 y 44) con catastro_poi (osm_pois)
-        print " => Purgando nombres repetidos"
-        cu.execute("delete from catastro_poi where id not in (select min(id) from catastro_poi group by nom_normal having count(*) > 1)")
+        # unir catastro_poicb (13 y 60, 13 y 66, 13 y 44) con catastro_poi (osm_pois)
+        print "    - Mergeando POIs propios de cualbondi"
+        for poicb in Poicb.objects.all():
+            Poi.objects.create(nom_normal = poicb.nom_normal.upper(), nom = poicb.nom, latlng = poicb.latlng)
+        
+        print "    - Purgando nombres repetidos"
+        cu.execute("delete from catastro_poi where id not in (select min(id) from catastro_poi group by nom_normal)")
         transaction.commit_unless_managed()
 
         #print " => Eliminando tablas no usadas"
