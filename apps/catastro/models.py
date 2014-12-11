@@ -178,6 +178,18 @@ class Poi(models.Model):
         return reverse('poi', kwargs={'slug': self.slug})
 
 
+class Poicb(models.Model):
+    """ Un "Punto de interes" pero que pertenece a cualbondi.
+        Cualquier poi que agreguemos para nosotros, tiene
+        que estar aca. Esta tabla no se regenera al importar
+        pois desde osm.
+    """
+    nom_normal = models.TextField()
+    nom = models.TextField()
+    latlng = models.GeometryField(srid=4326, geography=True)
+    objects = models.GeoManager()
+
+
 class PuntoBusqueda(models.Model):
     nombre = models.TextField()
     precision = models.FloatField()
