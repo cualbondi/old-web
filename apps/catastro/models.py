@@ -178,16 +178,32 @@ class Poi(models.Model):
         return reverse('poi', kwargs={'slug': self.slug})
 
 
+# de http://stackoverflow.com/questions/517923/what-is-the-best-way-to-remove-accents-in-a-python-unicode-string/517974#517974
+import unicodedata
+def remove_accents(input_str):
+    nkfd_form = unicodedata.normalize('NFKD', input_str)
+    return u"".join([c for c in nkfd_form if not unicodedata.combining(c)])
+
+
 class Poicb(models.Model):
     """ Un "Punto de interes" pero que pertenece a cualbondi.
         Cualquier poi que agreguemos para nosotros, tiene
         que estar aca. Esta tabla no se regenera al importar
         pois desde osm.
     """
-    nom_normal = models.TextField()
+    nom_normal = models.TextField(blank=True)
     nom = models.TextField()
     latlng = models.GeometryField(srid=4326, geography=True)
     objects = models.GeoManager()
+
+    def __unicode__(self):
+        return self.nom
+
+    def save(self, *args, **kwargs):
+        self.nom_normal = remove_accents(self.nom).upper()
+        super(Poicb, self).save(*args, **kwargs)
+        p = Poi(nom_normal=self.nom_normal, nom=self.nom, latlng=self.latlng)
+        p.save()
 
 
 class PuntoBusqueda(models.Model):
