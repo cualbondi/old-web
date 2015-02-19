@@ -1,4 +1,5 @@
 from django.contrib.gis import admin
+from leaflet.admin import LeafletGeoAdmin
 
 from apps.core.models import (Linea, Recorrido, Tarifa, Parada,
                               Horario, Posicion, FacebookPage)
@@ -52,16 +53,14 @@ class CustomAdmin(admin.OSMGeoAdmin):
 class HorarioAdminInline(admin.TabularInline):
     model = Horario
 
-class RecorridoCustomAdmin(admin.OSMGeoAdmin):
-    default_lon = -6428013
-    default_lat = -4177742
+class RecorridoCustomAdmin(LeafletGeoAdmin):
+    display_raw = True
     search_fields = ['nombre', 'linea__nombre']
     inlines = (HorarioAdminInline,)
     exclude = ('horarios',)
 
-class ParadaCustomAdmin(admin.OSMGeoAdmin):
-    default_lon = -6428013
-    default_lat = -4177742
+class ParadaCustomAdmin(LeafletGeoAdmin):
+    display_raw = True
     search_fields = ['nombre', 'codigo']
     #inlines = (HorarioAdminInline,)
     readonly_fields = ('horarios',)
