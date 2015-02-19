@@ -178,6 +178,7 @@ INSTALLED_APPS = (
 #    'moderacion',
 #    'editor',
 #    'django_extensions',
+    'leaflet',
 
     # Propias
     'apps.api',
