@@ -1,0 +1,318 @@
+{% extends "leaflet/widget.html" %}
+{% load i18n %}
+{% load static from staticfiles %}
+
+
+{% block map_css %}
+    {{ block.super }}
+
+    /* Fixes for Django base.css */
+    .module .leaflet-draw ul {
+        margin-left: 0px;
+        padding-left: 0px;
+    }
+    .module .leaflet-draw ul li {
+        list-style-type: none;
+    }
+
+    .sortable { background:#999; list-style-type: none; margin: 0; padding: 0; width: 60%; }
+    .sortable li { margin: 0; padding: 0.4em; padding-left: 1.5em; font-size: 1.4em; height: 18px; cursor:pointer}
+    .sortable li span { position: absolute; margin-left: -1.3em; }
+    .sortable li:hover { background: #6F6; }
+{% endblock map_css %}
+
+
+{% block vars %}
+    {{ block.super }}
+
+    {% include "leaflet/_leaflet_draw_i18n.js" %}
+    L.Control.ResetView.TITLE = "{% trans "Reset view" %}";
+    L.Control.ResetView.ICON = "url({% static "leaflet/images/reset-view.png" %})";
+{% endblock vars %}
+
+{% block map %}
+<div style="clear:both;">
+<div id="{{ id }}_div_map" style="width:55%;display:inline-block;vertical-align: top;">
+    {{ block.super }}
+</div>
+<div style="width:40%;display:inline-block;">
+    <div>
+        <div>
+            <label for="{{ id }}_xml_parser" style="float: none;width: initial;">OpenStreetMap relation id:</label>
+        </div>
+        <div>
+            <input id="{{ id }}_xml_parser_input" class="vTextField" type="text"></input>
+            <button id="{{ id }}_xml_parser_button" style="height: 19px;vertical-align: middle;padding: 0 5px;">Parse!</button>
+        </div>
+    </div>
+    <div id="{{ id }}_xml_parser_partes" class="sortable"></div>
+    <script>var jQuery=django.jQuery;var $=django.jQuery</script>
+    <script src="//code.jquery.com/ui/1.11.3/jquery-ui.min.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
+    <script>
+
+    // https://raw.githubusercontent.com/bbecquet/Leaflet.PolylineDecorator/master/leaflet.polylineDecorator.min.js
+    L.LineUtil.PolylineDecorator={computeAngle:function(a,b){return 180*Math.atan2(b.y-a.y,b.x-a.x)/Math.PI+90},getPointPathPixelLength:function(a){var b=a.length;if(2>b)return 0;for(var c=0,d=a[0],e=1;e<b;e++)c+=d.distanceTo(d=a[e]);return c},getPixelLength:function(a,b){var c=a instanceof L.Polyline?a.getLatLngs():a,d=c.length;if(2>d)return 0;for(var e=0,f=b.project(c[0]),g=1;g<d;g++)e+=f.distanceTo(f=b.project(c[g]));return e},projectPatternOnPath:function(a,b,c,d){var e=[],f;f=0;for(l=a.length;f<l;f++)e[f]=d.project(a[f]);a=this.projectPatternOnPointPath(e,b,c);f=0;for(l=a.length;f<l;f++)a[f].latLng=d.unproject(a[f].pt);return a},projectPatternOnPointPath:function(a,b,c){var d=[],e=this.getPointPathPixelLength(a)*c;b=this.interpolateOnPointPath(a,b);d.push(b);if(0<c){a=a.slice(b.predecessor);a[0]=b.pt;for(c=this.getPointPathPixelLength(a);e<=c;)b=this.interpolateOnPointPath(a,e/c),d.push(b),a=a.slice(b.predecessor),a[0]=b.pt,c=this.getPointPathPixelLength(a)}return d},interpolateOnPointPath:function(a,b){var c=a.length;if(2>c)return null;if(0>=b)return{pt:a[0],predecessor:0,heading:this.computeAngle(a[0],a[1])};if(1<=b)return{pt:a[c-1],predecessor:c-1,heading:this.computeAngle(a[c-2],a[c-1])};if(2==c)return{pt:this.interpolateBetweenPoints(a[0],a[1],b),predecessor:0,heading:this.computeAngle(a[0],a[1])};for(var d=this.getPointPathPixelLength(a),e=a[0],f=e,g=0,h=0,k=0,j=1;j<c&&h<b;j++)e=f,g=h,f=a[j],k+=e.distanceTo(f),h=k/d;return{pt:this.interpolateBetweenPoints(e,f,(b-g)/(h-g)),predecessor:j-2,heading:this.computeAngle(e,f)}},interpolateBetweenPoints:function(a,b,c){return b.x!=a.x?new L.Point(a.x*(1-c)+c*b.x,a.y*(1-c)+c*b.y):new L.Point(a.x,a.y+(b.y-a.y)*c)}};L.RotatedMarker=L.Marker.extend({options:{angle:0},_setPos:function(a){L.Marker.prototype._setPos.call(this,a);if(L.DomUtil.TRANSFORM)this._icon.style[L.DomUtil.TRANSFORM]+=" rotate("+this.options.angle+"deg)";else if(L.Browser.ie){var b=this.options.angle*L.LatLng.DEG_TO_RAD;a=Math.cos(b);b=Math.sin(b);this._icon.style.filter+=" progid:DXImageTransform.Microsoft.Matrix(sizingMethod='auto expand', M11="+a+", M12="+-b+", M21="+b+", M22="+a+")"}}});L.rotatedMarker=function(a,b){return new L.RotatedMarker(a,b)};L.Symbol=L.Symbol||{};L.Symbol.Dash=L.Class.extend({isZoomDependant:!0,options:{pixelSize:10,pathOptions:{}},initialize:function(a){L.Util.setOptions(this,a);this.options.pathOptions.clickable=!1},buildSymbol:function(a,b,c){b=this.options;if(1>=b.pixelSize)return new L.Polyline([a.latLng,a.latLng],b.pathOptions);var d=c.project(a.latLng);a=-(a.heading-90)*L.LatLng.DEG_TO_RAD;a=new L.Point(d.x+b.pixelSize*Math.cos(a+Math.PI)/2,d.y+b.pixelSize*Math.sin(a)/2);d=d.add(d.subtract(a));return new L.Polyline([c.unproject(a),c.unproject(d)],b.pathOptions)}});L.Symbol.dash=function(a){return new L.Symbol.Dash(a)};L.Symbol.ArrowHead=L.Class.extend({isZoomDependant:!0,options:{polygon:!0,pixelSize:10,headAngle:60,pathOptions:{stroke:!1,weight:2}},initialize:function(a){L.Util.setOptions(this,a);this.options.pathOptions.clickable=!1},buildSymbol:function(a,b,c){b=this.options;return b.polygon?new L.Polygon(this._buildArrowPath(a,c),b.pathOptions):new L.Polyline(this._buildArrowPath(a,c),b.pathOptions)},_buildArrowPath:function(a,b){var c=b.project(a.latLng),d=-(a.heading-90)*L.LatLng.DEG_TO_RAD,e=this.options.headAngle/2*L.LatLng.DEG_TO_RAD,f=d+e,d=d-e,f=new L.Point(c.x-this.options.pixelSize*Math.cos(f),c.y+this.options.pixelSize*Math.sin(f)),c=new L.Point(c.x-this.options.pixelSize*Math.cos(d),c.y+this.options.pixelSize*Math.sin(d));return[b.unproject(f),a.latLng,b.unproject(c)]}});L.Symbol.arrowHead=function(a){return new L.Symbol.ArrowHead(a)};L.Symbol.Marker=L.Class.extend({isZoomDependant:!1,options:{markerOptions:{},rotate:!1},initialize:function(a){L.Util.setOptions(this,a);this.options.markerOptions.clickable=!1;this.options.markerOptions.draggable=!1;this.isZoomDependant=L.Browser.ie&&this.options.rotate},buildSymbol:function(a){return this.options.rotate?(this.options.markerOptions.angle=a.heading,new L.RotatedMarker(a.latLng,this.options.markerOptions)):new L.Marker(a.latLng,this.options.markerOptions)}});L.Symbol.marker=function(a){return new L.Symbol.Marker(a)};L.PolylineDecorator=L.LayerGroup.extend({options:{patterns:[]},initialize:function(a,b){L.LayerGroup.prototype.initialize.call(this);L.Util.setOptions(this,b);this._map=null;this._initPaths(a);this._initPatterns()},_initPaths:function(a){this._paths=[];var b=!1;if(a instanceof L.MultiPolyline||(b=a instanceof L.MultiPolygon)){a=a.getLatLngs();for(var c=0;c<a.length;c++)this._initPath(a[c],b)}else if(a instanceof L.Polyline)this._initPath(a.getLatLngs(),a instanceof L.Polygon);else if(L.Util.isArray(a)&&0<a.length)if(a[0]instanceof L.Polyline)for(c=0;c<a.length;c++)this._initPath(a[c].getLatLngs(),a[c]instanceof L.Polygon);else this._initPath(a)},_isCoordArray:function(a){return L.Util.isArray(a)&&0<a.length&&(a[0]instanceof L.LatLng||L.Util.isArray(a[0])&&2==a[0].length&&"number"===typeof a[0][0])},_initPath:function(a,b){var c;c=this._isCoordArray(a)?[a]:a;for(var d=0;d<c.length;d++)b&&c[d].push(c[d][0]),this._paths.push(c[d])},_initPatterns:function(){this._isZoomDependant=!1;this._patterns=[];for(var a,b=0;b<this.options.patterns.length;b++)a=this._parsePatternDef(this.options.patterns[b]),this._patterns.push(a),this._isZoomDependant=this._isZoomDependant||a.isOffsetInPixels||a.isRepeatInPixels||a.symbolFactory.isZoomDependant},setPatterns:function(a){this.options.patterns=a;this._initPatterns();this._softRedraw()},setPaths:function(a){this._initPaths(a);this.redraw()},_parsePatternDef:function(a){var b={cache:[],symbolFactory:a.symbol,isOffsetInPixels:!1,isRepeatInPixels:!1};"string"===typeof a.offset&&-1!=a.offset.indexOf("%")?b.offset=parseFloat(a.offset)/100:(b.offset=parseFloat(a.offset),b.isOffsetInPixels=0<b.offset);"string"===typeof a.repeat&&-1!=a.repeat.indexOf("%")?b.repeat=parseFloat(a.repeat)/100:(b.repeat=parseFloat(a.repeat),b.isRepeatInPixels=0<b.repeat);return b},onAdd:function(a){this._map=a;this._draw();if(this._isZoomDependant)this._map.on("zoomend",this._softRedraw,this)},onRemove:function(a){this._map.off("zoomend",this._softRedraw,this);this._map=null;L.LayerGroup.prototype.onRemove.call(this,a)},_buildSymbols:function(a,b,c){for(var d=[],e=0,f=c.length;e<f;e++)d.push(b.buildSymbol(c[e],a,this._map,e,f));return d},_getCache:function(a,b,c){var d=a.cache[b];return"undefined"===typeof d?(a.cache[b]=[],null):d[c]},_getDirectionPoints:function(a,b){var c=this._map.getZoom(),d=this._getCache(b,c,a);if(d)return d;var e;e=null;var f=this._paths[a];b.isOffsetInPixels?(e=L.LineUtil.PolylineDecorator.getPixelLength(f,this._map),d=b.offset/e):d=b.offset;b.isRepeatInPixels?(e=null!==e?e:L.LineUtil.PolylineDecorator.getPixelLength(f,this._map),e=b.repeat/e):e=b.repeat;d=L.LineUtil.PolylineDecorator.projectPatternOnPath(f,d,e,this._map);return b.cache[c][a]=d},redraw:function(){this._redraw(!0)},_softRedraw:function(){this._redraw(!1)},_redraw:function(a){if(null!==this._map){this.clearLayers();if(a)for(a=0;a<this._patterns.length;a++)this._patterns[a].cache=[];this._draw()}},_drawPattern:function(a){for(var b,c=0;c<this._paths.length;c++){b=this._getDirectionPoints(c,a);b=this._buildSymbols(this._paths[c],a.symbolFactory,b);for(var d=0;d<b.length;d++)this.addLayer(b[d])}},_draw:function(){for(var a=0;a<this._patterns.length;a++)this._drawPattern(this._patterns[a])}});L.polylineDecorator=function(a,b){return new L.PolylineDecorator(a,b)};
+
+
+        // override {{id}}_map_callback para obtener el map y poder hacer el reoladmapa
+        // override de http://stackoverflow.com/questions/296667/overriding-a-javascript-function-while-referencing-the-original/296713#296713
+        var {{id}}_reloadmapa = null;
+        var {{id}}_map = null;
+        var {{id}}_flechas = false;
+        (function() {
+            var proxied = {{id}}_map_callback;
+            {{id}}_map_callback = function() {
+                var map = arguments[0];
+                {{id}}_map = map;
+                map.on("map:loadfield", function(field, fieldid) {
+                    {{id}}_reloadmapa = function () {
+                        field.field.load();
+                        if ( {{id}}_flechas ) map.removeLayer({{id}}_flechas);
+                        {{id}}_flechas = L.polylineDecorator(
+                            L.GeoJSON.geometryToLayer(JSON.parse($("#{{ id }}").val())),
+                            {
+                                patterns: [
+                                    {
+                                        offset: '0%',
+                                        repeat: 150,
+                                        symbol: L.Symbol.arrowHead({
+                                            pixelSize: 15,
+                                            polygon: false,
+                                            pathOptions: {
+                                                color: '#00A',
+                                                opacity: 1,
+                                                stroke: true
+                                            }
+                                        })
+                                    }
+                                ]
+                            }
+                        )
+                        {{id}}_flechas.addTo(map);
+                    };
+                }); 
+                return proxied.apply( this, arguments );
+            };
+        })();
+
+
+
+
+        (function($) {
+
+            $("#{{ id }}_xml_parser_partes").sortable();
+
+            function getnode($data, id) {
+                $node = $data.find('#'+id);
+                return [ $node.attr("lon") , $node.attr("lat") ]
+                //return "[" + $node.attr("lon") + "," + $node.attr("lat") + "]";
+            }
+
+            function arraysEqual(a, b) {
+                if (a === b) return true;
+                if (a == null || b == null) return false;
+                if (a.length != b.length) return false;
+
+                // If you don't care about the order of the elements inside
+                // the array, you should sort both arrays here.
+
+                for (var i = 0; i < a.length; ++i) {
+                    if (a[i] !== b[i]) return false;
+                }
+                return true;
+            }
+
+            function repintar(a) {
+                var s = [];
+                var arr = $("#{{ id }}_xml_parser_partes").sortable('toArray');
+                for ( var ii = 0; ii < arr.length; ii++ ) {
+                    var i = arr[ii];
+                    for ( var j = 0; j < a[i].length; j++ )
+                        s.push("[" + a[i][j][0] + "," + a[i][j][1] + "]");
+                }
+
+                $("#{{id}}").val('{ "type": "LineString", "coordinates": ['+s.join(",")+']}');
+
+                {{id}}_map.eachLayer(function (layer) {
+                    if ( layer.hasOwnProperty("_latlngs") )
+                        {{id}}_map.removeLayer(layer);
+                });
+                {{id}}_reloadmapa();
+            }
+
+            $("#{{ id }}_xml_parser_button").on("click", function(e){
+                var $button = $(this);
+                $button.text("querying osm api...");
+                $button.attr('disabled','disabled');
+                $.ajax({
+                    url: "http://api.openstreetmap.org/api/0.6/relation/"+$("#{{ id }}_xml_parser_input").val()+"/full",
+                    success: function(data) {
+                        $button.text("osm api 200 ok, parsing...");
+                        setTimeout(function(){ // hack, pasar esto al fin del event loop, para que haya tiempo para actualizar el text del button
+
+                        var a = [];
+                        $data = $(data);
+                        // obtener los ways como arrays de latlng [[[lon,lat]]]
+                        $data.find("relation").first().find("member").each(function() {
+                            var $this = $(this);
+                            var w = [];
+                            //if ( $this.attr("type") == "node" )
+                            // ESTOS SON PARADAS: no me sirven por ahora
+                            //    w.push(getnode($data, $this.attr("ref")));
+                            //else 
+                            if ( $this.attr("type") == "way" ) 
+                                $data.find('#'+$this.attr("ref")).first().find("nd").each(function() {
+                                    w.push(getnode($data, $(this).attr("ref")));
+                                })
+                            if ( w.length > 1 ) a.push(w);
+                        })
+                        
+
+                        $button.text("parse ok, joining ways...");
+                        setTimeout(function(){ // hack, pasar esto al fin del event loop, para que haya tiempo para actualizar el text del button
+
+                        // unir los ways en varias pasadas
+                        var cambia = true
+                        while (cambia) {
+                            cambia = false;
+
+                            // fin1 == ini2
+                            var a2 = [];
+                            for ( var i = 0; i < a.length; i++ ) {
+                                var ini1 = a[i][0];
+                                var fin1 = a[i][a[i].length - 1];
+                                var found = false;
+                                for ( var j = 0; j < a2.length; j++ ) {
+                                    var ini2 = a2[j][0];
+                                    var fin2 = a2[j][a2[j].length - 1];
+                                    if ( arraysEqual(fin1, ini2) ) {
+                                        a2[j] = a[i].concat(a2[j].slice(1));
+                                        found = true;
+                                        cambia = true;
+                                    }
+                                }
+                                if ( ! found )
+                                    a2.push(a[i]);
+                            }
+                            a = a2
+
+                            // ini1 == fin2
+                            var a2 = [];
+                            for ( var i = 0; i < a.length; i++ ) {
+                                var ini1 = a[i][0];
+                                var fin1 = a[i][a[i].length - 1];
+                                var found = false;
+                                for ( var j = 0; j < a2.length; j++ ) {
+                                    var ini2 = a2[j][0];
+                                    var fin2 = a2[j][a2[j].length - 1];
+                                    if ( arraysEqual(ini1, fin2) ) {
+                                        a2[j] = a2[j].concat(a[i].slice(1));
+                                        found = true;
+                                        cambia = true;
+                                    }
+                                }
+                                if ( ! found )
+                                    a2.push(a[i]);
+                            }
+                            a = a2
+
+                            // ini1 == ini2 (hay que dar vuelta uno)
+                            var a2 = [];
+                            for ( var i = 0; i < a.length; i++ ) {
+                                var ini1 = a[i][0];
+                                var fin1 = a[i][a[i].length - 1];
+                                var found = false;
+                                for ( var j = 0; j < a2.length; j++ ) {
+                                    var ini2 = a2[j][0];
+                                    var fin2 = a2[j][a2[j].length - 1];
+                                    if ( arraysEqual(ini1, ini2) ) {
+                                        a2[j] = a[i].slice().reverse().concat(a2[j].slice(1));
+                                        found = true;
+                                        cambia = true;
+                                    }
+                                }
+                                if ( ! found )
+                                    a2.push(a[i]);
+                            }
+                            a = a2
+
+                            // fin1 == fin2 (hay que dar vuelta uno)
+                            var a2 = [];
+                            for ( var i = 0; i < a.length; i++ ) {
+                                var ini1 = a[i][0];
+                                var fin1 = a[i][a[i].length - 1];
+                                var found = false;
+                                for ( var j = 0; j < a2.length; j++ ) {
+                                    var ini2 = a2[j][0];
+                                    var fin2 = a2[j][a2[j].length - 1];
+                                    if ( arraysEqual(fin2, fin1) ) {
+                                        a2[j] = a2[j].concat(a[i].slice().reverse().slice(1));
+                                        found = true;
+                                        cambia = true;
+                                    }
+                                }
+                                if ( ! found )
+                                    a2.push(a[i]);
+                            }
+                            a = a2
+                        }
+
+                        $button.text("join ok, displaying...");
+                        setTimeout(function(){ // hack, pasar esto al fin del event loop, para que haya tiempo para actualizar el text del button
+
+                        var $list=$("#{{ id }}_xml_parser_partes");
+                        $list.sortable("destroy"); //call widget-function destroy
+                        $list.find("li").removeClass('ui-state-default');
+                        $list.find("li span").remove();
+                        $list.sortable();
+                        $list.disableSelection();
+                        $list.on( "sortstop", function(){ repintar(a) } );
+                        $list.text("");
+                        var hoverline = false;
+                        for ( var i = 0; i < a.length; i++ ) {
+                            var $n = $('<li id="'+i+'" class="ui-state-default"><span class="ui-icon ui-icon-arrowthick-2-n-s"></span><b class="title">Tramo '+i+'</b><b class="direction"></b></li>');
+                            $n.on('click', function(e) {
+                                $this = $(this);
+                                $dir = $this.find(".direction");
+                                if ( $dir.text() == "" )
+                                    $dir.text(" reverso");
+                                else
+                                    $dir.text("");
+                                a[$this.attr("id")].reverse();
+                                repintar(a);
+                            })
+                            $n.on('mouseover', function(e) {
+                                var b = [];
+                                var id = $(this).attr("id");
+                                for (var i=0; i < a[id].length; i++) { b[i]=L.latLng([a[id][i][1],a[id][i][0]]) }
+                                hoverline = L.polyline(b, {color:"#4d4",opacity:0.8});
+                                hoverline.addTo({{id}}_map);
+                            })
+                            $n.on('mouseout', function(e) {
+                                {{id}}_map.removeLayer(hoverline);
+                            });
+                            $list.append($n);
+                        }
+                        repintar(a);
+
+                        $button.removeAttr('disabled');
+                        $button.text("parse!");
+
+                        },10);
+                        },10);
+                        },10);
+
+                    },
+                    error: function() {
+                        alert('error');
+                    }
+                });
+                e.preventDefault();
+                return false
+            });
+        })(django.jQuery);
+    </script>
+</div>
+</div>
+{% endblock map %}
