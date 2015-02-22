@@ -212,7 +212,7 @@ class Command(BaseCommand):
                 l = Linea.objects.get(id=options['linea_id'])
             foto_de_linea(l, skip=options['skip'])
             if options['recursivo']:
-                foto_de_linea(l, r, skip=options['skip'])
+                foto_de_linea(l, recursiva=options['recursivo'], skip=options['skip'])
         
         #recorrido
         rs=[]
