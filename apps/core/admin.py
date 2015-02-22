@@ -47,7 +47,7 @@ def format_html_join(sep, format_string, args_generator):
 class CustomAdmin(admin.OSMGeoAdmin):
     default_lon = -6428013
     default_lat = -4177742
-    search_fields = ['nombre', 'linea__nombre', 'recorrido__nombre']
+    search_fields = ['nombre', 'recorrido__nombre']
     exclude = ()
 
 class HorarioAdminInline(admin.TabularInline):
