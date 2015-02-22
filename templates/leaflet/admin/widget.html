@@ -112,6 +112,7 @@
         // override {{id}}_map_callback para obtener el map y poder hacer el reoladmapa
         // override de http://stackoverflow.com/questions/296667/overriding-a-javascript-function-while-referencing-the-original/296713#296713
         var {{id}}_reloadmapa = null;
+        var {{id}}_resetview = function(){};
         var {{id}}_map = null;
         var {{id}}_flechas = false;
         (function() {
@@ -120,11 +121,22 @@
                 var map = arguments[0];
                 {{id}}_map = map;
                 map.on("map:loadfield", function(field, fieldid) {
+                    {{id}}_resetview = function () {
+                        field.field._setView();
+                    };
                     {{id}}_reloadmapa = function () {
-                        field.field.load();
+                        var layer = L.GeoJSON.geometryToLayer(JSON.parse($("#{{ id }}").val()));
+                        var f = field;
+                        //debugger;
+                        f.field.onCreated({layer:layer});
+                        //field.load();
+                        
+                        //{{ module }}.store_class = {{ field_store_class }};
+                        //(new {{ geometry_field_class}}({{ module }})).addTo(map);
+                        
                         if ( {{id}}_flechas ) map.removeLayer({{id}}_flechas);
                         {{id}}_flechas = L.polylineDecorator(
-                            L.GeoJSON.geometryToLayer(JSON.parse($("#{{ id }}").val())),
+                            layer,
                             {
                                 patterns: [
                                     {
@@ -178,13 +190,14 @@
             }
 
             function repintar(a) {
+                var aa = a.slice();
                 var as;
                 var s = [];
                 var arr = $("#{{ id }}_xml_parser_partes").sortable('toArray');
                 for ( var ii = 0; ii < arr.length; ii++ ) {
                     var i = arr[ii];
-                    for ( var j = 0; j < a[i].length; j++ )
-                        s.push([ a[i][j][0], a[i][j][1] ]);
+                    for ( var j = 0; j < aa[i].length; j++ )
+                        s.push([ aa[i][j][0], aa[i][j][1] ]);
                 }
                 as = RDPppd(s, parseFloat($("#{{ id }}_xml_parser_simplify_input").val()));
                 $('#{{id}}_simplificacion').text('Simplificado: de ' + s.length + ' a ' + as.length + '. Reducción de ' + s.length * 100 / as.length + '%')
@@ -194,10 +207,10 @@
 
                 $("#{{id}}").val('{ "type": "LineString", "coordinates": ['+s.join(",")+']}');
 
-                {{id}}_map.eachLayer(function (layer) {
-                    if ( layer.hasOwnProperty("_latlngs") )
-                        {{id}}_map.removeLayer(layer);
-                });
+                //{{id}}_map.eachLayer(function (layer) {
+                //    if ( layer.hasOwnProperty("_latlngs") )
+                //        {{id}}_map.removeLayer(layer);
+                //});
                 {{id}}_reloadmapa();
             }
 
@@ -355,6 +368,7 @@
                             $list.append($n);
                         }
                         repintar(a);
+                        {{id}}_resetview();
 
                         $button.removeAttr('disabled');
                         $button.text("parse!");
