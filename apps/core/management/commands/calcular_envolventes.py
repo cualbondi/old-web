@@ -10,7 +10,7 @@ class Command(BaseCommand):
         query = """
             SELECT
                 c.id,
-                AsText(ST_Union(ST_Buffer(r.ruta, 0.0045))) as wkt
+                st_AsText(ST_Union(ST_Buffer(r.ruta, 0.0045))) as wkt
             FROM
                 core_recorrido as r
                 join catastro_ciudad_recorridos as cr on (cr.recorrido_id = r.id)
@@ -37,7 +37,7 @@ class Command(BaseCommand):
         query = """
             SELECT
                 l.id,
-                AsText(ST_Union(ST_Buffer(ruta, 0.0045))) as wkt
+                st_AsText(ST_Union(ST_Buffer(ruta, 0.0045))) as wkt
             FROM
                 core_recorrido as r
                 join core_linea as l on (r.linea_id = l.id)
