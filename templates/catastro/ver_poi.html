@@ -6,14 +6,33 @@
 
 {% block head-attrs %}{% endblock %}
 
+{% block navbar %}
+    {{ block.super }}
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.css" />
+{% endblock %}
+
 {% block bloque_izquierda %}
     <div>
         <h1>¿Cómo llegar a {{poi.nom}}?</h1>
     </div>
 
+    <script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
+    <div class="thumbnail">
+        <div id="map" style="background:lightblue; height:300px; width:100%"></div>
+    </div>
+    <script>
+        map = new L.Map('map', { zoomControl:false });
+        var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?pepe=asd';
+        var osmAttrib='&copy; Cualbondi &amp; OpenStreetMap contributors';
+        map.attributionControl.setPrefix('Leaflet').addAttribution( osmAttrib );
+        map.addLayer(new L.TileLayer(osmUrl, {maxZoom: 17, fadeAnimation: false}));
+        L.marker([{{poi.latlng.1|stringformat:"f"}},{{poi.latlng.0|stringformat:"f"}}]).addTo(map);
+        map.setView([{{poi.latlng.1|stringformat:"f"}},{{poi.latlng.0|stringformat:"f"}}], 15);
+    </script>
+
     {% if recorridos %}
         <div class="row-fluid">
-            <h2>Recorridos de transporte público que pasan por aquí</h2>
+            <h2>Recorridos de transporte público que pasan por esta parada</h2>
             {% for columna in recorridos|dividir_columnas:3 %}
             <div class="span4">
                 <ul class="nav nav-pills nav-stacked">
@@ -24,6 +43,15 @@
             </div>
             {% endfor %}
         </div>
+    {% endif %}
+
+    {% if paradas %}
+        <h2>Paradas cercanas</h2>
+        <ul>
+            {% for p in paradas %}
+            <li><a href="{{p.get_absolute_url}}">{{ p }}</a></li>
+            {% endfor %}
+        </ul>
     {% endif %}
 
     {% if pois %}

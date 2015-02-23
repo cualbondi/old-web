@@ -176,7 +176,10 @@ class Parada(models.Model):
     objects = models.GeoManager()
 
     def __unicode__(self):
-        return self.nombre or self.codigo or ' '
+        return self.nombre or self.codigo or str(latlng)
+
+    def get_absolute_url(self):
+        return reverse('ver_parada', kwargs={'id': self.id})
 
 
 class Horario(models.Model):

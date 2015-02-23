@@ -20,7 +20,7 @@ from django.core.mail import send_mail
 from django.contrib.gis.measure import D
 from django.contrib.gis.geos import Point
 
-from apps.core.models import Linea, Recorrido, Tarifa
+from apps.core.models import Linea, Recorrido, Tarifa, Parada
 from apps.catastro.models import Ciudad, ImagenCiudad, Calle, Poi, Zona
 from apps.core.forms import LineaForm, RecorridoForm, ContactForm
 
@@ -431,6 +431,31 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
         )
     else:
         return HttpResponse(status=501)
+
+
+def ver_parada(request, id=None):
+    if request.method == 'GET':
+        p = get_object_or_404(Parada, id=id)
+        recorridosn = Recorrido.objects.filter(ruta__dwithin=(p.latlng, 0.00111)).select_related('linea').order_by('linea__nombre', 'nombre')
+        recorridosp = [h.recorrido for h in p.horario_set.all().select_related('recorrido', 'recorrido__linea').order_by('recorrido__linea__nombre', 'recorrido__nombre')]
+        #Recorrido.objects.filter(horarios_set__parada=p).select_related('linea').order_by('linea__nombre', 'nombre')
+        pois = Poi.objects.filter(latlng__dwithin=(p.latlng, 300)) # este esta en metros en vez de degrees... no se por que, pero esta genial!
+        ps = Parada.objects.filter(latlng__dwithin=(p.latlng, 0.004)).exclude(id=p.id)
+        return render_to_response(
+            "core/ver_parada.html",
+            {
+                'ciudad_actual': Ciudad.objects.filter(poligono__intersects=p.latlng),
+                'parada': p,
+                'paradas': ps,
+                'recorridosn': recorridosn,
+                'recorridosp': recorridosp,
+                'pois': pois
+            },
+            context_instance=RequestContext(request)
+        )
+    else:
+        return HttpResponse(status=501)
+
 
 
 def redirect_nuevas_urls(request, ciudad=None, linea=None, ramal=None, recorrido=None):
