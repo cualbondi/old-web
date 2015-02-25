@@ -10,6 +10,9 @@ urlpatterns = patterns('',
 
     url(r'^facebook_tab/$', 'apps.core.views.facebook_tab', name='facebook_tab'),
 
+    # Paradas
+    url(r'^parada/(?P<id>[\d]+)/$', 'apps.core.views.ver_parada', name='ver_parada'),
+
     # Redirects para las URLs viejas
     url(r'^recorridos/$', 'apps.core.views.redirect_nuevas_urls', name='redirect_nuevas_urls'),
     url(r'^recorridos/(?P<linea>[^/]+)/$', 'apps.core.views.redirect_nuevas_urls', name='redirect_nuevas_urls'),
@@ -29,6 +32,7 @@ urlpatterns = patterns('',
 
     # Recorridos
     url(r'^(?P<nombre_ciudad>[\w-]+)/(?P<nombre_linea>[\w-]+)/(?P<nombre_recorrido>[\w-]+)/$', 'apps.core.views.ver_recorrido', name='ver_recorrido'),
+
 )
 
 #cualbondi.com.ar/la-plata/recorridos/Norte/10/IDA/
