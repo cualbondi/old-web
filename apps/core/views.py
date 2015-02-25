@@ -433,6 +433,7 @@ def ver_recorrido(request, nombre_ciudad, nombre_linea, nombre_recorrido):
         return HttpResponse(status=501)
 
 
+@csrf_exempt
 @require_GET
 def ver_parada(request, id=None):
     p = get_object_or_404(Parada, id=id)
