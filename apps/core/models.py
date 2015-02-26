@@ -176,7 +176,7 @@ class Parada(models.Model):
     objects = models.GeoManager()
 
     def __unicode__(self):
-        return self.nombre or self.codigo or str(latlng)
+        return self.nombre or self.codigo or "{}, {}".format(self.latlng.x, self.latlng.y)
 
     def get_absolute_url(self):
         return reverse('ver_parada', kwargs={'id': self.id})

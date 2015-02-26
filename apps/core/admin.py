@@ -6,6 +6,8 @@ from apps.core.models import (Linea, Recorrido, Tarifa, Parada,
 from apps.editor.models import RecorridoProposed
 
 from django.utils.safestring import mark_safe
+from django.utils.html import conditional_escape
+from django.utils import six
 
 from django.contrib.auth.admin import UserAdmin
 UserAdmin.list_display += ('date_joined',)
@@ -66,7 +68,7 @@ class RecorridoProposedCustomAdmin(LeafletGeoAdmin):
     search_fields = ['nombre', 'linea__nombre']
     exclude = ('horarios',)
 
-class ParadaCustomAdmin(LeafletGeoAdmin):
+class ParadaCustomAdmin(admin.OSMGeoAdmin):
     display_raw = True
     search_fields = ['nombre', 'codigo']
     #inlines = (HorarioAdminInline,)
