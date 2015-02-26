@@ -1,0 +1,90 @@
+{% extends "contenido.html" %}
+{% load bootstrap_tags %}
+
+{% block title %}Parada {{parada|title}}{% if ciudad_actual %} en {{ciudad_actual.0.nombre|title}}{% endif %} - Cualbondi{% endblock %}
+{% block meta_description %}Parada {{parada|title}} y qué líneas de recorridos de micros y ómnibus y buses pasan por la parada {{parada|title}}{% if ciudad_actual %} en {{ciudad_actual.0.nombre|title}}{% endif %}.{% endblock %}
+
+{% block head-attrs %}{% endblock %}
+
+{% block navbar %}
+    {{ block.super }}
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.css" />
+{% endblock %}
+
+{% block bloque_izquierda %}
+    <div>
+        <h1>Parada {{ parada }}</h1>
+    </div>
+
+    <script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
+    <div class="thumbnail">
+        <div id="map" style="background:lightblue; height:300px; width:100%"></div>
+    </div>
+    <script>
+        map = new L.Map('map', { zoomControl:false });
+        var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?pepe=asd';
+        var osmAttrib='&copy; Cualbondi &amp; OpenStreetMap contributors';
+        map.attributionControl.setPrefix('Leaflet').addAttribution( osmAttrib );
+        map.addLayer(new L.TileLayer(osmUrl, {maxZoom: 17, fadeAnimation: false}));
+        L.marker([{{parada.latlng.1|stringformat:"f"}},{{parada.latlng.0|stringformat:"f"}}]).addTo(map);
+        map.setView([{{parada.latlng.1|stringformat:"f"}},{{parada.latlng.0|stringformat:"f"}}], 15);
+    </script>
+
+    {% if recorridosp %}
+        <div class="row-fluid">
+            <h2>Recorridos de transporte público que paran en esta parada</h2>
+            {% for columna in recorridosp|dividir_columnas:3 %}
+            <div class="span4">
+                <ul class="nav nav-pills nav-stacked">
+                {% for rs in columna %}
+                    <li><a href="{{rs.get_absolute_url}}" style="text-align:left">{{rs.linea.nombre}} - {{rs.nombre}}{% if rs.inicio and rs.fin %} <span class="light">de {{rs.inicio}} a {{rs.fin}}</span>{% endif %}</a></li>
+                {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if recorridosn %}
+        <div class="row-fluid">
+            <h2>Recorridos de transporte público que pasan cerca de esta parada (no paran aquí)</h2>
+            {% for columna in recorridosn|dividir_columnas:3 %}
+            <div class="span4">
+                <ul class="nav nav-pills nav-stacked">
+                {% for rs in columna %}
+                    <li><a href="{{rs.get_absolute_url}}" style="text-align:left">{{rs.linea.nombre}} - {{rs.nombre}}{% if rs.inicio and rs.fin %} <span class="light">de {{rs.inicio}} a {{rs.fin}}</span>{% endif %}</a></li>
+                {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if pois %}
+        <h2>Puntos de interés cercanos</h2>
+        <ul>
+            {% for p in pois %}
+            <li><a href="{{p.get_absolute_url}}">{{ p.nom }}</a></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if zonas %}
+        <h2>Barrios cercanos</h2>
+        <ul>
+            {% for z in zonas %}
+            <li>{{ z.name }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if paradas %}
+        <h2>Otras paradas cercanas</h2>
+        <ul>
+            {% for p in paradas %}
+            <li><a href="{{p.get_absolute_url}}">{{ p }}</a></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+{% endblock %}
