@@ -9,9 +9,11 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.csrf import csrf_exempt
 import json
 
+from django.views.decorators.http import require_http_methods, require_GET
 
 @ensure_csrf_cookie
 @csrf_protect
+@require_http_methods(["GET", "POST"])
 def editor_recorrido(request, id_recorrido):
     if request.method == 'GET':
         recorrido = get_object_or_404(Recorrido, pk=id_recorrido)
@@ -63,93 +65,83 @@ def editor_recorrido(request, id_recorrido):
             return HttpResponse(json.dumps(data), content_type="application/json")
         else:
             return HttpResponse(json.dumps(data), content_type="application/json", status=403)
-    else:
-        return HttpResponse(status=501)
 
 
 @permission_required('editor.moderate_recorridos', login_url="/usuarios/login/", raise_exception=True)
+@require_GET
 def mostrar_ediciones(request):
-    if request.method == 'GET':
-        estado = request.GET.get('estado', None)
-        ediciones = RecorridoProposed.objects.all()
-        if estado != 'all':
-            ediciones = ediciones.filter(current_status='E')
-        ediciones = ediciones.order_by('-date_update')
-        return render_to_response(
-            'editor/moderacion_listado.html',
-            {
-                'ediciones': ediciones
-            },
-            context_instance=RequestContext(request)
-        )
-    else:
-        return HttpResponse(status=501)
+    estado = request.GET.get('estado', None)
+    ediciones = RecorridoProposed.objects.all()
+    if estado != 'all':
+        ediciones = ediciones.filter(current_status='E')
+    ediciones = ediciones.order_by('-date_update')
+    return render_to_response(
+        'editor/moderacion_listado.html',
+        {
+            'ediciones': ediciones
+        },
+        context_instance=RequestContext(request)
+    )
 
 @permission_required('editor.moderate_recorridos', login_url="/usuarios/login/", raise_exception=True)
+@require_GET
 def moderar_ediciones_id(request, id=None):
-    if request.method == 'GET':
-        ediciones = RecorridoProposed.objects.filter(recorrido__id=id).order_by('-date_update')[:50]
-        original = Recorrido.objects.get(id=id)
-        #original = RecorridoProposed.objects.get(uuid=ediciones[0].parent)
-        return render_to_response(
-            'editor/moderacion_id.html',
-            {
-                'ediciones': ediciones,
-                'original': original
-            },
-            context_instance=RequestContext(request)
-        )
-    else:
-        return HttpResponse(status=501)
+    ediciones = RecorridoProposed.objects.filter(recorrido__id=id).order_by('-date_update')[:50]
+    original = Recorrido.objects.get(id=id)
+    #original = RecorridoProposed.objects.get(uuid=ediciones[0].parent)
+    return render_to_response(
+        'editor/moderacion_id.html',
+        {
+            'ediciones': ediciones,
+            'original': original
+        },
+        context_instance=RequestContext(request)
+    )
 
 
 @permission_required('editor.moderate_recorridos', login_url="/usuarios/login/", raise_exception=True)
+@require_GET
 def moderar_ediciones_uuid(request, uuid=None):
-    if request.method == 'GET':
-        ediciones = RecorridoProposed.objects.filter(uuid=uuid).order_by('-date_update')[:50]
-        original = RecorridoProposed.objects.filter(uuid=ediciones[0].parent)
-        if original:
-            original = original[0]
-        else:
-            original = Recorrido.objects.get(id=ediciones[0].recorrido.id)
-        return render_to_response(
-            'editor/moderacion_id.html',
-            {
-                'ediciones': ediciones,
-                'original': original
-            },
-            context_instance=RequestContext(request)
-        )
+    ediciones = RecorridoProposed.objects.filter(uuid=uuid).order_by('-date_update')[:50]
+    original = RecorridoProposed.objects.filter(uuid=ediciones[0].parent)
+    if original:
+        original = original[0]
     else:
-        return HttpResponse(status=501)
+        original = Recorrido.objects.get(id=ediciones[0].recorrido.id)
+    return render_to_response(
+        'editor/moderacion_id.html',
+        {
+            'ediciones': ediciones,
+            'original': original
+        },
+        context_instance=RequestContext(request)
+    )
 
 
 @csrf_exempt
+@require_http_methods(["GET", "POST"])
 def revision(request, id_revision=None):
-    if request.method == 'GET' or request.method == 'POST':
-        revision = RecorridoProposed.objects.get(id=id_revision)
-        #print revision.parent
-        original = RecorridoProposed.objects.filter(uuid=revision.parent)
-        if original:
-            original = original[0]
-        else:
-            original = revision.recorrido
-        diffa = revision.ruta.difference(original.ruta)
-        diffb = original.ruta.difference(revision.ruta)
-        intersection = original.ruta.intersection(revision.ruta)
-        return render_to_response(
-            'editor/revision.html',
-            {
-                'revision': revision,
-                'original': original,
-                'diffa': diffa,
-                'diffb': diffb,
-                'intersection': intersection
-            },
-            context_instance=RequestContext(request)
-        )
+    revision = RecorridoProposed.objects.get(id=id_revision)
+    #print revision.parent
+    original = RecorridoProposed.objects.filter(uuid=revision.parent)
+    if original:
+        original = original[0]
     else:
-        return HttpResponse(status=501)
+        original = revision.recorrido
+    diffa = revision.ruta.difference(original.ruta)
+    diffb = original.ruta.difference(revision.ruta)
+    intersection = original.ruta.intersection(revision.ruta)
+    return render_to_response(
+        'editor/revision.html',
+        {
+            'revision': revision,
+            'original': original,
+            'diffa': diffa,
+            'diffb': diffb,
+            'intersection': intersection
+        },
+        context_instance=RequestContext(request)
+    )
 
 
 @permission_required('editor.moderate_recorridos', login_url="/usuarios/login/", raise_exception=True)
