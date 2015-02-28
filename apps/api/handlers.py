@@ -363,7 +363,7 @@ class CatastroHandler(BaseHandler):
                 ]
                 return response
             except ObjectDoesNotExist:
-                return rc.NOT_FOUND
+                return []
 
 
 class CalleHandler(BaseHandler):
