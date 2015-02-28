@@ -234,7 +234,7 @@
                             // ESTOS SON PARADAS: no me sirven por ahora
                             //    w.push(getnode($data, $this.attr("ref")));
                             //else 
-                            if ( $this.attr("type") == "way" ) 
+                            if ( $this.attr("type") == "way" && $this.attr("role") != "platform" ) 
                                 $data.find('#'+$this.attr("ref")).first().find("nd").each(function() {
                                     w.push(getnode($data, $(this).attr("ref")));
                                 })
