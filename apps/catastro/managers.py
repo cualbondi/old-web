@@ -71,7 +71,11 @@ class PuntoBusquedaManager:
             
             tokens = filter(None, map(unicode.strip, query.split(',')))
 
-            calles = tokens[0].upper()[:]
+            if len(tokens) > 0:
+                calles = tokens[0].upper()[:]
+            else:
+                return []
+
             separators = ['Y', 'ESQ', 'ESQ.', 'ESQUINA', 'ESQUINA.', 'INTERSECCION', 'CON', 'CRUCE']
             for sep in separators:
                 calles = calles.replace(' ' + sep + ' ', '@')
