@@ -40,7 +40,11 @@ class Linea(models.Model):
     def get_absolute_url(self, ciudad_slug = None):
         # chequear si la linea está en esta ciudad, sino tirar excepcion
         if ciudad_slug is None:
-            ciudad_slug = Ciudad.objects.filter(lineas=self)[0].slug
+            try:
+                ciudad_slug = Ciudad.objects.filter(lineas=self)[0].slug
+            except:
+                print self
+                return ""
         else:
             get_object_or_404(Ciudad, slug=ciudad_slug, lineas=self)
         return reverse('ver_linea',
@@ -123,6 +127,7 @@ class Recorrido(models.Model):
                     ciudad_slug = Ciudad.objects.filter(lineas=self.linea)[0].slug
                 except:
                     print self
+                    return ""
                     #raise
         else:
             # Esto lo comento porque hace muuuy lento a todo el sistema.
