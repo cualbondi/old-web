@@ -123,7 +123,7 @@ class Recorrido(models.Model):
                     ciudad_slug = Ciudad.objects.filter(lineas=self.linea)[0].slug
                 except:
                     print self
-                    raise
+                    #raise
         else:
             # Esto lo comento porque hace muuuy lento a todo el sistema.
             # Mas vale tomo como que el slug esta siempre bien. De ultima como mucho, me genera un link que da un 404.
