@@ -108,6 +108,7 @@ SECRET_KEY = '=tr&%05vw6&s4eoq)wdj(d&(56#cq@5k0b-c$^v6vr)#%e(c+&'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
+    'django.template.loaders.app_directories.Loader',
 #     'django.template.loaders.eggs.Loader',
 )
 
@@ -169,6 +170,7 @@ INSTALLED_APPS = (
     'django.contrib.comments',
     'django.contrib.gis',
     'django.contrib.flatpages',
+    'django.contrib.sitemaps',
 
     # Externas
     'bootstrap_toolkit',
