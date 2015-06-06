@@ -12,9 +12,9 @@ MANAGE="$PYTHON $REPO/manage.py"
 set -ex
 
 # Install base packages
-#apt-get update
+apt-get update
 apt-get -y install nginx postgresql-9.3-postgis-2.1 uwsgi uwsgi-plugin-python python-pip python-dev libffi-dev libssl-dev libpq-dev cmake libqt4-dev memcached
-#pip install -U pip virtualenv
+pip install -U pip virtualenv
 
 # Configure pgsql
 echo "local all postgres trust" > /etc/postgresql/9.3/main/pg_hba.conf
