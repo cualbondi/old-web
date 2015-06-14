@@ -7,13 +7,16 @@ REPO="/app/repo"
 PIP="$ENV_PATH/bin/pip"
 PYTHON="$ENV_PATH/bin/python"
 MANAGE="$PYTHON $REPO/manage.py"
+DB_NAME="cualbondi"
 
 # exit if some command fails
 set -ex
 
+
+# TODO: use postgresl 9.4 official repo http://apt.postgresql.org/pub/repos/apt/ utopic-pgdg/main amd64 Packages
 # Install base packages
 apt-get update
-apt-get -y install nginx postgresql-9.3-postgis-2.1 uwsgi uwsgi-plugin-python python-pip python-dev libffi-dev libssl-dev libpq-dev cmake libqt4-dev memcached
+apt-get -y install nginx postgresql-9.3-postgis-2.1 postgresql-client uwsgi uwsgi-plugin-python python-pip python-dev libffi-dev libssl-dev libpq-dev cmake libqt4-dev memcached osm2pgsql
 pip install -U pip virtualenv
 
 # Configure pgsql
@@ -22,9 +25,33 @@ echo "host all postgres 127.0.0.1/32 trust" >> /etc/postgresql/9.3/main/pg_hba.c
 service postgresql restart
 
 set +e
-su postgres -c "createdb cualbondi"
+su postgres -c "createdb $DB_NAME"
 set -e
-su postgres -c "echo 'create extension postgis;' | psql cualbondi"
+su postgres -c "echo 'create extension postgis;' | psql $DB_NAME"
+su postgres -c "echo 'create extension pg_trgm;' | psql $DB_NAME"
+su postgres <<-HEREDOC1
+    psql -d $DB_NAME <<-HEREDOC2
+    
+    CREATE OR REPLACE FUNCTION
+        min_linestring ( "line1" Geometry, "line2" Geometry )
+        RETURNS geometry
+        AS \\\$$
+        BEGIN
+            IF ST_Length2D_Spheroid(line1, 'SPHEROID["GRS_1980",6378137,298.257222101]') < ST_Length2D_Spheroid(line2, 'SPHEROID["GRS_1980",6378137,298.257222101]') THEN
+                RETURN line1;
+            ELSE
+                RETURN line2;
+            END IF;
+        END;
+        \\\$$ LANGUAGE plpgsql;
+        
+    CREATE AGGREGATE min_path ( Geometry ) (
+        SFUNC = min_linestring,
+        STYPE = Geometry);
+
+HEREDOC2
+HEREDOC1
+
 
 # Install base app packages
 virtualenv $ENV_PATH
