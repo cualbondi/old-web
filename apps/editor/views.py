@@ -10,6 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 
 from django.views.decorators.http import require_http_methods, require_GET
+from task import crear_thumbs
 
 @ensure_csrf_cookie
 @csrf_protect
@@ -152,5 +153,7 @@ def moderar_ediciones_uuid_rechazar(request, uuid=None):
 
 @permission_required('editor.moderate_recorridos', login_url="/usuarios/login/", raise_exception=True)
 def moderar_ediciones_uuid_aprobar(request, uuid=None):
-    proposed = RecorridoProposed.objects.get(uuid=uuid).aprobar(request.user)
+    proposed = RecorridoProposed.objects.get(uuid=uuid)
+    proposed.aprobar(request.user)
+    crear_thumbs.spool(recorrido_id=proposed.recorrido.id)
     return HttpResponseRedirect(request.GET.get("next"))
