@@ -110,6 +110,7 @@ class Command(BaseCommand):
             ]
             if primera:
                 primera = False
+                prog.append("-c")
             else:
                 prog.append("-a")
             if options['slim']:
