@@ -1,12 +1,10 @@
 #!/bin/sh
 
-ID=$RANDOM
+echo "[$(date -Is -u)] Dumping database"
+ssh -t cualbondi.com.ar "su root -c \"sudo -u postgres pg_dump -Fc -f /tmp/dump.pgbkp geocualbondidb\""
 
-echo "dumping b2zipping"
-ssh -t cualbondi.com.ar "su root -c \"su postgres -c \\\"pg_dump --inserts -c geocualbondidb -Upostgres | bzip2 > /tmp/dump-$ID.bz2\\\"\""
+echo "[$(date -Is -u)] Getting file"
+rsync -v -e ssh cualbondi.com.ar:/tmp/dump.pgbkp /tmp/dump.pgbkp
 
-echo "sending file"
-rsync -v -e ssh cualbondi.com.ar:/tmp/dump-$ID.bz2 /tmp/dump-$ID.bz2
-
-echo "bunzipping & inserting in database in local host"
-bunzip2 /tmp/dump-$ID.bz2 -c | vagrant ssh -c "sudo -u postgres psql -Upostgres cualbondi"
+echo "[$(date -Is -u)] Inserting in database in local host"
+sudo -u postgres pg_restore /tmp/dump.pgbkp
