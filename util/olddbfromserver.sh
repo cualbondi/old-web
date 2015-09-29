@@ -1,11 +1,10 @@
 #!/bin/sh
-echo "dumping b2zipping"
-ssh cualbondi@cualbondi.com.ar "su root -c \"su postgres -c \\\"pg_dump --inserts -trecorrido -tlinea -tramal -tciudad -tciudad_linea -c colectivos -Upostgres -hlocalhost | bzip2 > /tmp/dump.bz2\\\"\""
 
-echo "sending file"
-rsync -v -e ssh cualbondi@cualbondi.com.ar:/tmp/dump.bz2 ~
+echo "[$(date -Is -u)] Dumping database"
+ssh -t cualbondi.com.ar "su root -c \"sudo -u postgres 'pg_dump -Fc -Z9 -d geocualbondidb > /tmp/dump.pgbkp'\""
 
-echo "bunzipping & inserting in database in remote host"
-bunzip2 dump.bz2 -c | psql -Upostgres -h127.0.0.1 colectivos
+echo "[$(date -Is -u)] Getting file"
+rsync -v -e ssh cualbondi.com.ar:/tmp/dump.pgbkp /tmp/dump.pgbkp
 
-# NOTA: poner bien el nombre de la BD y de las tablas a backupear
+echo "[$(date -Is -u)] Inserting in database in local host"
+sudo -u postgres pg_restore -C -c -Fc -j8 /tmp/dump.pgbkp

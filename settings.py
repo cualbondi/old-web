@@ -108,7 +108,6 @@ SECRET_KEY = '=tr&%05vw6&s4eoq)wdj(d&(56#cq@5k0b-c$^v6vr)#%e(c+&'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-    'django.template.loaders.app_directories.Loader',
 #     'django.template.loaders.eggs.Loader',
 )
 
@@ -180,7 +179,6 @@ INSTALLED_APPS = (
 #    'moderacion',
 #    'editor',
 #    'django_extensions',
-    'leaflet',
 
     # Propias
     'apps.api',
@@ -255,6 +253,20 @@ if CUALBONDI_ENV == 'production':
     EMAIL_HOST = 'mail.cualbondi.com.ar'
     EMAIL_PORT = 25
 else:
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': 'geocualbondidb',
+            'USER': 'postgres',
+            'PASSWORD': '',
+            'HOST': '',
+            'PORT': '',
+        }
+    }
+
+    #MIDDLEWARE_CLASSES = ('debug_panel.middleware.DebugPanelMiddleware', ) + MIDDLEWARE_CLASSES
+    
     FACEBOOK_APP_ID = "370174876416548"
     FACEBOOK_APP_ID = "516530425068934"
     FACEBOOK_API_SECRET = 'f90d27d49f50939996db0f299dec129d'
@@ -263,7 +275,9 @@ else:
     SOCIAL_AUTH_FACEBOOK_SECRET='f90d27d49f50939996db0f299dec129d'
     SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
     HOME_URL = "http://local.cualbondi.com.ar"
-    INSTALLED_APPS += ('debug_toolbar','django_extensions')
+    #INSTALLED_APPS += ('debug_toolbar', 'debug_panel','django_extensions')
+    DEBUG_TOOLBAR_PATCH_SETTINGS = False 
+    INSTALLED_APPS += ('debug_toolbar', 'django_extensions')
     
     import logging
     l = logging.getLogger('django.db.backends')
@@ -284,8 +298,26 @@ else:
         }
     })
 
-try:
-    from settings_local import *
-    INSTALLED_APPS += LOCAL_INSTALLED_APPS
-except:
-    pass
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+            'LOCATION': '127.0.0.1:11211',
+        },
+
+        # this cache backend will be used by django-debug-panel
+        'debug-panel': {
+            'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+            'LOCATION': '/var/tmp/debug-panel-cache',
+            'TIMEOUT': 300,
+            'OPTIONS': {
+                'MAX_ENTRIES': 200
+            }
+        }
+    }
+    
+    REQUEST_LOGGING_BACKEND = {
+        'host': 'localhost',
+        'port': 9200,
+        'index': 'cualbondi',
+        'type': 'requests'
+    }
