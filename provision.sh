@@ -7,7 +7,7 @@ REPO="/app/repo"
 PIP="$ENV_PATH/bin/pip"
 PYTHON="$ENV_PATH/bin/python"
 MANAGE="$PYTHON $REPO/manage.py"
-DB_NAME="cualbondi"
+DB_NAME="geocualbondidb"
 
 # exit if some command fails
 set -ex
@@ -16,7 +16,7 @@ set -ex
 # TODO: use postgresl 9.4 official repo http://apt.postgresql.org/pub/repos/apt/ utopic-pgdg/main amd64 Packages
 # Install base packages
 apt-get update
-apt-get -y install nginx postgresql-9.3-postgis-2.1 postgresql-client uwsgi uwsgi-plugin-python python-pip python-dev libffi-dev libssl-dev libpq-dev cmake libqt4-dev memcached osm2pgsql
+apt-get -y install nginx postgresql-9.3-postgis-2.1 postgresql-client uwsgi uwsgi-plugin-python python-pip python-dev libffi-dev libssl-dev libpq-dev cmake libqt4-dev memcached osm2pgsql rsync
 pip install -U pip virtualenv
 
 # Configure pgsql
@@ -120,6 +120,9 @@ socket = /run/uwsgi/app/django/socket
 logto = /var/log/uwsgi/django.log
 plugins = python
 harakiri = 25
+
+# for development only
+# py-autoreload=2
 
 spooler-processes = 2
 spooler = /var/uwsgi-spooler-django

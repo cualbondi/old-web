@@ -257,7 +257,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.contrib.gis.db.backends.postgis',
-            'NAME': 'cualbondi',
+            'NAME': 'geocualbondidb',
             'USER': 'postgres',
             'PASSWORD': '',
             'HOST': '',

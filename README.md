@@ -7,7 +7,7 @@
 
 ## Dev install
 
-    # vagrant vagrant-lxc and fabric installation
+    # vagrant vagrant-lxc installation
     sudo apt-get install dpkg-dev
     wget https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.2_x86_64.deb
     dpkg -i vagrant_1.7.2_x86_64.deb
@@ -19,17 +19,17 @@
     # git clone https://<username>@bitbucket.org/martinzugnoni/geocualbondi.git # HTTPS alternative
     
     vagrant up
-    # vagrant up --provider=lxc # maybe this alternative
+    # vagrant up --provider=lxc  # alternative
     
 Now you can go to localhost:8000 or 192.168.2.100:80 in the browser and enjoy cualbondi.
 
 ### Internal working
 
-All this works inside vagrant machine, in this case a lxc container
+All this works inside vagrant machine
 
 1. Vagrant mounts the directory in which the Vagrantfile is located outside vagrant machine (git root), inside the vagrant virtual machine to be accesed as `/repo`.
 
-2. Inside vagrant machine, uwsgi uses `/repo` to work and communicates to nginx through a unix socket located in `/run/uwsgi/app/django/socket`
+2. Inside vagrant machine, uwsgi uses `/app/repo` to work, and communicates to nginx through a unix socket located in `/run/uwsgi/app/django/socket`
 
 3. Inside vagrant machine, NginX acts as a reverse proxy for uwsgi, exposing application into port 80
 
@@ -41,13 +41,15 @@ Change files in repo outside vagrant machine.
 
 Then do `vagrant ssh -c 'sudo service uwsgi restart'`.
 
+To make uwsgi to autoreload django app on `*.py` files modifications, enter the vagrant machine and uncomment line hich says `py-autoreload=2`
+
 Do F5 in localhost:8000
 
-This can also be configured to work with runserver. To do that, use `vagrant ssh` to connect to the vagrant machine and run commands inside. Then shutdown nginx with `sudo service nginx stop` and initiate runserver with `sudo /app/env/bin/python /app/repo/manage.py runserver 0.0.0.0:80`
+To use `manage.py`, enter vagrant machine doing `vagrant ssh` and execute `manage.py` like this `/app/env/bin/python /app/repo/manage.py`
 
 ## Database cloning
 
-Database dumps are stored in server daily. They can be downloaded and applied to the local server running `vagrant ssh -c '/app/env/bin/python /app/repo/manage.py copyDBfromserver'`
+You can download a copy of production database running `vagrant ssh -c 'source /app/repo/pulldb.sh <user>'` (`<user>` being a linux user from cualbondi main server)
 
 ## Production install
 
