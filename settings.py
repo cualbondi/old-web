@@ -179,8 +179,10 @@ INSTALLED_APPS = (
 #    'moderacion',
 #    'editor',
 #    'django_extensions',
+    'rest_framework',
 
     # Propias
+    'apps.api2',
     'apps.api',
     'apps.catastro',
     'apps.core',
@@ -189,6 +191,11 @@ INSTALLED_APPS = (
     'apps.mobile_updates',
     'apps.editor',
 )
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
+    'PAGE_SIZE': 10
+}
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
