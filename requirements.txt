@@ -23,6 +23,7 @@ greenlet==0.4.1
 httplib2==0.8
 ipython==1.1.0
 lockfile==0.9.1
+Markdown==2.6.2
 oauth2==1.5.211
 oauthlib==0.6.1
 pilkit==1.1.5

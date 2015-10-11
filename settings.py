@@ -193,7 +193,7 @@ INSTALLED_APPS = (
 )
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
+    'DEFAULT_PERMISSION_CLASSES': ('apps.api2.permissions.ReadOnly',),
     'PAGE_SIZE': 10
 }
 
