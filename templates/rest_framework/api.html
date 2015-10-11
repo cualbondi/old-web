@@ -1,0 +1,13 @@
+{% extends "rest_framework/base.html" %}
+
+{% block branding %}
+  <a class="navbar-brand" rel="nofollow" href="/api2/">
+    Cualbondi API <span class="version">2.0</span>
+  </a>
+{% endblock %}
+
+{% block bootstrap_theme %}
+  <link href="{{ STATIC_URL }}flatly-bootstrap.css" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block bootstrap_navbar_variant %}navbar-default{% endblock %}
