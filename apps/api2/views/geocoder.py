@@ -30,8 +30,8 @@ class GeocoderViewSet(viewsets.GenericViewSet):
         Busca el valor del parámetro `q`
         usando varias fuentes según el formato del string de búsqueda
 
-         - **Geocoder** [Google] (ej: [12 1234](/api2/geocoder/?q=12%201234&ciudad=la-plata) / [12 n 1234](/api2/geocoder/?q=12%20n%201234&ciudad=la-plata) / [centenario 1234](/api2/geocoder/?q=centenario%20n%201234&ciudad=la-plata))
-         - **Intersección de calles** [OSM] (ej: [12 y 62](/api2/geocoder/?q=12%20y%2062&ciudad=la-plata) / perón y alvarez)
+         - **Geocoder** [Google] (ej: [12 1234](/api/v2/geocoder/?q=12%201234&ciudad=la-plata) / [12 n 1234](/api/v2/geocoder/?q=12%20n%201234&ciudad=la-plata) / [centenario 1234](/api/v2/geocoder/?q=centenario%20n%201234&ciudad=la-plata))
+         - **Intersección de calles** [OSM] (ej: [12 y 62](/api/v2/geocoder/?q=12%20y%2062&ciudad=la-plata) / perón y alvarez)
          - **POI (Point Of Interest)** [OSM y Cualbondi] (ej: plaza rocha / hospital)
          - **Zona (Barrio / Ciudad)** [Cualbondi] (ej: berisso / colegiales) (devuelve geocentro)
 
