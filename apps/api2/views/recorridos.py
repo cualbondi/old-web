@@ -15,7 +15,7 @@ class CBPagination(pagination.PageNumberPagination):
     page_size = 5
 
 
-class RouterSerializer(serializers.Serializer):
+class RouterResultSerializer(serializers.Serializer):
 
     def to_representation(self, obj):
         if not hasattr(obj, 'id2'):
@@ -54,7 +54,7 @@ class RouterSerializer(serializers.Serializer):
                         "foto": obj.foto,
                         "p1": getParada(obj.p11ll),
                         "p2": getParada(obj.p12ll),
-                        "url": obj.get_absolute_url(r.slug1)
+                        "url": obj.get_absolute_url(None, None, obj.slug)
                     },
                     {
                         "id": obj.id2,
@@ -68,7 +68,7 @@ class RouterSerializer(serializers.Serializer):
                         "foto": obj.foto2,
                         "p1": getParada(obj.p21ll),
                         "p2": getParada(obj.p22ll),
-                        "url": obj.get_absolute_url(r.slug2)
+                        "url": obj.get_absolute_url(None, None, obj.slug2)
                     }
                 ]
             }
@@ -115,6 +115,7 @@ class RecorridoViewSet(viewsets.ModelViewSet):
 
          - `t` true/false: buscar con transbordo (true). `false` por defecto.
          - `q` string: para búsqueda por nombre de recorrido (fuzzy search)
+         - `c` string: ciudad-slug, requerido cuando se usa `q`
     """
 
     serializer_class = RecorridoSerializer
@@ -124,9 +125,21 @@ class RecorridoViewSet(viewsets.ModelViewSet):
     def list(self, request):
         q = request.query_params.get('q', None)
         l = request.query_params.get('l', None)
+        t = request.query_params.get('t', 'false')
+        c = request.query_params.get('c', None)
+
         if (q is None) == (l is None):
             raise exceptions.ValidationError(
                 {'detail': '\'q\' or \'l\' parameter expected (but not both)'}
+            )
+
+        if t == 'true':
+            t = True
+        elif t == 'false':
+            t = False
+        else:
+            raise exceptions.ValidationError(
+                {'detail': '\'t\' parameter malformed: Expected \'true\' or \'false\''}
             )
 
         if l is not None:
@@ -149,10 +162,31 @@ class RecorridoViewSet(viewsets.ModelViewSet):
                 if page is not None:
                     serializer = self.get_serializer(page, many=True)
                     return self.get_paginated_response(serializer.data)
+                else:
+                    return Response([])
 
-            page = self.paginate_queryset(Recorrido.objects.get_recorridos(lp[0]['p'], lp[1]['p'], lp[0]['r'], lp[1]['r']))
+            if not t:
+                # sin transbordo
+                routerResults = Recorrido.objects.get_recorridos(lp[0]['p'], lp[1]['p'], lp[0]['r'], lp[1]['r'])
+            else:
+                # con transbordo
+                routerResults = Recorrido.objects.get_recorridos_combinados_sin_paradas(lp[0]['p'], lp[1]['p'], lp[0]['r'], lp[1]['r'], 500)
+
+            page = self.paginate_queryset(routerResults)
             if page is not None:
-                serializer = RouterSerializer(page, many=True)
+                serializer = RouterResultSerializer(page, many=True)
                 return self.get_paginated_response(serializer.data)
+            else:
+                return Response([])
 
-            return Response('pepe')
+        if q is not None:
+            if c is None:
+                raise exceptions.ValidationError(
+                    {'detail': '\'c\' parameter is required when using `q` parameter'}
+                )
+            page = self.paginate_queryset(list(Recorrido.objects.fuzzy_like_trgm_query(q, c)))
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            else:
+                return Response([])
