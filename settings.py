@@ -340,7 +340,7 @@ if WERCKER_IP_ADDR:
         'default': {
             'ENGINE': 'django.contrib.gis.db.backends.postgis',
             'NAME': 'cb',
-            'USER': 'postgres',
+            'USER': 'cb',
             'PASSWORD': 'cb',
             'HOST': WERCKER_IP_ADDR,
             'PORT': '',
