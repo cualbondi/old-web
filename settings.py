@@ -332,3 +332,17 @@ else:
         'index': 'cualbondi',
         'type': 'requests'
     }
+
+
+WERCKER_IP_ADDR = os.environ.get('POSTGRES_PORT_5432_TCP_ADDR', False)
+if WERCKER_IP_ADDR:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': 'cb',
+            'USER': 'cb',
+            'PASSWORD': 'cb',
+            'HOST': WERCKER_POSTGRES_PORT_5432_TCP_ADDR,
+            'PORT': '',
+        }
+    }
