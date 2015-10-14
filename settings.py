@@ -344,6 +344,9 @@ if WERCKER_IP_ADDR:
             'PASSWORD': 'cb',
             'HOST': WERCKER_IP_ADDR,
             'PORT': '',
+            'TEST' : {
+                'NAME': 'cb'
+            }
         }
     }
     print DATABASES
