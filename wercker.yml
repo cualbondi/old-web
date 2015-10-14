@@ -4,10 +4,15 @@ services:
    - id: postgres
      env:
        POSTGRES_PASSWORD: cb
-       POSTGRES_USER: cb
 
 build:
   steps:
+
+    - script:
+      name: create database
+      name: extension test
+        code: |
+          PGPASSWORD=cb psql -h POSTGRES_PORT_5432_TCP_ADDR -p $POSTGRES_PORT_5432_TCP_PORT -U postgres -c 'CREATE DATABASE IF NOT EXISTS cb;'
 
     - virtualenv:
         name: setup virtual environment
