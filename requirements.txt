@@ -18,7 +18,7 @@ djangorestframework==3.2.4
 elasticsearch==1.1.1
 eventlet==0.14.0
 facebook-sdk==0.4.0
-Ghost.py==0.1b2
+#Ghost.py==0.1b2
 greenlet==0.4.1
 httplib2==0.8
 ipython==1.1.0
@@ -26,13 +26,13 @@ lockfile==0.9.1
 Markdown==2.6.2
 oauth2==1.5.211
 oauthlib==0.6.1
-pilkit==1.1.5
-Pillow==2.2.1
+#pilkit==1.1.5
+#Pillow==2.2.1
 psycopg2==2.5.1
 pycparser==2.10
 pymongo==2.6.3
 pyOpenSSL==0.14
-PySide==1.2.1
+#PySide==1.2.1
 python-daemon==1.6
 python-memcached==1.53
 python-openid==2.2.5
