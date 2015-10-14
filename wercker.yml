@@ -19,4 +19,4 @@ build:
     - script:
         name: django test
         code: |
-          python manage.py test apps.api2
+          python manage.py test apps.api2 -v3
