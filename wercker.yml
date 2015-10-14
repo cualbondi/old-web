@@ -5,7 +5,7 @@ services:
      env:
        POSTGRES_PASSWORD: cb
        POSTGRES_USER: cb
-       POSTGRES_DB: cb
+       POSTGRES_DB: test_cb
 
 build:
   steps:
