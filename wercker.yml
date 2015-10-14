@@ -9,7 +9,7 @@ build:
   steps:
 
     - script:
-      name: create database
+        name: create database
         code: |
           PGPASSWORD=cb psql -h POSTGRES_PORT_5432_TCP_ADDR -p $POSTGRES_PORT_5432_TCP_PORT -U postgres -c 'CREATE DATABASE IF NOT EXISTS cb;'
 
