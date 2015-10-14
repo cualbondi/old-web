@@ -342,7 +342,7 @@ if WERCKER_IP_ADDR:
             'NAME': 'cb',
             'USER': 'cb',
             'PASSWORD': 'cb',
-            'HOST': WERCKER_POSTGRES_PORT_5432_TCP_ADDR,
+            'HOST': WERCKER_IP_ADDR,
             'PORT': '',
         }
     }
