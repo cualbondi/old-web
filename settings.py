@@ -14,6 +14,8 @@ ABSOLUTE_URL_OVERRIDES = {
     'auth.user': lambda u: "/usuarios/%s/" % u.username, 
 }
 
+SOUTH_TESTS_MIGRATE = False
+
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
@@ -286,6 +288,7 @@ else:
     DEBUG_TOOLBAR_PATCH_SETTINGS = False 
     INSTALLED_APPS += ('debug_toolbar', 'django_extensions')
     
+    """
     import logging
     l = logging.getLogger('django.db.backends')
     l.setLevel(logging.DEBUG)
@@ -304,6 +307,7 @@ else:
             }
         }
     })
+    """
 
     CACHES = {
         'default': {
