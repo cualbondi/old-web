@@ -343,7 +343,7 @@ if WERCKER_IP_ADDR:
             'USER': 'cb',
             'PASSWORD': 'cb',
             'HOST': WERCKER_IP_ADDR,
-            'PORT': '',
+            'PORT': os.environ.get('POSTGRES_PORT_5432_TCP_PORT', False),
             'TEST' : {
                 'NAME': 'cb'
             }
