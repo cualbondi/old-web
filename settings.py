@@ -334,16 +334,16 @@ else:
     }
 
 
-WERCKER_IP_ADDR = os.environ.get('POSTGRES_PORT_5432_TCP_ADDR', False)
-if WERCKER_IP_ADDR:
+WERCKER_DB_IPADDR = os.environ.get('POSTGIS_PORT_5432_TCP_ADDR', False)
+if WERCKER_DB_IPADDR:
     DATABASES = {
         'default': {
             'ENGINE': 'django.contrib.gis.db.backends.postgis',
             'NAME': 'postgres',
             'USER': 'postgres',
             'PASSWORD': 'cb',
-            'HOST': WERCKER_IP_ADDR,
-            'PORT': os.environ.get('POSTGRES_PORT_5432_TCP_PORT', False),
+            'HOST': WERCKER_DB_IPADDR,
+            'PORT': os.environ.get('POSTGIS_PORT_5432_TCP_PORT', False),
             'TEST': {
                 'NAME': 'postgres'
             }

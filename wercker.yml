@@ -1,20 +1,28 @@
 box: python:2.7
 
 services:
-   - id: postgres
+   - id: mdillon/postgis
      env:
        POSTGRES_PASSWORD: cb
 
 build:
   steps:
 
+    - install-packages:
+        packages: libgeos-dev python-dev gdal-bin
+
     - virtualenv:
         name: setup virtual environment
         install_wheel: true
+
+    - script:
+        name: fix pillow link
+        code: |
+          ln -s /usr/include/freetype2 /usr/local/include/freetype
 
     - pip-install
 
     - script:
         name: django test
         code: |
-          python manage.py test apps.api2 -v3
+          python manage.py test apps.api2 -v2
