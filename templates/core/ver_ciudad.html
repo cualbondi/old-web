@@ -1,6 +1,5 @@
 {% extends "contenido.html" %}
 
-{% load comments %}
 {% load bootstrap_tags %}
 
 {% block title %}Ciudad de {{ciudad_actual.nombre|title}} - Cualbondi{% endblock %}
@@ -79,6 +78,7 @@
         <div class="carousel-inner">
             {% for imagen in imagenes %}
             <div class="item {% if forloop.first %}active{% endif %}">
+              {% if imagen.custom_890x300 %}
                 <img src="/{{imagen.custom_890x300.url}}" alt="">
                 {% if imagen.titulo and imagen.descripcion %}
                 <div class="carousel-caption">
@@ -86,6 +86,7 @@
                     <p>{{imagen.descripcion}}</p>
                 </div>
                 {% endif %}
+              {% endif %}
             </div>
             {% endfor %}
         </div>

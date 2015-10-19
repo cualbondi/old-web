@@ -97,8 +97,8 @@ class Ciudad(models.Model):
     img_panorama = models.ImageField(max_length=200, upload_to='ciudad', blank=True, null=True)
     img_cuadrada = models.ImageField(max_length=200, upload_to='ciudad', blank=True, null=True)
     variantes_nombre = models.CharField(max_length=150, blank=True, null=True)
-    recorridos = models.ManyToManyField('core.Recorrido', blank=True, null=True)
-    lineas = models.ManyToManyField('core.Linea', blank=True, null=True)
+    recorridos = models.ManyToManyField('core.Recorrido', blank=True)
+    lineas = models.ManyToManyField('core.Linea', blank=True)
     longitud_poligono = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)
     area_poligono = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)
     poligono = models.PolygonField(blank=True, null=True)
@@ -130,8 +130,20 @@ class ImagenCiudad(models.Model):
         blank=False,
         null=False
     )
-    custom_890x300 = ImageSpecField([ResizeToFill(890, 300)], image_field='original',
-            format='JPEG', options={'quality': 100})
+    custom_890x300 = ImageSpecField(
+        [ResizeToFill(890, 300)],
+        source='original',
+        format='JPEG',
+        options={'quality': 100}
+    )
+
+    def _custom_890x300(self):
+        try:
+            return self.custom_890x300
+        except:
+            return None
+    custom_890x300 = property(_custom_890x300)
+
     titulo = models.CharField(max_length=100, blank=True, null=True)
     descripcion = models.TextField(null=True, blank=True)
 

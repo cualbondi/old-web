@@ -16,7 +16,7 @@ set -ex
 # TODO: use postgresl 9.4 official repo http://apt.postgresql.org/pub/repos/apt/ utopic-pgdg/main amd64 Packages
 # Install base packages
 apt-get update
-apt-get -y install nginx postgresql-9.3-postgis-2.1 postgresql-client uwsgi uwsgi-plugin-python python-pip python-dev libffi-dev libssl-dev libpq-dev cmake libqt4-dev memcached osm2pgsql rsync
+apt-get -y install nginx postgresql-9.3-postgis-2.1 postgresql-client uwsgi uwsgi-plugin-python python-pip python-dev libffi-dev libssl-dev libpq-dev cmake libqt4-dev memcached osm2pgsql rsync libgeos-dev gdal-bin libjpeg-dev zlib1g-dev git pngcrush
 pip install -U pip virtualenv
 
 # Configure pgsql
@@ -57,11 +57,8 @@ HEREDOC1
 virtualenv $ENV_PATH
 $PIP install -U -r $REPO/requirements.txt
 
-$MANAGE syncdb --all
-$MANAGE migrate --fake
+$MANAGE migrate --noinput
 $MANAGE collectstatic --noinput
-
-
 
 cat > /etc/nginx/sites-enabled/default <<HEREDOC
 server {
@@ -113,7 +110,7 @@ workers = 4
 master = true
 env = DJANGO_SETTINGS_MODULE=settings
 #env = CUALBONDI_ENV=production
-module = django.core.handlers.wsgi:WSGIHandler()
+module = django.core.wsgi:get_wsgi_application()
 chdir = /app/repo
 pythonpath = /app/repo
 socket = /run/uwsgi/app/django/socket

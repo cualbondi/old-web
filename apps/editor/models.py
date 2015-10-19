@@ -2,7 +2,6 @@
 from django.contrib.gis.db import models
 from apps.editor.fields import UUIDField
 from django.contrib.auth.models import User
-from django.db.models.loading import get_model
 from django.core.management import call_command
 from django.contrib.auth.models import AnonymousUser
 from apps.catastro.models import Ciudad
@@ -18,11 +17,11 @@ MODERATION_CHOICES = (
 )
 
 class RecorridoProposed(models.Model):
-    recorrido = models.ForeignKey(get_model('core', 'Recorrido'))
+    recorrido = models.ForeignKey('core.Recorrido')
     parent = UUIDField()
     uuid = UUIDField()
     nombre = models.CharField(max_length=100)
-    linea = models.ForeignKey(get_model('core', 'Linea'))
+    linea = models.ForeignKey('core.Linea')
     ruta = models.LineStringField()
     sentido = models.CharField(max_length=100, blank=True, null=True)
     slug = models.SlugField(max_length=200, blank=True, null=True)

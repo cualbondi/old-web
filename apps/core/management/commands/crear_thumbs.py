@@ -12,13 +12,16 @@ from django.contrib.sites.models import Site
 from subprocess import call
 import shutil
 
+
 def create_screenshot(url, filename, size):
-    ghost=Ghost(wait_timeout=40, viewport_size=size)
+    ghost = Ghost().start()
+    ghost.set_viewport_size(size[0], size[1])
     ghost.open(url)
-    ghost.wait_for_alert()
-    ghost.wait_for_page_loaded()
-    ghost.capture_to(filename,selector='#map')
-    
+    ghost.wait_for_alert(timeout=40)
+    ghost.wait_for_page_loaded(timeout=40)
+    ghost.capture_to(filename, selector='#map')
+
+
 def save_img(pre_name, prefix, obj, img_field):
     fname = pre_name.format(prefix, obj.slug)
     try:

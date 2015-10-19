@@ -9,7 +9,7 @@ build:
   steps:
 
     - install-packages:
-        packages: libgeos-dev python-dev gdal-bin
+        packages: libgeos-dev python-dev gdal-bin libjpeg-dev zlib1g-dev git pngcrush
 
     - virtualenv:
         name: setup virtual environment

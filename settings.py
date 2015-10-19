@@ -14,8 +14,6 @@ ABSOLUTE_URL_OVERRIDES = {
     'auth.user': lambda u: "/usuarios/%s/" % u.username, 
 }
 
-SOUTH_TESTS_MIGRATE = False
-
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
@@ -154,7 +152,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    os.path.join(os.path.dirname(__file__),'templates')
+    os.path.join(os.path.dirname(__file__),'templates'),
 )
 
 GOOGLE_API = "//maps.google.com/maps/api/js?v=3.6&sensor=false"
@@ -168,7 +166,6 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
-    'django.contrib.comments',
     'django.contrib.gis',
     'django.contrib.flatpages',
     'django.contrib.sitemaps',
@@ -177,10 +174,10 @@ INSTALLED_APPS = (
     'bootstrap_toolkit',
     'floppyforms',
     'imagekit',
-    'south',
 #    'moderacion',
 #    'editor',
 #    'django_extensions',
+    'piston',
     'rest_framework',
 
     # Propias
