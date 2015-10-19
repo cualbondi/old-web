@@ -25,4 +25,5 @@ build:
     - script:
         name: django test
         code: |
-          python manage.py test apps.api2 -v2
+          coverage run --source='.' manage.py test apps.api2 -v2
+          coverage report

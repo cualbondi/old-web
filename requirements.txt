@@ -1,4 +1,5 @@
 cffi==0.8.2
+coverage==4.0.1
 cryptography==0.4
 Django==1.6.5
 django-appconf==0.6
