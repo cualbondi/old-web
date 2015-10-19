@@ -10,6 +10,6 @@ class TestCiudades(APITestCase):
         p = Provincia.objects.create(nombre='Bs As')
         Ciudad.objects.create(nombre='La Plata', provincia=p, activa=True)
 
-        response = self.client.get('/api/v2/ciudad/')
+        response = self.client.get('/api/v2/ciudades/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)

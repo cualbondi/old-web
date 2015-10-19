@@ -1,108 +1,37 @@
 # -*- coding: utf-8 -*-
-from rest_framework import serializers
+
 from rest_framework import viewsets
 from rest_framework import exceptions
 from rest_framework import pagination
 from rest_framework.response import Response
 
-from apps.core.models import Recorrido
 from django.contrib.gis.geos import GEOSGeometry
-from base64 import b64encode
 from django.contrib.gis.measure import D
+from django.core.exceptions import ObjectDoesNotExist
+
+from apps.catastro.models import Ciudad
+from apps.core.models import Linea
+from apps.core.models import Recorrido
+from apps.catastro.models import PuntoBusqueda
+
+from .import serializers
+
+
+class CiudadesViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.CiudadSerializer
+    queryset = Ciudad.objects.all()
+
+
+class LineasViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.LineaSerializer
+    queryset = Linea.objects.all()
 
 
 class CBPagination(pagination.PageNumberPagination):
     page_size = 5
 
 
-class RouterResultSerializer(serializers.Serializer):
-
-    def to_representation(self, obj):
-        if not hasattr(obj, 'id2'):
-            return {
-                "id": obj.id,
-                "itinerario": [
-                    {
-                        "id": obj.id,
-                        "ruta_corta": b64encode(obj.ruta_corta),
-                        "long_bondi": obj.long_ruta,
-                        "long_pata": obj.long_pata,
-                        "color_polilinea": obj.color_polilinea,
-                        "inicio": obj.inicio,
-                        "fin": obj.fin,
-                        "nombre": obj.nombre,
-                        "foto": obj.foto,
-                        "p1": getParada(obj.p1),
-                        "p2": getParada(obj.p2),
-                        "url": obj.get_absolute_url()
-                    }
-                ]
-            }
-        else:
-            return {
-                "id": str(obj.id) + str(obj.id2),
-                "itinerario": [
-                    {
-                        "id": obj.id,
-                        "ruta_corta": b64encode(obj.ruta_corta),
-                        "long_bondi": obj.long_ruta,
-                        "long_pata": obj.long_pata,
-                        "color_polilinea": obj.color_polilinea,
-                        "inicio": obj.inicio,
-                        "fin": obj.fin,
-                        "nombre": obj.nombre,
-                        "foto": obj.foto,
-                        "p1": getParada(obj.p11ll),
-                        "p2": getParada(obj.p12ll),
-                        "url": obj.get_absolute_url(None, None, obj.slug)
-                    },
-                    {
-                        "id": obj.id2,
-                        "ruta_corta": b64encode(obj.ruta_corta2),
-                        "long_bondi": obj.long_ruta2,
-                        "long_pata": obj.long_pata2,
-                        "color_polilinea": obj.color_polilinea2,
-                        "inicio": obj.inicio2,
-                        "fin": obj.fin2,
-                        "nombre": obj.nombre2,
-                        "foto": obj.foto2,
-                        "p1": getParada(obj.p21ll),
-                        "p2": getParada(obj.p22ll),
-                        "url": obj.get_absolute_url(None, None, obj.slug2)
-                    }
-                ]
-            }
-
-
-def getParada(parada_id):
-    if parada_id is None:
-        return None
-    else:
-        p = Parada.objects.get(pk=obj.parada_id)
-        return {
-            "latlng": p.latlng.geojson,
-            "codigo": p.codigo,
-            "nombre": p.nombre
-        }
-
-
-class RecorridoSerializer(serializers.Serializer):
-
-    def to_representation(self, obj):
-        return {
-            'id': obj.id,
-            'nombre': obj.nombre,
-            'nombre_linea': obj.linea.nombre,
-            'color_polilinea': obj.color_polilinea,
-            'sentido': obj.sentido,
-            'descripcion': obj.descripcion,
-            'inicio': obj.inicio,
-            'fin': obj.fin,
-            'ruta': b64encode(obj.ruta.wkt),
-        }
-
-
-class RecorridoViewSet(viewsets.ModelViewSet):
+class RecorridosViewSet(viewsets.ModelViewSet):
     """
         Parametros querystring
 
@@ -118,7 +47,7 @@ class RecorridoViewSet(viewsets.ModelViewSet):
          - `c` string: ciudad-slug, requerido cuando se usa `q`
     """
 
-    serializer_class = RecorridoSerializer
+    serializer_class = serializers.RecorridoSerializer
     queryset = Recorrido.objects.all()
     pagination_class = CBPagination
 
@@ -174,8 +103,8 @@ class RecorridoViewSet(viewsets.ModelViewSet):
 
             page = self.paginate_queryset(routerResults)
             if page is not None:
-                serializer = RouterResultSerializer(page, many=True)
-                return self.get_paginated_response(serializer.data)
+                ser = serializers.RouterResultSerializer(page, many=True)
+                return self.get_paginated_response(ser.data)
             else:
                 return Response([])
 
@@ -184,9 +113,55 @@ class RecorridoViewSet(viewsets.ModelViewSet):
                 raise exceptions.ValidationError(
                     {'detail': '\'c\' parameter is required when using `q` parameter'}
                 )
-            page = self.paginate_queryset(list(Recorrido.objects.fuzzy_like_trgm_query(q, c)))
+            page = self.paginate_queryset(list(
+                Recorrido.objects.fuzzy_like_trgm_query(q, c)
+            ))
             if page is not None:
                 serializer = self.get_serializer(page, many=True)
                 return self.get_paginated_response(serializer.data)
             else:
+                return Response([])
+
+
+class GeocoderViewSet(viewsets.GenericViewSet):
+    """
+        Parámetros querystring
+
+         - `q` obligatorio: string a geobuscar
+         - `ciudad` opcional: slug de la ciudad donde buscar
+
+        Busca el valor del parámetro `q`
+        usando varias fuentes según el formato del string de búsqueda
+
+         - **Geocoder** [Google] (ej: [12 1234](/api/v2/geocoder/?q=12%201234&ciudad=la-plata) / [12 n 1234](/api/v2/geocoder/?q=12%20n%201234&ciudad=la-plata) / [centenario 1234](/api/v2/geocoder/?q=centenario%20n%201234&ciudad=la-plata))
+         - **Intersección de calles** [OSM] (ej: [12 y 62](/api/v2/geocoder/?q=12%20y%2062&ciudad=la-plata) / perón y alvarez)
+         - **POI (Point Of Interest)** [OSM y Cualbondi] (ej: plaza rocha / hospital)
+         - **Zona (Barrio / Ciudad)** [Cualbondi] (ej: berisso / colegiales) (devuelve geocentro)
+
+        El geocoder usa varias fuentes y técnicas, entre ellas fuzzy search.
+        Por esto, devuelve un valor de "precision" para cada registro.
+
+        Utiliza el parámetro `ciudad` para dar mas contexto al lugar
+        donde se está buscando. Esto ayuda a evitar ambigüedad en la búsqueda
+        ya que puede haber dos calles que se llamen igual en distintas ciudades
+        pero no restringe la búsqueda a esa ciudad (sólo altera la precisión)
+    """
+    serializer_class = serializers.GeocoderSerializer
+
+    def list(self, request):
+        q = request.query_params.get('q', None)
+        ciudad_actual_slug = request.query_params.get('ciudad', None)
+        if q is None:
+            raise exceptions.ValidationError(
+                {'detail': 'expected \'q\' parameter'}
+            )
+        else:
+            try:
+                serializer = self.get_serializer()
+                ser = serializer(
+                    PuntoBusqueda.objects.buscar(q, ciudad_actual_slug),
+                    many=True
+                )
+                return Response(ser.data)
+            except ObjectDoesNotExist:
                 return Response([])
