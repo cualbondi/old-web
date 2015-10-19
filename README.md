@@ -1,5 +1,7 @@
 # Cualbondi
 
+[![wercker status](https://app.wercker.com/status/6e4c78c81a92f06e92b971d476378f14/s "wercker status")](https://app.wercker.com/project/bykey/6e4c78c81a92f06e92b971d476378f14)
+
 ## Requirements
 
 * Debian-based machine
