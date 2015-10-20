@@ -1,4 +1,5 @@
 cffi==0.8.2
+coverage==4.0.1
 cryptography==0.4
 Django==1.6.5
 django-appconf==0.6
@@ -14,14 +15,15 @@ django-piston==0.2.3
 django-sentry==1.13.5
 django-social-auth==0.7.28
 django-templatetag-sugar==0.1
+djangorestframework==3.2.4
 elasticsearch==1.1.1
 eventlet==0.14.0
 facebook-sdk==0.4.0
-Ghost.py==0.1b2
 greenlet==0.4.1
 httplib2==0.8
 ipython==1.1.0
 lockfile==0.9.1
+Markdown==2.6.2
 oauth2==1.5.211
 oauthlib==0.6.1
 pilkit==1.1.5
@@ -30,7 +32,6 @@ psycopg2==2.5.1
 pycparser==2.10
 pymongo==2.6.3
 pyOpenSSL==0.14
-PySide==1.2.1
 python-daemon==1.6
 python-memcached==1.53
 python-openid==2.2.5
@@ -44,3 +45,7 @@ sqlparse==0.1.11
 urllib3==1.10.2
 uWSGI==2.0.10
 Werkzeug==0.9.4
+
+# This two take a lot to build, if you need them uncomment and pip install 'em
+#PySide==1.2.1
+#Ghost.py==0.1b2

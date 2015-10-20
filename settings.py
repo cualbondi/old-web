@@ -14,6 +14,8 @@ ABSOLUTE_URL_OVERRIDES = {
     'auth.user': lambda u: "/usuarios/%s/" % u.username, 
 }
 
+SOUTH_TESTS_MIGRATE = False
+
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
@@ -179,8 +181,10 @@ INSTALLED_APPS = (
 #    'moderacion',
 #    'editor',
 #    'django_extensions',
+    'rest_framework',
 
     # Propias
+    'apps.api2',
     'apps.api',
     'apps.catastro',
     'apps.core',
@@ -189,6 +193,11 @@ INSTALLED_APPS = (
     'apps.mobile_updates',
     'apps.editor',
 )
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': ('apps.api2.permissions.ReadOnly',),
+    'PAGE_SIZE': 10
+}
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -279,6 +288,7 @@ else:
     DEBUG_TOOLBAR_PATCH_SETTINGS = False 
     INSTALLED_APPS += ('debug_toolbar', 'django_extensions')
     
+    """
     import logging
     l = logging.getLogger('django.db.backends')
     l.setLevel(logging.DEBUG)
@@ -297,6 +307,7 @@ else:
             }
         }
     })
+    """
 
     CACHES = {
         'default': {
@@ -321,3 +332,21 @@ else:
         'index': 'cualbondi',
         'type': 'requests'
     }
+
+
+WERCKER_DB_IPADDR = os.environ.get('POSTGIS_PORT_5432_TCP_ADDR', False)
+if WERCKER_DB_IPADDR:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': 'postgres',
+            'USER': 'postgres',
+            'PASSWORD': 'cb',
+            'HOST': WERCKER_DB_IPADDR,
+            'PORT': os.environ.get('POSTGIS_PORT_5432_TCP_PORT', False),
+            'TEST': {
+                'NAME': 'postgres'
+            }
+        }
+    }
+    print DATABASES

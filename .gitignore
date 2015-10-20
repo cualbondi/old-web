@@ -1,3 +1,5 @@
+.vagrant
+
 # Uploaded files #
 ##################
 # media
@@ -5,7 +7,7 @@
 # Archivos configuracion #
 ##########################
 settings_local.py
-settings.py
+# settings.py
 
 # Archivos compilados #
 ###################
