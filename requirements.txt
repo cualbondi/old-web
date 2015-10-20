@@ -64,7 +64,7 @@ wheel==0.24.0
 
 # use a fork that works in django 1.8
 #django-piston==0.2.3
-git+https://github.com/natebeacham/django-piston.git
+git+https://github.com/jperelli/django-piston.git
 
 # This take a lot of time to build, if you need it uncomment and pip install 'em
 #PySide==1.2.4
