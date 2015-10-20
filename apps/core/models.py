@@ -3,11 +3,11 @@ from django.contrib.gis.db import models
 from django.template.defaultfilters import slugify
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
- 
+import uuid
+
 from apps.core.managers import RecorridoManager
 from apps.catastro.models import Ciudad
 from apps.usuarios.models import RecorridoFavorito
-from apps.editor.fields import UUIDField
 
 from django.core.urlresolvers import reverse
 
@@ -54,7 +54,7 @@ class Linea(models.Model):
             })
 
 class Recorrido(models.Model):
-    uuid = UUIDField()
+    uuid = models.UUIDField(default=uuid.uuid4)
     nombre = models.CharField(max_length=100)
     img_panorama = models.ImageField(max_length=200, upload_to='recorrido', blank=True, null=True)
     img_cuadrada = models.ImageField(max_length=200, upload_to='recorrido', blank=True, null=True)

@@ -28,8 +28,8 @@ class Migration(migrations.Migration):
             name='RecorridoProposed',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('parent', apps.editor.fields.UUIDField(max_length=36, editable=False, blank=True)),
-                ('uuid', apps.editor.fields.UUIDField(max_length=36, editable=False, blank=True)),
+                ('parent', models.CharField(max_length=36)),
+                ('uuid', models.CharField(max_length=36)),
                 ('nombre', models.CharField(max_length=100)),
                 ('ruta', django.contrib.gis.db.models.fields.LineStringField(srid=4326)),
                 ('sentido', models.CharField(max_length=100, null=True, blank=True)),

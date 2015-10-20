@@ -81,7 +81,7 @@ class Migration(migrations.Migration):
             name='Recorrido',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('uuid', apps.editor.fields.UUIDField(max_length=36, editable=False, blank=True)),
+                ('uuid',  models.CharField(max_length=36)),
                 ('nombre', models.CharField(max_length=100)),
                 ('img_panorama', models.ImageField(max_length=200, null=True, upload_to=b'recorrido', blank=True)),
                 ('img_cuadrada', models.ImageField(max_length=200, null=True, upload_to=b'recorrido', blank=True)),
