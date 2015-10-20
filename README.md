@@ -1,6 +1,7 @@
 # Cualbondi
 
 [![wercker status](https://app.wercker.com/status/6e4c78c81a92f06e92b971d476378f14/s "wercker status")](https://app.wercker.com/project/bykey/6e4c78c81a92f06e92b971d476378f14)
+[![Code Issues](https://www.quantifiedcode.com/api/v1/project/695d8e00ab444a4584ceb9b70c39ce63/badge.svg)](https://www.quantifiedcode.com/app/project/695d8e00ab444a4584ceb9b70c39ce63)
 
 ## Requirements
 
