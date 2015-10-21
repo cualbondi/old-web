@@ -13,6 +13,7 @@ env:
     - PYTHONPATH=$PYTHONPATH:$SHIPPABLE_REPO_DIR
 
 before_install:
+  - mkdir -p shippable/codecoverage shippable/testresults
   - psql -c 'create database geocualbondidb;' -U postgres
   - psql -c 'create database test_geocualbondidb;' -U postgres
   - psql -d geocualbondidb -c 'create extension postgis;' -U postgres
@@ -22,5 +23,4 @@ install:
   - pip install -r requirements.txt
 
 script:
-  - coverage run --source=$SHIPPABLE_REPO_DIR $SHIPPABLE_REPO_DIR/manage.py test apps.api2 -k -v2
-  - coverage report
+  - cd $SHIPPABLE_REPO_DIR && ./manage.py test apps.api2 --with-coverage --cover-package=apps --cover-xml --cover-xml-file=shippable/codecoverage/coverage.xml --cover-branches --with-xunit --xunit-file=shippable/testresults/nosetests.xml

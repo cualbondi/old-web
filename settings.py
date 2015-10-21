@@ -179,6 +179,7 @@ INSTALLED_APPS = (
 #    'django_extensions',
     'piston',
     'rest_framework',
+    'django_nose',
 
     # Propias
     'apps.api2',
@@ -195,6 +196,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('apps.api2.permissions.ReadOnly',),
     'PAGE_SIZE': 10
 }
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
