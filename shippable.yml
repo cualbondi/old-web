@@ -10,7 +10,7 @@ env:
   global:
     - DB_NAME=geocualbondidb
     - DJANGO_SETTINGS_MODULE=settings
-    - PYTHONPATH=$PYTHONPATH:$HOME/workspace/src/bitbucket.com/martinzugnoni/geocualbondi
+    - PYTHONPATH=$PYTHONPATH:$SHIPPABLE_REPO_DIR
 
 before_install:
   - psql -c 'create database geocualbondidb;' -U postgres
@@ -21,4 +21,6 @@ before_install:
 install:
   - pip install -r requirements.txt
 
-script: manage.py test
+script:
+  - coverage run --source='$SHIPPABLE_REPO_DIR' $SHIPPABLE_REPO_DIR/manage.py test apps.api2 -k -v2
+  - coverage report
