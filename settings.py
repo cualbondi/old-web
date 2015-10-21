@@ -343,10 +343,7 @@ if WERCKER_DB_IPADDR:
             'USER': 'postgres',
             'PASSWORD': 'cb',
             'HOST': WERCKER_DB_IPADDR,
-            'PORT': os.environ.get('POSTGIS_PORT_5432_TCP_PORT', False),
-            'TEST': {
-                'NAME': 'postgres'
-            }
+            'PORT': os.environ.get('POSTGIS_PORT_5432_TCP_PORT', False)
         }
     }
     print DATABASES
