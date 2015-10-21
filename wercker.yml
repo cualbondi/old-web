@@ -25,5 +25,4 @@ build:
     - script:
         name: django test
         code: |
-          coverage run --source='.' manage.py test apps.api2 -k -v2
-          coverage report
+          python manage.py test apps.api2 --with-coverage --cover-package=apps --cover-branches
