@@ -1,220 +1,144 @@
 # -*- coding: utf-8 -*-
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import migrations, models
+import django.contrib.gis.db.models.fields
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'Linea'
-        db.create_table('core_linea', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('nombre', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('slug', self.gf('django.db.models.fields.SlugField')(max_length=120, blank=True)),
-            ('descripcion', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('foto', self.gf('django.db.models.fields.CharField')(max_length=20, null=True, blank=True)),
-            ('color_polilinea', self.gf('django.db.models.fields.CharField')(max_length=20, null=True, blank=True)),
-            ('info_empresa', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('info_terminal', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('localidad', self.gf('django.db.models.fields.CharField')(max_length=50, null=True, blank=True)),
-            ('cp', self.gf('django.db.models.fields.CharField')(max_length=20, null=True, blank=True)),
-            ('telefono', self.gf('django.db.models.fields.CharField')(max_length=200, null=True, blank=True)),
-            ('envolvente', self.gf('django.contrib.gis.db.models.fields.PolygonField')(null=True, blank=True)),
-        ))
-        db.send_create_signal('core', ['Linea'])
+    dependencies = [
+        ('catastro', '0001_initial'),
+    ]
 
-        # Adding model 'Recorrido'
-        db.create_table('core_recorrido', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('nombre', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('linea', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['core.Linea'])),
-            ('ruta', self.gf('django.contrib.gis.db.models.fields.LineStringField')()),
-            ('sentido', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('slug', self.gf('django.db.models.fields.SlugField')(max_length=200, blank=True)),
-            ('inicio', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('fin', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('semirrapido', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('color_polilinea', self.gf('django.db.models.fields.CharField')(max_length=20, null=True, blank=True)),
-            ('horarios', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('pois', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('descripcion', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('paradas_completas', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal('core', ['Recorrido'])
-
-        # Adding model 'Comercio'
-        db.create_table('core_comercio', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('nombre', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('latlng', self.gf('django.contrib.gis.db.models.fields.PointField')()),
-            ('ciudad', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['catastro.Ciudad'])),
-        ))
-        db.send_create_signal('core', ['Comercio'])
-
-        # Adding model 'Parada'
-        db.create_table('core_parada', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('codigo', self.gf('django.db.models.fields.CharField')(max_length=15, null=True, blank=True)),
-            ('nombre', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
-            ('latlng', self.gf('django.contrib.gis.db.models.fields.PointField')()),
-        ))
-        db.send_create_signal('core', ['Parada'])
-
-        # Adding model 'Horario'
-        db.create_table('core_horario', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('recorrido', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['core.Recorrido'])),
-            ('parada', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['core.Parada'])),
-            ('hora', self.gf('django.db.models.fields.CharField')(max_length=5, null=True, blank=True)),
-        ))
-        db.send_create_signal('core', ['Horario'])
-
-        # Adding model 'Terminal'
-        db.create_table('core_terminal', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('linea', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['core.Linea'])),
-            ('descripcion', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('direccion', self.gf('django.db.models.fields.CharField')(max_length=150)),
-            ('telefono', self.gf('django.db.models.fields.CharField')(max_length=150)),
-            ('latlng', self.gf('django.contrib.gis.db.models.fields.PointField')()),
-        ))
-        db.send_create_signal('core', ['Terminal'])
-
-        # Adding model 'Tarifa'
-        db.create_table('core_tarifa', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('tipo', self.gf('django.db.models.fields.CharField')(max_length=150)),
-            ('precio', self.gf('django.db.models.fields.DecimalField')(max_digits=5, decimal_places=2)),
-            ('ciudad', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['catastro.Ciudad'])),
-        ))
-        db.send_create_signal('core', ['Tarifa'])
-
-
-    def backwards(self, orm):
-        # Deleting model 'Linea'
-        db.delete_table('core_linea')
-
-        # Deleting model 'Recorrido'
-        db.delete_table('core_recorrido')
-
-        # Deleting model 'Comercio'
-        db.delete_table('core_comercio')
-
-        # Deleting model 'Parada'
-        db.delete_table('core_parada')
-
-        # Deleting model 'Horario'
-        db.delete_table('core_horario')
-
-        # Deleting model 'Terminal'
-        db.delete_table('core_terminal')
-
-        # Deleting model 'Tarifa'
-        db.delete_table('core_tarifa')
-
-
-    models = {
-        'catastro.ciudad': {
-            'Meta': {'object_name': 'Ciudad'},
-            'activa': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'area_poligono': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '7', 'decimal_places': '2', 'blank': 'True'}),
-            'centro': ('django.contrib.gis.db.models.fields.PointField', [], {'null': 'True', 'blank': 'True'}),
-            'descripcion': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'envolvente': ('django.contrib.gis.db.models.fields.PolygonField', [], {'null': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'lineas': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['core.Linea']", 'null': 'True', 'blank': 'True'}),
-            'longitud_poligono': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '7', 'decimal_places': '2', 'blank': 'True'}),
-            'nombre': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'poligono': ('django.contrib.gis.db.models.fields.PolygonField', [], {'null': 'True', 'blank': 'True'}),
-            'provincia': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['catastro.Provincia']"}),
-            'recorridos': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['core.Recorrido']", 'null': 'True', 'blank': 'True'}),
-            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '120', 'blank': 'True'}),
-            'sugerencia': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'variantes_nombre': ('django.db.models.fields.CharField', [], {'max_length': '150', 'null': 'True', 'blank': 'True'}),
-            'zoom': ('django.db.models.fields.IntegerField', [], {'default': '14', 'null': 'True', 'blank': 'True'})
-        },
-        'catastro.provincia': {
-            'Meta': {'object_name': 'Provincia'},
-            'area_poligono': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '7', 'decimal_places': '2', 'blank': 'True'}),
-            'centro': ('django.contrib.gis.db.models.fields.PointField', [], {'null': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'longitud_poligono': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '7', 'decimal_places': '2', 'blank': 'True'}),
-            'nombre': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'poligono': ('django.contrib.gis.db.models.fields.PolygonField', [], {'null': 'True', 'blank': 'True'}),
-            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '120', 'blank': 'True'}),
-            'variantes_nombre': ('django.db.models.fields.CharField', [], {'max_length': '150', 'null': 'True', 'blank': 'True'})
-        },
-        'core.comercio': {
-            'Meta': {'object_name': 'Comercio'},
-            'ciudad': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['catastro.Ciudad']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'latlng': ('django.contrib.gis.db.models.fields.PointField', [], {}),
-            'nombre': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        'core.horario': {
-            'Meta': {'object_name': 'Horario'},
-            'hora': ('django.db.models.fields.CharField', [], {'max_length': '5', 'null': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'parada': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['core.Parada']"}),
-            'recorrido': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['core.Recorrido']"})
-        },
-        'core.linea': {
-            'Meta': {'object_name': 'Linea'},
-            'color_polilinea': ('django.db.models.fields.CharField', [], {'max_length': '20', 'null': 'True', 'blank': 'True'}),
-            'cp': ('django.db.models.fields.CharField', [], {'max_length': '20', 'null': 'True', 'blank': 'True'}),
-            'descripcion': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'envolvente': ('django.contrib.gis.db.models.fields.PolygonField', [], {'null': 'True', 'blank': 'True'}),
-            'foto': ('django.db.models.fields.CharField', [], {'max_length': '20', 'null': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'info_empresa': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'info_terminal': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'localidad': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True', 'blank': 'True'}),
-            'nombre': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '120', 'blank': 'True'}),
-            'telefono': ('django.db.models.fields.CharField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'})
-        },
-        'core.parada': {
-            'Meta': {'object_name': 'Parada'},
-            'codigo': ('django.db.models.fields.CharField', [], {'max_length': '15', 'null': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'latlng': ('django.contrib.gis.db.models.fields.PointField', [], {}),
-            'nombre': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'})
-        },
-        'core.recorrido': {
-            'Meta': {'ordering': "['linea__nombre', 'nombre']", 'object_name': 'Recorrido'},
-            'color_polilinea': ('django.db.models.fields.CharField', [], {'max_length': '20', 'null': 'True', 'blank': 'True'}),
-            'descripcion': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'fin': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'horarios': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'inicio': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'linea': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['core.Linea']"}),
-            'nombre': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'paradas_completas': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'pois': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'ruta': ('django.contrib.gis.db.models.fields.LineStringField', [], {}),
-            'semirrapido': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'sentido': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '200', 'blank': 'True'})
-        },
-        'core.tarifa': {
-            'Meta': {'object_name': 'Tarifa'},
-            'ciudad': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['catastro.Ciudad']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'precio': ('django.db.models.fields.DecimalField', [], {'max_digits': '5', 'decimal_places': '2'}),
-            'tipo': ('django.db.models.fields.CharField', [], {'max_length': '150'})
-        },
-        'core.terminal': {
-            'Meta': {'object_name': 'Terminal'},
-            'descripcion': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'direccion': ('django.db.models.fields.CharField', [], {'max_length': '150'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'latlng': ('django.contrib.gis.db.models.fields.PointField', [], {}),
-            'linea': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['core.Linea']"}),
-            'telefono': ('django.db.models.fields.CharField', [], {'max_length': '150'})
-        }
-    }
-
-    complete_apps = ['core']
+    operations = [
+        migrations.CreateModel(
+            name='Comercio',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('nombre', models.CharField(max_length=100)),
+                ('latlng', django.contrib.gis.db.models.fields.PointField(srid=4326)),
+                ('ciudad', models.ForeignKey(to='catastro.Ciudad')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='FacebookPage',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id_fb', models.CharField(max_length=50)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Horario',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('hora', models.CharField(max_length=5, null=True, blank=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Linea',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('nombre', models.CharField(max_length=100)),
+                ('slug', models.SlugField(max_length=120, blank=True)),
+                ('descripcion', models.TextField(null=True, blank=True)),
+                ('foto', models.CharField(max_length=20, null=True, blank=True)),
+                ('img_panorama', models.ImageField(max_length=200, null=True, upload_to=b'linea', blank=True)),
+                ('img_cuadrada', models.ImageField(max_length=200, null=True, upload_to=b'linea', blank=True)),
+                ('color_polilinea', models.CharField(max_length=20, null=True, blank=True)),
+                ('info_empresa', models.TextField(null=True, blank=True)),
+                ('info_terminal', models.TextField(null=True, blank=True)),
+                ('localidad', models.CharField(max_length=50, null=True, blank=True)),
+                ('cp', models.CharField(max_length=20, null=True, blank=True)),
+                ('telefono', models.CharField(max_length=200, null=True, blank=True)),
+                ('envolvente', django.contrib.gis.db.models.fields.PolygonField(srid=4326, null=True, blank=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Parada',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('codigo', models.CharField(max_length=15, null=True, blank=True)),
+                ('nombre', models.CharField(max_length=100, null=True, blank=True)),
+                ('latlng', django.contrib.gis.db.models.fields.PointField(srid=4326)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Posicion',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('dispositivo_uuid', models.CharField(max_length=100, null=True, blank=True)),
+                ('timestamp', models.DateTimeField(auto_now_add=True)),
+                ('latlng', django.contrib.gis.db.models.fields.PointField(srid=4326)),
+            ],
+            options={
+                'verbose_name': 'Posicion',
+                'verbose_name_plural': 'Posiciones',
+            },
+        ),
+        migrations.CreateModel(
+            name='Recorrido',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('uuid',  models.CharField(max_length=36)),
+                ('nombre', models.CharField(max_length=100)),
+                ('img_panorama', models.ImageField(max_length=200, null=True, upload_to=b'recorrido', blank=True)),
+                ('img_cuadrada', models.ImageField(max_length=200, null=True, upload_to=b'recorrido', blank=True)),
+                ('ruta', django.contrib.gis.db.models.fields.LineStringField(srid=4326)),
+                ('sentido', models.CharField(max_length=100, blank=True)),
+                ('slug', models.SlugField(max_length=200, blank=True)),
+                ('inicio', models.CharField(max_length=100, blank=True)),
+                ('fin', models.CharField(max_length=100, blank=True)),
+                ('semirrapido', models.BooleanField(default=False)),
+                ('color_polilinea', models.CharField(max_length=20, null=True, blank=True)),
+                ('horarios', models.TextField(null=True, blank=True)),
+                ('pois', models.TextField(null=True, blank=True)),
+                ('descripcion', models.TextField(null=True, blank=True)),
+                ('paradas_completas', models.BooleanField(default=False)),
+                ('linea', models.ForeignKey(to='core.Linea')),
+            ],
+            options={
+                'ordering': ['linea__nombre', 'nombre'],
+            },
+        ),
+        migrations.CreateModel(
+            name='Tarifa',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('tipo', models.CharField(max_length=150)),
+                ('precio', models.DecimalField(max_digits=5, decimal_places=2)),
+                ('ciudad', models.ForeignKey(to='catastro.Ciudad')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Terminal',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('descripcion', models.TextField(null=True, blank=True)),
+                ('direccion', models.CharField(max_length=150)),
+                ('telefono', models.CharField(max_length=150)),
+                ('latlng', django.contrib.gis.db.models.fields.PointField(srid=4326)),
+                ('linea', models.ForeignKey(to='core.Linea')),
+            ],
+        ),
+        migrations.AddField(
+            model_name='posicion',
+            name='recorrido',
+            field=models.ForeignKey(to='core.Recorrido'),
+        ),
+        migrations.AddField(
+            model_name='horario',
+            name='parada',
+            field=models.ForeignKey(to='core.Parada'),
+        ),
+        migrations.AddField(
+            model_name='horario',
+            name='recorrido',
+            field=models.ForeignKey(to='core.Recorrido'),
+        ),
+        migrations.AddField(
+            model_name='facebookpage',
+            name='linea',
+            field=models.ForeignKey(to='core.Linea'),
+        ),
+    ]

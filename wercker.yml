@@ -9,7 +9,7 @@ build:
   steps:
 
     - install-packages:
-        packages: libgeos-dev python-dev gdal-bin
+        packages: libgeos-dev python-dev gdal-bin libjpeg-dev zlib1g-dev git pngcrush
 
     - virtualenv:
         name: setup virtual environment
@@ -23,7 +23,16 @@ build:
     - pip-install
 
     - script:
+        name: upload codecoverage prereqs
+        code: |
+          pip install argparse==1.2.1 cffi==1.3.0 cryptography==1.0.2 dropbox==3.37 enum34==1.0.4 idna==2.0 ipaddress==1.0.14 ndg-httpsclient==0.4.0 pyOpenSSL==0.15.1 pyasn1==0.1.9 pycparser==2.14 requests==2.8.1 six==1.10.0 urllib3==1.12 wsgiref==0.1.2
+
+    - script:
         name: django test
         code: |
-          coverage run --source='.' manage.py test apps.api2 -v2
-          coverage report
+          python manage.py test apps.api2 --with-coverage --cover-package=apps --cover-html --cover-branches --cover-xml
+
+    - script:
+        name: upload codecoverage to bitbaloon
+        code: |
+          python coverage-html-uploader.py cover --generate-shieldsio --bitbaloon-site-name cbcov --bitbaloon-access-token 1dd47e33204b90bb1191d6f1b23cff5787786600391c48f19007943b76687d44

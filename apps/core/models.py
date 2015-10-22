@@ -3,11 +3,11 @@ from django.contrib.gis.db import models
 from django.template.defaultfilters import slugify
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
- 
+import uuid
+
 from apps.core.managers import RecorridoManager
 from apps.catastro.models import Ciudad
 from apps.usuarios.models import RecorridoFavorito
-from apps.editor.fields import UUIDField
 
 from django.core.urlresolvers import reverse
 
@@ -54,7 +54,7 @@ class Linea(models.Model):
             })
 
 class Recorrido(models.Model):
-    uuid = UUIDField()
+    uuid = models.UUIDField(default=uuid.uuid4)
     nombre = models.CharField(max_length=100)
     img_panorama = models.ImageField(max_length=200, upload_to='recorrido', blank=True, null=True)
     img_cuadrada = models.ImageField(max_length=200, upload_to='recorrido', blank=True, null=True)
@@ -224,56 +224,3 @@ class Tarifa(models.Model):
 class FacebookPage(models.Model):
     id_fb = models.CharField(max_length=50)
     linea = models.ForeignKey(Linea)
-    
-    
-    
-    
-
-
-
-
-
-
-
-
-
-from django.conf import settings
-from django.contrib.auth import models as auth_models
-from django.contrib.auth.management import create_superuser
-from django.db.models import signals
-from django.contrib.sites.models import Site
-
-# From http://stackoverflow.com/questions/1466827/ --
-#
-# Prevent interactive question about wanting a superuser created.  (This code
-# has to go in this otherwise empty "models" module so that it gets processed by
-# the "syncdb" command during database creation.)
-signals.post_syncdb.disconnect(
-    create_superuser,
-    sender=auth_models,
-    dispatch_uid='django.contrib.auth.management.create_superuser')
-
-
-# Create our own test user automatically.
-
-def create_testuser(app, created_models, verbosity, **kwargs):
-  if not settings.DEBUG:
-    return
-  try:
-    auth_models.User.objects.get(username='admin')
-  except auth_models.User.DoesNotExist:
-    print '*' * 80
-    print 'Creating test user -- login: admin, password: admin'
-    print '*' * 80
-    assert auth_models.User.objects.create_superuser('admin', 'admin@admin.com', 'admin')
-  else:
-    print 'Test user already exists.'
-  
-  try:
-    Site.objects.get(domain='cualbondi.com.ar', name='cualbondi.com.ar')
-  except Site.DoesNotExist:
-    assert Site.objects.create(domain='cualbondi.com.ar', name='cualbondi.com.ar')
-    print 'default SITE created'
-
-signals.post_syncdb.connect(create_testuser,
-    sender=auth_models, dispatch_uid='common.models.create_testuser')

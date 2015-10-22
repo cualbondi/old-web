@@ -1,14 +1,16 @@
 # -*- coding: UTF-8 -*-
 from django.contrib.gis.db import models
-from apps.editor.fields import UUIDField
 from django.contrib.auth.models import User
-from django.db.models.loading import get_model
 from django.core.management import call_command
 from django.contrib.auth.models import AnonymousUser
-from apps.catastro.models import Ciudad
-import urllib2, urllib
 from django.conf import settings
 from django.core.urlresolvers import reverse
+
+from apps.catastro.models import Ciudad
+
+import urllib2
+import uuid
+
 
 MODERATION_CHOICES = (
     ('E', 'Esperando Mod'),
@@ -18,11 +20,11 @@ MODERATION_CHOICES = (
 )
 
 class RecorridoProposed(models.Model):
-    recorrido = models.ForeignKey(get_model('core', 'Recorrido'))
-    parent = UUIDField()
-    uuid = UUIDField()
+    recorrido = models.ForeignKey('core.Recorrido')
+    parent = models.UUIDField(default=uuid.uuid4)
+    uuid = models.UUIDField(default=uuid.uuid4)
     nombre = models.CharField(max_length=100)
-    linea = models.ForeignKey(get_model('core', 'Linea'))
+    linea = models.ForeignKey('core.Linea')
     ruta = models.LineStringField()
     sentido = models.CharField(max_length=100, blank=True, null=True)
     slug = models.SlugField(max_length=200, blank=True, null=True)

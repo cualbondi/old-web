@@ -10,8 +10,8 @@ class Anuncio(models.Model):
     nombre = models.CharField(max_length=100)
     img = models.ImageField(max_length=500, upload_to='anuncios')
     link = models.URLField(max_length=500)
-    created_date = models.DateTimeField(auto_now_add=True, auto_now=False)
-    last_updated = models.DateTimeField(auto_now_add=True, auto_now=True)
+    created_date = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
     activo = models.BooleanField(default=False)
     orden = models.IntegerField()
     ciudades = models.ManyToManyField('catastro.Ciudad',

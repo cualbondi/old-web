@@ -1,6 +1,12 @@
 # Cualbondi
 
-[![wercker status](https://app.wercker.com/status/6e4c78c81a92f06e92b971d476378f14/s "wercker status")](https://app.wercker.com/project/bykey/6e4c78c81a92f06e92b971d476378f14)
+[![shippable status](https://img.shields.io/shippable/56265e141895ca44741ed3a6/master.svg "shippable status")](https://app.shippable.com/projects/56265e141895ca44741ed3a6)
+[![wercker status](https://app.wercker.com/status/6e4c78c81a92f06e92b971d476378f14/s/master "wercker status")](https://app.wercker.com/project/bykey/6e4c78c81a92f06e92b971d476378f14)
+[![Code Issues](https://www.quantifiedcode.com/api/v1/project/695d8e00ab444a4584ceb9b70c39ce63/badge.svg)](https://www.quantifiedcode.com/app/project/695d8e00ab444a4584ceb9b70c39ce63)
+
+[![branch coverage](http://cbcov.bitballoon.com/coverage-branch.svg)](http://cbcov.bitballoon.com/)
+[![line coverage](http://cbcov.bitballoon.com/coverage-lines.svg)](http://cbcov.bitballoon.com/)
+
 
 ## Requirements
 

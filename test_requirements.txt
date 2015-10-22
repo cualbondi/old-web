@@ -1,7 +1,0 @@
-# Requirimientos para testing
-
-django-nose==1.0
-mock
-factory_boy
-WebTest
-django-webtest

@@ -29,10 +29,6 @@ sitemaps = {
 urlpatterns = patterns('',
     # Archivos estaticos
     (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
-    
-    # Comentarios
-    url(r'^comments/post/$', 'apps.core.views.dejar_comentario', name='dejar_comentario'),
-    (r'^comments/', include('django.contrib.comments.urls')),
 
     # APPS de CualBondi
     url(r'^api/v2/', include('apps.api2.urls')),
