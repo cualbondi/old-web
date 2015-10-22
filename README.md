@@ -5,7 +5,7 @@
 [![Code Issues](https://www.quantifiedcode.com/api/v1/project/695d8e00ab444a4584ceb9b70c39ce63/badge.svg)](https://www.quantifiedcode.com/app/project/695d8e00ab444a4584ceb9b70c39ce63)
 
 [![branch coverage](http://cbcov.bitballoon.com/coverage-branch.svg)](http://cbcov.bitballoon.com/)
-[![line coverage](http://cbcov.bitballoon.com/coverage-line.svg)](http://cbcov.bitballoon.com/)
+[![line coverage](http://cbcov.bitballoon.com/coverage-lines.svg)](http://cbcov.bitballoon.com/)
 
 
 ## Requirements
