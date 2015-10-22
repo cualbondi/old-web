@@ -35,4 +35,4 @@ build:
     - script:
         name: upload codecoverage to bitbaloon
         code: |
-          python coverage-html-uploader.py cover --coverage-xml-path coverage.xml --generate-shieldsio --bitbaloon-site-name cbcov --bitbaloon-access-token 1dd47e33204b90bb1191d6f1b23cff5787786600391c48f19007943b76687d44
+          python coverage-html-uploader.py cover --generate-shieldsio --bitbaloon-site-name cbcov --bitbaloon-access-token 1dd47e33204b90bb1191d6f1b23cff5787786600391c48f19007943b76687d44
