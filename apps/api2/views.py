@@ -157,8 +157,7 @@ class GeocoderViewSet(viewsets.GenericViewSet):
             )
         else:
             try:
-                serializer = self.get_serializer()
-                ser = serializer(
+                ser = self.get_serializer(
                     PuntoBusqueda.objects.buscar(q, ciudad_actual_slug),
                     many=True
                 )
