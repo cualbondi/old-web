@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # set variables
-ENV_PATH="/app/env"
-REPO="/app/repo"
+APP_PATH="/app"
+ENV_PATH="$APP_PATH/env"
+REPO="$APP_PATH/repo"
 
 PIP="$ENV_PATH/bin/pip"
 PYTHON="$ENV_PATH/bin/python"
@@ -66,26 +67,26 @@ server {
         listen   80;
 
         location /media {
-                alias /app/media/;
+                alias $APP_PATH/media/;
                 location ~*  \.(jpg|jpeg|png|gif|ico|css|js)$ {
                          expires 5d;
                 }
         }
 
         location /static {
-                alias /app/static/;
+                alias $APP_PATH/static/;
                 location ~*  \.(jpg|jpeg|png|gif|ico|css|js|woff|eot|svg)$ {
                          expires 5d;
                 }
         }
 
         location /robots.txt {
-        #        alias /app/static/robots-disallow-all.txt;
-                alias /app/static/robots.txt;
+        #        alias $APP_PATH/static/robots-disallow-all.txt;
+                alias $APP_PATH/static/robots.txt;
         }
 
         location /favicon.ico {
-                alias /app/static/img/favicon.png;
+                alias $APP_PATH/static/img/favicon.png;
         }
 
         access_log  /var/log/nginx/app_access.log;
@@ -104,15 +105,15 @@ HEREDOC
 
 cat > /etc/uwsgi/apps-enabled/django.ini <<HEREDOC
 [uwsgi]
-virtualenv = /app/env
+virtualenv = $ENV_PATH
 threads = 3
 workers = 4
 master = true
 env = DJANGO_SETTINGS_MODULE=settings
 #env = CUALBONDI_ENV=production
 module = django.core.wsgi:get_wsgi_application()
-chdir = /app/repo
-pythonpath = /app/repo
+chdir = $REPO
+pythonpath = $REPO
 socket = /run/uwsgi/app/django/socket
 logto = /var/log/uwsgi/django.log
 plugins = python
