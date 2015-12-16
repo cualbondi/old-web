@@ -17,12 +17,12 @@ set -ex
 # TODO: use postgresl 9.4 official repo http://apt.postgresql.org/pub/repos/apt/ utopic-pgdg/main amd64 Packages
 # Install base packages
 apt-get update
-apt-get -y install nginx postgresql-9.3-postgis-2.1 postgresql-client uwsgi uwsgi-plugin-python python-pip python-dev libffi-dev libssl-dev libpq-dev cmake libqt4-dev memcached osm2pgsql rsync libgeos-dev gdal-bin libjpeg-dev zlib1g-dev git pngcrush
+apt-get -y install nginx postgresql-9.4-postgis-2.1 postgresql-client uwsgi uwsgi-plugin-python python-pip python-dev libffi-dev libssl-dev libpq-dev cmake libqt4-dev memcached osm2pgsql rsync libgeos-dev gdal-bin libjpeg-dev zlib1g-dev git pngcrush
 pip install -U pip virtualenv
 
 # Configure pgsql
-echo "local all postgres trust" > /etc/postgresql/9.3/main/pg_hba.conf
-echo "host all postgres 127.0.0.1/32 trust" >> /etc/postgresql/9.3/main/pg_hba.conf
+echo "local all postgres trust" > /etc/postgresql/9.4/main/pg_hba.conf
+echo "host all postgres 127.0.0.1/32 trust" >> /etc/postgresql/9.4/main/pg_hba.conf
 service postgresql restart
 
 set +e
