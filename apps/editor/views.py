@@ -74,7 +74,7 @@ def mostrar_ediciones(request):
     estado = request.GET.get('estado', None)
     ediciones = RecorridoProposed.objects.all()
     if estado != 'all':
-        ediciones = ediciones.filter(current_status='E')
+        ediciones = ediciones.filter(current_status='E')[:500]
     ediciones = ediciones.order_by('-date_update')
     return render_to_response(
         'editor/moderacion_listado.html',
