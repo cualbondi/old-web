@@ -34,7 +34,7 @@
 
             map = new L.Map('mapa');
 
-            var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+            var osmUrl='//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
             var osmAttrib='Map data © Cualbondi & OpenStreetMap contributors';
             var osm = new L.TileLayer(osmUrl, {minZoom: 8, maxZoom: 16, attribution: osmAttrib});		
             map.setView(L.latLng(ciudad_actual_coord2, ciudad_actual_coord1), ciudad_actual_zoom);
