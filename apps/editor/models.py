@@ -47,7 +47,7 @@ class RecorridoProposed(models.Model):
     
     @property
     def ciudades(self):
-        return Ciudad.objects.filter(lineas=self)
+        return Ciudad.objects.filter(lineas=self.linea)
     
     objects = models.GeoManager()
     
