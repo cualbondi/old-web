@@ -32,8 +32,8 @@ from apps.editor.models import RecorridoProposed
 def ajax_auth(request, backend):
     access_token = request.POST.get('access_token', False)
     if access_token:
-        request.social_strategy.clean_partial_pipeline()
-        ret = request.social_strategy.backend.do_auth(access_token)
+        request.strategy.clean_partial_pipeline()
+        ret = request.backend.do_auth(access_token)
         user = User.objects.get(username=ret)
         if user:
             if user.is_active:
