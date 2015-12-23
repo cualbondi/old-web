@@ -57,7 +57,7 @@ def editor_recorrido(request, id_recorrido):
         
         data = {
             "id"    : r.id,
-            "uuid"  : r.uuid,
+            "uuid"  : str(r.uuid),
             "nombre": r.nombre,
             "linea" : r.linea.nombre,
             "ciudad": ciudad 
