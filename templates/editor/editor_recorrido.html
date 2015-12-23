@@ -167,7 +167,7 @@
         //L.drawLocal.edit.handlers.remove.tooltip.text="Click on a feature to remove"
 
         // Load map and base layer
-        var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        var osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
         var osmAttrib='Map data © Cualbondi & <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
         var osm = new L.TileLayer(osmUrl, {minZoom: 8, maxZoom: 19, attribution: osmAttrib});
         var map = new L.Map('map', {layers: [osm], center: new L.LatLng(-37.7772, 175.2756), zoom: 15, drawControlTooltips: false});
@@ -262,7 +262,7 @@
 			revision = revisionParaShareEdit;
 			FB.ui({
 				method: 'feed',
-				link: 'http://cualbondi.com.ar/revision/'+revision.id+'/',
+				link: 'https://cualbondi.com.ar/revision/'+revision.id+'/',
 				caption: 'Edición por jperelli del recorrido '+revision.nombre+' en <a href="http://cualbondi.com.ar/">cualbondi</a>',
 			}, function(response){ console.log(response) });		
 		}
