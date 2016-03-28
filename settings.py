@@ -174,6 +174,7 @@ INSTALLED_APPS = (
     'bootstrap_toolkit',
     'floppyforms',
     'imagekit',
+    'leaflet',
 #    'moderacion',
 #    'editor',
 #    'django_extensions',
