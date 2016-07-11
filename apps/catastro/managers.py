@@ -214,6 +214,7 @@ class PuntoBusquedaManager:
     def poi(self, nombre):
         params = {'nombre': nombre}
         query = """
+            SELECT set_limit(0.12);
             SELECT
                 nom as nombre,
                 similarity(nom_normal, %(nombre)s) as precision,
@@ -254,6 +255,7 @@ class PuntoBusquedaManager:
     def zona(self, nombre):
         params = {'nombre': nombre}
         query = """
+            SELECT set_limit(0.12);
             SELECT
                 name as nombre,
                 similarity(name, %(nombre)s) as precision,
@@ -318,6 +320,7 @@ class ZonaManager(models.GeoManager):
     def fuzzy_like_query(self, q):
         params = {"q": q}
         query = """
+            SELECT set_limit(0.12);
             SELECT
                 id,
                 name as nombre,
@@ -340,6 +343,7 @@ class CiudadManager(models.GeoManager):
     def fuzzy_like_query(self, q):
         params = {"q": q}
         query = """
+            SELECT set_limit(0.12);
             SELECT
                 id,
                 nombre,
