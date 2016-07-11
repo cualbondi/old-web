@@ -1,6 +1,6 @@
 cffi==1.2.1
 coverage==4.0.1
-cryptography==1.0.2
+cryptography==1.4
 decorator==4.0.4
 Django==1.8.5
 django-appconf==1.0.1
@@ -16,6 +16,7 @@ django-paging==0.2.5
 django-social-auth==0.7.28
 django-templatetag-sugar==1.0
 djangorestframework==3.2.4
+djangorestframework-jsonp==1.0.2
 docutils==0.12
 drf-nested-routers==0.10.0
 elasticsearch==2.1.0

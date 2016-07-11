@@ -10,26 +10,43 @@
 
 ## Requirements
 
-* Debian-based machine
-* Maybe macos? Does lxc work there? If not, lxc can be changed to work with virtualbox easily.
+* Ubuntu 16.04 at least to run in vagrant-lxc
+* In macos should work with vagrant+virtualbox
 
 ## Dev install
 
-    # vagrant vagrant-lxc installation
-    sudo apt-get install dpkg-dev
-    wget https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.2_x86_64.deb
-    dpkg -i vagrant_1.7.2_x86_64.deb
-    
-    vagrant plugin install vagrant-lxc
-    
-    # cualbondi code setup and launch app
+#### vagrant virtualbox (ubuntu16.04+ / windows / macos)
+
+    sudo apt-get install vagrant
     git clone git@bitbucket.org:martinzugnoni/geocualbondi.git
     # git clone https://<username>@bitbucket.org/martinzugnoni/geocualbondi.git # HTTPS alternative
-    
     vagrant up
-    # vagrant up --provider=lxc  # alternative
-    
-Now you can go to localhost:8000 or 192.168.2.100:80 in the browser and enjoy cualbondi.
+
+#### vagrant lxc (ubuntu16.04) (much faster!)
+
+    sudo apt-get install vagrant dpkg-dev zlib1g-dev
+
+    # maybe read this, not always needed https://github.com/rubygems/rubygems/commit/044b0e2685e4b219b013f1067d670918a48c1f62#commitcomment-14935888
+    sudo vagrant plugin install vagrant-lxc
+
+    git clone git@bitbucket.org:martinzugnoni/geocualbondi.git
+    # git clone https://<username>@bitbucket.org/martinzugnoni/geocualbondi.git # HTTPS alternative
+
+    vagrant lxc sudoers # put sudo pass and then
+    vagrant up --provider=lxc
+
+If the last command does not work (trying lxc, some error with sudo something) go to
+
+    cd ~/.vagrant.d/gems/gems/
+    rm -rf vagrant-lxc-1.2.1
+    git clone git@github.com:fgrehm/vagrant-lxc.git vagrant-lxc-1.2.1
+    cd -
+    # and now try again
+    vagrant up --provider=lxc
+
+#### ready!
+
+Now you can go to 192.168.2.100:80 in the browser and enjoy cualbondi.
 
 ### Internal working
 
