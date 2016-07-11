@@ -64,6 +64,13 @@ class Command(BaseCommand):
             dest    = 'no-tmp',
             default = False,
             help    = 'Don\'t use /tmp folder, instead use apps/catastro/management/commands folder to save the downloaded argentina.osm.pbf file'
+        ),
+        make_option(
+            '--ciudad',
+            type    = 'string',
+            action  = 'store',
+            dest    = 'ciudad',
+            help    = 'Only import this ciudad slug'
         )
     )
 
@@ -93,6 +100,11 @@ class Command(BaseCommand):
 
         primera = True
         for c in cu.fetchall():
+
+            # if options.ciudad is defined, and this is not it, skip it
+            if options['ciudad'] and options['ciudad'] != c[0]:
+                continue
+
             print " => ACTUALIZANDO {}".format(c[0])
             print "    - st_box: {}".format(c[1])
             l = c[1][1:-1].replace(")", "").replace("(", "").split(",")
@@ -122,6 +134,7 @@ class Command(BaseCommand):
                 p.wait()
 
 
+
         #POST PROCESAMIENTO
         print "POSTPROCESO"
         print " => Dando nombres alternativos a los objetos sin nombre"
@@ -136,6 +149,8 @@ class Command(BaseCommand):
         print "    - planet_osm_roads"
         superCu.execute("update planet_osm_roads   set name=ref where name is null;")
         superCu.close()
+
+
         print " => Juntando tablas de caminos, normalizando nombres"
         print "    - Eliminando viejos"
         cu.execute("delete from catastro_calle")
@@ -143,6 +158,8 @@ class Command(BaseCommand):
         cu.execute("insert into catastro_calle(way, nom_normal, nom) select way, upper(translate(name, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), name from planet_osm_line where name is not null;")
         print "    - planet_osm_roads"
         cu.execute("insert into catastro_calle(way, nom_normal, nom) select way, upper(translate(name, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), name from planet_osm_roads where name is not null;")
+
+
         print " => Generando POIs a partir de poligonos normalizando nombres, agregando slugs (puede tardar bastante)"
         cu.execute("delete from catastro_poi")
         cu.execute("select ST_Centroid(way), upper(translate(name, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), name||coalesce(', '||(select name from catastro_zona zo where ST_Intersects(ST_Centroid(way), zo.geo)), '') from planet_osm_polygon as pop where name is not null;")
@@ -154,18 +171,30 @@ class Command(BaseCommand):
             Poi.objects.create(nom_normal = poly[1], nom = poly[2], latlng = poly[0])
             if i * 100.0 / total % 1 == 0:
                 print "    - {:2.0f}%".format(i * 100.0 / total)
-
         # unir catastro_poicb (13 y 60, 13 y 66, 13 y 44) con catastro_poi (osm_pois)
         print "    - Mergeando POIs propios de cualbondi"
         for poicb in Poicb.objects.all():
             Poi.objects.create(nom_normal = poicb.nom_normal.upper(), nom = poicb.nom, latlng = poicb.latlng)
-        
         print "    - Purgando nombres repetidos"
         cu.execute("delete from catastro_poi where id not in (select min(id) from catastro_poi group by nom_normal)")
-        transaction.commit_unless_managed()
+
+
+        print " => Regenerando indices"
+        superCu = connect(user="postgres", database=dbname).cursor()
+        print "    - Eliminando viejos"
+        superCu.execute("DROP INDEX IF EXISTS catastrocalle_nomnormal_gin;")
+        superCu.execute("DROP INDEX IF EXISTS catastropoi_nomnormal_gin;")
+        print "    - Generando catastro_calle"
+        superCu.execute("CREATE INDEX catastrocalle_nomnormal_gin ON catastro_calle USING gin (nom_normal gin_trgm_ops);")
+        print "    - Generando catastro_poi"
+        superCu.execute("CREATE INDEX catastropoi_nomnormal_gin ON catastro_poi USING gin (nom_normal gin_trgm_ops);")
+        superCu.close()
+
 
         #print " => Eliminando tablas no usadas"
         #cu.execute("drop table planet_osm_roads;")
         #cu.execute("drop table planet_osm_polygon;")
         #cx.commit()
         #cx.close()
+
+        print " LISTO! "
