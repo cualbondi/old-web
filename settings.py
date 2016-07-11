@@ -195,7 +195,10 @@ INSTALLED_APPS = (
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('apps.api2.permissions.ReadOnly',),
-    'PAGE_SIZE': 10
+    'PAGE_SIZE': 10,
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework_jsonp.renderers.JSONPRenderer',
+    ),
 }
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
