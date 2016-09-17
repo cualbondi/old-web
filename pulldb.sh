@@ -24,7 +24,7 @@ log "Deleting database in local host"
 sudo -u postgres dropdb geocualbondidb
 
 log "Inserting in database in local host"
-sudo -u postgres pg_restore -C -Fc -j8 /tmp/dump.pgbkp
+sudo -u postgres pg_restore -C -Fc -j8 /tmp/dump.pgbkp | sudo -u postgresl psql
 
 log "If there was only two error, there is no problem, it all went ok"
 log "DONE"
