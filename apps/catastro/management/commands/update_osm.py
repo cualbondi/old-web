@@ -175,6 +175,12 @@ class Command(BaseCommand):
         cu.execute("insert into catastro_calle(way, nom_normal, nom) select way, upper(translate(name, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), name from planet_osm_line where name is not null;")
         print '    - planet_osm_roads'
         cu.execute("insert into catastro_calle(way, nom_normal, nom) select way, upper(translate(name, 'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑàèìòùÀÈÌÒÙ', 'AEIOUAEIOUAEIOUAEIOUNNAEIOUAEIOU')), name from planet_osm_roads where name is not null;")
+        print '    - Eliminando nombres comunes (av., avenida, calle, diagonal, boulevard)'
+        cu.execute("update catastro_calle set nom_normal = replace(nom_normal, 'AV. ', '');")
+        cu.execute("update catastro_calle set nom_normal = replace(nom_normal, 'AVENIDA ', '');")
+        cu.execute("update catastro_calle set nom_normal = replace(nom_normal, 'CALLE ', '');")
+        cu.execute("update catastro_calle set nom_normal = replace(nom_normal, 'DIAGONAL ', '');")
+        cu.execute("update catastro_calle set nom_normal = replace(nom_normal, 'BOULEVARD ', '');")
 
 
         print ' => Generando POIs a partir de poligonos normalizando nombres, agregando slugs (puede tardar bastante)'
