@@ -225,20 +225,59 @@
                         if (key != cant-1) // not last (punto B)
                             trasbordos.push(L.latLng(poly._latlngs[poly._latlngs.length-1]));
                     poly.setStyle({
-                        color: value.color_polilinea ? value.color_polilinea : "#000000",
-                        opacity: 0.8
+                        color: value.color_polilinea ? value.color_polilinea : "#37A",
+                        opacity: 0.9,
+                        weight: 8
                     })
                     polylinea.push(poly);
                 });
 
                 $.each(polylinea, function(key, value) {
                     recorridos.addLayer(value);
-                    var flechas = L.polylineDecorator(value, {
-                            patterns: [
-                                {offset: '50', repeat: 150, symbol: L.Symbol.arrowHead({pixelSize: 15, polygon: false, pathOptions: {color: value.options.color, opacity: 0.6, stroke: true}})}
-                            ]
-                        });
-                    recorridos.addLayer(flechas);
+
+                    var flechas1 = L.polylineDecorator(value, { patterns: [{
+                      offset: '42',
+                      repeat: 150,
+                      symbol: L.Symbol.arrowHead({
+                        pixelSize: 4,
+                        polygon: false,
+                        pathOptions: {
+                          color: '#FFF',
+                          opacity: 0.5,
+                          weight: 2
+                        }
+                      })
+                    }]});
+                    var flechas2 = L.polylineDecorator(value, { patterns: [{
+                      offset: '50',
+                      repeat: 150,
+                      symbol: L.Symbol.arrowHead({
+                        pixelSize: 4,
+                        polygon: false,
+                        pathOptions: {
+                          color: '#FFF',
+                          opacity: 0.7,
+                          weight: 2
+                        }
+                      })
+                    }]});
+                    var flechas3 = L.polylineDecorator(value, { patterns: [{
+                      offset: '58',
+                      repeat: 150,
+                      symbol: L.Symbol.arrowHead({
+                        pixelSize: 4,
+                        polygon: false,
+                        pathOptions: {
+                          color: '#FFF',
+                          opacity: 0.9,
+                          weight: 2
+                        }
+                      })
+                    }]});
+
+                    recorridos.addLayer(flechas1);
+                    recorridos.addLayer(flechas2);
+                    recorridos.addLayer(flechas3);
                 })
                 
                 $.each(trasbordos, function(key, value) {
