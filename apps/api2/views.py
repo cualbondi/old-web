@@ -9,6 +9,8 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.measure import D
 from django.core.exceptions import ObjectDoesNotExist
 
+from rest_framework_tracking.mixins import LoggingMixin
+
 from apps.catastro.models import Ciudad
 from apps.core.models import Linea
 from apps.core.models import Recorrido
@@ -42,7 +44,7 @@ class CBPagination(pagination.PageNumberPagination):
         })
 
 
-class RecorridosViewSet(viewsets.ModelViewSet):
+class RecorridosViewSet(LoggingMixin, viewsets.ModelViewSet):
     """
         Parametros querystring
 
@@ -134,7 +136,7 @@ class RecorridosViewSet(viewsets.ModelViewSet):
                 return Response([])
 
 
-class GeocoderViewSet(viewsets.GenericViewSet):
+class GeocoderViewSet(LoggingMixin, viewsets.GenericViewSet):
     """
         Parámetros querystring
 

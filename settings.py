@@ -178,6 +178,7 @@ INSTALLED_APPS = (
 #    'editor',
 #    'django_extensions',
     'rest_framework',
+    'rest_framework_tracking',
     'django_nose',
 
     # Propias
