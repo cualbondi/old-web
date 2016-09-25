@@ -6,6 +6,7 @@ from django.contrib.gis.geos import GEOSGeometry
 
 from apps.catastro.models import Ciudad
 from apps.core.models import Linea
+from copy import copy
 
 
 class CiudadSerializer(serializers.ModelSerializer):
@@ -107,6 +108,9 @@ def getParada(parada_id):
 class RecorridoSerializer(serializers.Serializer):
 
     def to_representation(self, obj):
+        ruta = copy(obj.ruta)
+        ruta.transform(3857)
+        length = ruta.length
         return {
             'id': obj.id,
             'nombre': obj.nombre,
@@ -117,6 +121,9 @@ class RecorridoSerializer(serializers.Serializer):
             'inicio': obj.inicio,
             'fin': obj.fin,
             'ruta': b64encode(obj.ruta.wkt),
+            'long_ruta': length,
+            'foto': obj.foto,
+            'url': obj.get_absolute_url(None, None, obj.slug),
         }
 
 

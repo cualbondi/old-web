@@ -172,13 +172,13 @@
 
         <script id="listTempl" type="text/x-jquery-tmpl">
             <div>
-                <div style="float:left;"><small>Página ${data['p']} de ${data['cant_paginas']}</small></div>
-                <div style="float:right;"><small class="pull-right">${data['cant']} resultados</small></div>
+                <div style="float:left;"><small>Página ${data['page']} de ${data['page_count']}</small></div>
+                <div style="float:right;"><small class="pull-right">${data['count']} resultados</small></div>
                 <div style="clear:both;"></div>
             </div>
             <div>
                 <ul class="nav nav-pills nav-stacked">
-                    {% templatetag openvariable %}tmpl(data['resultados']) "#itemTempl"{% templatetag closevariable %}
+                    {% templatetag openvariable %}tmpl(data['results']) "#itemTempl"{% templatetag closevariable %}
                 </ul>
                 {% templatetag openvariable %}tmpl(data) "#paginacionTempl"{% templatetag closevariable %}
             </div>
@@ -206,10 +206,10 @@
         </script>
 
         <script id="paginacionTempl" type="text/x-jquery-tmpl">
-        {% templatetag openvariable %}if Math.ceil(cant/long_pagina) > 1{% templatetag closevariable %}
+        {% templatetag openvariable %}if page_count > 1{% templatetag closevariable %}
             <div class="pagination pagination-centered">
                 <ul>
-                    {% templatetag openvariable %}if p > 1{% templatetag closevariable %}
+                    {% templatetag openvariable %}if page > 1{% templatetag closevariable %}
                         <li><a href="#" data_pagina="-1" combinar="${combinar}">«</a></li>
                     {% templatetag openvariable %}/if{% templatetag closevariable %}
 
@@ -217,7 +217,7 @@
                         <li><a href="#" data_pagina="${$value}" combinar="${combinar}">${$value}</a></li>
                     {% templatetag openvariable %}/each{% templatetag closevariable %}
 
-                    {% templatetag openvariable %}if p < Math.ceil(cant/long_pagina){% templatetag closevariable %}
+                    {% templatetag openvariable %}if page < page_count{% templatetag closevariable %}
                         <li><a href="#" data_pagina="0" combinar="${combinar}">»</a></li>
                     {% templatetag openvariable %}/if{% templatetag closevariable %}
                 </ul>

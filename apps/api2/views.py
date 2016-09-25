@@ -30,6 +30,17 @@ class LineasViewSet(viewsets.ModelViewSet):
 class CBPagination(pagination.PageNumberPagination):
     page_size = 5
 
+    def get_paginated_response(self, data):
+        return Response({
+            'next': self.get_next_link(),
+            'previous': self.get_previous_link(),
+            'count': self.page.paginator.count,
+            'page': self.page.number,
+            'page_size': self.page.paginator.per_page,
+            'page_count': self.page.paginator.num_pages,
+            'results': data
+        })
+
 
 class RecorridosViewSet(viewsets.ModelViewSet):
     """
@@ -40,7 +51,7 @@ class RecorridosViewSet(viewsets.ModelViewSet):
 
             - `l=55.3324,-55.4433,200`
             - `l=55.3324,-55.4433,200|55.1112,-55.3334,300`
-            - [live example](http://192.168.2.100/api/v2/recorrido/?l=-57.957258224487305,-34.92056351681724,200|-57.94755935668945,-34.92556010123052,200)
+            - [live example](http://192.168.2.100/api/v2/recorridos/?l=-57.957258224487305,-34.92056351681724,200|-57.94755935668945,-34.92556010123052,200)
 
          - `t` true/false: buscar con transbordo (true). `false` por defecto.
          - `q` string: para búsqueda por nombre de recorrido (fuzzy search)

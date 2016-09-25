@@ -14,7 +14,10 @@ DB_NAME="geocualbondidb"
 set -ex
 
 
-# TODO: use postgresl 9.5 official repo http://apt.postgresql.org/pub/repos/apt/ utopic-pgdg/main amd64 Packages
+# use postgresl 9.5 official repo Packages
+echo "deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+
 # Install base packages
 apt update
 apt -y install nginx postgresql-9.5-postgis-2.1 postgresql-client uwsgi uwsgi-plugin-python python-pip python-dev libffi-dev libssl-dev libpq-dev cmake libqt4-dev memcached osm2pgsql osmctools rsync libgeos-dev gdal-bin libjpeg-dev zlib1g-dev git pngcrush

@@ -118,7 +118,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'apps.core.middleware.WhodidMiddleware',
-    #'apps.api.middlewares.APIRequestLoggingMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
 
@@ -184,7 +183,6 @@ INSTALLED_APPS = (
 
     # Propias
     'apps.api2',
-    'apps.api',
     'apps.catastro',
     'apps.core',
     'apps.usuarios',

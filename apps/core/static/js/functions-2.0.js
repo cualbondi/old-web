@@ -207,6 +207,7 @@
                 var polylinea = new Array()
                 var trasbordos = new Array()
                 var stops = new Array()
+                
                 var cant = resultados[porNombre][id].length
                 $.each(resultados[porNombre][id], function(key, value) {
                     ruta = $.RC4.decode(value.ruta_corta)
@@ -285,7 +286,12 @@
                 // muestra los resultados de la busqueda como sugerencia
                 function mostrarResultadoCatastro(data, id) {
                     data.id = id
-                    data = $.map(data, function(item, i){item.id = id; item.domId = Math.floor(Math.random()*10000);return item});
+                    data = $.map(data, function(item, i){
+                      item.geom = JSON.stringify(item.geom)
+                      item.id = id;
+                      item.domId = Math.floor(Math.random()*10000);
+                      return item
+                    });
                     if ( id == 1 ) data1=data
                     else data2=data
                     if ( data1 !== null && data2 !== null ) {
@@ -296,13 +302,15 @@
                     }
                 }
                 $.ajax({
-                    url: "/api/catastro/?query="+$("#inputDesde").val()+"&ciudad="+GLOBAL_ci,
+                    url: "/api/v2/geocoder/?q="+$("#inputDesde").val()+"&c="+GLOBAL_ci,
+                    dataType: 'jsonp',
                     success: function (data) {
                         mostrarResultadoCatastro(data, 1)
                     }
                 })
                 $.ajax({
-                    url: "/api/catastro/?query="+$("#inputHasta").val()+"&ciudad="+GLOBAL_ci,
+                    url: "/api/v2/geocoder/?q="+$("#inputHasta").val()+"&c="+GLOBAL_ci,
+                    dataType: 'jsonp',
                     success: function (data) {
                         mostrarResultadoCatastro(data, 2)
                     }
@@ -310,12 +318,9 @@
             }
 
             // mueve el markerA o B a el punto seleccionado
-            function marcarPunto(pointWKT, id, domId) {
-                // pointWKT es 'POINT(12.234 56.789)'
+            function marcarPunto(pointGeoJSON, id, domId) {
                 // id es 1 para origen(markerA) y 2 para destino(markerB)
-                var wkt = new Wkt.Wkt();
-                wkt.read(pointWKT);
-                var point = L.latLng(wkt.toObject(map.defaults)._latlng);
+                var point = L.latLng(JSON.parse(pointGeoJSON).coordinates.reverse());
                 if ( id == 1 ) {
                     markerA.setPoint(point)
                     markerAaux.setPoint(point)
@@ -385,30 +390,29 @@
                 recorridos.clearLayers();
                 paradas.clearLayers();
                 map.closePopup();
-                $("#ajaxLoader").tmpl().appendTo($("#sidebarResultados").empty())
-                $.get(
-                    "/api/recorridos/",
-                    {
-                        origen: lla.lng+","+lla.lat,
-                        destino: llb.lng+","+llb.lat,
-                        radio_origen: $('#button-radio').val(),
-                        radio_destino: $('#button-radio').val(),
+                $("#ajaxLoader").tmpl().appendTo($("#sidebarResultados").empty());
+                function ll2str (ll) { return ll.lng + ',' + ll.lat + ',' + $('#button-radio').val() };
+                $.ajax({
+                    url: "/api/v2/recorridos/",
+                    data: {
+                        l: ll2str(lla) + '|' + ll2str(llb),
                         c: GLOBAL_ci,
-                        p: pagina_input,
-                        combinar: combinar
+                        page: pagina_input,
+                        t: combinar
                     },
-                    function (data){
-                        mostrarResultados(data, combinar, false, forzarPanZoom);
+                    dataType: 'jsonp',
+                    success: function (data) {
+                      mostrarResultados(data, combinar, false, forzarPanZoom);
                     }
-                );
+                })
             }
 
             // muestra los resultados devueltos por el server usando un template
             function mostrarResultados(data, combinar, porNombre, forzarPanZoom){
                 if ( typeof(porNombre)==='undefined' ) porNombre = false
                 if ( typeof(combinar) ==='undefined' ) combinar  = 'false'
-
-                res = data['resultados']
+                
+                res = data['results']
                 if ( res.length === 0 )
                     if ( (porNombre && pagina_nombre == 1) || (!porNombre && pagina_input == 1) ) {
                         if (porNombre)
@@ -431,7 +435,6 @@
                     $.each(res, function(key, value) {
                         resultados[porNombre][value.id] = value.itinerario
                     });
-
                     data['combinar'] = combinar;
                     data['porNombre'] = porNombre;
                     if (porNombre)
@@ -440,14 +443,13 @@
                         divResultados = $("#sidebarResultados")
 
                     // calcular lista de paginas a mostrar
-                    data['cant_paginas'] = Math.ceil(data['cant']/data['long_pagina']);
                     data['page_list'] = new Array();
-                    for (var i=0; i<data['cant_paginas']; i++){
+                    for (var i=0; i<data['page_count']; i++){
                         data['page_list'].push(i+1);
                     }
-                    var index = $.inArray(data['p'], data['page_list']);
+                    var index = $.inArray(data['page'], data['page_list']);
                     var desde = index - 3 > 0 ? index - 3 : 0;
-                    var hasta = index + 3 < data['cant_paginas'] ? index + 3 : data['cant_paginas'];
+                    var hasta = index + 3 < data['page_count'] ? index + 3 : data['page_count'];
                     data['page_list'] = data['page_list'].slice(desde, hasta);
 
                     $("#listTempl").tmpl( [{ data: data }] ).appendTo(divResultados.empty());
@@ -455,8 +457,6 @@
                     divResultados.find("[id^=res]").each( function(i) {
                         $(this).children().bind("click", function(e) {
                             id = $(this).attr("id")
-                            //console.log(this)
-                            //console.log(porNombre)
                             mostrar_resultado(id, porNombre, true)
                             e.preventDefault()
                             if (porNombre)
@@ -564,8 +564,29 @@
             function inputLinea() {
                 buscar = false
                 ajaxInputLinea = $.ajax({
-                    url: "/api/recorridos/?c="+GLOBAL_ci+"&q="+$('#inputLinea').val()+"&p="+pagina_nombre,
-                    success: function(data) {mostrarResultados(data, false, true)}
+                    url: "/api/v2/recorridos/",
+                    data: {
+                        q: $('#inputLinea').val(),
+                        c: GLOBAL_ci,
+                        page: pagina_nombre
+                    },
+                    dataType: 'jsonp',
+                    success: function (data) {
+                      // transformo data para que sea igual a los recorridos, asi encaja en el otro template
+                      var data2 = $.extend({}, data);
+                      var data3 = $.extend({}, data);
+                      $.each(data2.results, function(key, value) {
+                        var it = $.extend({}, data2.results[key], {
+                            ruta_corta: data2.results[key].ruta,
+                            long_bondi: data2.results[key].long_ruta
+                        })
+                        data3.results[key] = {
+                          id: data2.results[key].id,
+                          itinerario: [it]
+                        }
+                      })
+                      mostrarResultados(data3, false, true)
+                    }
                 })
             }
 
@@ -672,8 +693,6 @@
                     else if ( n >  0 ) pps = n;
                     piwikLog("/click/pagina/"+pps)
                     pasarPagina($(this).attr("data_pagina"), $(this).attr("combinar"), porNombre);
-                    //console.log("porNombre="+porNombre)
-                    //console.log("n="+n)
                 }).addClass("binded");
             }
 
