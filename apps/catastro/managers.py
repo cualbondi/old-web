@@ -9,6 +9,13 @@ from django.contrib.gis.geos import GEOSGeometry
 
 from django.db import connection
 
+
+def remove_multiple_strings(cur_string, replace_list):
+  for cur_word in replace_list:
+    cur_string = cur_string.replace(cur_word, '')
+  return cur_string
+
+
 class PuntoBusquedaManager:
     """ Este manager se encarga de convertir una query tipo texto
     en una lista de puntos geográficos que pueden ser usados como origen
@@ -68,7 +75,9 @@ class PuntoBusquedaManager:
             res = self.poi_exact(query)
             if res:
                 return res
-            
+
+            query = remove_multiple_strings(query.upper(), ['AV.', 'AVENIDA', 'CALLE', 'DIAGONAL', 'BOULEVARD'])
+
             tokens = filter(None, map(unicode.strip, query.split(',')))
 
             if len(tokens) > 0:
