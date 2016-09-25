@@ -177,7 +177,6 @@ INSTALLED_APPS = (
 #    'moderacion',
 #    'editor',
 #    'django_extensions',
-    'piston',
     'rest_framework',
     'django_nose',
 
