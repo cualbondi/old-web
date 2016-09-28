@@ -5,7 +5,7 @@ from base64 import b64encode
 from django.contrib.gis.geos import GEOSGeometry
 
 from apps.catastro.models import Ciudad
-from apps.core.models import Linea
+from apps.core.models import Linea, Parada
 from copy import copy
 
 
