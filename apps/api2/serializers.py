@@ -97,7 +97,7 @@ def getParada(parada_id):
     if parada_id is None:
         return None
     else:
-        p = Parada.objects.get(pk=obj.parada_id)
+        p = Parada.objects.get(pk=parada_id)
         return {
             "latlng": p.latlng.geojson,
             "codigo": p.codigo,
