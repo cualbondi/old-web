@@ -18,6 +18,9 @@ from apps.catastro.models import PuntoBusqueda
 
 from .import serializers
 
+import logging
+logstash = logging.getLogger('logstash')
+
 
 class CiudadesViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CiudadSerializer
@@ -65,6 +68,9 @@ class RecorridosViewSet(LoggingMixin, viewsets.ModelViewSet):
     pagination_class = CBPagination
 
     def list(self, request):
+
+        logstash.info('request recorridos viewser')
+
         q = request.query_params.get('q', None)
         l = request.query_params.get('l', None)
         t = request.query_params.get('t', 'false')

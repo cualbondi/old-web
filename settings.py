@@ -252,6 +252,34 @@ LOGGING = {
 }
 
 if CUALBONDI_ENV == 'production':
+
+    LOGGING.update({
+        'handlers': {
+            'logstash': {
+                'level': 'DEBUG',
+                'class': 'logstash.LogstashHandler',
+                'host': '78.47.196.202',  # stats.cualbondi.com.ar
+                'port': 5000,
+                'version': 1,
+                'message_type': 'logstash',
+                'fqdn': False,
+                'tags': [],
+            },
+        },
+        'loggers': {
+            'django.request': {
+                'handlers': ['logstash'],
+                'level': 'DEBUG',
+                'propagate': True,
+            },
+            'logstash': {
+                'handlers': ['logstash'],
+                'level': 'DEBUG',
+                'propagate': True,
+            },
+        },
+    })
+
     FACEBOOK_APP_ID = "516530425068934"
     FACEBOOK_API_SECRET = 'f90d27d49f50939996db0f299dec129d'
     FACEBOOK_EXTENDED_PERMISSIONS = ['email']
