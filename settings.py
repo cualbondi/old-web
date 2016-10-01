@@ -209,7 +209,6 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 here = lambda *x: os.path.join(os.path.dirname(os.path.realpath(__file__)), *x)
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
@@ -217,7 +216,7 @@ LOGGING = {
     },
     'formatters': {
         'simple': {
-            'format': '%(levelname)s | %(message)s | %(locals)s'
+            'format': '%(levelname)s | %(message)s'
         },
         'json': {
             '()': 'django_log_formatter_json.JSONFormatter',
@@ -247,8 +246,8 @@ LOGGING = {
             'propagate': True,
         },
         'logstash': {
-            'level': 'DEBUG',
             'handlers': ['console'],
+            'level': 'DEBUG',
             'propagate': True
         }
     },
@@ -294,6 +293,10 @@ if CUALBONDI_ENV == 'production':
 
     EMAIL_HOST = 'mail.cualbondi.com.ar'
     EMAIL_PORT = 25
+
+    from settings_local import *
+    INSTALLED_APPS += LOCAL_INSTALLED_APPS
+
 else:
 
     DATABASES = {
@@ -380,3 +383,8 @@ if WERCKER_DB_IPADDR:
         }
     }
     print DATABASES
+
+# fix logging https://www.caktusgroup.com/blog/2015/01/27/Django-Logging-Configuration-logging_config-default-settings-logger/
+LOGGING_CONFIG = None
+import logging.config
+logging.config.dictConfig(LOGGING)
