@@ -15,7 +15,7 @@ class LoggingMixin(object):
         self.__logging_dict = {}
         self.__logger_extras = {}
 
-        self.__logging_dict.update({'time.start': now()})
+        self.__logging_dict.update({'time_start': now()})
 
         metas_allowed = [
             "REMOTE_ADDR",
@@ -30,10 +30,10 @@ class LoggingMixin(object):
         ]
         for k, v in request.META.iteritems():
             if k in metas_allowed:
-                self.__logging_dict.update({'meta.{}'.format(k): v})
+                self.__logging_dict.update({'meta_{}'.format(k): v})
 
         for k, v in request.query_params.iteritems():
-            self.__logging_dict.update({'param.{}'.format(k): v})
+            self.__logging_dict.update({'param_{}'.format(k): v})
 
         # regular intitial, including auth check
         super(LoggingMixin, self).initial(request, *args, **kwargs)
@@ -53,16 +53,17 @@ class LoggingMixin(object):
 
         # add logger extras
         for k, v in self.__logger_extras.iteritems():
-            self.__logging_dict.update({'parsed.{}'.format(k): v})
+            self.__logging_dict.update({'parsed_{}'.format(k): v})
 
         # compute response time
-        self.__logging_dict['time.end'] = now()
-        response_timedelta = self.__logging_dict['time.end'] - self.__logging_dict['time.start']
+        self.__logging_dict['time_end'] = now()
+        response_timedelta = self.__logging_dict['time_end'] - self.__logging_dict['time_start']
         response_ms = int(response_timedelta.total_seconds() * 1000)
+        self.__logging_dict['time_elapsed'] = response_ms
+        self.__logging_dict['time_start'] = str(self.__logging_dict['time_start'])
+        self.__logging_dict['time_end'] = str(self.__logging_dict['time_end'])
 
-        # save to log
         self.__logging_dict['status_code'] = response.status_code
-        self.__logging_dict['time.elapsed'] = response_ms
 
         # send log
         logger.info(request.path, extra=self.__logging_dict)
