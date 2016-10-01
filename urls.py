@@ -32,6 +32,8 @@ urlpatterns = patterns('',
 
     # APPS de CualBondi
     url(r'^api/v2/', include('apps.api2.urls')),
+    url(r'^api/v1/', include('apps.api.urls')),
+    url(r'^api/', include('apps.api.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url('', include('social.apps.django_app.urls', namespace='social')),
     url(r'^usuarios/', include('apps.usuarios.urls')),
