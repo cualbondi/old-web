@@ -217,8 +217,11 @@ LOGGING = {
     },
     'formatters': {
         'simple': {
-            'format': '%(levelname)s | %(message)s'
+            'format': '%(levelname)s | %(message)s | %(locals)s'
         },
+        'json': {
+            '()': 'django_log_formatter_json.JSONFormatter',
+        }
     },
     'handlers': {
         'mail_admins': {
@@ -226,11 +229,11 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
-    'console':{
-        'level': 'DEBUG',
-        'class': 'logging.StreamHandler',
-        'formatter': 'simple'
-    },
+        'console':{
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'json'
+        },
 #        'file': {
 #            'level': 'DEBUG',
 #            'class': 'logging.FileHandler',
@@ -239,15 +242,15 @@ LOGGING = {
     },
     'loggers': {
         'django.request': {
-            'handlers': ['console', 'mail_admins'],
+            'handlers': ['console'],
             'level': 'ERROR',
             'propagate': True,
         },
-#        'apps': {
-#            'level': 'DEBUG',
-#            'handlers': ['file'],
-#            'propagate': True
-#        }
+        'logstash': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': True
+        }
     },
 }
 
