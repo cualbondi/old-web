@@ -424,205 +424,142 @@ class RecorridoManager(models.GeoManager):
             raise DatabaseError("get_recorridos: distanciaB Expected integer as parameter, %s given" % type(distanciaB))
         puntoA.set_srid(4326)
         puntoB.set_srid(4326)
-        distanciaA = 0.0000111 * float(distanciaA) 
-        distanciaB = 0.0000111 * float(distanciaB)
 
-        params = {'puntoA': puntoA.ewkt, 'puntoB': puntoB.ewkt, 'rad1': distanciaA, 'rad2': distanciaB, 'p': 0.1}
+        with connection.cursor() as c:
+            c.execute("SELECT ST_Buffer(%(punto)s::geography, %(rad)s)::geometry;", {'punto': puntoA.ewkt, 'rad': distanciaA})
+            bufferA = c.fetchone()[0]
+            c.execute("SELECT ST_Buffer(%(punto)s::geography, %(rad)s)::geometry;", {'punto': puntoB.ewkt, 'rad': distanciaB})
+            bufferB = c.fetchone()[0]
+
+        params = {'bufferA': bufferA, 'bufferB': bufferB, 'puntoA': puntoA.ewkt, 'puntoB': puntoB.ewkt}
         query = """
-                SELECT
-                    re.id,
-                    li.nombre || ' ' || re.nombre as nombre,
-                    linea_id,
-                    re.slug as slug,
-                    li.slug as lineaslug,
-                    inicio,
-                    fin,
-                    ruta_corta,
-                    round(long_ruta::numeric, 2) as long_ruta,
-                    round(long_pata::numeric, 2) as long_pata,
-                    coalesce(re.color_polilinea, li.color_polilinea, '#000') as color_polilinea,
-                    coalesce(li.foto, 'default') as foto,
-                    p1,
-                    p2
-                FROM
-                    core_linea as li join
-                    (
-                        SELECT
-                            id,
-                            nombre,
-                            slug,
-                            inicio,
-                            fin,
-                            linea_id,
-                            color_polilinea,
-                            ST_AsText(min_path(ruta_corta)) as ruta_corta,
-                            min(long_ruta) as long_ruta,
-                            min(long_pata) as long_pata,
-                            p1,
-                            p2
-                        FROM
-                        (
-                            SELECT
-                                id,
-                                nombre,
-                                slug,
-                                inicio,
-                                fin,
-                                linea_id,
-                                color_polilinea,
-                                ruta_corta,
-                                ST_Length(ruta_corta::Geography) as long_ruta,
-                                ST_Distance_Sphere(ST_GeomFromText(%(puntoA)s),coalesce(p1ll, ruta_corta)) + ST_Distance_Sphere(ST_GeomFromText(%(puntoB)s),coalesce(p2ll, ruta_corta)) as long_pata,
-                                p1,
-                                p2
-                            FROM
-                                (
-                                    SELECT
-                                        id,
-                                        nombre,
-                                        slug,
-                                        inicio,
-                                        fin,
-                                        linea_id,
-                                        color_polilinea,
-                                        ST_Line_Substring(
-                                            ruta,
-                                            GREATEST(ST_Line_Locate_Point(ruta, ST_ClosestPoint(ST_Line_Substring(ruta, 0, 0.5), %(puntoA)s) ) - %(p)s, 0),
-                                            LEAST(ST_Line_Locate_Point(ruta, ST_ClosestPoint(ST_Line_Substring(ruta, 0, 0.5), %(puntoB)s) ) + %(p)s, 1)
-                                        ) as ruta_corta,
-                                        null::integer as p1,
-                                        null::integer as p2,
-                                        null::geometry as p1ll,
-                                        null::geometry as p2ll
-                                    FROM
-                                        core_recorrido
-                                    WHERE
-                                        ST_DWithin(ST_GeomFromText(%(puntoA)s), ST_Line_Substring(ruta, 0, 0.5), %(rad1)s) and
-                                        ST_DWithin(ST_GeomFromText(%(puntoB)s), ST_Line_Substring(ruta, 0, 0.5), %(rad2)s) and
-                                        ST_Line_Locate_Point(ST_Line_Substring(ruta, 0, 0.5), %(puntoA)s) <
-                                        ST_Line_Locate_Point(ST_Line_Substring(ruta, 0, 0.5), %(puntoB)s) and
-                                        not paradas_completas
-                                
-                                    UNION
-                                
-                                    SELECT
-                                        id,
-                                        nombre,
-                                        slug,
-                                        inicio,
-                                        fin,
-                                        linea_id,
-                                        color_polilinea,
-                                        ST_Line_Substring(
-                                            ruta,
-                                            GREATEST(ST_Line_Locate_Point(ruta, ST_ClosestPoint(ST_Line_Substring(ruta, 0.5,1), %(puntoA)s)) - %(p)s, 0),
-                                            LEAST(ST_Line_Locate_Point(ruta,ST_ClosestPoint(ST_Line_Substring(ruta, 0.5,1), %(puntoB)s)) + %(p)s, 1)
-                                        ) as ruta_corta,
-                                        null::integer as p1,
-                                        null::integer as p2,
-                                        null::geometry as p1ll,
-                                        null::geometry as p2ll
-                                    FROM
-                                        core_recorrido
-                                    WHERE
-                                        ST_DWithin(ST_GeomFromText(%(puntoA)s), ST_Line_Substring(ruta, 0.5, 1), %(rad1)s) and
-                                        ST_DWithin(ST_GeomFromText(%(puntoB)s), ST_Line_Substring(ruta, 0.5, 1), %(rad2)s) and
-                                        ST_Line_Locate_Point(ST_Line_Substring(ruta, 0.5, 1), %(puntoA)s) <
-                                        ST_Line_Locate_Point(ST_Line_Substring(ruta, 0.5, 1), %(puntoB)s) and
-                                        not paradas_completas
-                                    
-                                    UNION
-                                
-                                    SELECT
-                                        id,
-                                        nombre,
-                                        slug,
-                                        inicio,
-                                        fin,
-                                        linea_id,
-                                        color_polilinea,
-                                        ST_Line_Substring(
-                                            ruta,
-                                            GREATEST(ST_Line_Locate_Point(ruta, %(puntoA)s) - %(p)s, 0),
-                                            LEAST(ST_Line_Locate_Point(ruta, %(puntoB)s) + %(p)s, 1)
-                                        ) as ruta_corta,
-                                        null::integer as p1,
-                                        null::integer as p2,
-                                        null::geometry as p1ll,
-                                        null::geometry as p2ll
-                                    FROM
-                                        core_recorrido
-                                    WHERE
-                                        ST_DWithin(ST_GeomFromText(%(puntoA)s), ruta, %(rad1)s) and
-                                        ST_DWithin(ST_GeomFromText(%(puntoB)s), ruta, %(rad2)s) and
-                                        ST_Line_Locate_Point(ruta, %(puntoA)s) <
-                                        ST_Line_Locate_Point(ruta, %(puntoB)s) and
-                                        not paradas_completas
-                                    
-                                    UNION
-                                
-                                    SELECT
-                                        cr.id,
-                                        cr.nombre,
-                                        cr.slug,
-                                        cr.inicio,
-                                        cr.fin,
-                                        cr.linea_id,
-                                        cr.color_polilinea,
-                                        ST_Line_Substring(
-                                            rec.ruta,
-                                            ST_Line_Locate_Point(rec.ruta, rec.p1ll),
-                                            ST_Line_Locate_Point(rec.ruta, rec.p2ll)
-                                        ) as ruta_corta,
-                                        rec.p1id as p1,
-                                        rec.p2id as p2,
-                                        rec.p1ll as p1ll,
-                                        rec.p2ll as p2ll
-                                    FROM
-                                        core_recorrido as cr
-                                        JOIN (
-                                            SELECT
-                                                r.id as rid,
-                                                p1.id as p1id,
-                                                p2.id as p2id,
-                                                r.ruta,
-                                                p1.latlng as p1ll,
-                                                p2.latlng as p2ll,
-                                                min(ST_Distance(p1.latlng,%(puntoA)s)) OVER (PARTITION BY r.id) as min_d1,
-                                                min(ST_Distance(p2.latlng,%(puntoB)s)) OVER (PARTITION BY r.id) as min_d2,
-                                                ST_Distance(p1.latlng,%(puntoA)s) as d1,
-                                                ST_Distance(p2.latlng,%(puntoB)s) as d2
-                                            FROM
-                                                core_recorrido    as r
-                                                JOIN core_horario as h1 on (h1.recorrido_id = r.id)
-                                                JOIN core_horario as h2 on (h2.recorrido_id = r.id)
-                                                JOIN core_parada  as p1 on (p1.id = h1.parada_id)
-                                                JOIN core_parada  as p2 on (p2.id = h2.parada_id and p1.id <> p2.id)
-                                            WHERE
-                                                ST_DWithin(ST_GeomFromText(%(puntoA)s), p1.latlng, %(rad1)s) and
-                                                ST_DWithin(ST_GeomFromText(%(puntoB)s), p2.latlng, %(rad2)s) and
-                                                ST_Line_Locate_Point(r.ruta, p1.latlng) <
-                                                ST_Line_Locate_Point(r.ruta, p2.latlng) and
-                                                r.paradas_completas
-                                        ) as rec on (rec.rid = cr.id)
-                                    WHERE
-                                        min_d1 = d1 and min_d2 = d2
-                                ) as busquedas
-                        ) as agrupar
-                        GROUP BY
-                            id,
-                            slug,
-                            inicio,
-                            fin,
-                            linea_id,
-                            nombre,
-                            color_polilinea,
-                            p1,
-                            p2
-                    ) as re
-                    on li.id = re.linea_id
-                    ORDER BY
-                        long_pata*10 + long_ruta asc
+SELECT
+  re.id,
+  li.nombre || ' ' || re.nombre as nombre,
+  linea_id,
+  re.slug as slug,
+  li.slug as lineaslug,
+  inicio,
+  fin,
+  ST_AsText(ruta) as ruta_corta,
+  round(long_ruta::numeric, 2) as long_ruta,
+  round(long_pata::numeric, 2) as long_pata,
+  coalesce(re.color_polilinea, li.color_polilinea, '#000') as color_polilinea,
+  coalesce(li.foto, 'default') as foto,
+  p1,
+  p2
+FROM
+  core_linea as li join
+  (
+    (
+    SELECT
+      id,
+      nombre,
+      slug,
+      inicio,
+      fin,
+      linea_id,
+      color_polilinea,
+
+      ruta,
+      0 as long_pata,
+      null::integer as p1,
+      null::integer as p2,
+
+      ST_Union(segA) as segsA,
+      ST_Union(segB) as segsB,
+      min(diff)*ST_Length(ruta::geography) as long_ruta
+    FROM
+      (
+        SELECT
+          id,
+          nombre,
+          slug,
+          inicio,
+          fin,
+          linea_id,
+          color_polilinea,
+          ruta,
+          ST_LineLocatePoint(ruta, ST_EndPoint(segB.geom)) - ST_LineLocatePoint(ruta, ST_StartPoint(segA.geom)) as diff,
+          segA.geom as segA,
+          segB.geom as segB
+        FROM
+          core_recorrido,
+          ST_Dump(ST_Intersection( %(bufferA)s, ruta )) as segA,
+          ST_Dump(ST_Intersection( %(bufferB)s, ruta )) as segB
+        WHERE
+          ST_Intersects( %(bufferA)s, ruta) and
+          ST_Intersects( %(bufferB)s, ruta) and
+          not paradas_completas
+      ) as sel
+    WHERE
+      sel.diff > 0
+    GROUP BY
+      id,
+      nombre,
+      slug,
+      inicio,
+      fin,
+      linea_id,
+      color_polilinea,
+      ruta
+    )
+    UNION
+    (
+    SELECT
+      id,
+      nombre,
+      slug,
+      inicio,
+      fin,
+      linea_id,
+      color_polilinea,
+      ruta,
+      0 as long_pata,
+      p1id as p1,
+      p2id as p2,
+      NULL as segsA,
+      NULL as segsB,
+      diff*ST_Length(ruta::geography) as long_ruta
+    FROM
+    (
+        SELECT
+          r.id,
+          r.nombre,
+          r.slug,
+          r.inicio,
+          r.fin,
+          r.linea_id,
+          r.color_polilinea,
+          r.ruta,
+          p1.id as p1id,
+          p2.id as p2id,
+          p1.latlng as p1ll,
+          p2.latlng as p2ll,
+          min(ST_Distance(p1.latlng,%(puntoA)s)) OVER (PARTITION BY r.id) as min_d1,
+          min(ST_Distance(p2.latlng,%(puntoB)s)) OVER (PARTITION BY r.id) as min_d2,
+          ST_Distance(p1.latlng,%(puntoA)s) as d1,
+          ST_Distance(p2.latlng,%(puntoB)s) as d2,
+          ST_Line_Locate_Point(r.ruta, p2.latlng) - ST_Line_Locate_Point(r.ruta, p1.latlng) as diff
+        FROM
+          core_recorrido    as r
+          JOIN core_horario as h1 on (h1.recorrido_id = r.id)
+          JOIN core_horario as h2 on (h2.recorrido_id = r.id)
+          JOIN core_parada  as p1 on (p1.id = h1.parada_id)
+          JOIN core_parada  as p2 on (p2.id = h2.parada_id and p1.id <> p2.id)
+        WHERE
+          ST_Intersects( %(bufferA)s, p1.latlng) and
+          ST_Intersects( %(bufferB)s, p2.latlng) and
+          ST_Line_Locate_Point(r.ruta, p1.latlng) <
+          ST_Line_Locate_Point(r.ruta, p2.latlng) and
+          r.paradas_completas
+      ) as rec
+    WHERE
+      min_d1 = d1 and min_d2 = d2
+    )
+  ) as re on li.id = re.linea_id
+  ORDER BY
+    long_pata*10 + long_ruta asc
             ;"""
         query_set = self.raw(query, params)
         return list(query_set)
