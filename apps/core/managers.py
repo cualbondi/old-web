@@ -426,9 +426,11 @@ class RecorridoManager(models.GeoManager):
         puntoB.set_srid(4326)
 
         with connection.cursor() as c:
-            c.execute("SELECT ST_Buffer(%(punto)s::geography, %(rad)s)::geometry;", {'punto': puntoA.ewkt, 'rad': distanciaA})
+            c.execute(
+                "SELECT ST_Buffer(%(puntoA)s::geography, %(radA)s)::geometry UNION SELECT ST_Buffer(%(puntoB)s::geography, %(radB)s)::geometry;",
+                {'puntoA': puntoA.ewkt, 'radA': distanciaA, 'puntoB': puntoB.ewkt, 'radB': distanciaB}
+            )
             bufferA = c.fetchone()[0]
-            c.execute("SELECT ST_Buffer(%(punto)s::geography, %(rad)s)::geometry;", {'punto': puntoB.ewkt, 'rad': distanciaB})
             bufferB = c.fetchone()[0]
 
         params = {'bufferA': bufferA, 'bufferB': bufferB, 'puntoA': puntoA.ewkt, 'puntoB': puntoB.ewkt}
@@ -462,7 +464,8 @@ FROM
       color_polilinea,
 
       ruta,
-      0 as long_pata,
+
+      min(ST_Distance(segA::geography, %(puntoA)s::geography) + ST_Distance(segB::geography, %(puntoB)s::geography)) as long_pata,
       null::integer as p1,
       null::integer as p2,
 
@@ -480,7 +483,7 @@ FROM
           linea_id,
           color_polilinea,
           ruta,
-          ST_LineLocatePoint(ruta, ST_EndPoint(segB.geom)) - ST_LineLocatePoint(ruta, ST_StartPoint(segA.geom)) as diff,
+          ST_LineLocatePoint(ruta, ST_ClosestPoint(segB.geom, %(puntoB)s)) - ST_LineLocatePoint(ruta, ST_ClosestPoint(segA.geom, %(puntoA)s)) as diff,
           segA.geom as segA,
           segB.geom as segB
         FROM
@@ -515,7 +518,7 @@ FROM
       linea_id,
       color_polilinea,
       ruta,
-      0 as long_pata,
+      long_pata,
       p1id as p1,
       p2id as p2,
       NULL as segsA,
@@ -532,6 +535,7 @@ FROM
           r.linea_id,
           r.color_polilinea,
           r.ruta,
+          ST_Distance(p1.latlng, %(puntoA)s) + ST_Distance(p2.latlng, %(puntoB)s) as long_pata,
           p1.id as p1id,
           p2.id as p2id,
           p1.latlng as p1ll,
