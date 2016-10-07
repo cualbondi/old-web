@@ -427,11 +427,11 @@ class RecorridoManager(models.GeoManager):
 
         with connection.cursor() as c:
             c.execute(
-                "SELECT ST_Buffer(%(puntoA)s::geography, %(radA)s)::geometry UNION SELECT ST_Buffer(%(puntoB)s::geography, %(radB)s)::geometry;",
+                "(SELECT 1, ST_Buffer(%(puntoA)s::geography, %(radA)s)::geometry UNION SELECT 2, ST_Buffer(%(puntoB)s::geography, %(radB)s)::geometry) order by 1;",
                 {'puntoA': puntoA.ewkt, 'radA': distanciaA, 'puntoB': puntoB.ewkt, 'radB': distanciaB}
             )
-            bufferA = c.fetchone()[0]
-            bufferB = c.fetchone()[0]
+            bufferA = c.fetchone()[1]
+            bufferB = c.fetchone()[1]
 
         params = {'bufferA': bufferA, 'bufferB': bufferB, 'puntoA': puntoA.ewkt, 'puntoB': puntoB.ewkt}
         query = """
@@ -465,12 +465,12 @@ FROM
 
       ruta,
 
-      min(ST_Distance(segA::geography, %(puntoA)s::geography) + ST_Distance(segB::geography, %(puntoB)s::geography)) as long_pata,
+      min(ST_Distance(segAgeom::geography, %(puntoA)s::geography) + ST_Distance(segBgeom::geography, %(puntoB)s::geography)) as long_pata,
       null::integer as p1,
       null::integer as p2,
 
-      ST_Union(segA) as segsA,
-      ST_Union(segB) as segsB,
+      ST_Union(segAgeom) as segsA,
+      ST_Union(segBgeom) as segsB,
       min(diff)*ST_Length(ruta::geography) as long_ruta
     FROM
       (
@@ -484,8 +484,8 @@ FROM
           color_polilinea,
           ruta,
           ST_LineLocatePoint(ruta, ST_ClosestPoint(segB.geom, %(puntoB)s)) - ST_LineLocatePoint(ruta, ST_ClosestPoint(segA.geom, %(puntoA)s)) as diff,
-          segA.geom as segA,
-          segB.geom as segB
+          segA.geom as segAgeom,
+          segB.geom as segBgeom
         FROM
           core_recorrido,
           ST_Dump(ST_Intersection( %(bufferA)s, ruta )) as segA,
