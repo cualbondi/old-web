@@ -138,7 +138,6 @@ class Command(BaseCommand):
             '-S{}'.format(os.path.join(os.path.abspath(os.path.dirname(__file__)),'update-osm.style')),
             '-d{}'.format(dbname),
             '-U{}'.format(dbuser),
-            '-b{}'.format(box),
             '-c',
             '/tmp/part-all.pbf'
         ]
