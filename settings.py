@@ -174,6 +174,7 @@ INSTALLED_APPS = (
     'floppyforms',
     'imagekit',
     'leaflet',
+    'piston',
 #    'moderacion',
 #    'editor',
 #    'django_extensions',
@@ -324,7 +325,6 @@ else:
     DEBUG_TOOLBAR_PATCH_SETTINGS = False 
     INSTALLED_APPS += ('debug_toolbar', 'django_extensions')
     
-    """
     import logging
     l = logging.getLogger('django.db.backends')
     l.setLevel(logging.DEBUG)
@@ -343,7 +343,6 @@ else:
             }
         }
     })
-    """
 
     CACHES = {
         'default': {
