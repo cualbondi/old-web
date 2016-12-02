@@ -2,9 +2,10 @@
 
 [![wercker status](https://app.wercker.com/status/d93ca25465dc45adb58b99c01e0662ff/s/master "wercker status")](https://app.wercker.com/project/byKey/d93ca25465dc45adb58b99c01e0662ff)
 
+[![Code Climate](https://codeclimate.com/github/cualbondi/cualbondi.com.ar/badges/gpa.svg)](https://codeclimate.com/github/cualbondi/cualbondi.com.ar)
+
 [![branch coverage](http://cbcov.bitballoon.com/coverage-branch.svg)](http://cbcov.bitballoon.com/)
 [![line coverage](http://cbcov.bitballoon.com/coverage-lines.svg)](http://cbcov.bitballoon.com/)
-
 
 ## Requirements
 
