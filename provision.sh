@@ -63,6 +63,7 @@ $PIP install -U -r $REPO/requirements.txt
 
 $MANAGE migrate --noinput
 $MANAGE collectstatic --noinput
+echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', 'admin')" | $MANAGE shell ; true
 
 cat > /etc/nginx/sites-enabled/default <<HEREDOC
 server {
