@@ -14,18 +14,18 @@ DB_NAME="geocualbondidb"
 set -ex
 
 
-# use postgresl 9.5 official repo Packages
+# use postgresl 9.6 official repo Packages
 echo "deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main" > /etc/apt/sources.list.d/pgdg.list
 wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
 
 # Install base packages
 apt update
-apt -y install nginx postgresql-9.5-postgis-2.1 postgresql-client uwsgi uwsgi-plugin-python python-pip python-dev libffi-dev libssl-dev libpq-dev cmake libqt4-dev memcached osm2pgsql osmctools rsync libgeos-dev gdal-bin libjpeg-dev zlib1g-dev git pngcrush
+apt -y install nginx postgresql-9.6-postgis-2.3 postgresql-client uwsgi uwsgi-plugin-python python-pip python-dev libffi-dev libssl-dev libpq-dev cmake libqt4-dev memcached osm2pgsql osmctools rsync libgeos-dev gdal-bin libjpeg-dev zlib1g-dev git pngcrush
 pip install -U pip virtualenv
 
 # Configure pgsql
-echo "local all postgres trust" > /etc/postgresql/9.5/main/pg_hba.conf
-echo "host all postgres 127.0.0.1/32 trust" >> /etc/postgresql/9.5/main/pg_hba.conf
+echo "local all postgres trust" > /etc/postgresql/9.6/main/pg_hba.conf
+echo "host all postgres 127.0.0.1/32 trust" >> /etc/postgresql/9.6/main/pg_hba.conf
 service postgresql restart
 
 set +e
