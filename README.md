@@ -11,26 +11,23 @@
 ## Requirements
 
 * Ubuntu 16.04 at least to run in vagrant-lxc
-* In macos should work with vagrant+virtualbox
+* In macos it should work with vagrant+virtualbox
 
 ## Dev install
 
-#### vagrant virtualbox (ubuntu16.04+ / windows / macos)
+#### 1. Prereqs
 
     sudo apt-get install vagrant
-    git clone git@bitbucket.org:martinzugnoni/geocualbondi.git
-    # git clone https://<username>@bitbucket.org/martinzugnoni/geocualbondi.git # HTTPS alternative
-    vagrant up
 
-#### vagrant lxc (ubuntu16.04) (much faster!)
+    # use your fork and then request a pull if you plan to contribute
+    git clone git@github.com:cualbondi/cualbondi.com.ar.git
+
+#### 2a. vagrant lxc (ubuntu) (fastest!)
 
     sudo apt-get install vagrant dpkg-dev zlib1g-dev
 
     # maybe read this, not always needed https://github.com/rubygems/rubygems/commit/044b0e2685e4b219b013f1067d670918a48c1f62#commitcomment-14935888
     sudo vagrant plugin install vagrant-lxc
-
-    git clone git@bitbucket.org:martinzugnoni/geocualbondi.git
-    # git clone https://<username>@bitbucket.org/martinzugnoni/geocualbondi.git # HTTPS alternative
 
     vagrant lxc sudoers # put sudo pass and then
     vagrant up --provider=lxc
@@ -44,9 +41,16 @@ If the last command does not work (trying lxc, some error with sudo something) g
     # and now try again
     vagrant up --provider=lxc
 
+
+#### 2b (alternative). vagrant virtualbox (slower, for windows / macos)
+
+    vagrant up
+
 #### ready!
 
-Now you can go to 192.168.2.100:80 in the browser and enjoy cualbondi.
+Now you can go to http://192.168.2.100:80/ in the browser and enjoy cualbondi.
+
+To access django's admin interface go to http://192.168.2.100/admin/ and login with user `admin` pass `admin`
 
 ### Internal working
 
@@ -64,9 +68,9 @@ All this works inside vagrant machine
 
 Change files in repo outside vagrant machine.
 
-Then do `vagrant ssh -c 'sudo service uwsgi restart'`.
+Then do `vagrant ssh -c 'sudo service uwsgi restart'` to autoreload all `*.py` files
 
-To make uwsgi to autoreload django app on `*.py` files modifications, enter the vagrant machine and uncomment line hich says `py-autoreload=2`
+To make uwsgi to autoreload django app on `*.py` files modifications, enter the vagrant machine and uncomment line which says `py-autoreload=2` in file `/etc/uwsgi/apps-enabled/django.ini`
 
 Do F5 in localhost:8000
 
@@ -74,8 +78,11 @@ To use `manage.py`, enter vagrant machine doing `vagrant ssh` and execute `manag
 
 ## Database cloning
 
+> This is not open to public, we are working on an alternative to have data to play.
+> We want to release all data, but we need to make sure we don't release sensible things like real users emails.
+
 You can download a copy of production database running `vagrant ssh -c 'source /app/repo/pulldb.sh <user>'` (`<user>` being a linux user from cualbondi main server)
 
 ## Production install
 
-The same as dev install can be done, but changing the settings.py
+The same as dev install can be done, but changing the settings.py or adding a settings_local.py which overrides settings
