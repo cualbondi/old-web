@@ -83,3 +83,12 @@ You can download a copy of production database running `vagrant ssh -c 'source /
 ## Production install
 
 The same as dev install can be done, but changing the settings.py or adding a settings_local.py which overrides settings
+
+## License
+
+Cualbondi software is distributed under GNU AGPLv3. See LICENSE file on directory root.
+
+## Developers
+
+ - Julian Perelli
+ - Martin Zugnoni
