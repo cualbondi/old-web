@@ -20,9 +20,17 @@ build:
         code: |
           ln -s /usr/include/freetype2 /usr/local/include/freetype
 
-    - pip-install
+    - pip-install:
+        packages_list: "coveralls"
 
     - script:
         name: django test
         code: |
-          python manage.py test apps.api2 --with-coverage --cover-package=apps --cover-html --cover-branches --cover-xml
+          python manage.py test apps.api2 --with-coverage --cover-package=apps --cover-branches --cover-xml
+
+  after-steps:
+
+    - script:
+        name: upload to coveralls.io
+        code: |
+          coveralls
