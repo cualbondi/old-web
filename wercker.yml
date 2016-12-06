@@ -28,8 +28,6 @@ build:
         code: |
           python manage.py test apps.api2 --with-coverage --cover-package=apps --cover-branches --cover-xml
 
-  after-steps:
-
     - script:
         name: upload to coveralls.io
         code: |
